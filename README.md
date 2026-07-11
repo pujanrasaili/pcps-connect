@@ -2,13 +2,13 @@
 
 A modern, responsive web application built for **Patan College of Professional Studies (PCPS)** that lets students explore clubs, discover events, register in a few clicks, and track their participation from a personal dashboard.
 
-Built as a university final-year assignment to demonstrate professional React architecture, component reusability, and modern UI/UX practices.
+Built as a UI/UX React Application Development assignment to demonstrate professional React architecture, component reusability, and modern UI/UX practices.
 
 ![Tech](https://img.shields.io/badge/React-18-4F46E5) ![Tech](https://img.shields.io/badge/Tailwind-3-7C3AED) ![Tech](https://img.shields.io/badge/Vite-8-646CFF)
 
 ---
 
-## ✨ Features
+## Features
 
 - **12 fully built pages** — Home, Clubs, Events, Event Details, Dashboard, Profile, Contact, Settings, Login, Register, Forgot Password, 404
 - **Authentication UI** with client-side validation (login, register, forgot password) — session persisted to `localStorage`
@@ -22,7 +22,7 @@ Built as a university final-year assignment to demonstrate professional React ar
 - **Notification preferences** and account settings (UI layer, persisted locally)
 - Built with official **PCPS branding** — crest and wordmark logos, "Learn to Lead" identity
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - React 18 (functional components + hooks)
 - React Router v6
@@ -31,7 +31,7 @@ Built as a university final-year assignment to demonstrate professional React ar
 - React Icons
 - Vite (build tool)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
@@ -51,7 +51,7 @@ src/
  └── main.jsx
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+ and npm
@@ -76,7 +76,7 @@ npm run build
 npm run preview   # preview the production build locally
 ```
 
-## 🔐 Demo Login
+## Demo Login
 
 This is a UI-only authentication system (no backend). You can:
 - **Register** a new account with any name/email — it logs you in immediately.
@@ -84,7 +84,7 @@ This is a UI-only authentication system (no backend). You can:
 
 All session and registration data is stored in your browser's `localStorage`, so it persists across refreshes but is local to your device.
 
-## 🎨 Design System
+## Design System
 
 | Token | Value |
 |---|---|
@@ -96,7 +96,7 @@ All session and registration data is stored in your browser's `localStorage`, so
 | Radius | `xl` / `2xl` rounded corners |
 | Shadows | Soft, layered card shadows |
 
-## 📊 React Concepts Demonstrated
+## React Concepts Demonstrated
 
 - Functional components & props
 - `useState`, `useEffect`, custom hooks (`useDebounce`, `useLocalStorage`)
@@ -106,7 +106,7 @@ All session and registration data is stored in your browser's `localStorage`, so
 - Controlled form handling & client-side validation
 - Component composition & reusability
 
-## 📌 Notes
+## Notes
 
 - Club/event photography is sourced from Unsplash for demo purposes; replace with real PCPS photography before any real deployment.
 - Authentication, contact form submission, and account settings are UI-only — wire them up to a real backend/API before production use.

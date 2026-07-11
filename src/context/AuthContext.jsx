@@ -6,11 +6,11 @@ const DEFAULT_STUDENT = {
   id: "stu-2026-041",
   name: "Prashant Dhakal",
   email: "prashant.dhakal@pcps.edu.np",
-  studentId: "PCPS-BIT-2026-041",
-  program: "BSc (Hons) Computing",
+  studentId: "PCPS-BSC_SE-2026-041",
+  program: "BSc (Hons) Software Engineering",
   semester: "4th Semester",
   avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Prashant%20Dhakal&backgroundColor=4F46E5",
-  phone: "+977 98XXXXXXXX",
+  phone: "+977 9841326574",
   joinedClubs: ["coding-club", "photography-club"],
 };
 
