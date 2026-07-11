@@ -1,0 +1,181 @@
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
+import {
+  FaCalendarCheck,
+  FaCheckDouble,
+  FaHeart,
+  FaClock,
+  FaArrowRight,
+} from "react-icons/fa";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
+import StatsCard from "../components/StatsCard";
+import { useAuth } from "../context/AuthContext";
+import { useRegistrations } from "../context/RegistrationContext";
+import { getEventById } from "../data/events";
+import { clubs } from "../data/clubs";
+import { formatDate } from "../utils/formatDate";
+
+const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
+
+export default function Dashboard() {
+  const { user } = useAuth();
+  const { registrations } = useRegistrations();
+
+  const registeredEvents = useMemo(
+    () =>
+      registrations
+        .map((r) => ({ ...r, event: getEventById(r.eventId) }))
+        .filter((r) => r.event),
+    [registrations]
+  );
+
+  const attendedCount = registeredEvents.filter((r) => r.attended).length;
+  const upcoming = registeredEvents
+    .filter((r) => new Date(r.event.date) >= new Date(new Date().toDateString()))
+    .sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
+
+  const favoriteClub = clubs.find((c) => user?.joinedClubs?.includes(c.id));
+
+  const monthlyData = useMemo(() => {
+    const buckets = {};
+    registeredEvents.forEach((r) => {
+      const month = new Date(r.event.date).toLocaleDateString("en-US", { month: "short" });
+      buckets[month] = (buckets[month] || 0) + 1;
+    });
+    return Object.entries(buckets).map(([month, count]) => ({ month, count }));
+  }, [registeredEvents]);
+
+  const categoryData = useMemo(() => {
+    const buckets = {};
+    registeredEvents.forEach((r) => {
+      buckets[r.event.category] = (buckets[r.event.category] || 0) + 1;
+    });
+    return Object.entries(buckets).map(([name, value]) => ({ name, value }));
+  }, [registeredEvents]);
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
+          Welcome back, {user?.name?.split(" ")[0]}
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400">
+          Here's a snapshot of your involvement at PCPS.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatsCard icon={FaCalendarCheck} label="Registered Events" value={registeredEvents.length} accent="primary" />
+        <StatsCard icon={FaCheckDouble} label="Attended Events" value={attendedCount} accent="emerald" />
+        <StatsCard icon={FaHeart} label="Favorite Club" value={favoriteClub?.name.replace("PCPS ", "") || "—"} accent="accent" />
+        <StatsCard icon={FaClock} label="Upcoming Registrations" value={upcoming.length} accent="amber" />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="card-surface p-6">
+          <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
+            Participation by Month
+          </h2>
+          <div className="mt-4 h-64">
+            {monthlyData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
+                  <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
+                  <YAxis allowDecimals={false} stroke="#94a3b8" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
+                  />
+                  <Bar dataKey="count" fill="#4F46E5" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart />
+            )}
+          </div>
+        </div>
+
+        <div className="card-surface p-6">
+          <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
+            Events by Category
+          </h2>
+          <div className="mt-4 h-64">
+            {categoryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={categoryData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={3}>
+                    {categoryData.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Legend verticalAlign="bottom" height={30} iconSize={10} wrapperStyle={{ fontSize: 12 }} />
+                  <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <EmptyChart />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="card-surface p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
+            Upcoming Registrations
+          </h2>
+          <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-400">
+            Find more events <FaArrowRight className="text-xs" />
+          </Link>
+        </div>
+
+        {upcoming.length > 0 ? (
+          <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
+            {upcoming.map((r) => (
+              <Link
+                key={r.eventId}
+                to={`/events/${r.eventId}`}
+                className="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-2 px-2 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <img src={r.event.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                  <div>
+                    <p className="font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
+                  </div>
+                </div>
+                <span className="badge bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
+                  {r.event.category}
+                </span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+            No upcoming registrations yet. Browse events to find something you like.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyChart() {
+  return (
+    <div className="flex h-full items-center justify-center text-sm text-slate-400">
+      No data yet — register for an event to see your stats.
+    </div>
+  );
+}
