@@ -5,7 +5,7 @@ import shield from "../assets/images/pcps-shield.png";
 export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
-      <img src={shield} alt="" className="h-24 w-auto opacity-80 animate-float" />
+      <img src={shield} alt="" className="h-24 w-auto opacity-80 animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
       <h1 className="mt-6 font-display text-6xl font-extrabold text-gradient-brand">404</h1>
       <h2 className="mt-2 font-display text-2xl font-semibold text-slate-800 dark:text-slate-100">
         Page not found

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import EventCard from "../components/EventCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
+import Reveal from "../components/Reveal";
 import { events, eventCategories } from "../data/events";
 import { useDebounce } from "../hooks/useDebounce";
 
@@ -47,8 +48,10 @@ export default function Events() {
 
         {filteredEvents.length > 0 ? (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
+            {filteredEvents.map((event, i) => (
+              <Reveal key={event.id} delay={(i % 6) * 80}>
+                <EventCard event={event} />
+              </Reveal>
             ))}
           </div>
         ) : (

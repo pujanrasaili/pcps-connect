@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { events } from "../data/events";
+import { useAuth } from "./AuthContext";
 
 const RegistrationContext = createContext(null);
 
@@ -24,6 +25,7 @@ const seedRegistrations = () => [
 ];
 
 export function RegistrationProvider({ children }) {
+  const { isAuthenticated } = useAuth();
   const [registrations, setRegistrations] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) return JSON.parse(saved);
@@ -34,10 +36,15 @@ export function RegistrationProvider({ children }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(registrations));
   }, [registrations]);
 
+  // The underlying data always persists (so it's there again once the
+  // student logs back in), but nothing is reported as "registered" to a
+  // logged-out visitor -- otherwise anyone browsing the public site would
+  // see a previous session's registrations.
   const isRegistered = (eventId) =>
-    registrations.some((r) => r.eventId === eventId);
+    isAuthenticated && registrations.some((r) => r.eventId === eventId);
 
   const registerForEvent = (eventId, details) => {
+    if (!isAuthenticated) return { ok: false, message: "Please log in to register." };
     if (isRegistered(eventId)) return { ok: false, message: "Already registered." };
     const event = events.find((e) => e.id === eventId);
     if (event && event.registered >= event.capacity) {
@@ -61,7 +68,12 @@ export function RegistrationProvider({ children }) {
 
   return (
     <RegistrationContext.Provider
-      value={{ registrations, isRegistered, registerForEvent, cancelRegistration }}
+      value={{
+        registrations: isAuthenticated ? registrations : [],
+        isRegistered,
+        registerForEvent,
+        cancelRegistration,
+      }}
     >
       {children}
     </RegistrationContext.Provider>

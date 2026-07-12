@@ -2,6 +2,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { RegistrationProvider } from "./context/RegistrationContext";
+import { ClubMembershipProvider } from "./context/ClubMembershipContext";
 import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
@@ -9,9 +10,11 @@ export default function App() {
     <ThemeProvider>
       <AuthProvider>
         <RegistrationProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <ClubMembershipProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </ClubMembershipProvider>
         </RegistrationProvider>
       </AuthProvider>
     </ThemeProvider>

@@ -1,18 +1,41 @@
 import { Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { FaArrowRight, FaCalendarCheck } from "react-icons/fa";
 import campusBuilding from "../assets/images/campus-building.jpg";
 
 export default function HeroSection() {
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const offset = Math.min(window.scrollY * 0.25, 120);
+        if (imgRef.current) {
+          imgRef.current.style.transform = `translateY(${offset}px) scale(1.1)`;
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <section className="relative overflow-hidden">
       {/* Brand ribbon */}
       <div className="h-1.5 w-full bg-gradient-to-r from-pcps-red via-primary-500 to-pcps-blue" />
 
-      <div className="relative h-[560px] sm:h-[600px]">
+      <div className="relative h-[560px] sm:h-[600px] overflow-hidden">
         <img
+          ref={imgRef}
           src={campusBuilding}
           alt="PCPS College campus building"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover will-change-transform"
+          style={{ transform: "scale(1.1)" }}
         />
         {/* Scrim for text legibility — darker on the left where the copy sits */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/30" />

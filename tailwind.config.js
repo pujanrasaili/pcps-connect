@@ -46,6 +46,7 @@ export default {
         "fade-in": "fadeIn 0.6s ease-out both",
         "slide-up": "slideUp 0.6s ease-out both",
         float: "float 6s ease-in-out infinite",
+        "tilt-idle": "tiltIdle 7s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -59,6 +60,10 @@ export default {
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-12px)" },
+        },
+        tiltIdle: {
+          "0%, 100%": { transform: "perspective(600px) rotateY(-10deg) rotateX(2deg)" },
+          "50%": { transform: "perspective(600px) rotateY(10deg) rotateX(-2deg)" },
         },
       },
     },

@@ -1,17 +1,22 @@
 import { useMemo, useState } from "react";
-import { FaUsers, FaEnvelope, FaCalendarAlt } from "react-icons/fa";
+import { FaUsers, FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
 import Modal from "../components/Modal";
+import Reveal from "../components/Reveal";
 import { clubs, clubCategories } from "../data/clubs";
 import { useDebounce } from "../hooks/useDebounce";
+import { useClubMembership } from "../context/ClubMembershipContext";
+import { useRequireAuth } from "../hooks/useRequireAuth";
 
 export default function Clubs() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [selectedClub, setSelectedClub] = useState(null);
   const debouncedQuery = useDebounce(query, 250);
+  const { isJoined, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
+  const requireAuth = useRequireAuth();
 
   const filteredClubs = useMemo(() => {
     return clubs.filter((club) => {
@@ -48,8 +53,10 @@ export default function Clubs() {
 
         {filteredClubs.length > 0 ? (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredClubs.map((club) => (
-              <ClubCard key={club.id} club={club} onView={setSelectedClub} />
+            {filteredClubs.map((club, i) => (
+              <Reveal key={club.id} delay={(i % 6) * 80}>
+                <ClubCard club={club} onView={setSelectedClub} />
+              </Reveal>
             ))}
           </div>
         ) : (
@@ -89,11 +96,41 @@ export default function Clubs() {
                 </li>
               ))}
             </ul>
-            <div className="mt-5 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4 text-sm">
-              <p className="font-medium text-slate-700 dark:text-slate-200">
-                {selectedClub.lead.name}
-              </p>
-              <p className="text-slate-500 dark:text-slate-400">{selectedClub.lead.role}</p>
+            <div className="mt-5 flex items-center justify-between gap-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4">
+              <div className="text-sm">
+                <p className="font-medium text-slate-700 dark:text-slate-200">
+                  {selectedClub.lead.name}
+                </p>
+                <p className="text-slate-500 dark:text-slate-400">{selectedClub.lead.role}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => requireAuth(() => toggleFavorite(selectedClub.id))}
+                  aria-pressed={isFavorite(selectedClub.id)}
+                  aria-label="Toggle favorite club"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-rose-500 shadow-sm transition-transform hover:scale-110"
+                >
+                  {isFavorite(selectedClub.id) ? <FaHeart /> : <FaRegHeart />}
+                </button>
+                <button
+                  onClick={() => requireAuth(() => toggleJoin(selectedClub.id))}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                    isJoined(selectedClub.id)
+                      ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      : "bg-primary-500 text-white hover:bg-primary-600"
+                  }`}
+                >
+                  {isJoined(selectedClub.id) ? (
+                    <>
+                      <FaCheck className="text-xs" /> Joined
+                    </>
+                  ) : (
+                    <>
+                      <FaPlus className="text-xs" /> Join Club
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

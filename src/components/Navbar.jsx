@@ -14,7 +14,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/images/pcps-logo.png";
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { to: "/", label: "Home" },
   { to: "/clubs", label: "Clubs" },
   { to: "/events", label: "Events" },
@@ -28,6 +28,10 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const navLinks = isAuthenticated
+    ? [...BASE_NAV_LINKS, { to: "/dashboard", label: "Dashboard" }]
+    : BASE_NAV_LINKS;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -48,10 +52,10 @@ export default function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-all duration-300 ${
+      className={`sticky top-0 z-40 border-b transition-all duration-300 ${
         scrolled
-          ? "bg-white/90 dark:bg-slate-950/90 shadow-card backdrop-blur"
-          : "bg-white/60 dark:bg-slate-950/60 backdrop-blur"
+          ? "border-slate-100 dark:border-white/10 bg-white/90 dark:bg-slate-950/90 shadow-card backdrop-blur"
+          : "border-transparent dark:border-white/5 bg-white/60 dark:bg-slate-950/60 backdrop-blur"
       }`}
     >
       <nav className="container-page flex h-16 items-center justify-between">
@@ -60,7 +64,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <NavLink key={link.to} to={link.to} className={linkClass} end={link.to === "/"}>
               {link.label}
             </NavLink>
@@ -157,7 +161,7 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 animate-slide-up">
           <div className="container-page flex flex-col gap-1 py-4">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -177,9 +181,6 @@ export default function Navbar() {
             <hr className="my-2 border-slate-100 dark:border-slate-800" />
             {isAuthenticated ? (
               <>
-                <NavLink to="/dashboard" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Dashboard
-                </NavLink>
                 <NavLink to="/profile" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300">
                   Profile
                 </NavLink>

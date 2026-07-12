@@ -41,7 +41,7 @@ export default function Register() {
     <div className="section-y flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto" />
+          <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
           <h1 className="mt-4 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
             Create your account
           </h1>

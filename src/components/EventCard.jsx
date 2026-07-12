@@ -1,14 +1,22 @@
 import { Link } from "react-router-dom";
 import { FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 import { formatDay, formatMonth } from "../utils/formatDate";
+import { useTilt } from "../hooks/useTilt";
 
 export default function EventCard({ event }) {
   const spotsLeft = event.capacity - event.registered;
   const isFillingUp = spotsLeft <= 15 && spotsLeft > 0;
   const isFull = spotsLeft <= 0;
+  const tilt = useTilt({ max: 6, scale: 1.015 });
 
   return (
-    <div className="group card-surface overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-soft">
+    <div
+      ref={tilt.ref}
+      onMouseMove={tilt.onMouseMove}
+      onMouseLeave={tilt.onMouseLeave}
+      style={tilt.style}
+      className="group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft"
+    >
       <div className="relative h-44 overflow-hidden">
         <img
           src={event.image}

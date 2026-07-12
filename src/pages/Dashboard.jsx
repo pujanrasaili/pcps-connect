@@ -6,6 +6,7 @@ import {
   FaHeart,
   FaClock,
   FaArrowRight,
+  FaTimes,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -22,6 +23,7 @@ import {
 } from "recharts";
 import StatsCard from "../components/StatsCard";
 import { useAuth } from "../context/AuthContext";
+import { useClubMembership } from "../context/ClubMembershipContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { getEventById } from "../data/events";
 import { clubs } from "../data/clubs";
@@ -31,7 +33,8 @@ const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { registrations } = useRegistrations();
+  const { favoriteClubId } = useClubMembership();
+  const { registrations, cancelRegistration } = useRegistrations();
 
   const registeredEvents = useMemo(
     () =>
@@ -46,7 +49,7 @@ export default function Dashboard() {
     .filter((r) => new Date(r.event.date) >= new Date(new Date().toDateString()))
     .sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
 
-  const favoriteClub = clubs.find((c) => user?.joinedClubs?.includes(c.id));
+  const favoriteClub = clubs.find((c) => c.id === favoriteClubId);
 
   const monthlyData = useMemo(() => {
     const buckets = {};
@@ -144,22 +147,32 @@ export default function Dashboard() {
         {upcoming.length > 0 ? (
           <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
             {upcoming.map((r) => (
-              <Link
+              <div
                 key={r.eventId}
-                to={`/events/${r.eventId}`}
-                className="flex items-center justify-between gap-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 -mx-2 px-2 rounded-lg"
+                className="flex items-center justify-between gap-3 py-3"
               >
-                <div className="flex items-center gap-3">
-                  <img src={r.event.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
-                  <div>
-                    <p className="font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
+                <Link
+                  to={`/events/${r.eventId}`}
+                  className="flex min-w-0 flex-1 items-center gap-3 rounded-lg -mx-2 px-2 py-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  <img src={r.event.image} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
                   </div>
-                </div>
-                <span className="badge bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
+                </Link>
+                <span className="badge shrink-0 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
                   {r.event.category}
                 </span>
-              </Link>
+                <button
+                  onClick={() => cancelRegistration(r.eventId)}
+                  aria-label={`Unregister from ${r.event.title}`}
+                  title="Unregister"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                >
+                  <FaTimes className="text-sm" />
+                </button>
+              </div>
             ))}
           </div>
         ) : (

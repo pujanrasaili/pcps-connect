@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit } from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useRegistrations } from "../context/RegistrationContext";
+import { useClubMembership } from "../context/ClubMembershipContext";
 import { clubs } from "../data/clubs";
 import { getEventById } from "../data/events";
 import { formatDate } from "../utils/formatDate";
@@ -10,11 +11,12 @@ import Button from "../components/Button";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
-  const { registrations } = useRegistrations();
+  const { registrations, cancelRegistration } = useRegistrations();
+  const { joinedClubIds, favoriteClubId, leaveClub } = useClubMembership();
   const [editOpen, setEditOpen] = useState(false);
   const [form, setForm] = useState({ name: user?.name || "", phone: user?.phone || "" });
 
-  const joinedClubs = clubs.filter((c) => user?.joinedClubs?.includes(c.id));
+  const joinedClubs = clubs.filter((c) => joinedClubIds.includes(c.id));
   const eventHistory = useMemo(
     () =>
       registrations
@@ -65,15 +67,30 @@ export default function Profile() {
             {joinedClubs.map((club) => (
               <div key={club.id} className="flex items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-3">
                 <img src={club.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
-                <div>
-                  <p className="font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 truncate font-medium text-slate-800 dark:text-slate-100">
+                    {club.name}
+                    {favoriteClubId === club.id && (
+                      <FaHeart className="shrink-0 text-xs text-rose-500" title="Favorite club" />
+                    )}
+                  </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">{club.category}</p>
                 </div>
+                <button
+                  onClick={() => leaveClub(club.id)}
+                  aria-label={`Leave ${club.name}`}
+                  title="Leave club"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                >
+                  <FaTimes className="text-sm" />
+                </button>
               </div>
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">You haven't joined any clubs yet.</p>
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            You haven't joined any clubs yet — browse clubs and hit "Join Club" to add one here.
+          </p>
         )}
       </div>
 
@@ -84,20 +101,32 @@ export default function Profile() {
         {eventHistory.length > 0 ? (
           <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
             {eventHistory.map((r) => (
-              <div key={r.eventId} className="flex items-center justify-between gap-4 py-3">
-                <div>
-                  <p className="font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
+              <div key={r.eventId} className="flex items-center justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
                 </div>
-                <span
-                  className={`badge ${
-                    r.attended
-                      ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-                  }`}
-                >
-                  {r.attended ? "Attended" : "Upcoming"}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span
+                    className={`badge ${
+                      r.attended
+                        ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                        : "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                    }`}
+                  >
+                    {r.attended ? "Attended" : "Upcoming"}
+                  </span>
+                  {!r.attended && (
+                    <button
+                      onClick={() => cancelRegistration(r.eventId)}
+                      aria-label={`Unregister from ${r.event.title}`}
+                      title="Unregister"
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                    >
+                      <FaTimes className="text-sm" />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
