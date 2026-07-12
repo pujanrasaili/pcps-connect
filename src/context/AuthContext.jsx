@@ -4,13 +4,13 @@ const AuthContext = createContext(null);
 
 const DEFAULT_STUDENT = {
   id: "stu-2026-041",
-  name: "Prashant Dhakal",
-  email: "prashant.dhakal@pcps.edu.np",
-  studentId: "PCPS-BIT-2026-041",
+  name: "Pujan Rasaili",
+  email: "pujan.rasaili@pcps.edu.np",
+  studentId: "PCPS-BSc_SE-2026-041",
   program: "BSc (Hons) Computing",
   semester: "4th Semester",
-  avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Prashant%20Dhakal&backgroundColor=4F46E5",
-  phone: "+977 98XXXXXXXX",
+  avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Pujan%20Rasaili&backgroundColor=4F46E5",
+  phone: "+977 9803201204",
 };
 
 export function AuthProvider({ children }) {
