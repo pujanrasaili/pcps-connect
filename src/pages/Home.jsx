@@ -38,21 +38,21 @@ export default function Home() {
             </h2>
           </Reveal>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <Reveal direction="left">
+          <div className="mt-8 grid gap-6 lg:grid-cols-2 items-stretch">
+            <Reveal direction="left" className="h-full">
               <div
                 ref={photoTilt.ref}
                 onMouseMove={photoTilt.onMouseMove}
                 onMouseLeave={photoTilt.onMouseLeave}
                 style={photoTilt.style}
-                className="card-surface overflow-hidden"
+                className="card-surface flex h-full flex-col overflow-hidden"
               >
                 <img
                   src={campusEvent}
                   alt="Students at a PCPS college event on campus"
-                  className="h-72 w-full object-cover"
+                  className="h-72 w-full shrink-0 object-cover"
                 />
-                <div className="p-5">
+                <div className="flex flex-1 flex-col justify-center p-5">
                   <p className="font-medium text-slate-800 dark:text-slate-100">
                     Fests, workshops, and open-air showcases
                   </p>
@@ -64,17 +64,17 @@ export default function Home() {
               </div>
             </Reveal>
 
-            <Reveal direction="right" delay={100}>
+            <Reveal direction="right" delay={100} className="h-full">
               <div
                 ref={videoTilt.ref}
                 onMouseMove={videoTilt.onMouseMove}
                 onMouseLeave={videoTilt.onMouseLeave}
                 style={videoTilt.style}
-                className="card-surface relative overflow-hidden"
+                className="card-surface relative flex h-full flex-col overflow-hidden"
               >
                 <button
                   onClick={() => setLightboxOpen(true)}
-                  className="group relative block h-72 w-full bg-slate-900"
+                  className="group relative block h-72 w-full shrink-0 bg-slate-900"
                   aria-label="Watch the full PCPS campus reel"
                 >
                   <video
@@ -96,7 +96,7 @@ export default function Home() {
                     <FaPlay className="text-[10px]" /> Playing
                   </span>
                 </button>
-                <div className="p-5">
+                <div className="flex flex-1 flex-col justify-center p-5">
                   <p className="font-medium text-slate-800 dark:text-slate-100">
                     Watch: A day at PCPS
                   </p>
