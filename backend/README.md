@@ -102,7 +102,7 @@ All endpoints are prefixed with `/api`.
 | GET/PUT/DELETE | `/admin/users...` | login + admin | |
 | GET/PUT/DELETE | `/admin/events...` | login + admin | |
 
-### Additions beyond the original teacher-provided spec
+### Additions spec
 
 1. **`POST /api/auth/logout`** and **`GET /api/auth/me`** — needed for a real login/logout flow with an httpOnly cookie, since JavaScript can't read that cookie directly.
 2. **`PUT /api/auth/profile`** — lets a student fill in studentId/program/phone/etc. after registering, rather than requiring all of it upfront.
