@@ -1,116 +1,105 @@
-# PCPS Connect — Club & Event Management System
+\# PCPS Connect — Club \& Event Management System
 
-A modern, responsive web application built for **Patan College of Professional Studies (PCPS)** that lets students explore clubs, discover events, register in a few clicks, and track their participation from a personal dashboard.
 
-Built as a UI/UX React Application Development assignment to demonstrate professional React architecture, component reusability, and modern UI/UX practices.
 
-![Tech](https://img.shields.io/badge/React-18-4F46E5) ![Tech](https://img.shields.io/badge/Tailwind-3-7C3AED) ![Tech](https://img.shields.io/badge/Vite-8-646CFF)
+A full MERN stack web application built for Patan College of Professional
 
----
+Studies (PCPS), letting students explore clubs, discover events, register
+
+in a few clicks, and track their participation from a personal dashboard.
+
+
+
+Built as an individual MERN Stack assignment.
+
+
+
+\## Tech Stack
+
+
+
+\*\*Frontend:\*\* React 18, React Router, Tailwind CSS, Axios, Recharts, React Icons
+
+\*\*Backend:\*\* Node.js, Express, MongoDB (Mongoose), JWT authentication (httpOnly cookies), Multer (file uploads), bcrypt
+
+
+
+\## Project Structure
+pcps-connect/
+
+├── frontend/ React + Vite + Tailwind client
+
+└── backend/ Express + MongoDB API server
 
 ## Features
 
-- **12 fully built pages** — Home, Clubs, Events, Event Details, Dashboard, Profile, Contact, Settings, Login, Register, Forgot Password, 404
-- **Authentication UI** with client-side validation (login, register, forgot password) — session persisted to `localStorage`
-- **Protected routes** — Dashboard, Profile, and Settings require login
-- **Event registration** with a real form, validation, capacity tracking, and `localStorage` persistence so registrations survive a refresh
-- **Interactive dashboard** with Recharts (bar chart of participation by month, pie chart of events by category) and animated stat cards
-- **Search & filter** on both Clubs and Events pages (debounced search input)
-- **Dark mode** with a persisted theme toggle, applied via Tailwind's `class` strategy
-- **Fully responsive** — mobile, tablet, laptop, desktop, with a dedicated mobile navigation menu
-- **Club detail modal** with activities, club lead, and contact info
-- **Notification preferences** and account settings (UI layer, persisted locally)
-- Built with official **PCPS branding** — crest and wordmark logos, "Learn to Lead" identity
 
-## Tech Stack
 
-- React 18 (functional components + hooks)
-- React Router v6
-- Tailwind CSS 3 (dark mode via `class`, custom design tokens)
-- Recharts (dashboard charts)
-- React Icons
-- Vite (build tool)
+\- JWT-based authentication with httpOnly cookies (register, login, logout, session persistence)
 
-## Project Structure
+\- Full club directory: browse, search, filter by category, join/leave, favorite
 
-```
-src/
- ├── assets/images/       # PCPS logo & crest
- ├── components/          # Navbar, Footer, HeroSection, ClubCard, EventCard,
- │                         # StatsCard, SearchBar, FilterButtons, Sidebar,
- │                         # Button, Modal, RegistrationForm, ScrollToTop
- ├── layouts/              # MainLayout (public pages), DashboardLayout (sidebar pages)
- ├── pages/                # One file per route
- ├── hooks/                # useLocalStorage, useDebounce
- ├── services/             # clubService, eventService (mock async API layer)
- ├── utils/                # formatDate helpers
- ├── routes/               # AppRoutes, ProtectedRoute
- ├── data/                 # clubs.js, events.js (sample data)
- ├── context/              # ThemeContext, AuthContext, RegistrationContext
- ├── App.jsx
- └── main.jsx
-```
+\- Full event directory: browse, search, filter, register/unregister, live capacity tracking
 
-## Getting Started
+\- Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 
-### Prerequisites
-- Node.js 18+ and npm
+\- Editable student profile
 
-### Installation
+\- Role-based authorization (student vs admin) enforced on protected API routes
+
+\- Toast notifications for every user action
+
+\- Fully responsive, dark mode support
+
+
+
+\## Getting Started
+
+
+
+\### Backend
 
 ```bash
-# 1. Install dependencies
+
+cd backend
+
 npm install
 
-# 2. Start the dev server
+cp .env.example .env   # fill in MONGO\_URI, JWT\_SECRET, etc.
+
 npm run dev
 
-# 3. Open the app
-# http://localhost:5173
 ```
 
-### Build for production
+
+
+\### Frontend
 
 ```bash
-npm run build
-npm run preview   # preview the production build locally
+
+cd frontend
+
+npm install
+
+cp .env.example .env
+
+npm run dev
+
 ```
 
-## Demo Login
 
-This is a UI-only authentication system (no backend). You can:
-- **Register** a new account with any name/email — it logs you in immediately.
-- **Log in** with any email + a password of 6+ characters — a demo student profile is created.
 
-All session and registration data is stored in your browser's `localStorage`, so it persists across refreshes but is local to your device.
+Backend runs on `http://localhost:5000`, frontend on `http://localhost:5173`.
 
-## Design System
 
-| Token | Value |
-|---|---|
-| Primary | Indigo `#4F46E5` |
-| Secondary | Purple `#7C3AED` |
-| Background | Slate / White (Slate 950 in dark mode) |
-| Display font | Poppins |
-| Body font | Inter |
-| Radius | `xl` / `2xl` rounded corners |
-| Shadows | Soft, layered card shadows |
 
-## React Concepts Demonstrated
+\## Future Improvements
 
-- Functional components & props
-- `useState`, `useEffect`, custom hooks (`useDebounce`, `useLocalStorage`)
-- React Router v6 (nested routes, protected routes, `useParams`, `useNavigate`, `useLocation`)
-- Context API for global state (theme, auth, registrations)
-- Conditional rendering, list rendering with `.map()`
-- Controlled form handling & client-side validation
-- Component composition & reusability
 
-## Notes
 
-- Club/event photography is sourced from Unsplash for demo purposes; replace with real PCPS photography before any real deployment.
-- Authentication, contact form submission, and account settings are UI-only — wire them up to a real backend/API before production use.
+\- Admin dashboard UI (the role-protected admin API already exists)
 
----
+\- Pagination for clubs/events at larger scale
 
-Built with ❤️ for PCPS — **Learn to Lead.**
+\- Email notifications for event reminders
+
