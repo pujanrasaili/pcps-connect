@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
+const ClubMembership = require("../models/ClubMembership");
 
 // GET /api/admin/users
 async function getAllUsers(req, res) {
@@ -39,6 +40,7 @@ async function deleteUser(req, res) {
 
   await Event.deleteMany({ createdBy: user._id });
   await Registration.deleteMany({ user: user._id });
+  await ClubMembership.deleteMany({ user: user._id });
   await user.deleteOne();
 
   res.status(200).json({ message: "User deleted" });
