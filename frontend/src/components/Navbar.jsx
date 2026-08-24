@@ -30,7 +30,11 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const navLinks = isAuthenticated
-    ? [...BASE_NAV_LINKS, { to: "/dashboard", label: "Dashboard" }]
+    ? [
+        ...BASE_NAV_LINKS,
+        { to: "/dashboard", label: "Dashboard" },
+        ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
+      ]
     : BASE_NAV_LINKS;
 
   useEffect(() => {

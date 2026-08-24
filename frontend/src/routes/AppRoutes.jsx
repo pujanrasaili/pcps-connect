@@ -1,7 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
+import AdminRoute from "./AdminRoute";
 
 import Home from "../pages/Home";
 import Clubs from "../pages/Clubs";
@@ -15,6 +17,10 @@ import NotFound from "../pages/NotFound";
 import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
+import AdminOverview from "../pages/admin/AdminOverview";
+import AdminClubs from "../pages/admin/AdminClubs";
+import AdminEvents from "../pages/admin/AdminEvents";
+import AdminUsers from "../pages/admin/AdminUsers";
 
 export default function AppRoutes() {
   return (
@@ -55,6 +61,41 @@ export default function AppRoutes() {
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      <Route element={<AdminLayout />}>
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminOverview />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/clubs"
+          element={
+            <AdminRoute>
+              <AdminClubs />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/events"
+          element={
+            <AdminRoute>
+              <AdminEvents />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <AdminUsers />
+            </AdminRoute>
           }
         />
       </Route>
