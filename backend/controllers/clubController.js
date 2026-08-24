@@ -1,4 +1,5 @@
 const Club = require("../models/Club");
+const ClubMembership = require("../models/ClubMembership");
 
 // GET /api/clubs  (public)
 async function getClubs(req, res) {
@@ -50,6 +51,12 @@ async function deleteClub(req, res) {
   try {
     const club = await Club.findByIdAndDelete(req.params.id);
     if (!club) return res.status(404).json({ message: "Club not found" });
+
+    // Clean up so deleting a club doesn't leave dangling references.
+    await ClubMembership.deleteMany({ club: club._id });
+    const User = require("../models/User");
+    await User.updateMany({ favoriteClub: club._id }, { favoriteClub: null });
+
     res.status(200).json({ message: "Club deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message || "Failed to delete club" });
