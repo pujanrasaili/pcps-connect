@@ -33,7 +33,7 @@ const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { memberships, favoriteClubId } = useClubMembership();
+  const { favoriteClubId } = useClubMembership();
   const { clubs } = useClubs();
   const { registrations, cancelRegistration } = useRegistrations();
 

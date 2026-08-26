@@ -73,7 +73,39 @@ async function updateEventAdmin(req, res) {
 async function deleteEventAdmin(req, res) {
   const event = await Event.findByIdAndDelete(req.params.id);
   if (!event) return res.status(404).json({ message: "Event not found" });
+  await Registration.deleteMany({ event: event._id });
   res.status(200).json({ message: "Event deleted" });
+}
+
+// GET /api/admin/events/:id/registrations
+// Lists everyone registered for an event, so an admin can see who showed up
+// and mark attendance.
+async function getEventRegistrations(req, res) {
+  const event = await Event.findById(req.params.id);
+  if (!event) return res.status(404).json({ message: "Event not found" });
+
+  const registrations = await Registration.find({ event: req.params.id })
+    .populate("user", "name email studentId")
+    .sort({ createdAt: 1 });
+
+  res.status(200).json({ registrations });
+}
+
+// PUT /api/admin/registrations/:id  -- mark a single registration attended/not
+async function updateRegistrationAttendance(req, res) {
+  const { attended } = req.body;
+  if (typeof attended !== "boolean") {
+    return res.status(400).json({ message: "attended must be true or false" });
+  }
+
+  const registration = await Registration.findByIdAndUpdate(
+    req.params.id,
+    { attended },
+    { new: true }
+  ).populate("user", "name email studentId");
+
+  if (!registration) return res.status(404).json({ message: "Registration not found" });
+  res.status(200).json({ message: "Attendance updated", registration });
 }
 
 module.exports = {
@@ -86,4 +118,6 @@ module.exports = {
   getEventByIdAdmin,
   updateEventAdmin,
   deleteEventAdmin,
+  getEventRegistrations,
+  updateRegistrationAttendance,
 };
