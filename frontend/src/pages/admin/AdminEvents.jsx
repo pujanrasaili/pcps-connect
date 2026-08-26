@@ -1,11 +1,14 @@
-import { useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt } from "react-icons/fa";
+import { useMemo, useState } from "react";
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { formatDate } from "../../utils/formatDate";
+import { useDebounce } from "../../hooks/useDebounce";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import AttendeesModal from "../../components/AttendeesModal";
+import SearchBar from "../../components/SearchBar";
 import Button from "../../components/Button";
 
 const EMPTY_FORM = {
@@ -28,8 +31,10 @@ function toDatetimeLocal(isoString) {
 }
 
 export default function AdminEvents() {
-  const { events, refreshEvents } = useEvents();
+  const { events, loading, refreshEvents } = useEvents();
   const toast = useToast();
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 250);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -37,6 +42,12 @@ export default function AdminEvents() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [attendeesEvent, setAttendeesEvent] = useState(null);
+
+  const filteredEvents = useMemo(
+    () => events.filter((e) => e.title.toLowerCase().includes(debouncedQuery.toLowerCase())),
+    [events, debouncedQuery]
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -106,7 +117,7 @@ export default function AdminEvents() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
             Manage Events
@@ -118,40 +129,60 @@ export default function AdminEvents() {
         </Button>
       </div>
 
+      <div className="max-w-sm">
+        <SearchBar value={query} onChange={setQuery} placeholder="Search events..." />
+      </div>
+
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
-        {events.map((event) => (
-          <div key={event._id} className="flex items-center gap-4 p-4">
-            <img
-              src={resolveUploadUrl(event.image)}
-              alt=""
-              className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered
-              </p>
-            </div>
-            <button
-              onClick={() => openEdit(event)}
-              aria-label={`Edit ${event.title}`}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
-            >
-              <FaEdit />
-            </button>
-            <button
-              onClick={() => setDeleteTarget(event)}
-              aria-label={`Delete ${event.title}`}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
-            >
-              <FaTrash />
-            </button>
+        {loading ? (
+          <div className="flex justify-center p-10">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
-        ))}
-        {events.length === 0 && (
+        ) : (
+          filteredEvents.map((event) => (
+            <div key={event._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
+              <img
+                src={resolveUploadUrl(event.image)}
+                alt=""
+                className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  onClick={() => setAttendeesEvent(event)}
+                  aria-label={`View attendees for ${event.title}`}
+                  title="View attendees"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
+                >
+                  <FaUserFriends />
+                </button>
+                <button
+                  onClick={() => openEdit(event)}
+                  aria-label={`Edit ${event.title}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={() => setDeleteTarget(event)}
+                  aria-label={`Delete ${event.title}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+        {!loading && filteredEvents.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaCalendarAlt className="mx-auto mb-2 text-2xl text-slate-300" />
-            No events yet. Click "Add Event" to create one.
+            {events.length === 0 ? 'No events yet. Click "Add Event" to create one.' : "No events match your search."}
           </p>
         )}
       </div>
@@ -213,6 +244,8 @@ export default function AdminEvents() {
         title="Delete this event?"
         message={`This will permanently delete "${deleteTarget?.title}" and all student registrations for it. This can't be undone.`}
       />
+
+      <AttendeesModal event={attendeesEvent} onClose={() => setAttendeesEvent(null)} />
     </div>
   );
 }

@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaUserShield, FaUser, FaTrash } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage } from "../../services/api";
+import { useDebounce } from "../../hooks/useDebounce";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import SearchBar from "../../components/SearchBar";
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
@@ -11,6 +13,8 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 250);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
@@ -56,6 +60,16 @@ export default function AdminUsers() {
     }
   };
 
+  const filteredUsers = useMemo(
+    () =>
+      users.filter(
+        (u) =>
+          u.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+          u.email.toLowerCase().includes(debouncedQuery.toLowerCase())
+      ),
+    [users, debouncedQuery]
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -71,13 +85,21 @@ export default function AdminUsers() {
         </p>
       )}
 
+      <div className="max-w-sm">
+        <SearchBar value={query} onChange={setQuery} placeholder="Search by name or email..." />
+      </div>
+
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
         {loading ? (
           <div className="flex justify-center p-10">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
+        ) : filteredUsers.length === 0 ? (
+          <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            {users.length === 0 ? "No registered students yet." : "No users match your search."}
+          </p>
         ) : (
-          users.map((u) => {
+          filteredUsers.map((u) => {
             const isSelf = u._id === currentUser?.id;
             return (
               <div key={u._id} className="flex items-center gap-4 p-4">

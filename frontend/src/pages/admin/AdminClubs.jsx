@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaUsers } from "react-icons/fa";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { getClubIcon } from "../../utils/iconMap";
+import { useDebounce } from "../../hooks/useDebounce";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import SearchBar from "../../components/SearchBar";
 import Button from "../../components/Button";
 
 const ICON_OPTIONS = ["FaCode", "FaRobot", "FaCamera", "FaFutbol", "FaLightbulb", "FaUsers"];
@@ -24,8 +26,10 @@ const EMPTY_FORM = {
 };
 
 export default function AdminClubs() {
-  const { clubs, refreshClubs } = useClubs();
+  const { clubs, loading, refreshClubs } = useClubs();
   const toast = useToast();
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 250);
   const [formOpen, setFormOpen] = useState(false);
   const [editingClub, setEditingClub] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -103,9 +107,14 @@ export default function AdminClubs() {
     }
   };
 
+  const filteredClubs = useMemo(
+    () => clubs.filter((c) => c.name.toLowerCase().includes(debouncedQuery.toLowerCase())),
+    [clubs, debouncedQuery]
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
             Manage Clubs
@@ -117,44 +126,56 @@ export default function AdminClubs() {
         </Button>
       </div>
 
+      <div className="max-w-sm">
+        <SearchBar value={query} onChange={setQuery} placeholder="Search clubs..." />
+      </div>
+
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
-        {clubs.map((club) => {
-          const Icon = getClubIcon(club.icon);
-          return (
-            <div key={club._id} className="flex items-center gap-4 p-4">
-              <img
-                src={resolveUploadUrl(club.image)}
-                alt=""
-                className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
-              />
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <Icon className="shrink-0 text-primary-500" />
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{club.category}</p>
+        {loading ? (
+          <div className="flex justify-center p-10">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+          </div>
+        ) : (
+          filteredClubs.map((club) => {
+            const Icon = getClubIcon(club.icon);
+            return (
+              <div key={club._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
+                <img
+                  src={resolveUploadUrl(club.image)}
+                  alt=""
+                  className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
+                />
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <Icon className="shrink-0 text-primary-500" />
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{club.category}</p>
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    onClick={() => openEdit(club)}
+                    aria-label={`Edit ${club.name}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => setDeleteTarget(club)}
+                    aria-label={`Delete ${club.name}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                  >
+                    <FaTrash />
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={() => openEdit(club)}
-                aria-label={`Edit ${club.name}`}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
-              >
-                <FaEdit />
-              </button>
-              <button
-                onClick={() => setDeleteTarget(club)}
-                aria-label={`Delete ${club.name}`}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
-              >
-                <FaTrash />
-              </button>
-            </div>
-          );
-        })}
-        {clubs.length === 0 && (
+            );
+          })
+        )}
+        {!loading && filteredClubs.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaUsers className="mx-auto mb-2 text-2xl text-slate-300" />
-            No clubs yet. Click "Add Club" to create one.
+            {clubs.length === 0 ? 'No clubs yet. Click "Add Club" to create one.' : "No clubs match your search."}
           </p>
         )}
       </div>
