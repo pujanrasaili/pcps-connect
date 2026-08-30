@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
+const { uploadBufferToCloudinary } = require("../middleware/upload");
 
 // Attaches a live "registeredCount" to each event, computed from actual
 // Registration documents rather than a stored counter -- a stored counter
@@ -52,6 +53,12 @@ async function createEvent(req, res) {
       return res.status(400).json({ message: "title, description, date, and location are required" });
     }
 
+    let image = null;
+    if (req.file) {
+      const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
+      image = uploaded.secure_url;
+    }
+
     const event = await Event.create({
       title,
       description,
@@ -60,7 +67,7 @@ async function createEvent(req, res) {
       capacity: capacity ? Number(capacity) : 100,
       category: category || "General",
       price: price || "Free",
-      image: req.file ? `/uploads/${req.file.filename}` : null,
+      image,
       createdBy: req.user._id,
     });
 
@@ -85,7 +92,10 @@ async function updateEvent(req, res) {
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) event[field] = req.body[field];
     }
-    if (req.file) event.image = `/uploads/${req.file.filename}`;
+    if (req.file) {
+      const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
+      event.image = uploaded.secure_url;
+    }
 
     await event.save();
     res.status(200).json({ message: "Event updated", event: await withRegisteredCount(event) });

@@ -1,8 +1,8 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
-const path = require("path");
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
@@ -16,6 +16,11 @@ const app = express();
 
 connectDB();
 
+// Sets a batch of standard protective HTTP headers (blocks MIME-sniffing,
+// disables framing to prevent clickjacking, etc.) -- a baseline every
+// production Express app should have.
+app.use(helmet());
+
 // CORS must allow the frontend's exact origin AND credentials, or the
 // browser will silently refuse to send/receive the auth cookie.
 app.use(
@@ -27,9 +32,6 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
-
-// Serve uploaded event images statically at /uploads/<filename>
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/", (req, res) => {
   res.json({ message: "PCPS Connect API is running" });
