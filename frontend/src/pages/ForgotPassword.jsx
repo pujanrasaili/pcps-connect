@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEnvelope, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
+import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
 import logo from "../assets/images/pcps-shield.png";
 
@@ -8,15 +9,24 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(email)) {
       setError("Enter a valid email address.");
       return;
     }
     setError("");
-    setSent(true);
+    setSubmitting(true);
+    try {
+      await api.post("/auth/forgot-password", { email });
+      setSent(true);
+    } catch (err) {
+      setError(getErrorMessage(err, "Something went wrong. Please try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -62,7 +72,9 @@ export default function ForgotPassword() {
                 </div>
                 {error && <p className="mt-1 text-xs text-rose-500">{error}</p>}
               </div>
-              <Button type="submit" className="w-full">Send reset link</Button>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Sending..." : "Send reset link"}
+              </Button>
               <Link to="/login" className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400">
                 <FaArrowLeft className="text-xs" /> Back to login
               </Link>
