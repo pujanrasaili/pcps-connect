@@ -11,6 +11,7 @@ const registrationRoutes = require("./routes/registrationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const clubRoutes = require("./routes/clubRoutes");
 const clubMembershipRoutes = require("./routes/clubMembershipRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/clubs", clubRoutes);
 app.use("/api/club-memberships", clubMembershipRoutes);
+app.use("/api/contact", contactRoutes);
 
 // 404 handler for unmatched API routes
 app.use((req, res) => {

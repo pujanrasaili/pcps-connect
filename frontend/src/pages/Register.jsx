@@ -29,7 +29,11 @@ export default function Register() {
   const validate = () => {
     const next = {};
     if (!form.name.trim()) next.name = "Full name is required.";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) next.email = "Enter a valid email address.";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      next.email = "Enter a valid email address.";
+    } else if (!form.email.toLowerCase().endsWith("@pcps.edu.np")) {
+      next.email = "Registration is limited to PCPS email addresses (@pcps.edu.np).";
+    }
     if (!form.studentId.trim()) next.studentId = "Student ID is required.";
     if (form.password.length < 6) next.password = "Password must be at least 6 characters.";
     if (form.password !== form.confirmPassword) next.confirmPassword = "Passwords do not match.";
@@ -105,7 +109,11 @@ export default function Register() {
                 onChange={handleChange}
               />
             </div>
-            {errors.email && <p className="mt-1 text-xs text-rose-500">{errors.email}</p>}
+            {errors.email ? (
+              <p className="mt-1 text-xs text-rose-500">{errors.email}</p>
+            ) : (
+              <p className="mt-1 text-xs text-slate-400">Must be a PCPS email address (@pcps.edu.np)</p>
+            )}
           </div>
 
           <div>
