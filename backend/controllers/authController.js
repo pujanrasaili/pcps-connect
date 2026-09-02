@@ -33,7 +33,7 @@ function publicUser(user) {
   };
 }
 
-const ALLOWED_EMAIL_DOMAIN = "@pcps.edu.np";
+const ALLOWED_EMAIL_DOMAIN = "@patancollege.edu.np";
 
 // POST /api/auth/register
 async function register(req, res) {

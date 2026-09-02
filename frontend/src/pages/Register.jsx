@@ -31,8 +31,8 @@ export default function Register() {
     if (!form.name.trim()) next.name = "Full name is required.";
     if (!/^\S+@\S+\.\S+$/.test(form.email)) {
       next.email = "Enter a valid email address.";
-    } else if (!form.email.toLowerCase().endsWith("@pcps.edu.np")) {
-      next.email = "Registration is limited to PCPS email addresses (@pcps.edu.np).";
+    } else if (!form.email.toLowerCase().endsWith("@patancollege.edu.np")) {
+      next.email = "Registration is limited to PCPS email addresses (@patancollege.edu.np).";
     }
     if (!form.studentId.trim()) next.studentId = "Student ID is required.";
     if (form.password.length < 6) next.password = "Password must be at least 6 characters.";
@@ -104,7 +104,7 @@ export default function Register() {
                 type="email"
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
-                placeholder="you@pcps.edu.np"
+                placeholder="you@patancollege.edu.np"
                 value={form.email}
                 onChange={handleChange}
               />
@@ -112,7 +112,7 @@ export default function Register() {
             {errors.email ? (
               <p className="mt-1 text-xs text-rose-500">{errors.email}</p>
             ) : (
-              <p className="mt-1 text-xs text-slate-400">Must be a PCPS email address (@pcps.edu.np)</p>
+              <p className="mt-1 text-xs text-slate-400">Must be a PCPS email address (@patancollege.edu.np)</p>
             )}
           </div>
 

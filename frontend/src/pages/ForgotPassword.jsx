@@ -65,7 +65,7 @@ export default function ForgotPassword() {
                     id="fp-email"
                     type="email"
                     className="input-field" style={{ paddingLeft: "2.75rem" }}
-                    placeholder="you@pcps.edu.np"
+                    placeholder="you@patancollege.edu.np"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
