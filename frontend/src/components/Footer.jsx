@@ -91,7 +91,7 @@ export default function Footer() {
               <FaPhoneAlt className="shrink-0 text-primary-500" /> +977 1-5000000
             </li>
             <li className="flex items-center gap-2.5">
-              <FaEnvelope className="shrink-0 text-primary-500" /> info@pcps.edu.np
+              <FaEnvelope className="shrink-0 text-primary-500" /> info@patancollege.edu.np
             </li>
           </ul>
         </div>

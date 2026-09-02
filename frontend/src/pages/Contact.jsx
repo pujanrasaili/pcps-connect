@@ -58,7 +58,7 @@ export default function Contact() {
           <div className="space-y-4">
             <ContactRow icon={FaMapMarkerAlt} title="Address" text="Patan College for Professional Studies, Lalitpur, Nepal" />
             <ContactRow icon={FaPhoneAlt} title="Phone" text="+977 1-5000000" />
-            <ContactRow icon={FaEnvelope} title="Email" text="info@pcps.edu.np" />
+            <ContactRow icon={FaEnvelope} title="Email" text="info@patancollege.edu.np" />
             <ContactRow icon={FaClock} title="Office Hours" text="Sun – Fri, 9:00 AM – 5:00 PM" />
 
             <div className="card-surface overflow-hidden">
