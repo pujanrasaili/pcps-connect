@@ -17,6 +17,15 @@ const userSchema = new mongoose.Schema(
     // A student's one favorite club -- intentionally independent of
     // ClubMembership, so favoriting a club never implies joining it.
     favoriteClub: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: null },
+
+    // A student must verify their email AND be approved by an admin before
+    // they can log in. Both default false/pending on registration.
+    emailVerified: { type: Boolean, default: false },
+    approvalStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

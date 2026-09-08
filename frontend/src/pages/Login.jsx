@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
 import logo from "../assets/images/pcps-shield.png";
 
@@ -15,6 +16,8 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resending, setResending] = useState(false);
 
   // Single generic change handler -- works for every field because each
   // input's "name" attribute matches a key in the form state object.
@@ -33,6 +36,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShowResend(false);
     if (!validate()) return;
 
     setSubmitting(true);
@@ -41,12 +45,26 @@ export default function Login() {
 
     if (!result.ok) {
       toast.error(result.message);
+      if (result.code === "EMAIL_NOT_VERIFIED") setShowResend(true);
       return;
     }
 
     toast.success("Logged in successfully!");
     const redirectTo = location.state?.from || "/dashboard";
     navigate(redirectTo, { replace: true });
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      const res = await api.post("/auth/resend-verification", { email: form.email });
+      toast.success(res.data.message);
+      setShowResend(false);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to resend verification email."));
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
@@ -111,6 +129,20 @@ export default function Login() {
             </div>
             {errors.password && <p className="mt-1 text-xs text-rose-500">{errors.password}</p>}
           </div>
+
+          {showResend && (
+            <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+              <p>Didn't get the verification email?</p>
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending}
+                className="mt-1 font-semibold underline underline-offset-2 disabled:opacity-50"
+              >
+                {resending ? "Sending..." : "Resend verification email"}
+              </button>
+            </div>
+          )}
 
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? "Logging in..." : "Log in"}

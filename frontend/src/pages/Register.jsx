@@ -55,12 +55,11 @@ export default function Register() {
       return;
     }
 
-    toast.success(
-      result.requiresManualLogin
-        ? "Account created — please log in."
-        : "Account created! Welcome to PCPS Connect."
-    );
-    navigate(result.requiresManualLogin ? "/login" : "/dashboard", { replace: true });
+    // Every fresh account needs email verification (and then admin
+    // approval) before it can log in -- so registration never lands
+    // someone straight in the dashboard anymore.
+    toast.success("Account created! Check your email to verify your account before logging in.");
+    navigate("/login", { replace: true });
   };
 
   return (
