@@ -1,11 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaUserShield, FaUser, FaTrash } from "react-icons/fa";
+import { FaUserShield, FaUser, FaTrash, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage } from "../../services/api";
 import { useDebounce } from "../../hooks/useDebounce";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
+
+const STATUS_STYLES = {
+  approved: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+  pending: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  rejected: "bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+};
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
@@ -46,6 +52,23 @@ export default function AdminUsers() {
     }
   };
 
+  const setApproval = async (targetUser, approvalStatus) => {
+    setUpdatingId(targetUser._id);
+    try {
+      await api.put(`/admin/users/${targetUser._id}`, { approvalStatus });
+      toast.success(
+        approvalStatus === "approved"
+          ? `${targetUser.name} approved -- they can now log in.`
+          : `${targetUser.name}'s registration was rejected.`
+      );
+      loadUsers();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to update approval status"));
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -70,13 +93,22 @@ export default function AdminUsers() {
     [users, debouncedQuery]
   );
 
+  const pendingCount = users.filter((u) => u.approvalStatus === "pending").length;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
           Manage Users
         </h1>
-        <p className="text-slate-500 dark:text-slate-400">{users.length} registered students</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          {users.length} registered students
+          {pendingCount > 0 && (
+            <span className="ml-2 badge bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+              {pendingCount} awaiting approval
+            </span>
+          )}
+        </p>
       </div>
 
       {error && (
@@ -101,39 +133,75 @@ export default function AdminUsers() {
         ) : (
           filteredUsers.map((u) => {
             const isSelf = u._id === currentUser?.id;
+            const isPending = u.approvalStatus === "pending";
             return (
-              <div key={u._id} className="flex items-center gap-4 p-4">
+              <div key={u._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-slate-800 dark:text-slate-100">
                     {u.name} {isSelf && <span className="text-xs text-slate-400">(you)</span>}
                   </p>
                   <p className="truncate text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
                 </div>
-                <span
-                  className={`badge shrink-0 ${
-                    u.role === "admin"
-                      ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"
-                      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                  }`}
-                >
-                  {u.role}
-                </span>
-                <button
-                  onClick={() => toggleRole(u)}
-                  disabled={isSelf || updatingId === u._id}
-                  title={isSelf ? "You can't change your own role" : u.role === "admin" ? "Demote to student" : "Promote to admin"}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-primary-900/20"
-                >
-                  {u.role === "admin" ? <FaUser /> : <FaUserShield />}
-                </button>
-                <button
-                  onClick={() => setDeleteTarget(u)}
-                  disabled={isSelf}
-                  aria-label={`Delete ${u.name}`}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-rose-900/20"
-                >
-                  <FaTrash />
-                </button>
+
+                <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                  {!u.emailVerified && (
+                    <span
+                      className="badge bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                      title="Hasn't clicked their email verification link yet"
+                    >
+                      <FaEnvelope className="mr-1 text-[10px]" /> Unverified
+                    </span>
+                  )}
+                  <span className={`badge ${STATUS_STYLES[u.approvalStatus]}`}>{u.approvalStatus}</span>
+                  <span
+                    className={`badge ${
+                      u.role === "admin"
+                        ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"
+                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                    }`}
+                  >
+                    {u.role}
+                  </span>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-1">
+                  {isPending && (
+                    <>
+                      <button
+                        onClick={() => setApproval(u, "approved")}
+                        disabled={updatingId === u._id}
+                        title="Approve"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-30 dark:hover:bg-emerald-900/20"
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        onClick={() => setApproval(u, "rejected")}
+                        disabled={updatingId === u._id}
+                        title="Reject"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 dark:hover:bg-rose-900/20"
+                      >
+                        <FaTimes />
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => toggleRole(u)}
+                    disabled={isSelf || updatingId === u._id}
+                    title={isSelf ? "You can't change your own role" : u.role === "admin" ? "Demote to student" : "Promote to admin"}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-primary-900/20"
+                  >
+                    {u.role === "admin" ? <FaUser /> : <FaUserShield />}
+                  </button>
+                  <button
+                    onClick={() => setDeleteTarget(u)}
+                    disabled={isSelf}
+                    aria-label={`Delete ${u.name}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-rose-900/20"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
               </div>
             );
           })

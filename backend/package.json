@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "backfill": "node scripts/backfillVerification.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -25,5 +26,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
+  },
+  "overrides": {
+    "qs": "6.16.0"
   }
 }

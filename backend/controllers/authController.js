@@ -29,11 +29,33 @@ function publicUser(user) {
     semester: user.semester || "",
     phone: user.phone || "",
     favoriteClub: user.favoriteClub || null,
+    emailVerified: user.emailVerified,
+    approvalStatus: user.approvalStatus,
     avatar: user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4F46E5`,
   };
 }
 
 const ALLOWED_EMAIL_DOMAIN = "@patancollege.edu.np";
+
+async function sendVerificationEmail(user) {
+  const verifyToken = jwt.sign(
+    { id: user._id, purpose: "email-verify" },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+  const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify-email?token=${verifyToken}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Verify your PCPS Connect account",
+    html: `
+      <p>Hi ${user.name},</p>
+      <p>Thanks for registering for PCPS Connect. Click the link below to verify your email address. This link expires in 24 hours.</p>
+      <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+      <p>After verifying, an admin will need to approve your account before you can log in -- you'll be able to log in as soon as that happens.</p>
+    `,
+  });
+}
 
 // POST /api/auth/register
 async function register(req, res) {
@@ -69,7 +91,16 @@ async function register(req, res) {
       phone: phone || "",
     });
 
-    res.status(201).json({ message: "User registered successfully", user: publicUser(user) });
+    try {
+      await sendVerificationEmail(user);
+    } catch (emailErr) {
+      console.error("Failed to send verification email:", emailErr.message);
+    }
+
+    res.status(201).json({
+      message: "Account created. Check your email to verify your account before logging in.",
+      user: publicUser(user),
+    });
   } catch (err) {
     res.status(500).json({ message: err.message || "Registration failed" });
   }
@@ -91,6 +122,27 @@ async function login(req, res) {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        message: "Please verify your email before logging in. Check your inbox for the verification link.",
+        code: "EMAIL_NOT_VERIFIED",
+      });
+    }
+
+    if (user.approvalStatus === "pending") {
+      return res.status(403).json({
+        message: "Your account is awaiting admin approval. You'll be able to log in once it's approved.",
+        code: "APPROVAL_PENDING",
+      });
+    }
+
+    if (user.approvalStatus === "rejected") {
+      return res.status(403).json({
+        message: "Your registration was not approved. Contact PCPS administration for help.",
+        code: "APPROVAL_REJECTED",
+      });
     }
 
     const token = signToken(user._id);
@@ -195,8 +247,6 @@ async function forgotPassword(req, res) {
         `,
       });
     } catch (emailErr) {
-      // Log for debugging but still return the generic response -- the
-      // person shouldn't learn anything about the underlying failure.
       console.error("Failed to send password reset email:", emailErr.message);
     }
 
@@ -240,6 +290,83 @@ async function resetPassword(req, res) {
   }
 }
 
+// POST /api/auth/verify-email
+async function verifyEmail(req, res) {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: "Token is required" });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.status(400).json({ message: "This verification link is invalid or has expired" });
+    }
+
+    if (decoded.purpose !== "email-verify") {
+      return res.status(400).json({ message: "This verification link is invalid or has expired" });
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) return res.status(404).json({ message: "Account not found" });
+
+    if (user.emailVerified) {
+      return res.status(200).json({ message: "Your email is already verified. You can log in once an admin approves your account." });
+    }
+
+    user.emailVerified = true;
+    await user.save();
+
+    // Let an admin know a verified student is now waiting for approval.
+    // Best-effort -- a failed notification shouldn't fail the verification.
+    try {
+      const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.EMAIL_USER;
+      await sendEmail({
+        to: receiver,
+        subject: "PCPS Connect: new account awaiting approval",
+        html: `
+          <p>${user.name} (${user.email}) just verified their email and is waiting for approval.</p>
+          <p>Log in to the admin panel to approve or reject this account.</p>
+        `,
+      });
+    } catch (notifyErr) {
+      console.error("Failed to send admin approval notification:", notifyErr.message);
+    }
+
+    res.status(200).json({
+      message: "Email verified! An admin will review your account -- you'll be able to log in once it's approved.",
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to verify email" });
+  }
+}
+
+// POST /api/auth/resend-verification
+// Same generic-response pattern as forgotPassword.
+async function resendVerification(req, res) {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const genericResponse = {
+      message: "If that account needs verification, a new link has been sent.",
+    };
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || user.emailVerified) return res.status(200).json(genericResponse);
+
+    try {
+      await sendVerificationEmail(user);
+    } catch (emailErr) {
+      console.error("Failed to resend verification email:", emailErr.message);
+    }
+
+    res.status(200).json(genericResponse);
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Failed to process request" });
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -249,4 +376,6 @@ module.exports = {
   toggleFavoriteClub,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerification,
 };

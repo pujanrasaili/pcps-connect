@@ -44,23 +44,20 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true);
       return { ok: true };
     } catch (err) {
-      return { ok: false, message: getErrorMessage(err, "Login failed") };
+      return {
+        ok: false,
+        message: getErrorMessage(err, "Login failed"),
+        code: err?.response?.data?.code,
+      };
     }
   };
 
   const register = async (data) => {
     try {
       const res = await api.post("/auth/register", data);
-      // Registration doesn't log the student in automatically on the
-      // backend (no cookie is set by /register) -- log in right after
-      // with the same credentials so the flow feels seamless.
-      const loginResult = await login(data.email, data.password);
-      if (!loginResult.ok) {
-        // Registered successfully but auto-login failed for some reason --
-        // still a success from the user's point of view, just ask them to
-        // log in manually.
-        return { ok: true, user: res.data.user, requiresManualLogin: true };
-      }
+      // No auto-login here -- every fresh account needs email verification
+      // (then admin approval) before it can log in, so attempting to log
+      // in immediately after registering would always fail.
       return { ok: true, user: res.data.user };
     } catch (err) {
       return { ok: false, message: getErrorMessage(err, "Registration failed") };
