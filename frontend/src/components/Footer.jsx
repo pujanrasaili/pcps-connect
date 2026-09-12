@@ -68,6 +68,8 @@ export default function Footer() {
               ["Forgot Password", "/forgot-password"],
               ["Profile", "/profile"],
               ["Settings", "/settings"],
+              ["Terms of Use", "/terms"],
+              ["Privacy Policy", "/privacy"],
             ].map(([label, to]) => (
               <li key={to}>
                 <Link to={to} className="hover:text-primary-500 transition-colors">
