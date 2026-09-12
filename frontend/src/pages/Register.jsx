@@ -177,7 +177,15 @@ export default function Register() {
               onChange={handleChange}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
             />
-            I agree to the PCPS Connect terms of use and privacy policy.
+            I agree to the PCPS Connect{" "}
+            <Link to="/terms" target="_blank" className="font-medium text-primary-600 dark:text-primary-400 underline underline-offset-2">
+              terms of use
+            </Link>{" "}
+            and{" "}
+            <Link to="/privacy" target="_blank" className="font-medium text-primary-600 dark:text-primary-400 underline underline-offset-2">
+              privacy policy
+            </Link>
+            .
           </label>
           {errors.agree && <p className="text-xs text-rose-500">{errors.agree}</p>}
 
