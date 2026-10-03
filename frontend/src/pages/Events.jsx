@@ -5,6 +5,10 @@ import FilterButtons from "../components/FilterButtons";
 import Reveal from "../components/Reveal";
 import { useEvents } from "../context/EventsContext";
 import { useDebounce } from "../hooks/useDebounce";
+import { usePagination } from "../hooks/usePagination";
+import Pagination from "../components/Pagination";
+
+const PAGE_SIZE = 9;
 
 export default function Events() {
   const { events, loading, error } = useEvents();
@@ -28,6 +32,8 @@ export default function Events() {
       })
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [events, debouncedQuery, category]);
+
+  const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
   return (
     <div className="section-y">
@@ -62,13 +68,16 @@ export default function Events() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
           </div>
         ) : filteredEvents.length > 0 ? (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredEvents.map((event, i) => (
-              <Reveal key={event._id} delay={(i % 6) * 80}>
-                <EventCard event={event} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {pagedEvents.map((event, i) => (
+                <Reveal key={event._id} delay={(i % 6) * 80}>
+                  <EventCard event={event} />
+                </Reveal>
+              ))}
+            </div>
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+          </>
         ) : (
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
             <p className="text-lg font-medium">No events match your search.</p>
