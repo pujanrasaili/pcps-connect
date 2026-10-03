@@ -10,6 +10,10 @@ import { useDebounce } from "../hooks/useDebounce";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 import { resolveUploadUrl } from "../services/api";
+import { usePagination } from "../hooks/usePagination";
+import Pagination from "../components/Pagination";
+
+const PAGE_SIZE = 9;
 
 export default function Clubs() {
   const { clubs, loading, error } = useClubs();
@@ -34,6 +38,8 @@ export default function Clubs() {
       return matchesCategory && matchesQuery;
     });
   }, [clubs, debouncedQuery, category]);
+
+  const { page, setPage, totalPages, pageItems: pagedClubs } = usePagination(filteredClubs, PAGE_SIZE);
 
   return (
     <div className="section-y">
@@ -68,13 +74,16 @@ export default function Clubs() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
           </div>
         ) : filteredClubs.length > 0 ? (
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredClubs.map((club, i) => (
-              <Reveal key={club._id} delay={(i % 6) * 80}>
-                <ClubCard club={club} onView={setSelectedClub} />
-              </Reveal>
-            ))}
-          </div>
+          <>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {pagedClubs.map((club, i) => (
+                <Reveal key={club._id} delay={(i % 6) * 80}>
+                  <ClubCard club={club} onView={setSelectedClub} />
+                </Reveal>
+              ))}
+            </div>
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+          </>
         ) : (
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
             <p className="text-lg font-medium">No clubs match your search.</p>
