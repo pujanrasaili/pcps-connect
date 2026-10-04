@@ -10,7 +10,10 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import AttendeesModal from "../../components/AttendeesModal";
 import SearchBar from "../../components/SearchBar";
 import Button from "../../components/Button";
+import Pagination from "../../components/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 
+const PAGE_SIZE = 10;
 const EMPTY_FORM = {
   title: "",
   description: "",
@@ -48,6 +51,8 @@ export default function AdminEvents() {
     () => events.filter((e) => e.title.toLowerCase().includes(debouncedQuery.toLowerCase())),
     [events, debouncedQuery]
   );
+
+  const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -139,7 +144,7 @@ export default function AdminEvents() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
         ) : (
-          filteredEvents.map((event) => (
+          pagedEvents.map((event) => (
             <div key={event._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
               <img
                 src={resolveUploadUrl(event.image)}
@@ -186,6 +191,8 @@ export default function AdminEvents() {
           </p>
         )}
       </div>
+
+      <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
       <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingEvent ? "Edit Event" : "Add Event"} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
