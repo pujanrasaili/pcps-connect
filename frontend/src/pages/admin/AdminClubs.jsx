@@ -9,7 +9,10 @@ import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
 import Button from "../../components/Button";
+import Pagination from "../../components/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 
+const PAGE_SIZE = 10;
 const ICON_OPTIONS = ["FaCode", "FaRobot", "FaCamera", "FaFutbol", "FaLightbulb", "FaUsers"];
 const EMPTY_FORM = {
   name: "",
@@ -112,6 +115,8 @@ export default function AdminClubs() {
     [clubs, debouncedQuery]
   );
 
+  const { page, setPage, totalPages, pageItems: pagedClubs } = usePagination(filteredClubs, PAGE_SIZE);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -136,7 +141,7 @@ export default function AdminClubs() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
         ) : (
-          filteredClubs.map((club) => {
+          pagedClubs.map((club) => {
             const Icon = getClubIcon(club.icon);
             return (
               <div key={club._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
@@ -179,6 +184,8 @@ export default function AdminClubs() {
           </p>
         )}
       </div>
+
+      <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
       <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingClub ? "Edit Club" : "Add Club"} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
