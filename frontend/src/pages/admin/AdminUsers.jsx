@@ -6,7 +6,10 @@ import { api, getErrorMessage } from "../../services/api";
 import { useDebounce } from "../../hooks/useDebounce";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
+import Pagination from "../../components/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 
+const PAGE_SIZE = 10;
 const STATUS_STYLES = {
   approved: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
   pending: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
@@ -93,6 +96,8 @@ export default function AdminUsers() {
     [users, debouncedQuery]
   );
 
+  const { page, setPage, totalPages, pageItems: pagedUsers } = usePagination(filteredUsers, PAGE_SIZE);
+
   const pendingCount = users.filter((u) => u.approvalStatus === "pending").length;
 
   return (
@@ -131,7 +136,7 @@ export default function AdminUsers() {
             {users.length === 0 ? "No registered students yet." : "No users match your search."}
           </p>
         ) : (
-          filteredUsers.map((u) => {
+          pagedUsers.map((u) => {
             const isSelf = u._id === currentUser?.id;
             const isPending = u.approvalStatus === "pending";
             return (
@@ -207,6 +212,8 @@ export default function AdminUsers() {
           })
         )}
       </div>
+
+      <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
       <ConfirmDialog
         isOpen={!!deleteTarget}
