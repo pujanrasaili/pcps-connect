@@ -1,8 +1,40 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaRegCircle, FaUserFriends } from "react-icons/fa";
+import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
+
+// Wraps a CSV field in quotes and escapes any quotes inside it, so names
+// or emails containing commas don't break the column layout.
+function csvField(value) {
+  const str = String(value ?? "");
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
+function downloadAttendanceCsv(event, registrations) {
+  const header = ["Name", "Email", "Student ID", "Registered On", "Attended"];
+  const rows = registrations.map((r) => [
+    r.user?.name || "Unknown student",
+    r.user?.email || "",
+    r.user?.studentId || "",
+    r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "",
+    r.attended ? "Yes" : "No",
+  ]);
+
+  const csv = [header, ...rows].map((row) => row.map(csvField).join(",")).join("\r\n");
+  // Prefix with a UTF-8 BOM so Excel renders non-ASCII names correctly.
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+
+  const safeTitle = (event?.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${safeTitle}-attendance.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
 // Lists everyone registered for a given event, with a tap-to-toggle
 // attendance mark per student. Fetches fresh each time it opens rather
@@ -56,9 +88,17 @@ export default function AttendeesModal({ event, onClose }) {
         </p>
       ) : (
         <>
-          <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
-            {attendedCount}/{registrations.length} marked attended · tap a student to toggle
-          </p>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {attendedCount}/{registrations.length} marked attended · tap a student to toggle
+            </p>
+            <button
+              onClick={() => downloadAttendanceCsv(event, registrations)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+            >
+              <FaFileCsv /> Export CSV
+            </button>
+          </div>
           <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
             {registrations.map((r) => (
               <button
