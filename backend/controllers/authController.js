@@ -60,9 +60,13 @@ async function sendVerificationEmail(user) {
 // POST /api/auth/register
 async function register(req, res) {
   try {
-    const { name, email, password, role, studentId, program, semester, phone } = req.body;
+    const { name, email, password, studentId, program, semester, phone } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email, and password are required" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
     // Restricted to real PCPS accounts. This only applies at registration
@@ -84,7 +88,13 @@ async function register(req, res) {
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      role: role === "admin" ? "admin" : "user",
+      // Deliberately never reads a role from the request body -- otherwise
+      // anyone calling this endpoint directly (bypassing the UI, which never
+      // offers a role field) could self-register as "admin" and later gain
+      // full admin access the moment any admin approved what looked like an
+      // ordinary pending student account. Admins are only ever created by
+      // promoting an existing user from the admin panel.
+      role: "user",
       studentId: studentId || "",
       program: program || "",
       semester: semester || "",
