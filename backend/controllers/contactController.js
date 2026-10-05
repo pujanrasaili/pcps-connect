@@ -1,5 +1,18 @@
 const sendEmail = require("../utils/sendEmail");
 
+// Escapes HTML-special characters so a submitter can't inject markup or
+// script tags into the HTML email an admin opens in their inbox -- this is
+// a public, unauthenticated form, so its input is the least trusted in the
+// whole app.
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // POST /api/contact  (public, rate-limited)
 // Emails the submission straight to the college's contact address --
 // replyTo is set to the submitter's own email so a staff member can just
@@ -18,10 +31,10 @@ async function submitContactForm(req, res) {
       subject: subject ? `[PCPS Connect Contact] ${subject}` : "[PCPS Connect Contact] New message",
       replyTo: email,
       html: `
-        <p><strong>From:</strong> ${name} (${email})</p>
-        ${subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ""}
+        <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+        ${subject ? `<p><strong>Subject:</strong> ${escapeHtml(subject)}</p>` : ""}
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
+        <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
       `,
     });
 

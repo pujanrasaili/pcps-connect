@@ -6,15 +6,18 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
-const { protect } = require("../middleware/auth");
+const { protect, adminOnly } = require("../middleware/auth");
 const upload = require("../middleware/upload");
 
 const router = express.Router();
 
 router.get("/", getEvents);
 router.get("/:id", getEventById);
-router.post("/create", protect, upload.single("image"), createEvent);
-router.put("/:id", protect, upload.single("image"), updateEvent);
-router.delete("/:id", protect, deleteEvent);
+// Event management is admin-only -- the frontend never exposes event
+// creation to regular students, so without this check anyone calling the
+// API directly could post arbitrary public "events" to the site.
+router.post("/create", protect, adminOnly, upload.single("image"), createEvent);
+router.put("/:id", protect, adminOnly, upload.single("image"), updateEvent);
+router.delete("/:id", protect, adminOnly, deleteEvent);
 
 module.exports = router;
