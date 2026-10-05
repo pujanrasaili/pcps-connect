@@ -7,6 +7,7 @@ import {
   FaTag,
   FaCheckCircle,
   FaArrowLeft,
+  FaTimes,
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
@@ -21,11 +22,12 @@ export default function EventDetails() {
   const { id } = useParams();
   const { getEventById } = useEvents();
   const { isAuthenticated } = useAuth();
-  const { isRegistered } = useRegistrations();
+  const { isRegistered, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [unregistering, setUnregistering] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +66,12 @@ export default function EventDetails() {
   const handleRegisterClick = () => {
     if (!isAuthenticated) return;
     setShowModal(true);
+  };
+
+  const handleUnregister = async () => {
+    setUnregistering(true);
+    await cancelRegistration(event._id);
+    setUnregistering(false);
   };
 
   return (
@@ -138,8 +146,17 @@ export default function EventDetails() {
             </div>
 
             {registered ? (
-              <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                <FaCheckCircle /> You're registered for this event
+              <div className="mt-5 space-y-2">
+                <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                  <FaCheckCircle /> You're registered for this event
+                </div>
+                <button
+                  onClick={handleUnregister}
+                  disabled={unregistering}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
+                >
+                  <FaTimes className="text-xs" /> {unregistering ? "Unregistering..." : "Unregister"}
+                </button>
               </div>
             ) : isFull ? (
               <Button className="mt-5 w-full" disabled variant="outline">
