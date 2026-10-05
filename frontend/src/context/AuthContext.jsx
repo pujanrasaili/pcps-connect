@@ -85,6 +85,15 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      await api.put("/auth/change-password", { currentPassword, newPassword });
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, message: getErrorMessage(err, "Failed to change password") };
+    }
+  };
+
   // Re-fetches the current user from the backend and updates local state --
   // used after actions that change the user record from elsewhere (e.g.
   // toggling a favorite club) without going through updateUser/login.
@@ -100,7 +109,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, authChecked, login, register, logout, updateUser, refreshUser }}
+      value={{ user, isAuthenticated, authChecked, login, register, logout, updateUser, changePassword, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

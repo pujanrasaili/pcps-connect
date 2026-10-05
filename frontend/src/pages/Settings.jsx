@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { FaMoon, FaSun, FaBell, FaLock, FaUserShield, FaCheckCircle } from "react-icons/fa";
+import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import Button from "../components/Button";
+import Modal from "../components/Modal";
 
 export default function Settings() {
   const { theme, toggleTheme } = useTheme();
+  const { changePassword } = useAuth();
+  const toast = useToast();
   const [prefs, setPrefs] = useLocalStorage("pcps_notification_prefs", {
     eventReminders: true,
     clubUpdates: true,
@@ -13,6 +18,10 @@ export default function Settings() {
     smsAlerts: false,
   });
   const [saved, setSaved] = useState(false);
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [pwError, setPwError] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
 
   const togglePref = (key) => setPrefs((p) => ({ ...p, [key]: !p[key] }));
 
@@ -20,6 +29,42 @@ export default function Settings() {
     e.preventDefault();
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handlePwChange = (e) => {
+    const { name, value } = e.target;
+    setPwForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const closePwModal = () => {
+    setPwOpen(false);
+    setPwForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setPwError("");
+  };
+
+  const handlePwSubmit = async (e) => {
+    e.preventDefault();
+    setPwError("");
+
+    if (pwForm.newPassword.length < 6) {
+      setPwError("New password must be at least 6 characters.");
+      return;
+    }
+    if (pwForm.newPassword !== pwForm.confirmPassword) {
+      setPwError("New passwords do not match.");
+      return;
+    }
+
+    setPwSaving(true);
+    const result = await changePassword(pwForm.currentPassword, pwForm.newPassword);
+    setPwSaving(false);
+
+    if (!result.ok) {
+      setPwError(result.message);
+      return;
+    }
+    toast.success("Password changed successfully.");
+    closePwModal();
   };
 
   return (
@@ -91,22 +136,68 @@ export default function Settings() {
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Account</h2>
         <div className="mt-4 space-y-3">
-          <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
+          <button
+            type="button"
+            onClick={() => setPwOpen(true)}
+            className="flex w-full items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+          >
             <FaLock className="text-primary-500" />
             <div>
               <p className="font-medium text-slate-800 dark:text-slate-100">Change password</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">UI only — not connected to a backend.</p>
-            </div>
-          </button>
-          <button type="button" className="flex w-full items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
-            <FaUserShield className="text-primary-500" />
-            <div>
-              <p className="font-medium text-slate-800 dark:text-slate-100">Privacy settings</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Control what other students can see.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Update the password you use to log in.</p>
             </div>
           </button>
         </div>
       </div>
+
+      <Modal isOpen={pwOpen} onClose={closePwModal} title="Change password" size="sm">
+        <form onSubmit={handlePwSubmit} className="space-y-4">
+          {pwError && (
+            <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
+              {pwError}
+            </p>
+          )}
+          <div>
+            <label className="label-field" htmlFor="current-password">Current password</label>
+            <input
+              id="current-password"
+              name="currentPassword"
+              type="password"
+              className="input-field"
+              value={pwForm.currentPassword}
+              onChange={handlePwChange}
+              required
+            />
+          </div>
+          <div>
+            <label className="label-field" htmlFor="new-password">New password</label>
+            <input
+              id="new-password"
+              name="newPassword"
+              type="password"
+              className="input-field"
+              value={pwForm.newPassword}
+              onChange={handlePwChange}
+              required
+            />
+          </div>
+          <div>
+            <label className="label-field" htmlFor="confirm-new-password">Confirm new password</label>
+            <input
+              id="confirm-new-password"
+              name="confirmPassword"
+              type="password"
+              className="input-field"
+              value={pwForm.confirmPassword}
+              onChange={handlePwChange}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={pwSaving}>
+            {pwSaving ? "Changing..." : "Change password"}
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }
