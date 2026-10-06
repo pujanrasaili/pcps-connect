@@ -1,4 +1,5 @@
 const sendEmail = require("../utils/sendEmail");
+const renderEmail = require("../utils/emailTemplate");
 
 // Escapes HTML-special characters so a submitter can't inject markup or
 // script tags into the HTML email an admin opens in their inbox -- this is
@@ -30,12 +31,15 @@ async function submitContactForm(req, res) {
       to: receiver,
       subject: subject ? `[PCPS Connect Contact] ${subject}` : "[PCPS Connect Contact] New message",
       replyTo: email,
-      html: `
-        <p><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
-        ${subject ? `<p><strong>Subject:</strong> ${escapeHtml(subject)}</p>` : ""}
-        <p><strong>Message:</strong></p>
-        <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
-      `,
+      html: renderEmail({
+        heading: "New contact form message",
+        bodyHtml: `
+          <p style="margin: 0 0 8px;"><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+          ${subject ? `<p style="margin: 0 0 8px;"><strong>Subject:</strong> ${escapeHtml(subject)}</p>` : ""}
+          <p style="margin: 16px 0 4px;"><strong>Message:</strong></p>
+          <p style="margin: 0;">${escapeHtml(message).replace(/\n/g, "<br>")}</p>
+        `,
+      }),
     });
 
     res.status(200).json({ message: "Message sent successfully" });
