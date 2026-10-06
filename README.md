@@ -33,13 +33,15 @@ pcps-connect/
 - Account registration restricted to real PCPS email addresses (@patancollege.edu.np)
 - Email verification + admin approval required before an account can log in
 - JWT-based authentication with httpOnly cookies (secure against XSS token theft)
-- Real password reset via email
+- Real password reset via email, plus in-app change password from Settings
 - Full club directory: browse, search, filter by category, join/leave, favorite
 - Full event directory: browse, search, filter, register/unregister, live capacity tracking
+- Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 - Editable student profile
 - Contact form that actually emails the college
-- Toast notifications for every action
+- Branded HTML emails (verification, password reset, notifications) instead of plain text
+- Toast notifications for every action, and a graceful fallback screen if anything ever crashes
 - Fully responsive, dark mode support
 
 ### For admins
@@ -47,7 +49,7 @@ pcps-connect/
 - Full CRUD for clubs and events, including real image upload (Cloudinary)
 - Approve or reject pending student registrations
 - Promote/demote admin roles, delete accounts
-- Per-event attendee list with tap-to-toggle attendance marking
+- Per-event attendee list with tap-to-toggle attendance marking, plus one-click CSV export for printable attendance sheets
 - Live platform stats (total clubs, events, students, registrations)
 
 ### Security
@@ -55,6 +57,8 @@ pcps-connect/
 - Rate limiting on login/register/password-reset routes (brute-force protection)
 - `helmet` security headers
 - Role-based authorization enforced server-side on every protected route, not just hidden in the UI
+- Admin role can only ever be granted by an existing admin through the admin panel — never self-assigned at registration
+- User-supplied input (contact form) is HTML-escaped before being placed in outgoing emails
 
 ## Getting Started (local development)
 
@@ -89,9 +93,7 @@ shapes, database models) and deeper notes on the auth flow.
 
 ## Future Improvements
 
-- Pagination for clubs/events at larger scale
 - Automated tests
-- CSV export for admins (e.g. printable attendance sheets)
 - True Google Workspace-restricted sign-in (PCPS's student email is hosted
   on Google Workspace — a real "Sign in with Google" limited to the
   @patancollege.edu.np domain is possible, but requires coordination with
