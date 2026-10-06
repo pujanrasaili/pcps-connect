@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const sendEmail = require("../utils/sendEmail");
+const renderEmail = require("../utils/emailTemplate");
 
 function signToken(userId) {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -48,12 +49,16 @@ async function sendVerificationEmail(user) {
   await sendEmail({
     to: user.email,
     subject: "Verify your PCPS Connect account",
-    html: `
-      <p>Hi ${user.name},</p>
-      <p>Thanks for registering for PCPS Connect. Click the link below to verify your email address. This link expires in 24 hours.</p>
-      <p><a href="${verifyUrl}">${verifyUrl}</a></p>
-      <p>After verifying, an admin will need to approve your account before you can log in -- you'll be able to log in as soon as that happens.</p>
-    `,
+    html: renderEmail({
+      heading: "Verify your email",
+      bodyHtml: `
+        <p style="margin: 0 0 12px;">Hi ${user.name},</p>
+        <p style="margin: 0;">Thanks for registering for PCPS Connect. Click below to verify your email address. This link expires in 24 hours.</p>
+        <p style="margin: 16px 0 0;">After verifying, an admin will need to approve your account before you can log in -- you'll be able to log in as soon as that happens.</p>
+      `,
+      ctaText: "Verify my email",
+      ctaUrl: verifyUrl,
+    }),
   });
 }
 
@@ -279,12 +284,16 @@ async function forgotPassword(req, res) {
       await sendEmail({
         to: user.email,
         subject: "Reset your PCPS Connect password",
-        html: `
-          <p>Hi ${user.name},</p>
-          <p>Someone requested a password reset for your PCPS Connect account. If this was you, click the link below to set a new password. This link expires in 15 minutes.</p>
-          <p><a href="${resetUrl}">${resetUrl}</a></p>
-          <p>If you didn't request this, you can safely ignore this email -- your password won't be changed.</p>
-        `,
+        html: renderEmail({
+          heading: "Reset your password",
+          bodyHtml: `
+            <p style="margin: 0 0 12px;">Hi ${user.name},</p>
+            <p style="margin: 0;">Someone requested a password reset for your PCPS Connect account. If this was you, click below to set a new password. This link expires in 15 minutes.</p>
+            <p style="margin: 16px 0 0;">If you didn't request this, you can safely ignore this email -- your password won't be changed.</p>
+          `,
+          ctaText: "Reset my password",
+          ctaUrl: resetUrl,
+        }),
       });
     } catch (emailErr) {
       console.error("Failed to send password reset email:", emailErr.message);
@@ -361,13 +370,18 @@ async function verifyEmail(req, res) {
     // Best-effort -- a failed notification shouldn't fail the verification.
     try {
       const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.EMAIL_USER;
+      const adminUsersUrl = `${process.env.CLIENT_ORIGIN}/admin/users`;
       await sendEmail({
         to: receiver,
         subject: "PCPS Connect: new account awaiting approval",
-        html: `
-          <p>${user.name} (${user.email}) just verified their email and is waiting for approval.</p>
-          <p>Log in to the admin panel to approve or reject this account.</p>
-        `,
+        html: renderEmail({
+          heading: "New account awaiting approval",
+          bodyHtml: `
+            <p style="margin: 0;"><strong>${user.name}</strong> (${user.email}) just verified their email and is waiting for approval.</p>
+          `,
+          ctaText: "Review in admin panel",
+          ctaUrl: adminUsersUrl,
+        }),
       });
     } catch (notifyErr) {
       console.error("Failed to send admin approval notification:", notifyErr.message);
