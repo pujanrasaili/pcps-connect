@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
@@ -5,29 +6,49 @@ import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
 
+// Home loads eagerly since it's the page almost everyone lands on first.
 import Home from "../pages/Home";
-import Clubs from "../pages/Clubs";
-import Events from "../pages/Events";
-import EventDetails from "../pages/EventDetails";
-import Contact from "../pages/Contact";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import ForgotPassword from "../pages/ForgotPassword";
-import ResetPassword from "../pages/ResetPassword";
-import VerifyEmail from "../pages/VerifyEmail";
-import Terms from "../pages/Terms";
-import Privacy from "../pages/Privacy";
-import NotFound from "../pages/NotFound";
-import Dashboard from "../pages/Dashboard";
-import Profile from "../pages/Profile";
-import Settings from "../pages/Settings";
-import AdminOverview from "../pages/admin/AdminOverview";
-import AdminClubs from "../pages/admin/AdminClubs";
-import AdminEvents from "../pages/admin/AdminEvents";
-import AdminUsers from "../pages/admin/AdminUsers";
+
+// Everything else loads on demand. This matters a lot here: the admin
+// pages pull in no extra heavy libraries, but Dashboard alone drags in
+// Recharts, and before this split every visitor downloaded the full
+// admin dashboard's JS too, even students who will never open it. Splitting
+// by route means a first-time visitor on mobile data only downloads the
+// code for the page they're actually looking at.
+const Clubs = lazy(() => import("../pages/Clubs"));
+const Events = lazy(() => import("../pages/Events"));
+const EventDetails = lazy(() => import("../pages/EventDetails"));
+const Contact = lazy(() => import("../pages/Contact"));
+const Login = lazy(() => import("../pages/Login"));
+const Register = lazy(() => import("../pages/Register"));
+const ForgotPassword = lazy(() => import("../pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("../pages/ResetPassword"));
+const VerifyEmail = lazy(() => import("../pages/VerifyEmail"));
+const Terms = lazy(() => import("../pages/Terms"));
+const Privacy = lazy(() => import("../pages/Privacy"));
+const NotFound = lazy(() => import("../pages/NotFound"));
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const Profile = lazy(() => import("../pages/Profile"));
+const Settings = lazy(() => import("../pages/Settings"));
+const AdminOverview = lazy(() => import("../pages/admin/AdminOverview"));
+const AdminClubs = lazy(() => import("../pages/admin/AdminClubs"));
+const AdminEvents = lazy(() => import("../pages/admin/AdminEvents"));
+const AdminUsers = lazy(() => import("../pages/admin/AdminUsers"));
+
+// Shown briefly while a lazy-loaded page's chunk downloads -- only happens
+// on that page's first visit per session, since the browser caches the
+// chunk after that.
+function RouteFallback() {
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+    </div>
+  );
+}
 
 export default function AppRoutes() {
   return (
+    <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
@@ -108,5 +129,6 @@ export default function AppRoutes() {
         />
       </Route>
     </Routes>
+    </Suspense>
   );
 }
