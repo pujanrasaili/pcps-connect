@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import {
   FaBars,
@@ -25,6 +25,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -42,6 +43,25 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Closes the account dropdown on any click outside it -- relying on
+  // onMouseLeave alone meant clicking elsewhere on the page without first
+  // moving the cursor off the menu's bounding box left it stuck open.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    const onKeyDown = (e) => e.key === "Escape" && setMenuOpen(false);
+    document.addEventListener("mousedown", onClickOutside);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onClickOutside);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
 
   const handleLogout = () => {
     logout();
@@ -85,7 +105,7 @@ export default function Navbar() {
           </button>
 
           {isAuthenticated ? (
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((o) => !o)}
                 className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 py-1 pl-1 pr-3 hover:border-primary-300 transition-colors"
@@ -96,10 +116,7 @@ export default function Navbar() {
                 </span>
               </button>
               {menuOpen && (
-                <div
-                  className="absolute right-0 mt-2 w-52 card-surface p-2 animate-fade-in"
-                  onMouseLeave={() => setMenuOpen(false)}
-                >
+                <div className="absolute right-0 mt-2 w-52 card-surface p-2 animate-fade-in">
                   <Link
                     to="/dashboard"
                     onClick={() => setMenuOpen(false)}
