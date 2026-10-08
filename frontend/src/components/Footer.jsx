@@ -2,13 +2,21 @@ import { Link } from "react-router-dom";
 import {
   FaFacebook,
   FaInstagram,
-  FaLinkedin,
   FaYoutube,
+  FaGlobe,
   FaMapMarkerAlt,
   FaPhoneAlt,
-  FaEnvelope,
 } from "react-icons/fa";
+import { FaTiktok } from "react-icons/fa6";
 import logo from "../assets/images/pcps-logo.png";
+
+const SOCIAL_LINKS = [
+  { Icon: FaFacebook, href: "https://www.facebook.com/patancollege", label: "Facebook" },
+  { Icon: FaInstagram, href: "https://www.instagram.com/pcpscollege/", label: "Instagram" },
+  { Icon: FaTiktok, href: "https://www.tiktok.com/@pcps_college", label: "TikTok" },
+  { Icon: FaYoutube, href: "https://www.youtube.com/@pcpscollege", label: "YouTube" },
+  { Icon: FaGlobe, href: "https://patancollege.edu.np/", label: "College website" },
+];
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -23,11 +31,13 @@ export default function Footer() {
             learn, lead, and grow through clubs and events.
           </p>
           <div className="mt-5 flex gap-3">
-            {[FaFacebook, FaInstagram, FaLinkedin, FaYoutube].map((Icon, i) => (
+            {SOCIAL_LINKS.map(({ Icon, href, label }) => (
               <a
-                key={i}
-                href="#"
-                aria-label="Social media link"
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-primary-500 hover:text-white dark:bg-slate-800 dark:text-slate-400"
               >
                 <Icon className="text-sm" />
@@ -87,13 +97,10 @@ export default function Footer() {
           <ul className="mt-4 space-y-3 text-sm text-slate-500 dark:text-slate-400">
             <li className="flex items-start gap-2.5">
               <FaMapMarkerAlt className="mt-0.5 shrink-0 text-primary-500" />
-              Patan College for Professional Studies, Lalitpur, Nepal
+              PCPS College, Kandevatasthan, Lalitpur, Nepal
             </li>
             <li className="flex items-center gap-2.5">
-              <FaPhoneAlt className="shrink-0 text-primary-500" /> +977 1-5000000
-            </li>
-            <li className="flex items-center gap-2.5">
-              <FaEnvelope className="shrink-0 text-primary-500" /> info@patancollege.edu.np
+              <FaPhoneAlt className="shrink-0 text-primary-500" /> 01-5181198
             </li>
           </ul>
         </div>

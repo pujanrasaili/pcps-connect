@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaCheckCircle } from "react-icons/fa";
+import { FaMapMarkerAlt, FaPhoneAlt, FaClock, FaCheckCircle, FaUserTie } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
 
@@ -56,9 +56,10 @@ export default function Contact() {
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
           <div className="space-y-4">
-            <ContactRow icon={FaMapMarkerAlt} title="Address" text="Patan College for Professional Studies, Lalitpur, Nepal" />
-            <ContactRow icon={FaPhoneAlt} title="Phone" text="+977 1-5000000" />
-            <ContactRow icon={FaEnvelope} title="Email" text="info@patancollege.edu.np" />
+            <ContactRow icon={FaMapMarkerAlt} title="Address" text="PCPS College, Kandevatasthan, Lalitpur, Nepal" />
+            <ContactRow icon={FaPhoneAlt} title="Phone" text="01-5181198" />
+            <ContactRow icon={FaUserTie} title="Events — Rishika Dahal (College Events Head)" text="9801102247" />
+            <ContactRow icon={FaUserTie} title="Admission — Pramila Ghimire (Admission Manager)" text="9801102235" />
             <ContactRow icon={FaClock} title="Office Hours" text="Sun – Fri, 9:00 AM – 5:00 PM" />
 
             <div className="card-surface overflow-hidden">
