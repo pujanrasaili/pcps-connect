@@ -100,8 +100,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-slate-100 py-5 text-center text-xs text-slate-400 dark:border-slate-800">
-        © {year} Patan College of Professional Studies. Built for academic
-        demonstration purposes — Club & Event Management System.
+        © {year} Patan College of Professional Studies. PCPS Connect — Club & Event Management System.
       </div>
     </footer>
   );
