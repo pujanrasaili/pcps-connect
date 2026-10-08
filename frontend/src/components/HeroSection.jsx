@@ -1,10 +1,24 @@
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaArrowRight, FaCalendarCheck } from "react-icons/fa";
 import campusBuilding from "../assets/images/campus-building.jpg";
+import { api } from "../services/api";
 
 export default function HeroSection() {
   const imgRef = useRef(null);
+
+  // Real counts from the database, not placeholder marketing numbers --
+  // the Home page's own Stats section pulls from the same endpoint, so
+  // this banner can't show a different, contradicting number a few
+  // hundred pixels above it.
+  const [stats, setStats] = useState({ totalClubs: 0, totalStudents: 0, totalEvents: 0 });
+
+  useEffect(() => {
+    api
+      .get("/stats")
+      .then((res) => setStats(res.data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
@@ -65,9 +79,9 @@ export default function HeroSection() {
             </div>
             <div className="mt-10 flex flex-wrap gap-8 border-t border-white/15 pt-6">
               {[
-                ["5", "Active Clubs"],
-                ["500+", "Members"],
-                ["30+", "Events / Year"],
+                [stats.totalClubs, "Active Clubs"],
+                [stats.totalStudents, "Members"],
+                [stats.totalEvents, "Events Hosted"],
               ].map(([num, label]) => (
                 <div key={label}>
                   <p className="font-display text-2xl font-bold">{num}</p>
