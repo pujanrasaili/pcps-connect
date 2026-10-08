@@ -1,5 +1,6 @@
 const Club = require("../models/Club");
 const ClubMembership = require("../models/ClubMembership");
+const { safeError } = require("../utils/errorMessage");
 
 // GET /api/clubs  (public)
 async function getClubs(req, res) {
@@ -7,7 +8,7 @@ async function getClubs(req, res) {
     const clubs = await Club.find().sort({ name: 1 });
     res.status(200).json({ clubs });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to fetch clubs" });
+    res.status(500).json({ message: safeError(err, "Failed to fetch clubs") });
   }
 }
 
@@ -28,7 +29,7 @@ async function createClub(req, res) {
     const club = await Club.create({ ...req.body, createdBy: req.user._id });
     res.status(201).json({ message: "Club created", club });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to create club" });
+    res.status(500).json({ message: safeError(err, "Failed to create club") });
   }
 }
 
@@ -42,7 +43,7 @@ async function updateClub(req, res) {
     if (!club) return res.status(404).json({ message: "Club not found" });
     res.status(200).json({ message: "Club updated", club });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to update club" });
+    res.status(500).json({ message: safeError(err, "Failed to update club") });
   }
 }
 
@@ -59,7 +60,7 @@ async function deleteClub(req, res) {
 
     res.status(200).json({ message: "Club deleted" });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to delete club" });
+    res.status(500).json({ message: safeError(err, "Failed to delete club") });
   }
 }
 

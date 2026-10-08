@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
+const { safeError } = require("../utils/errorMessage");
 
 function signToken(userId) {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -117,7 +118,7 @@ async function register(req, res) {
       user: publicUser(user),
     });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Registration failed" });
+    res.status(500).json({ message: safeError(err, "Registration failed") });
   }
 }
 
@@ -165,7 +166,7 @@ async function login(req, res) {
 
     res.status(200).json({ message: "Login successful", user: publicUser(user) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Login failed" });
+    res.status(500).json({ message: safeError(err, "Login failed") });
   }
 }
 
@@ -200,7 +201,7 @@ async function updateProfile(req, res) {
 
     res.status(200).json({ message: "Profile updated", user: publicUser(user) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to update profile" });
+    res.status(500).json({ message: safeError(err, "Failed to update profile") });
   }
 }
 
@@ -222,7 +223,7 @@ async function toggleFavoriteClub(req, res) {
 
     res.status(200).json({ message: "Favorite updated", user: publicUser(req.user) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to update favorite" });
+    res.status(500).json({ message: safeError(err, "Failed to update favorite") });
   }
 }
 
@@ -252,7 +253,7 @@ async function changePassword(req, res) {
 
     res.status(200).json({ message: "Password changed successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to change password" });
+    res.status(500).json({ message: safeError(err, "Failed to change password") });
   }
 }
 
@@ -301,7 +302,7 @@ async function forgotPassword(req, res) {
 
     res.status(200).json(genericResponse);
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to process request" });
+    res.status(500).json({ message: safeError(err, "Failed to process request") });
   }
 }
 
@@ -335,7 +336,7 @@ async function resetPassword(req, res) {
 
     res.status(200).json({ message: "Password reset successfully. You can now log in." });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to reset password" });
+    res.status(500).json({ message: safeError(err, "Failed to reset password") });
   }
 }
 
@@ -391,7 +392,7 @@ async function verifyEmail(req, res) {
       message: "Email verified! An admin will review your account -- you'll be able to log in once it's approved.",
     });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to verify email" });
+    res.status(500).json({ message: safeError(err, "Failed to verify email") });
   }
 }
 
@@ -417,7 +418,7 @@ async function resendVerification(req, res) {
 
     res.status(200).json(genericResponse);
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to process request" });
+    res.status(500).json({ message: safeError(err, "Failed to process request") });
   }
 }
 

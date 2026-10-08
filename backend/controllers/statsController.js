@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Club = require("../models/Club");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
+const { safeError } = require("../utils/errorMessage");
 
 // GET /api/stats  (public, no auth)
 // Aggregate counts only -- no names, emails, or any per-record data -- so
@@ -19,7 +20,7 @@ async function getPublicStats(req, res) {
 
     res.status(200).json({ totalStudents, totalClubs, totalEvents, totalRegistrations });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to fetch stats" });
+    res.status(500).json({ message: safeError(err, "Failed to fetch stats") });
   }
 }
 

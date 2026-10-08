@@ -1,5 +1,6 @@
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
+const { safeError } = require("../utils/errorMessage");
 
 // POST /api/registrations/register  (requires login)
 async function registerForEvent(req, res) {
@@ -20,15 +21,37 @@ async function registerForEvent(req, res) {
       return res.status(400).json({ message: "This event is full" });
     }
 
-    const registration = await Registration.create({
-      user: req.user._id,
-      event: eventId,
-      status: "confirmed",
-    });
+    let registration;
+    try {
+      registration = await Registration.create({
+        user: req.user._id,
+        event: eventId,
+        status: "confirmed",
+      });
+    } catch (err) {
+      // Unique index on (user, event) -- two simultaneous clicks from the
+      // same account land here instead of creating a duplicate.
+      if (err.code === 11000) {
+        return res.status(400).json({ message: "You are already registered for this event" });
+      }
+      throw err;
+    }
+
+    // The count check above and the create above aren't one atomic
+    // operation, so two different students registering for the last spot
+    // at the same instant can both pass the check. Re-count after insert
+    // (an operation MongoDB does serialize) and roll back if this
+    // registration pushed the event over capacity -- fails closed rather
+    // than silently overbooking a real event.
+    const countAfterInsert = await Registration.countDocuments({ event: eventId });
+    if (countAfterInsert > event.capacity) {
+      await registration.deleteOne();
+      return res.status(400).json({ message: "This event is full" });
+    }
 
     res.status(201).json({ message: "Registered for event", registration });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Registration failed" });
+    res.status(500).json({ message: safeError(err, "Registration failed") });
   }
 }
 
@@ -42,7 +65,7 @@ async function getMyRegistrations(req, res) {
 
     res.status(200).json({ registrations });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to fetch registrations" });
+    res.status(500).json({ message: safeError(err, "Failed to fetch registrations") });
   }
 }
 
@@ -60,7 +83,7 @@ async function cancelRegistration(req, res) {
     await registration.deleteOne();
     res.status(200).json({ message: "Registration cancelled" });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to cancel registration" });
+    res.status(500).json({ message: safeError(err, "Failed to cancel registration") });
   }
 }
 

@@ -1,5 +1,6 @@
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
+const { safeError } = require("../utils/errorMessage");
 
 // Escapes HTML-special characters so a submitter can't inject markup or
 // script tags into the HTML email an admin opens in their inbox -- this is
@@ -44,6 +45,7 @@ async function submitContactForm(req, res) {
 
     res.status(200).json({ message: "Message sent successfully" });
   } catch (err) {
+    safeError(err, "Failed to send message");
     res.status(500).json({ message: "Failed to send message. Please try again or email us directly." });
   }
 }
