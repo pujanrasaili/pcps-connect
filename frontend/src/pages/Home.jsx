@@ -8,10 +8,10 @@ import Modal from "../components/Modal";
 import VideoLightbox from "../components/VideoLightbox";
 import Reveal from "../components/Reveal";
 import { useTilt } from "../hooks/useTilt";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
-import { resolveUploadUrl } from "../services/api";
+import { api, resolveUploadUrl } from "../services/api";
 import campusEvent from "../assets/images/campus-event.jpg";
 import reelPoster from "../assets/images/campus-reel-poster.jpg";
 
@@ -24,6 +24,23 @@ export default function Home() {
   const upcomingEvents = events.slice(0, 3);
   const photoTilt = useTilt({ max: 5, scale: 1.01 });
   const videoTilt = useTilt({ max: 5, scale: 1.01 });
+
+  // Real counts pulled from the database, not placeholder marketing
+  // numbers -- starts at 0 so each StatsCard's count-up animation plays
+  // naturally once the real number arrives, instead of popping in.
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalClubs: 0,
+    totalEvents: 0,
+    totalRegistrations: 0,
+  });
+
+  useEffect(() => {
+    api
+      .get("/stats")
+      .then((res) => setStats(res.data))
+      .catch(() => {});
+  }, []);
 
   return (
     <div>
@@ -124,10 +141,10 @@ export default function Home() {
       <section className="section-y bg-white dark:bg-slate-900/40">
         <div className="container-page grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            [FaUsers, "Active Members", 571, "primary"],
-            [FaCalendarAlt, "Events This Year", 32, "accent"],
-            [FaTrophy, "Clubs on Campus", 5, "emerald"],
-            [FaHandshake, "Partner Organizations", 12, "amber"],
+            [FaUsers, "Registered Students", stats.totalStudents, "primary"],
+            [FaCalendarAlt, "Events Hosted", stats.totalEvents, "accent"],
+            [FaTrophy, "Active Clubs", stats.totalClubs, "emerald"],
+            [FaHandshake, "Event Registrations", stats.totalRegistrations, "amber"],
           ].map(([Icon, label, value, accent], i) => (
             <Reveal key={label} delay={i * 80}>
               <StatsCard icon={Icon} label={label} value={value} accent={accent} />
