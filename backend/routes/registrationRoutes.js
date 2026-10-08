@@ -5,11 +5,12 @@ const {
   cancelRegistration,
 } = require("../controllers/registrationController");
 const { protect } = require("../middleware/auth");
+const { actionLimiter } = require("../middleware/rateLimit");
 
 const router = express.Router();
 
-router.post("/register", protect, registerForEvent);
+router.post("/register", protect, actionLimiter, registerForEvent);
 router.get("/my", protect, getMyRegistrations);
-router.delete("/:id", protect, cancelRegistration);
+router.delete("/:id", protect, actionLimiter, cancelRegistration);
 
 module.exports = router;

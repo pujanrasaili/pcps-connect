@@ -11,4 +11,16 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter };
+// Looser limiter for logged-in actions like event registration -- a student
+// browsing a club fair might legitimately register for several events in a
+// few minutes, so this only needs to stop a script from hammering the
+// endpoint, not slow down normal use.
+const actionLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 30, // 30 requests per IP per window
+  message: { message: "Too many requests. Please slow down and try again shortly." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { authLimiter, actionLimiter };

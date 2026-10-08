@@ -1,6 +1,7 @@
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
+const { safeError } = require("../utils/errorMessage");
 
 // Attaches a live "registeredCount" to each event, computed from actual
 // Registration documents rather than a stored counter -- a stored counter
@@ -30,7 +31,7 @@ async function getEvents(req, res) {
     const events = await Event.find().populate("createdBy", "name email").sort({ date: 1 });
     res.status(200).json({ events: await withRegisteredCount(events) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to fetch events" });
+    res.status(500).json({ message: safeError(err, "Failed to fetch events") });
   }
 }
 
@@ -73,7 +74,7 @@ async function createEvent(req, res) {
 
     res.status(201).json({ message: "Event created", event: await withRegisteredCount(event) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to create event" });
+    res.status(500).json({ message: safeError(err, "Failed to create event") });
   }
 }
 
@@ -100,7 +101,7 @@ async function updateEvent(req, res) {
     await event.save();
     res.status(200).json({ message: "Event updated", event: await withRegisteredCount(event) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to update event" });
+    res.status(500).json({ message: safeError(err, "Failed to update event") });
   }
 }
 
@@ -122,7 +123,7 @@ async function deleteEvent(req, res) {
 
     res.status(200).json({ message: "Event deleted" });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to delete event" });
+    res.status(500).json({ message: safeError(err, "Failed to delete event") });
   }
 }
 

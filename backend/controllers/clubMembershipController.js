@@ -1,5 +1,6 @@
 const ClubMembership = require("../models/ClubMembership");
 const Club = require("../models/Club");
+const { safeError } = require("../utils/errorMessage");
 
 // GET /api/club-memberships/my  (requires login)
 // Returns this student's memberships, each populated with the club's info.
@@ -8,7 +9,7 @@ async function getMyMemberships(req, res) {
     const memberships = await ClubMembership.find({ user: req.user._id }).populate("club");
     res.status(200).json({ memberships });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to fetch memberships" });
+    res.status(500).json({ message: safeError(err, "Failed to fetch memberships") });
   }
 }
 
@@ -27,7 +28,7 @@ async function joinClub(req, res) {
     const membership = await ClubMembership.create({ user: req.user._id, club: clubId });
     res.status(201).json({ message: "Joined club", membership });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to join club" });
+    res.status(500).json({ message: safeError(err, "Failed to join club") });
   }
 }
 
@@ -41,7 +42,7 @@ async function leaveClub(req, res) {
     if (!membership) return res.status(404).json({ message: "Membership not found" });
     res.status(200).json({ message: "Left club" });
   } catch (err) {
-    res.status(500).json({ message: err.message || "Failed to leave club" });
+    res.status(500).json({ message: safeError(err, "Failed to leave club") });
   }
 }
 
