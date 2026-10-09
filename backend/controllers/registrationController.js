@@ -11,6 +11,10 @@ async function registerForEvent(req, res) {
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
+    if (new Date(event.date) < new Date()) {
+      return res.status(400).json({ message: "Registration is closed -- this event has already taken place" });
+    }
+
     const existing = await Registration.findOne({ user: req.user._id, event: eventId });
     if (existing) {
       return res.status(400).json({ message: "You are already registered for this event" });

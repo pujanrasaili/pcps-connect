@@ -21,7 +21,10 @@ export default function Home() {
   const { clubs } = useClubs();
   const { events } = useEvents();
   const featuredClubs = clubs.slice(0, 3);
-  const upcomingEvents = events.slice(0, 3);
+  const upcomingEvents = events
+    .filter((event) => new Date(event.date) >= new Date())
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 3);
   const photoTilt = useTilt({ max: 5, scale: 1.01 });
   const videoTilt = useTilt({ max: 5, scale: 1.01 });
 
