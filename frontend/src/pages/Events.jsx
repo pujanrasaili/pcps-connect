@@ -14,6 +14,7 @@ export default function Events() {
   const { events, loading, error } = useEvents();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [when, setWhen] = useState("upcoming");
   const debouncedQuery = useDebounce(query, 250);
 
   const categories = useMemo(
@@ -22,16 +23,21 @@ export default function Events() {
   );
 
   const filteredEvents = useMemo(() => {
+    const now = new Date();
     return events
       .filter((event) => {
+        const isPast = new Date(event.date) < now;
+        const matchesWhen = when === "upcoming" ? !isPast : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesQuery = event.title
           .toLowerCase()
           .includes(debouncedQuery.toLowerCase());
-        return matchesCategory && matchesQuery;
+        return matchesWhen && matchesCategory && matchesQuery;
       })
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
-  }, [events, debouncedQuery, category]);
+      .sort((a, b) =>
+        when === "upcoming" ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date)
+      );
+  }, [events, debouncedQuery, category, when]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -43,7 +49,7 @@ export default function Events() {
             What's Happening
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
-            Upcoming Events
+            Events
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-slate-500 dark:text-slate-400">
             Workshops, contests, and seminars hosted by PCPS clubs — register
@@ -51,7 +57,28 @@ export default function Events() {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto mt-8 flex max-w-4xl justify-center">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+            {[
+              ["upcoming", "Upcoming"],
+              ["past", "Past"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => setWhen(value)}
+                className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${
+                  when === value
+                    ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-400"
+                    : "text-slate-500 dark:text-slate-400"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mx-auto mt-5 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
             <SearchBar value={query} onChange={setQuery} placeholder="Search events..." />
           </div>
@@ -80,7 +107,9 @@ export default function Events() {
           </>
         ) : (
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
-            <p className="text-lg font-medium">No events match your search.</p>
+            <p className="text-lg font-medium">
+              {when === "upcoming" ? "No upcoming events match your search." : "No past events match your search."}
+            </p>
             <p className="mt-1 text-sm">Try a different name or category.</p>
           </div>
         )}

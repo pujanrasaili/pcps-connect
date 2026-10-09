@@ -61,6 +61,7 @@ export default function EventDetails() {
   const registeredCount = event.registeredCount ?? 0;
   const spotsLeft = capacity - registeredCount;
   const isFull = spotsLeft <= 0;
+  const isPast = new Date(event.date) < new Date();
   const registered = isRegistered(event._id);
 
   const handleRegisterClick = () => {
@@ -84,6 +85,9 @@ export default function EventDetails() {
             <FaArrowLeft className="text-xs" /> Back to events
           </Link>
           <span className="badge bg-white/20 backdrop-blur">{event.category}</span>
+          {isPast && (
+            <span className="badge ml-2 bg-slate-700/60 backdrop-blur">Past event</span>
+          )}
           <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{event.title}</h1>
         </div>
       </div>
@@ -145,7 +149,11 @@ export default function EventDetails() {
               />
             </div>
 
-            {registered ? (
+            {registered && isPast ? (
+              <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                <FaCheckCircle /> You attended this event
+              </div>
+            ) : registered ? (
               <div className="mt-5 space-y-2">
                 <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   <FaCheckCircle /> You're registered for this event
@@ -158,6 +166,10 @@ export default function EventDetails() {
                   <FaTimes className="text-xs" /> {unregistering ? "Unregistering..." : "Unregister"}
                 </button>
               </div>
+            ) : isPast ? (
+              <Button className="mt-5 w-full" disabled variant="outline">
+                Event has ended
+              </Button>
             ) : isFull ? (
               <Button className="mt-5 w-full" disabled variant="outline">
                 Registration full

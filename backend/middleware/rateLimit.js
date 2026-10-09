@@ -16,7 +16,7 @@ const authLimiter = rateLimit({
 // few minutes, so this only needs to stop a script from hammering the
 // endpoint, not slow down normal use.
 const actionLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
+  windowMs: 10 * 60 * 1000, // 10 minutes 
   max: 30, // 30 requests per IP per window
   message: { message: "Too many requests. Please slow down and try again shortly." },
   standardHeaders: true,

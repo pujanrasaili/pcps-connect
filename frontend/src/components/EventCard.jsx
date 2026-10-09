@@ -10,6 +10,7 @@ export default function EventCard({ event }) {
   const spotsLeft = capacity - registeredCount;
   const isFillingUp = spotsLeft <= 15 && spotsLeft > 0;
   const isFull = spotsLeft <= 0;
+  const isPast = new Date(event.date) < new Date();
   const tilt = useTilt({ max: 6, scale: 1.015 });
 
   return (
@@ -18,14 +19,14 @@ export default function EventCard({ event }) {
       onMouseMove={tilt.onMouseMove}
       onMouseLeave={tilt.onMouseLeave}
       style={tilt.style}
-      className="group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft"
+      className={`group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft ${isPast ? "opacity-70" : ""}`}
     >
       <div className="relative h-44 overflow-hidden">
         <img
           src={resolveUploadUrl(event.image)}
           alt={event.title}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${isPast ? "grayscale" : ""}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent" />
         <div className="absolute left-3 top-3 flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-white dark:bg-slate-900 shadow-md">
@@ -39,6 +40,11 @@ export default function EventCard({ event }) {
         <span className="badge absolute right-3 top-3 bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200">
           {event.category}
         </span>
+        {isPast && (
+          <span className="badge absolute right-3 top-11 bg-slate-800/90 text-white">
+            Past event
+          </span>
+        )}
         <div className="absolute bottom-3 left-4 right-4 text-white">
           <p className="text-xs font-medium opacity-90">
             {event.createdBy?.name ? `Organized by ${event.createdBy.name}` : ""}
