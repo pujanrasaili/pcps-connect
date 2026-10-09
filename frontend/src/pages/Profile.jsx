@@ -129,35 +129,36 @@ export default function Profile() {
         </h2>
         {eventHistory.length > 0 ? (
           <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
-            {eventHistory.map((r) => (
-              <div key={r._id} className="flex items-center justify-between gap-3 py-3">
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
+            {eventHistory.map((r) => {
+              const isPast = new Date(r.event.date) < new Date();
+              const label = r.attended ? "Attended" : isPast ? "Past" : "Upcoming";
+              const badgeClass = r.attended
+                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                : isPast
+                ? "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                : "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
+              return (
+                <div key={r._id} className="flex items-center justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className={`badge ${badgeClass}`}>{label}</span>
+                    {!r.attended && !isPast && (
+                      <button
+                        onClick={() => handleUnregister(r.event._id)}
+                        aria-label={`Unregister from ${r.event.title}`}
+                        title="Unregister"
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                      >
+                        <FaTimes className="text-sm" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <span
-                    className={`badge ${
-                      r.attended
-                        ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
-                        : "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-                    }`}
-                  >
-                    {r.attended ? "Attended" : "Upcoming"}
-                  </span>
-                  {!r.attended && (
-                    <button
-                      onClick={() => handleUnregister(r.event._id)}
-                      aria-label={`Unregister from ${r.event.title}`}
-                      title="Unregister"
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
-                    >
-                      <FaTimes className="text-sm" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No event history yet.</p>
