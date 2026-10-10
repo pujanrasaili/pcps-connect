@@ -4,6 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
+const { safeError } = require("./utils/errorMessage");
 
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -18,13 +19,10 @@ const app = express();
 
 connectDB();
 
-// Sets a batch of standard protective HTTP headers (blocks MIME-sniffing,
-// disables framing to prevent clickjacking, etc.) -- a baseline every
-// production Express app should have.
+app.set("trust proxy", 1);
+
 app.use(helmet());
 
-// CORS must allow the frontend's exact origin AND credentials, or the
-// browser will silently refuse to send/receive the auth cookie.
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
@@ -48,16 +46,18 @@ app.use("/api/club-memberships", clubMembershipRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/stats", statsRoutes);
 
-// 404 handler for unmatched API routes
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// Central error handler -- catches multer errors (bad file type, size limit)
-// and anything else thrown/passed to next(err)
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({ message: err.message || "Server error" });
+  const isUploadError =
+    err.name === "MulterError" ||
+    err.message === "Only image files (jpg, png, webp, gif) are allowed";
+  if (isUploadError) {
+    return res.status(err.status || 400).json({ message: err.message });
+  }
+  res.status(err.status || 500).json({ message: safeError(err, "Server error") });
 });
 
 const PORT = process.env.PORT || 5000;
