@@ -18,6 +18,13 @@ export function formatMonth(dateStr) {
   return date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
 }
 
+// Exact-time comparison (not just "is it still today") -- an event that
+// started an hour ago is over even if it started today, so it shouldn't
+// still read as "upcoming" or be open for registration.
 export function isUpcoming(dateStr) {
-  return new Date(dateStr) >= new Date(new Date().toDateString());
+  return new Date(dateStr) >= new Date();
+}
+
+export function isPastEvent(dateStr) {
+  return !isUpcoming(dateStr);
 }

@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useToast } from "../context/ToastContext";
-import { formatDate } from "../utils/formatDate";
+import { formatDate, isPastEvent } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
@@ -130,7 +130,7 @@ export default function Profile() {
         {eventHistory.length > 0 ? (
           <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
             {eventHistory.map((r) => {
-              const isPast = new Date(r.event.date) < new Date();
+              const isPast = isPastEvent(r.event.date);
               const label = r.attended ? "Attended" : isPast ? "Past" : "Upcoming";
               const badgeClass = r.attended
                 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"

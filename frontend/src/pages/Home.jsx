@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { api, resolveUploadUrl } from "../services/api";
+import { isUpcoming } from "../utils/formatDate";
 import campusEvent from "../assets/images/campus-event.jpg";
 import reelPoster from "../assets/images/campus-reel-poster.jpg";
 
@@ -22,7 +23,7 @@ export default function Home() {
   const { events } = useEvents();
   const featuredClubs = clubs.slice(0, 3);
   const upcomingEvents = events
-    .filter((event) => new Date(event.date) >= new Date())
+    .filter((event) => isUpcoming(event.date))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 3);
   const photoTilt = useTilt({ max: 5, scale: 1.01 });
