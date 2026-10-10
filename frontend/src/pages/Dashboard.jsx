@@ -26,7 +26,7 @@ import { useAuth } from "../context/AuthContext";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useClubs } from "../context/ClubsContext";
 import { useRegistrations } from "../context/RegistrationContext";
-import { formatDate } from "../utils/formatDate";
+import { formatDate, isUpcoming } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   const attendedCount = registeredEvents.filter((r) => r.attended).length;
   const upcoming = registeredEvents
-    .filter((r) => new Date(r.event.date) >= new Date(new Date().toDateString()))
+    .filter((r) => isUpcoming(r.event.date))
     .sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
 
   const favoriteClub = clubs.find((c) => c._id === favoriteClubId);

@@ -15,7 +15,7 @@ import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
-import { formatDate } from "../utils/formatDate";
+import { formatDate, isPastEvent } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
 
 export default function EventDetails() {
@@ -61,7 +61,7 @@ export default function EventDetails() {
   const registeredCount = event.registeredCount ?? 0;
   const spotsLeft = capacity - registeredCount;
   const isFull = spotsLeft <= 0;
-  const isPast = new Date(event.date) < new Date();
+  const isPast = isPastEvent(event.date);
   const registered = isRegistered(event._id);
 
   const handleRegisterClick = () => {

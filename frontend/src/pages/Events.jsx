@@ -7,6 +7,7 @@ import { useEvents } from "../context/EventsContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { usePagination } from "../hooks/usePagination";
 import Pagination from "../components/Pagination";
+import { isPastEvent } from "../utils/formatDate";
 
 const PAGE_SIZE = 9;
 
@@ -23,10 +24,9 @@ export default function Events() {
   );
 
   const filteredEvents = useMemo(() => {
-    const now = new Date();
     return events
       .filter((event) => {
-        const isPast = new Date(event.date) < now;
+        const isPast = isPastEvent(event.date);
         const matchesWhen = when === "upcoming" ? !isPast : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesQuery = event.title

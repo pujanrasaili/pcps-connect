@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaMapMarkerAlt, FaUsers } from "react-icons/fa";
-import { formatDay, formatMonth } from "../utils/formatDate";
+import { formatDay, formatMonth, isPastEvent } from "../utils/formatDate";
 import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
 
@@ -10,7 +10,7 @@ export default function EventCard({ event }) {
   const spotsLeft = capacity - registeredCount;
   const isFillingUp = spotsLeft <= 15 && spotsLeft > 0;
   const isFull = spotsLeft <= 0;
-  const isPast = new Date(event.date) < new Date();
+  const isPast = isPastEvent(event.date);
   const tilt = useTilt({ max: 6, scale: 1.015 });
 
   return (
