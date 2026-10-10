@@ -36,10 +36,36 @@ async function getUserEvents(req, res) {
 }
 
 // PUT /api/admin/users/:id  (password field is ignored even if sent)
+//
+// Two safety nets here that the frontend already enforces via disabled
+// buttons, but the UI alone isn't a security boundary -- a direct API call
+// bypasses it entirely, so both checks are repeated here:
+//   1. An admin can't change their OWN role or approval status through this
+//      route -- stops an admin from accidentally (or via a crafted request)
+//      demoting or un-approving themselves out of the admin panel.
+//   2. The last remaining admin account can't be demoted to "user" -- without
+//      this, demoting it would leave the entire app with zero admins and no
+//      way to promote anyone back short of editing the database directly.
 async function updateUser(req, res) {
   try {
     const { password, ...safeUpdates } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, safeUpdates, {
+    const targetId = req.params.id;
+
+    if (targetId === req.user._id.toString() && ("role" in safeUpdates || "approvalStatus" in safeUpdates)) {
+      return res.status(400).json({ message: "You can't change your own role or approval status" });
+    }
+
+    if ("role" in safeUpdates && safeUpdates.role !== "admin") {
+      const target = await User.findById(targetId);
+      if (target?.role === "admin") {
+        const adminCount = await User.countDocuments({ role: "admin" });
+        if (adminCount <= 1) {
+          return res.status(400).json({ message: "Can't demote the last remaining admin" });
+        }
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(targetId, safeUpdates, {
       new: true,
       runValidators: true,
     });
@@ -53,8 +79,19 @@ async function updateUser(req, res) {
 // DELETE /api/admin/users/:id  -- cascade-deletes their events/registrations
 async function deleteUser(req, res) {
   try {
+    if (req.params.id === req.user._id.toString()) {
+      return res.status(400).json({ message: "You can't delete your own account" });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role === "admin") {
+      const adminCount = await User.countDocuments({ role: "admin" });
+      if (adminCount <= 1) {
+        return res.status(400).json({ message: "Can't delete the last remaining admin" });
+      }
+    }
 
     await Event.deleteMany({ createdBy: user._id });
     await Registration.deleteMany({ user: user._id });
