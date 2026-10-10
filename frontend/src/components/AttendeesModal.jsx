@@ -6,8 +6,20 @@ import Modal from "./Modal";
 
 // Wraps a CSV field in quotes and escapes any quotes inside it, so names
 // or emails containing commas don't break the column layout.
+//
+// Student names come straight from registration with no character
+// restrictions, and this file is meant to be opened in Excel (hence the
+// BOM below). If a name/email/student ID starts with =, +, -, or @, Excel
+// reads it as a formula instead of text -- a student could register as
+// something like `=HYPERLINK("http://evil","click")` or a DDE payload
+// that runs when the admin opens the export. Prefixing a leading
+// apostrophe forces Excel (and Sheets/LibreOffice) to treat it as plain
+// text; it's invisible in the cell either way.
 function csvField(value) {
-  const str = String(value ?? "");
+  let str = String(value ?? "");
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
   return `"${str.replace(/"/g, '""')}"`;
 }
 
