@@ -1,19 +1,7 @@
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
-
-// Escapes HTML-special characters so a submitter can't inject markup or
-// script tags into the HTML email an admin opens in their inbox -- this is
-// a public, unauthenticated form, so its input is the least trusted in the
-// whole app.
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+const { escapeHtml } = require("../utils/escapeHtml");
 
 // POST /api/contact  (public, rate-limited)
 // Emails the submission straight to the college's contact address --

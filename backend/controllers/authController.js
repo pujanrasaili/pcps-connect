@@ -4,6 +4,7 @@ const User = require("../models/User");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
+const { escapeHtml } = require("../utils/escapeHtml");
 
 function signToken(userId) {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -53,7 +54,7 @@ async function sendVerificationEmail(user) {
     html: renderEmail({
       heading: "Verify your email",
       bodyHtml: `
-        <p style="margin: 0 0 12px;">Hi ${user.name},</p>
+        <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
         <p style="margin: 0;">Thanks for registering for PCPS Connect. Click below to verify your email address. This link expires in 24 hours.</p>
         <p style="margin: 16px 0 0;">After verifying, an admin will need to approve your account before you can log in -- you'll be able to log in as soon as that happens.</p>
       `,
@@ -288,7 +289,7 @@ async function forgotPassword(req, res) {
         html: renderEmail({
           heading: "Reset your password",
           bodyHtml: `
-            <p style="margin: 0 0 12px;">Hi ${user.name},</p>
+            <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
             <p style="margin: 0;">Someone requested a password reset for your PCPS Connect account. If this was you, click below to set a new password. This link expires in 15 minutes.</p>
             <p style="margin: 16px 0 0;">If you didn't request this, you can safely ignore this email -- your password won't be changed.</p>
           `,
@@ -378,7 +379,7 @@ async function verifyEmail(req, res) {
         html: renderEmail({
           heading: "New account awaiting approval",
           bodyHtml: `
-            <p style="margin: 0;"><strong>${user.name}</strong> (${user.email}) just verified their email and is waiting for approval.</p>
+            <p style="margin: 0;"><strong>${escapeHtml(user.name)}</strong> (${escapeHtml(user.email)}) just verified their email and is waiting for approval.</p>
           `,
           ctaText: "Review in admin panel",
           ctaUrl: adminUsersUrl,
