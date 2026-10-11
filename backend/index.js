@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
+const { requireCsrfHeader } = require("./middleware/csrf");
 
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -32,6 +33,10 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Runs before every route (multer parses multipart bodies per-route
+// further down, which is unaffected -- this only reads the header).
+app.use(requireCsrfHeader);
 
 app.get("/", (req, res) => {
   res.json({ message: "PCPS Connect API is running" });

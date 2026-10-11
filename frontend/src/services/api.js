@@ -9,6 +9,13 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:50
 export const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  // Paired with backend/middleware/csrf.js. A plain HTML form (the classic
+  // no-JavaScript CSRF vector) can never set a custom header, so this marks
+  // every request from this app as genuinely coming from our own frontend
+  // code rather than a forged cross-site form submission.
+  headers: {
+    "X-Requested-With": "XMLHttpRequest",
+  },
 });
 
 // Prefix an uploaded file's relative path (e.g. "/uploads/xyz.jpg") with the
