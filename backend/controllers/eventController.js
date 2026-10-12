@@ -25,6 +25,20 @@ async function withRegisteredCount(events) {
   return isArray ? result : result[0];
 }
 
+// Validates a capacity value sent from the client. Returns the parsed
+// positive integer, or null if the value is invalid -- callers turn that
+// into a 400 instead of saving it. Without this, a bad value (blank field,
+// typo, a direct API call bypassing the frontend's own min="1" check)
+// could silently become NaN or <= 0, which breaks the registration gate:
+// NaN comparisons are always false, so "registeredCount >= event.capacity"
+// never blocks anyone (unlimited signups), while 0 or negative blocks
+// everyone with no clear error shown to the admin who set it.
+function parseCapacity(value) {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1) return null;
+  return n;
+}
+
 // GET /api/events  (public)
 async function getEvents(req, res) {
   try {
@@ -54,6 +68,14 @@ async function createEvent(req, res) {
       return res.status(400).json({ message: "title, description, date, and location are required" });
     }
 
+    let parsedCapacity = 100;
+    if (capacity !== undefined && capacity !== null && capacity !== "") {
+      parsedCapacity = parseCapacity(capacity);
+      if (parsedCapacity === null) {
+        return res.status(400).json({ message: "Capacity must be a whole number of 1 or more" });
+      }
+    }
+
     let image = null;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
@@ -65,7 +87,7 @@ async function createEvent(req, res) {
       description,
       date,
       location,
-      capacity: capacity ? Number(capacity) : 100,
+      capacity: parsedCapacity,
       category: category || "General",
       price: price || "Free",
       image,
@@ -89,7 +111,15 @@ async function updateEvent(req, res) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
 
-    const allowedFields = ["title", "description", "date", "location", "capacity", "category", "price"];
+    if (req.body.capacity !== undefined) {
+      const parsedCapacity = parseCapacity(req.body.capacity);
+      if (parsedCapacity === null) {
+        return res.status(400).json({ message: "Capacity must be a whole number of 1 or more" });
+      }
+      event.capacity = parsedCapacity;
+    }
+
+    const allowedFields = ["title", "description", "date", "location", "category", "price"];
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) event[field] = req.body[field];
     }

@@ -7,7 +7,7 @@ const eventSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     location: { type: String, required: true },
     image: { type: String, default: null },
-    capacity: { type: Number, default: 100 },
+    capacity: { type: Number, default: 100, min: 1 },
     category: { type: String, default: "General" },
     price: { type: String, default: "Free" },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
