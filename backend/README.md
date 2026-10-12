@@ -1,0 +1,124 @@
+# PCPS Connect — Backend API Reference
+
+Express + MongoDB API for PCPS Connect. All routes are mounted under
+`/api`, and every response is JSON. See the root `README.md` for setup,
+environment variables, and the overall project overview.
+
+## Auth model
+
+- Login issues a JWT stored in an **httpOnly cookie** named `token`
+  (never read or sent by frontend JS) — see `middleware/auth.js`.
+- `protect` middleware requires a valid, non-expired `token` cookie and
+  attaches the logged-in user to `req.user`.
+- `adminOnly` middleware (always used after `protect`) requires
+  `req.user.role === "admin"`.
+- Email-verification and password-reset links are also JWTs (signed with
+  the same secret, short-lived), but carry a `purpose` claim and are
+  submitted as plain request bodies to their own endpoints — `protect`
+  explicitly rejects any token carrying a `purpose` claim, so a verify or
+  reset link can never be reused as a login session.
+- A new account must have `emailVerified: true` **and**
+  `approvalStatus: "approved"` before it can log in. Registration is
+  restricted to `@patancollege.edu.np` addresses.
+
+Below, **Auth** means a valid `token` cookie is required; **Admin** means
+`protect` + `adminOnly`.
+
+## Auth — `/api/auth`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/register` | — | `{ name, email, password, studentId?, program?, semester?, phone? }`. Rejects non-PCPS emails and duplicate accounts. Always creates `role: "user"`. Sends a verification email. |
+| POST | `/login` | — | `{ email, password }`. Fails with a specific `code` (`EMAIL_NOT_VERIFIED`, `APPROVAL_PENDING`, `APPROVAL_REJECTED`) when login is blocked for one of those reasons. Sets the `token` cookie on success. |
+| POST | `/logout` | — | Clears the `token` cookie. |
+| GET | `/me` | Auth | Returns the current user — used by the frontend to check "am I logged in" on load. |
+| PUT | `/profile` | Auth | `{ name?, studentId?, program?, semester?, phone?, avatar? }` — field-whitelisted; can't be used to change role/approval/email/password. |
+| PUT | `/favorite-club` | Auth | `{ clubId }` — toggles that club as the user's one favorite. |
+| PUT | `/change-password` | Auth | `{ currentPassword, newPassword }` — re-verifies the current password first. |
+| POST | `/forgot-password` | — | `{ email }` — always returns the same generic message, whether or not the email is registered, to avoid leaking which emails have accounts. Emails a 15-minute reset link if it does. |
+| POST | `/reset-password` | — | `{ token, newPassword }` — `token` is the one from the emailed link. |
+| POST | `/verify-email` | — | `{ token }` — `token` is the one from the emailed link (24h expiry). Notifies an admin once verified, so they know a new account is waiting for approval. |
+| POST | `/resend-verification` | — | `{ email }` — same generic-response pattern as `/forgot-password`. |
+
+## Clubs — `/api/clubs`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/` | — | List all clubs. |
+| GET | `/:id` | — | One club. |
+| POST | `/` | Admin | Create a club. Body: `name, category, description, longDescription?, image?, icon?, activities?, leadName?, leadRole?, email?, foundedYear?`. |
+| PUT | `/:id` | Admin | Update a club (same fields, all optional). |
+| DELETE | `/:id` | Admin | Deletes the club and cascades: removes its `ClubMembership` rows and clears it from any user's `favoriteClub`. |
+
+## Events — `/api/events`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/` | — | List all events, each with a live `registeredCount` computed from actual registrations (not a stored counter). |
+| GET | `/:id` | — | One event, same `registeredCount` treatment. |
+| POST | `/create` | Admin | `multipart/form-data`: `title, description, date, location, capacity?, category?, price?, image?` (file field `image`, uploaded to Cloudinary). |
+| PUT | `/:id` | Admin | Same fields, all optional; `multipart/form-data` if replacing the image. |
+| DELETE | `/:id` | Admin | Deletes the event and cascades: removes its `Registration` rows. |
+
+## Registrations — `/api/registrations`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/register` | Auth | `{ eventId }`. Rejected if the event already happened, the user is already registered, or the event is full. Capacity is enforced with a check-then-recheck-and-rollback pattern so two simultaneous requests for the last spot can't both succeed. |
+| GET | `/my` | Auth | The current user's own registrations, each with its event populated. |
+| DELETE | `/:id` | Auth | `:id` is the **registration's** own id (not the event id) — cancels it. 403s if it doesn't belong to the current user. |
+
+## Club memberships — `/api/club-memberships`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/my` | Auth | The current user's club memberships, each with its club populated. |
+| POST | `/join` | Auth | `{ clubId }`. |
+| DELETE | `/:clubId` | Auth | Leaves that club. |
+
+## Admin — `/api/admin` (every route below requires Admin)
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/users` | List every user. |
+| GET | `/users/:id` | One user. |
+| GET | `/users/:id/events` | Events created by that user (events are always admin-created, so in practice this lists another admin's events). |
+| PUT | `/users/:id` | Update any field except `password` (silently stripped). An admin can't change their own `role`/`approvalStatus`, and the last remaining admin can't be demoted — both enforced here, not just in the UI. |
+| DELETE | `/users/:id` | Deletes the user and cascades: their created events, their registrations, their club memberships. Same self-action and last-admin protections as above. |
+| GET | `/events` | List every event (admin view). |
+| GET | `/events/:id` | One event (admin view). |
+| PUT | `/events/:id` | Update any event. |
+| DELETE | `/events/:id` | Delete any event. |
+| GET | `/events/:id/registrations` | Full attendee list for that event, each registration populated with its user — this is what powers the attendee modal and the CSV export. |
+| PUT | `/registrations/:id` | `{ attended }` — toggles attendance for one registration. |
+
+## Contact — `/api/contact`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| POST | `/` | — | `{ name, email, subject?, message }`. Rate-limited (public form). Emails the submission to `CONTACT_RECEIVER_EMAIL` (or `EMAIL_USER` if unset) with `replyTo` set to the submitter's address. All fields are HTML-escaped before being placed in the email body. |
+
+## Stats — `/api/stats`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/` | — | `{ totalStudents, totalClubs, totalEvents, totalRegistrations }` — aggregate counts only, safe to expose publicly. Powers the homepage stats section. |
+
+## Data models
+
+Full field definitions live in `models/*.js`; summary:
+
+- **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected)`
+- **Club** — `name, category, description, longDescription, image, icon, activities[], leadName, leadRole, email, foundedYear, createdBy (→User)`
+- **Event** — `title, description, date, location, image, capacity, category, price, createdBy (→User)`
+- **Registration** — `user (→User), event (→Event), status (pending|confirmed|cancelled), attended`. Unique index on `(user, event)`.
+- **ClubMembership** — `user (→User), club (→Club)`. Unique index on `(user, club)`.
+
+## Error responses
+
+Every endpoint returns `{ message: "..." }` on failure. In production
+(`NODE_ENV=production`), unexpected/internal error messages are replaced
+with a generic fallback before being sent to the client (the real error is
+still logged server-side) — see `utils/errorMessage.js`. Validation and
+permission errors (400/401/403/404) always return their specific,
+intentional message.

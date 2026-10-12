@@ -1,73 +1,59 @@
-# PCPS Connect — Club & Event Management System
+# PCPS Connect — Frontend
 
-A modern, responsive web application built for **Patan College of Professional Studies (PCPS)** that lets students explore clubs, discover events, register in a few clicks, and track their participation from a personal dashboard.
+React + Vite client for PCPS Connect. This is the UI layer for a full
+MERN-stack app — it talks to a real Express/MongoDB backend over the
+`/api` routes documented in `../backend/README.md`; there is no mock data
+or `localStorage`-only mode here.
 
-Built as a UI/UX React Application Development assignment to demonstrate professional React architecture, component reusability, and modern UI/UX practices.
+See the root `README.md` for the full project overview, features, and
+combined setup instructions (backend + frontend together). This file
+covers frontend-specific details only.
 
-![Tech](https://img.shields.io/badge/React-18-4F46E5) ![Tech](https://img.shields.io/badge/Tailwind-3-7C3AED) ![Tech](https://img.shields.io/badge/Vite-8-646CFF)
+## Tech stack
 
----
-
-## Features
-
-- **12 fully built pages** — Home, Clubs, Events, Event Details, Dashboard, Profile, Contact, Settings, Login, Register, Forgot Password, 404
-- **Authentication UI** with client-side validation (login, register, forgot password) — session persisted to `localStorage`
-- **Protected routes** — Dashboard, Profile, and Settings require login
-- **Event registration** with a real form, validation, capacity tracking, and `localStorage` persistence so registrations survive a refresh
-- **Interactive dashboard** with Recharts (bar chart of participation by month, pie chart of events by category) and animated stat cards
-- **Search & filter** on both Clubs and Events pages (debounced search input)
-- **Dark mode** with a persisted theme toggle, applied via Tailwind's `class` strategy
-- **Fully responsive** — mobile, tablet, laptop, desktop, with a dedicated mobile navigation menu
-- **Club detail modal** with activities, club lead, and contact info
-- **Notification preferences** and account settings (UI layer, persisted locally)
-- Built with official **PCPS branding** — crest and wordmark logos, "Learn to Lead" identity
-
-## Tech Stack
-
-- React 18 (functional components + hooks)
-- React Router v6
-- Tailwind CSS 3 (dark mode via `class`, custom design tokens)
+- React 19, React Router v7
+- Tailwind CSS 3 (dark mode via the `class` strategy)
 - Recharts (dashboard charts)
-- React Icons
+- Axios (API client, `src/services/api.js`)
 - Vite (build tool)
 
-## Project Structure
+## Project structure
 
 ```
 src/
- ├── assets/images/       # PCPS logo & crest
- ├── components/          # Navbar, Footer, HeroSection, ClubCard, EventCard,
- │                         # StatsCard, SearchBar, FilterButtons, Sidebar,
- │                         # Button, Modal, RegistrationForm, ScrollToTop
- ├── layouts/              # MainLayout (public pages), DashboardLayout (sidebar pages)
- ├── pages/                # One file per route
- ├── hooks/                # useLocalStorage, useDebounce
- ├── services/             # clubService, eventService (mock async API layer)
- ├── utils/                # formatDate helpers
- ├── routes/               # AppRoutes, ProtectedRoute
- ├── data/                 # clubs.js, events.js (sample data)
- ├── context/              # ThemeContext, AuthContext, RegistrationContext
+ ├── assets/images/     PCPS branding + stock campus photography
+ ├── components/        Navbar, Footer, HeroSection, ClubCard, EventCard,
+ │                       StatsCard, SearchBar, FilterButtons, Sidebar,
+ │                       Button, Modal, ConfirmDialog, AttendeesModal,
+ │                       RegistrationForm, Pagination, Reveal,
+ │                       VideoLightbox, ErrorBoundary, ScrollToTop
+ ├── pages/              One file per route, plus pages/admin/ for the
+ │                       admin panel (AdminOverview, AdminClubs,
+ │                       AdminEvents, AdminUsers)
+ ├── hooks/              useDebounce, usePagination, useInView, useTilt,
+ │                       useLocalStorage, useRequireAuth
+ ├── services/           api.js — the real Axios client + resolveUploadUrl
+ ├── utils/              formatDate (isUpcoming/isPastEvent), iconMap
+ ├── routes/             AppRoutes (route-level code splitting)
+ ├── context/            AuthContext, EventsContext, ClubsContext,
+ │                       ClubMembershipContext, RegistrationContext,
+ │                       ThemeContext, ToastContext
  ├── App.jsx
  └── main.jsx
 ```
 
-## Getting Started
-
-### Prerequisites
-- Node.js 18+ and npm
-
-### Installation
+## Getting started
 
 ```bash
-# 1. Install dependencies
 npm install
-
-# 2. Start the dev server
+cp .env.example .env   # points VITE_API_URL at your running backend
 npm run dev
-
-# 3. Open the app
-# http://localhost:5173
 ```
+
+Needs the backend running too (see `../backend/README.md` or the root
+`README.md`) — this app has no working offline/demo mode; every page
+that shows real data (clubs, events, auth, dashboard) is reading from the
+live API.
 
 ### Build for production
 
@@ -76,41 +62,11 @@ npm run build
 npm run preview   # preview the production build locally
 ```
 
-## Demo Login
-
-This is a UI-only authentication system (no backend). You can:
-- **Register** a new account with any name/email — it logs you in immediately.
-- **Log in** with any email + a password of 6+ characters — a demo student profile is created.
-
-All session and registration data is stored in your browser's `localStorage`, so it persists across refreshes but is local to your device.
-
-## Design System
-
-| Token | Value |
-|---|---|
-| Primary | Indigo `#4F46E5` |
-| Secondary | Purple `#7C3AED` |
-| Background | Slate / White (Slate 950 in dark mode) |
-| Display font | Poppins |
-| Body font | Inter |
-| Radius | `xl` / `2xl` rounded corners |
-| Shadows | Soft, layered card shadows |
-
-## React Concepts Demonstrated
-
-- Functional components & props
-- `useState`, `useEffect`, custom hooks (`useDebounce`, `useLocalStorage`)
-- React Router v6 (nested routes, protected routes, `useParams`, `useNavigate`, `useLocation`)
-- Context API for global state (theme, auth, registrations)
-- Conditional rendering, list rendering with `.map()`
-- Controlled form handling & client-side validation
-- Component composition & reusability
-
 ## Notes
 
-- Club/event photography is sourced from Unsplash for demo purposes; replace with real PCPS photography before any real deployment.
-- Authentication, contact form submission, and account settings are UI-only — wire them up to a real backend/API before production use.
-
----
-
-Built with ❤️ for PCPS — **Learn to Lead.**
+- Authentication is real: accounts require a `@patancollege.edu.np`
+  email, email verification, and admin approval before login works — see
+  the root README's Features section.
+- Dark mode and the signed-in session persist across reloads, but as a
+  *preference*/*cookie*, not as the source of truth for app data — all
+  club/event/registration data always comes from the API.
