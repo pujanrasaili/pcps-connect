@@ -1,0 +1,155 @@
+const jwt = require("jsonwebtoken");
+
+jest.mock("../../models/User");
+const User = require("../../models/User");
+const { protect, adminOnly } = require("../auth");
+
+const JWT_SECRET = "test-secret-for-jest";
+
+function mockRes() {
+  const res = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  return res;
+}
+
+describe("protect", () => {
+  const originalSecret = process.env.JWT_SECRET;
+
+  beforeAll(() => {
+    process.env.JWT_SECRET = JWT_SECRET;
+  });
+
+  afterAll(() => {
+    process.env.JWT_SECRET = originalSecret;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("rejects a request with no token cookie", async () => {
+    const req = { cookies: {} };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("rejects a malformed/invalid token", async () => {
+    const req = { cookies: { token: "not-a-real-jwt" } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("rejects an expired token", async () => {
+    const expiredToken = jwt.sign({ id: "user1" }, JWT_SECRET, { expiresIn: -10 });
+    const req = { cookies: { token: expiredToken } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("accepts a genuine login token ({ id } only) and attaches req.user", async () => {
+    const loginToken = jwt.sign({ id: "user1" }, JWT_SECRET, { expiresIn: "7d" });
+    const fakeUser = { _id: "user1", role: "user" };
+    User.findById.mockResolvedValue(fakeUser);
+
+    const req = { cookies: { token: loginToken } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(req.user).toBe(fakeUser);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  // Regression test for the fix made this session: an email-verification
+  // or password-reset link is a JWT signed with the same secret, but with
+  // a "purpose" claim. Before the fix, `protect` accepted any token whose
+  // payload had an `id` -- so a leaked verify/reset link (forwarded email,
+  // shared computer, browser history) could be dropped into the "token"
+  // cookie and used to fully log in as that user, no password needed.
+  it.each(["email-verify", "password-reset"])(
+    "rejects a %s token even though it's signed with the same secret and carries a valid id",
+    async (purpose) => {
+      const User2 = require("../../models/User");
+      const sameSecretPurposeToken = jwt.sign({ id: "user1", purpose }, JWT_SECRET, {
+        expiresIn: "24h",
+      });
+      const req = { cookies: { token: sameSecretPurposeToken } };
+      const res = mockRes();
+      const next = jest.fn();
+
+      await protect(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(next).not.toHaveBeenCalled();
+      // Must short-circuit before ever hitting the database with it.
+      expect(User2.findById).not.toHaveBeenCalled();
+    }
+  );
+
+  it("rejects when the token's user id no longer exists (e.g. deleted account)", async () => {
+    const token = jwt.sign({ id: "deleted-user" }, JWT_SECRET, { expiresIn: "7d" });
+    User.findById.mockResolvedValue(null);
+
+    const req = { cookies: { token } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe("adminOnly", () => {
+  it("allows an admin through", () => {
+    const req = { user: { role: "admin" } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    adminOnly(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it("blocks a non-admin with 403", () => {
+    const req = { user: { role: "user" } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    adminOnly(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("blocks when req.user is missing entirely", () => {
+    const req = {};
+    const res = mockRes();
+    const next = jest.fn();
+
+    adminOnly(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+});
