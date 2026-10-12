@@ -58,7 +58,10 @@ pcps-connect/
 - `helmet` security headers
 - Role-based authorization enforced server-side on every protected route, not just hidden in the UI
 - Admin role can only ever be granted by an existing admin through the admin panel — never self-assigned at registration
-- User-supplied input (contact form) is HTML-escaped before being placed in outgoing emails
+- User-supplied input (names, contact form) is HTML-escaped before being placed in outgoing emails
+- Backend trusts exactly one reverse-proxy hop (Render's) so rate limiting keys on the real visitor IP, not the proxy's
+- Login sessions and single-purpose email links (verify/reset) use distinct token shapes, so a verify/reset link can never be reused as a login session
+- Attendee CSV export is sanitized against spreadsheet formula injection
 
 ## Getting Started (local development)
 
