@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle } from "react-icons/fa";
+import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaInfoCircle } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -15,7 +15,6 @@ export default function Settings() {
     eventReminders: true,
     clubUpdates: true,
     newsletter: false,
-    smsAlerts: false,
   });
   const [saved, setSaved] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
@@ -100,6 +99,12 @@ export default function Settings() {
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
           Notification Preferences
         </h2>
+        <p className="mt-1 flex items-start gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+          <FaInfoCircle className="mt-0.5 shrink-0" />
+          Saved as a preference on this device. Automatic reminder/update
+          emails aren't sent yet -- this sets what you'll receive once they
+          are.
+        </p>
         <div className="mt-4 space-y-3">
           <PrefRow
             icon={FaBell}
@@ -121,13 +126,6 @@ export default function Settings() {
             desc="A monthly digest of campus highlights."
             checked={prefs.newsletter}
             onChange={() => togglePref("newsletter")}
-          />
-          <PrefRow
-            icon={FaBell}
-            title="SMS alerts"
-            desc="Text message alerts for urgent updates."
-            checked={prefs.smsAlerts}
-            onChange={() => togglePref("smsAlerts")}
           />
         </div>
         <Button type="submit" className="mt-5">Save preferences</Button>
