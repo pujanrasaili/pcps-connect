@@ -76,6 +76,14 @@ async function register(req, res) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
+    // The frontend already checks this shape (see Register.jsx), but that's
+    // not a security boundary -- a direct API call bypasses it entirely, so
+    // it's repeated here too, same reasoning as the admin self-demotion
+    // checks in adminController.
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ message: "Enter a valid email address" });
+    }
+
     // Restricted to real PCPS accounts. This only applies at registration
     // time -- existing accounts (including ones created before this rule
     // existed) can still log in with whatever email they already have.
@@ -250,7 +258,15 @@ async function changePassword(req, res) {
     }
 
     user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordChangedAt = new Date();
     await user.save();
+
+    // passwordChangedAt invalidates every token issued before this instant,
+    // including the one in this very request's cookie -- re-issue a fresh
+    // one so the device that just changed the password stays logged in;
+    // any other device/browser holding the old token gets logged out.
+    const token = signToken(user._id);
+    sendTokenCookie(res, token);
 
     res.status(200).json({ message: "Password changed successfully" });
   } catch (err) {
@@ -332,7 +348,22 @@ async function resetPassword(req, res) {
     const user = await User.findById(decoded.id);
     if (!user) return res.status(404).json({ message: "Account not found" });
 
+    // This JWT stays valid for its full 15-minute expiry no matter how many
+    // times it's used -- without this check, someone who intercepted the
+    // reset link could replay it to reset the password again after the
+    // legitimate user already used it once. Once a reset has happened,
+    // reject any reset token issued before that moment (covers both a
+    // replay of this exact token and an older unused one from an earlier
+    // "forgot password" request).
+    if (user.passwordChangedAt) {
+      const changedAtSeconds = Math.floor(user.passwordChangedAt.getTime() / 1000);
+      if (decoded.iat < changedAtSeconds) {
+        return res.status(400).json({ message: "This reset link is invalid or has expired" });
+      }
+    }
+
     user.password = await bcrypt.hash(newPassword, 10);
+    user.passwordChangedAt = new Date();
     await user.save();
 
     res.status(200).json({ message: "Password reset successfully. You can now log in." });
