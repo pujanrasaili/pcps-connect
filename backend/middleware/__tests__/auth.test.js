@@ -117,6 +117,68 @@ describe("protect", () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
+
+  // Regression test for the fix made this session: a password change/reset
+  // didn't invalidate tokens issued before it, so a stolen cookie (or a
+  // replayed, already-used reset link) kept working indefinitely.
+  it("rejects a token issued before the user's last password change", async () => {
+    const staleToken = jwt.sign({ id: "user1" }, JWT_SECRET, { expiresIn: "7d" });
+    // Password changed 1 second after the token's iat.
+    const fakeUser = {
+      _id: "user1",
+      role: "user",
+      passwordChangedAt: new Date(Date.now() + 1000),
+    };
+    User.findById.mockResolvedValue(fakeUser);
+
+    const req = { cookies: { token: staleToken } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("accepts a token issued in the same second as passwordChangedAt (freshly re-issued token right after a change)", async () => {
+    const token = jwt.sign({ id: "user1" }, JWT_SECRET, { expiresIn: "7d" });
+    const { iat } = jwt.decode(token);
+    // passwordChangedAt a few hundred ms into the SAME second as the
+    // token's iat -- this must not be treated as "issued before the change"
+    // just because iat is floored down to the start of that second.
+    const fakeUser = {
+      _id: "user1",
+      role: "user",
+      passwordChangedAt: new Date(iat * 1000 + 800),
+    };
+    User.findById.mockResolvedValue(fakeUser);
+
+    const req = { cookies: { token } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(req.user).toBe(fakeUser);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it("accepts a token with no passwordChangedAt set (never changed)", async () => {
+    const token = jwt.sign({ id: "user1" }, JWT_SECRET, { expiresIn: "7d" });
+    const fakeUser = { _id: "user1", role: "user", passwordChangedAt: null };
+    User.findById.mockResolvedValue(fakeUser);
+
+    const req = { cookies: { token } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(req.user).toBe(fakeUser);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("adminOnly", () => {

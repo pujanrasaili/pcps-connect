@@ -26,6 +26,17 @@ const userSchema = new mongoose.Schema(
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+
+    // Set whenever the password is changed (via change-password) or reset
+    // (via reset-password). Lets `protect` reject any login JWT issued
+    // before this moment -- otherwise changing your password wouldn't log
+    // out a stolen session using the old token, and a password-reset link
+    // (valid for 15 minutes) could be replayed to reset the password again
+    // after the legitimate user already used it once. publicUser() in
+    // authController builds its response field-by-field and never includes
+    // this, so it's never sent to the client despite being selected by
+    // default (needed so `protect` can check it on every request).
+    passwordChangedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

@@ -26,6 +26,25 @@ async function protect(req, res, next) {
       return res.status(401).json({ message: "Not logged in" });
     }
 
+    // If the password was changed/reset after this token was issued, the
+    // token is stale -- reject it. Without this, changing your password
+    // because you suspect your session/cookie leaked wouldn't actually log
+    // out whoever has that leaked cookie; they could keep using it with
+    // the old token indefinitely (tokens don't carry anything that changes
+    // on password change otherwise).
+    //
+    // JWT `iat` has whole-second precision but passwordChangedAt has
+    // millisecond precision, so both are compared in whole seconds -- a
+    // fresh token re-issued by changePassword() in the same second as the
+    // save must NOT come out "older" than it just because its iat got
+    // floored down past the save's milliseconds.
+    if (user.passwordChangedAt) {
+      const changedAtSeconds = Math.floor(user.passwordChangedAt.getTime() / 1000);
+      if (decoded.iat < changedAtSeconds) {
+        return res.status(401).json({ message: "Not logged in" });
+      }
+    }
+
     req.user = user;
     next();
   } catch (err) {
