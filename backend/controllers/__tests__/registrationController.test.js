@@ -1,8 +1,13 @@
 jest.mock("../../models/Registration");
 jest.mock("../../models/Event");
+// Without this, registerForEvent's best-effort confirmation email would make
+// a real SMTP connection attempt during every test run (no EMAIL_USER/
+// EMAIL_APP_PASSWORD in CI) -- mocked so tests stay fast and deterministic.
+jest.mock("../../utils/sendEmail");
 
 const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
+const sendEmail = require("../../utils/sendEmail");
 const { registerForEvent, cancelRegistration } = require("../registrationController");
 
 function mockRes() {
@@ -71,16 +76,21 @@ describe("registerForEvent", () => {
     expect(Registration.create).not.toHaveBeenCalled();
   });
 
-  it("succeeds when there's room and no prior registration", async () => {
-    Event.findById.mockResolvedValue(futureEvent({ capacity: 2 }));
+  it("succeeds when there's room and no prior registration, and sends a confirmation email", async () => {
+    const event = futureEvent({ capacity: 2, title: "Hack Night", location: "Lab 3" });
+    Event.findById.mockResolvedValue(event);
     Registration.findOne.mockResolvedValue(null);
     Registration.countDocuments
       .mockResolvedValueOnce(1) // pre-insert count: 1 of 2 taken
       .mockResolvedValueOnce(2); // post-insert recount: now 2 of 2 -- still within capacity
     const deleteOne = jest.fn();
     Registration.create.mockResolvedValue({ _id: "new-reg", deleteOne });
+    sendEmail.mockResolvedValue();
 
-    const req = { body: { eventId: EVENT_ID }, user: { _id: USER_ID } };
+    const req = {
+      body: { eventId: EVENT_ID },
+      user: { _id: USER_ID, name: "Asha Gurung", email: "asha@patancollege.edu.np" },
+    };
     const res = mockRes();
     await registerForEvent(req, res);
 
@@ -90,6 +100,33 @@ describe("registerForEvent", () => {
       status: "confirmed",
     });
     expect(deleteOne).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(201);
+
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    const emailArg = sendEmail.mock.calls[0][0];
+    expect(emailArg.to).toBe("asha@patancollege.edu.np");
+    expect(emailArg.subject).toMatch(/Hack Night/);
+    expect(emailArg.html).toContain("Hack Night");
+    expect(emailArg.html).toContain("Lab 3");
+  });
+
+  // A failed email send is a side effect, never a reason to fail a
+  // registration that already succeeded -- same best-effort pattern as
+  // verification/reset/contact emails elsewhere in this app.
+  it("still returns 201 if the confirmation email fails to send", async () => {
+    Event.findById.mockResolvedValue(futureEvent({ capacity: 2 }));
+    Registration.findOne.mockResolvedValue(null);
+    Registration.countDocuments.mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    Registration.create.mockResolvedValue({ _id: "new-reg", deleteOne: jest.fn() });
+    sendEmail.mockRejectedValue(new Error("SMTP down"));
+
+    const req = {
+      body: { eventId: EVENT_ID },
+      user: { _id: USER_ID, name: "Asha Gurung", email: "asha@patancollege.edu.np" },
+    };
+    const res = mockRes();
+    await registerForEvent(req, res);
+
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
