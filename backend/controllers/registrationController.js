@@ -1,6 +1,44 @@
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
 const { safeError } = require("../utils/errorMessage");
+const sendEmail = require("../utils/sendEmail");
+const renderEmail = require("../utils/emailTemplate");
+const { escapeHtml } = require("../utils/escapeHtml");
+
+function formatEventDate(date) {
+  return new Date(date).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+// Best-effort, same pattern as every other email in this app (verification,
+// password reset, admin approval notice): a failed send is logged and
+// swallowed, never allowed to turn a successful registration into a 500.
+async function sendRegistrationConfirmation(user, event) {
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: `You're registered: ${event.title}`,
+      html: renderEmail({
+        heading: "Registration confirmed",
+        bodyHtml: `
+          <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
+          <p style="margin: 0 0 16px;">You're confirmed for <strong>${escapeHtml(event.title)}</strong>. Here are the details:</p>
+          <p style="margin: 0 0 4px;"><strong>When:</strong> ${formatEventDate(event.date)}</p>
+          <p style="margin: 0;"><strong>Where:</strong> ${escapeHtml(event.location)}</p>
+          <p style="margin: 16px 0 0;">You can cancel anytime from your Dashboard if your plans change.</p>
+        `,
+      }),
+    });
+  } catch (emailErr) {
+    console.error("Failed to send registration confirmation email:", emailErr.message);
+  }
+}
 
 // POST /api/registrations/register  (requires login)
 async function registerForEvent(req, res) {
@@ -52,6 +90,8 @@ async function registerForEvent(req, res) {
       await registration.deleteOne();
       return res.status(400).json({ message: "This event is full" });
     }
+
+    await sendRegistrationConfirmation(req.user, event);
 
     res.status(201).json({ message: "Registered for event", registration });
   } catch (err) {
