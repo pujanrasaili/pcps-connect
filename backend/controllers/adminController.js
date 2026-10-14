@@ -3,6 +3,7 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
+const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 
 // GET /api/admin/users
 async function getAllUsers(req, res) {
@@ -128,11 +129,19 @@ async function getEventByIdAdmin(req, res) {
 // PUT /api/admin/events/:id  (no ownership check, admin overrides)
 async function updateEventAdmin(req, res) {
   try {
+    // Fetched separately (rather than findByIdAndUpdate in one step) so
+    // there's an old date/location to compare the saved result against, to
+    // know whether registrants need telling.
+    const existing = await Event.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: "Event not found" });
+    const oldDate = existing.date;
+    const oldLocation = existing.location;
+
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
-    if (!event) return res.status(404).json({ message: "Event not found" });
+    await notifyEventRescheduled(event, { oldDate, oldLocation });
     res.status(200).json({ message: "Event updated", event });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update event") });
@@ -142,8 +151,14 @@ async function updateEventAdmin(req, res) {
 // DELETE /api/admin/events/:id
 async function deleteEventAdmin(req, res) {
   try {
-    const event = await Event.findByIdAndDelete(req.params.id);
+    const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
+
+    // Must run before the registrations are deleted below -- it looks them
+    // up itself to find out who to notify.
+    await notifyEventCancelled(event);
+
+    await event.deleteOne();
     await Registration.deleteMany({ event: event._id });
     res.status(200).json({ message: "Event deleted" });
   } catch (err) {
