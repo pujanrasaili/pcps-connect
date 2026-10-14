@@ -2,6 +2,7 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
+const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 
 // Attaches a live "registeredCount" to each event, computed from actual
 // Registration documents rather than a stored counter -- a stored counter
@@ -111,6 +112,11 @@ async function updateEvent(req, res) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
 
+    // Captured before any field is changed below, so registrants can be told
+    // what the date/location used to be if either one changes.
+    const oldDate = event.date;
+    const oldLocation = event.location;
+
     if (req.body.capacity !== undefined) {
       const parsedCapacity = parseCapacity(req.body.capacity);
       if (parsedCapacity === null) {
@@ -129,6 +135,7 @@ async function updateEvent(req, res) {
     }
 
     await event.save();
+    await notifyEventRescheduled(event, { oldDate, oldLocation });
     res.status(200).json({ message: "Event updated", event: await withRegisteredCount(event) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update event") });
@@ -145,6 +152,10 @@ async function deleteEvent(req, res) {
     if (!isOwner && req.user.role !== "admin") {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
+
+    // Must run before the registrations are deleted below -- it looks them
+    // up itself to find out who to notify.
+    await notifyEventCancelled(event);
 
     await event.deleteOne();
     // Clean up any registrations for this event so they don't become
