@@ -10,9 +10,14 @@ const eventSchema = new mongoose.Schema(
     capacity: { type: Number, default: 100, min: 1 },
     category: { type: String, default: "General" },
     price: { type: String, default: "Free" },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   },
   { timestamps: true }
 );
+
+// Every public events page sorts by date, and this is unindexed data growing
+// without bound (unlike most other collections here, which top out at a
+// few hundred rows).
+eventSchema.index({ date: 1 });
 
 module.exports = mongoose.model("Event", eventSchema);
