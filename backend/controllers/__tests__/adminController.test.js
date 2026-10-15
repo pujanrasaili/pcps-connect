@@ -3,12 +3,14 @@ jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../utils/sendEmail");
+jest.mock("../../utils/notifyRegistrants");
 
 const User = require("../../models/User");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const ClubMembership = require("../../models/ClubMembership");
 const sendEmail = require("../../utils/sendEmail");
+const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
 const { updateUser, deleteUser } = require("../adminController");
 
 function mockRes() {
@@ -226,6 +228,7 @@ describe("deleteUser -- admin safety guards", () => {
   it("cascades the delete across events, registrations, and club memberships for an ordinary student", async () => {
     const deleteOne = jest.fn().mockResolvedValue();
     User.findById.mockResolvedValue({ _id: STUDENT_ID, role: "user", deleteOne });
+    Event.find.mockResolvedValue([]);
     Event.deleteMany.mockResolvedValue({});
     Registration.deleteMany.mockResolvedValue({});
     ClubMembership.deleteMany.mockResolvedValue({});
@@ -238,6 +241,31 @@ describe("deleteUser -- admin safety guards", () => {
     expect(Registration.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
     expect(ClubMembership.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
     expect(deleteOne).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("cancels the events a deleted user created: notifies registrants, then removes their registrations", async () => {
+    const deleteOne = jest.fn().mockResolvedValue();
+    User.findById.mockResolvedValue({ _id: OTHER_ADMIN_ID, role: "admin", deleteOne });
+    User.countDocuments.mockResolvedValue(2);
+    const ownedEvents = [{ _id: "evA", title: "A" }, { _id: "evB", title: "B" }];
+    Event.find.mockResolvedValue(ownedEvents);
+    Event.deleteMany.mockResolvedValue({});
+    Registration.deleteMany.mockResolvedValue({});
+    ClubMembership.deleteMany.mockResolvedValue({});
+
+    const callOrder = [];
+    notifyEventCancelled.mockImplementation(async () => callOrder.push("notify"));
+    Registration.deleteMany.mockImplementation(async () => callOrder.push("deleteRegs"));
+
+    const req = { params: { id: OTHER_ADMIN_ID }, user: { _id: { toString: () => ADMIN_ID } } };
+    const res = mockRes();
+    await deleteUser(req, res);
+
+    expect(notifyEventCancelled).toHaveBeenCalledTimes(2);
+    expect(Registration.deleteMany).toHaveBeenCalledWith({ event: { $in: ["evA", "evB"] } });
+    // Notifications must happen before any registrations are deleted.
+    expect(callOrder.indexOf("deleteRegs")).toBeGreaterThan(callOrder.lastIndexOf("notify"));
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
