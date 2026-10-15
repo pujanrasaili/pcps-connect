@@ -2,11 +2,13 @@ jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
 jest.mock("../../models/ClubMembership");
+jest.mock("../../utils/sendEmail");
 
 const User = require("../../models/User");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const ClubMembership = require("../../models/ClubMembership");
+const sendEmail = require("../../utils/sendEmail");
 const { updateUser, deleteUser } = require("../adminController");
 
 function mockRes() {
@@ -104,6 +106,89 @@ describe("updateUser -- admin safety guards", () => {
     const [, updates] = User.findByIdAndUpdate.mock.calls[0];
     expect(updates).not.toHaveProperty("password");
     expect(updates).toEqual({ name: "Fine Field" });
+  });
+});
+
+describe("updateUser -- approval decision emails", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it("emails the student when their pending registration is approved", async () => {
+    User.findById.mockResolvedValue({ _id: STUDENT_ID, approvalStatus: "pending" });
+    User.findByIdAndUpdate.mockResolvedValue({
+      _id: STUDENT_ID,
+      name: "Bibek Shrestha",
+      email: "bibek@patancollege.edu.np",
+      approvalStatus: "approved",
+    });
+    sendEmail.mockResolvedValue();
+
+    const req = {
+      params: { id: STUDENT_ID },
+      user: { _id: { toString: () => ADMIN_ID } },
+      body: { approvalStatus: "approved" },
+    };
+    const res = mockRes();
+    await updateUser(req, res);
+
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendEmail.mock.calls[0][0].to).toBe("bibek@patancollege.edu.np");
+    expect(sendEmail.mock.calls[0][0].subject).toMatch(/approved/i);
+  });
+
+  it("emails the student when their pending registration is rejected", async () => {
+    User.findById.mockResolvedValue({ _id: STUDENT_ID, approvalStatus: "pending" });
+    User.findByIdAndUpdate.mockResolvedValue({
+      _id: STUDENT_ID,
+      name: "Bibek Shrestha",
+      email: "bibek@patancollege.edu.np",
+      approvalStatus: "rejected",
+    });
+    sendEmail.mockResolvedValue();
+
+    const req = {
+      params: { id: STUDENT_ID },
+      user: { _id: { toString: () => ADMIN_ID } },
+      body: { approvalStatus: "rejected" },
+    };
+    const res = mockRes();
+    await updateUser(req, res);
+
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendEmail.mock.calls[0][0].subject).not.toMatch(/approved/i);
+  });
+
+  it("does not email when approvalStatus is sent but unchanged from its current value", async () => {
+    User.findById.mockResolvedValue({ _id: STUDENT_ID, approvalStatus: "approved" });
+    User.findByIdAndUpdate.mockResolvedValue({
+      _id: STUDENT_ID,
+      name: "Bibek Shrestha",
+      email: "bibek@patancollege.edu.np",
+      approvalStatus: "approved",
+    });
+
+    const req = {
+      params: { id: STUDENT_ID },
+      user: { _id: { toString: () => ADMIN_ID } },
+      body: { approvalStatus: "approved", name: "Updated Name" },
+    };
+    const res = mockRes();
+    await updateUser(req, res);
+
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("does not email when the update doesn't touch approvalStatus at all", async () => {
+    User.findByIdAndUpdate.mockResolvedValue({ _id: STUDENT_ID, name: "Fine Field" });
+    const req = {
+      params: { id: STUDENT_ID },
+      user: { _id: { toString: () => ADMIN_ID } },
+      body: { name: "Fine Field" },
+    };
+    const res = mockRes();
+    await updateUser(req, res);
+
+    expect(User.findById).not.toHaveBeenCalled();
+    expect(sendEmail).not.toHaveBeenCalled();
   });
 });
 

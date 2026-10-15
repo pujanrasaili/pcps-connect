@@ -4,6 +4,38 @@ const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
+const sendEmail = require("../utils/sendEmail");
+const renderEmail = require("../utils/emailTemplate");
+const { escapeHtml } = require("../utils/escapeHtml");
+
+// Best-effort, same pattern as every other email in this app -- a failed
+// send is logged and swallowed, never allowed to turn a successful approval
+// decision into a 500.
+async function notifyApprovalDecision(user, approvalStatus) {
+  try {
+    const isApproved = approvalStatus === "approved";
+    await sendEmail({
+      to: user.email,
+      subject: isApproved ? "Your PCPS Connect account is approved" : "Update on your PCPS Connect registration",
+      html: renderEmail({
+        heading: isApproved ? "You're approved!" : "Registration update",
+        bodyHtml: isApproved
+          ? `
+            <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
+            <p style="margin: 0;">Your PCPS Connect account has been approved. You can log in now and start exploring clubs and events.</p>
+          `
+          : `
+            <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
+            <p style="margin: 0;">Your PCPS Connect registration wasn't approved. If you think this is a mistake, please contact PCPS administration.</p>
+          `,
+        ctaText: isApproved ? "Log in" : undefined,
+        ctaUrl: isApproved ? `${process.env.CLIENT_ORIGIN}/login` : undefined,
+      }),
+    });
+  } catch (emailErr) {
+    console.error("Failed to send approval decision email:", emailErr.message);
+  }
+}
 
 // GET /api/admin/users
 async function getAllUsers(req, res) {
@@ -66,11 +98,29 @@ async function updateUser(req, res) {
       }
     }
 
+    // Captured before the update so the email below only fires on an actual
+    // transition (e.g. pending -> approved), not every time a request
+    // happens to include approvalStatus set to what it already was.
+    let oldApprovalStatus = null;
+    if ("approvalStatus" in safeUpdates) {
+      const target = await User.findById(targetId);
+      oldApprovalStatus = target?.approvalStatus ?? null;
+    }
+
     const user = await User.findByIdAndUpdate(targetId, safeUpdates, {
       new: true,
       runValidators: true,
     });
     if (!user) return res.status(404).json({ message: "User not found" });
+
+    const newApprovalStatus = safeUpdates.approvalStatus;
+    if (
+      oldApprovalStatus !== null &&
+      newApprovalStatus !== oldApprovalStatus &&
+      (newApprovalStatus === "approved" || newApprovalStatus === "rejected")
+    ) {
+      await notifyApprovalDecision(user, newApprovalStatus);
+    }
     res.status(200).json({ message: "User updated", user });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update user") });
