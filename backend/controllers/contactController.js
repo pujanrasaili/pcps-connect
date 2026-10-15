@@ -14,12 +14,28 @@ async function submitContactForm(req, res) {
       return res.status(400).json({ message: "Name, email, and message are required" });
     }
 
+    // This is the one public, unauthenticated endpoint that sends email, so
+    // it's strict about shape: JSON lets a caller send an object or array
+    // where a string is expected (which would otherwise throw somewhere
+    // below and surface as a confusing 500), and replyTo is built straight
+    // from the submitted email.
+    const fields = { name, email, message, ...(subject !== undefined && { subject }) };
+    if (Object.values(fields).some((v) => typeof v !== "string")) {
+      return res.status(400).json({ message: "Invalid form data" });
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      return res.status(400).json({ message: "Enter a valid email address" });
+    }
+    if (name.length > 100 || email.length > 254 || (subject && subject.length > 150) || message.length > 5000) {
+      return res.status(400).json({ message: "One or more fields are too long" });
+    }
+
     const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.EMAIL_USER;
 
     await sendEmail({
       to: receiver,
       subject: subject ? `[PCPS Connect Contact] ${subject}` : "[PCPS Connect Contact] New message",
-      replyTo: email,
+      replyTo: email.trim(),
       html: renderEmail({
         heading: "New contact form message",
         bodyHtml: `
