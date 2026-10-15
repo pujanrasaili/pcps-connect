@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema(
     // this, so it's never sent to the client despite being selected by
     // default (needed so `protect` can check it on every request).
     passwordChangedAt: { type: Date, default: null },
+
+    // Whether this student wants "your event is coming up" emails from
+    // scripts/sendEventReminders.js. Defaults true so existing behavior
+    // (everyone gets reminded) doesn't change for accounts that never touch
+    // this setting; a student can opt out from Settings.
+    eventReminders: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

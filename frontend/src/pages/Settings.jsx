@@ -1,31 +1,35 @@
 import { useState } from "react";
-import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaInfoCircle } from "react-icons/fa";
+import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 
 export default function Settings() {
   const { theme, toggleTheme } = useTheme();
-  const { changePassword } = useAuth();
+  const { user, changePassword, updateUser } = useAuth();
   const toast = useToast();
-  const [prefs, setPrefs] = useLocalStorage("pcps_notification_prefs", {
-    eventReminders: true,
-    clubUpdates: true,
-    newsletter: false,
-  });
   const [saved, setSaved] = useState(false);
+  const [savingReminders, setSavingReminders] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
   const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [pwError, setPwError] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
 
-  const togglePref = (key) => setPrefs((p) => ({ ...p, [key]: !p[key] }));
-
-  const handleSave = (e) => {
-    e.preventDefault();
+  // Mirrors the real `eventReminders` field on the user record -- this is
+  // the only toggle in this section because it's the only one with a
+  // matching backend feature (scripts/sendEventReminders.js). Saved
+  // immediately on toggle rather than batched, so what's on screen always
+  // reflects what the server will actually act on.
+  const handleToggleReminders = async () => {
+    setSavingReminders(true);
+    const result = await updateUser({ eventReminders: !user?.eventReminders });
+    setSavingReminders(false);
+    if (!result.ok) {
+      toast.error(result.message || "Failed to update preference");
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -95,41 +99,21 @@ export default function Settings() {
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="card-surface p-6">
+      <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
           Notification Preferences
         </h2>
-        <p className="mt-1 flex items-start gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-          <FaInfoCircle className="mt-0.5 shrink-0" />
-          Saved as a preference on this device. Automatic reminder/update
-          emails aren't sent yet -- this sets what you'll receive once they
-          are.
-        </p>
         <div className="mt-4 space-y-3">
           <PrefRow
             icon={FaBell}
             title="Event reminders"
-            desc="Get notified before events you registered for."
-            checked={prefs.eventReminders}
-            onChange={() => togglePref("eventReminders")}
-          />
-          <PrefRow
-            icon={FaBell}
-            title="Club updates"
-            desc="News and announcements from your joined clubs."
-            checked={prefs.clubUpdates}
-            onChange={() => togglePref("clubUpdates")}
-          />
-          <PrefRow
-            icon={FaBell}
-            title="Monthly newsletter"
-            desc="A monthly digest of campus highlights."
-            checked={prefs.newsletter}
-            onChange={() => togglePref("newsletter")}
+            desc="Get an email before events you registered for."
+            checked={user?.eventReminders !== false}
+            onChange={handleToggleReminders}
+            disabled={savingReminders}
           />
         </div>
-        <Button type="submit" className="mt-5">Save preferences</Button>
-      </form>
+      </div>
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Account</h2>
@@ -200,7 +184,7 @@ export default function Settings() {
   );
 }
 
-function PrefRow({ icon: Icon, title, desc, checked, onChange }) {
+function PrefRow({ icon: Icon, title, desc, checked, onChange, disabled }) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-4">
       <div className="flex items-center gap-3">
@@ -210,12 +194,12 @@ function PrefRow({ icon: Icon, title, desc, checked, onChange }) {
           <p className="text-sm text-slate-500 dark:text-slate-400">{desc}</p>
         </div>
       </div>
-      <ToggleSwitch checked={checked} onChange={onChange} label={`Toggle ${title}`} />
+      <ToggleSwitch checked={checked} onChange={onChange} label={`Toggle ${title}`} disabled={disabled} />
     </div>
   );
 }
 
-function ToggleSwitch({ checked, onChange, label }) {
+function ToggleSwitch({ checked, onChange, label, disabled }) {
   return (
     <button
       type="button"
@@ -223,7 +207,8 @@ function ToggleSwitch({ checked, onChange, label }) {
       aria-checked={checked}
       aria-label={label}
       onClick={onChange}
-      className={`relative h-7 w-[52px] shrink-0 rounded-full border transition-colors duration-200 ${
+      disabled={disabled}
+      className={`relative h-7 w-[52px] shrink-0 rounded-full border transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
         checked
           ? "border-primary-500 bg-primary-500"
           : "border-slate-300 bg-slate-200 dark:border-slate-600 dark:bg-slate-700"
