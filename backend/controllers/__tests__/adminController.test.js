@@ -11,7 +11,7 @@ const Registration = require("../../models/Registration");
 const ClubMembership = require("../../models/ClubMembership");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
-const { updateUser, deleteUser } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin } = require("../adminController");
 
 function mockRes() {
   const res = {};
@@ -267,5 +267,48 @@ describe("deleteUser -- admin safety guards", () => {
     // Notifications must happen before any registrations are deleted.
     expect(callOrder.indexOf("deleteRegs")).toBeGreaterThan(callOrder.lastIndexOf("notify"));
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("updateEventAdmin -- field whitelist and capacity checks", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  const existing = { _id: "ev1", date: new Date("2027-01-01"), location: "Hall A" };
+
+  it("404s for an unknown event", async () => {
+    Event.findById.mockResolvedValue(null);
+    const res = mockRes();
+    await updateEventAdmin({ params: { id: "nope" }, body: {} }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("does not let the request overwrite createdBy or other non-whitelisted fields", async () => {
+    Event.findById.mockResolvedValue(existing);
+    Event.findByIdAndUpdate.mockResolvedValue({ ...existing, title: "New" });
+    const res = mockRes();
+    await updateEventAdmin(
+      { params: { id: "ev1" }, body: { title: "New", createdBy: "attacker", _id: "other" } },
+      res
+    );
+    const [, updates] = Event.findByIdAndUpdate.mock.calls[0];
+    expect(updates).toEqual({ title: "New" });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("rejects an invalid capacity", async () => {
+    Event.findById.mockResolvedValue(existing);
+    const res = mockRes();
+    await updateEventAdmin({ params: { id: "ev1" }, body: { capacity: "abc" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects lowering capacity below the number already registered", async () => {
+    Event.findById.mockResolvedValue(existing);
+    Registration.countDocuments.mockResolvedValue(30);
+    const res = mockRes();
+    await updateEventAdmin({ params: { id: "ev1" }, body: { capacity: 10 } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.findByIdAndUpdate).not.toHaveBeenCalled();
   });
 });

@@ -3,6 +3,7 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
+const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
@@ -199,7 +200,24 @@ async function updateEventAdmin(req, res) {
     const oldDate = existing.date;
     const oldLocation = existing.location;
 
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
+    // Whitelisted rather than passing req.body straight through: otherwise a
+    // request could overwrite createdBy (reassigning ownership), and the
+    // capacity value skipped the validation the creator-facing route does.
+    const updates = {};
+    for (const field of ["title", "description", "date", "location", "category", "price", "image"]) {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    }
+    if (req.body.capacity !== undefined) {
+      const parsedCapacity = parseCapacity(req.body.capacity);
+      if (parsedCapacity === null) {
+        return res.status(400).json({ message: "Capacity must be a whole number of 1 or more" });
+      }
+      const conflict = await capacityConflict(existing._id, parsedCapacity);
+      if (conflict) return res.status(400).json({ message: conflict });
+      updates.capacity = parsedCapacity;
+    }
+
+    const event = await Event.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     });
