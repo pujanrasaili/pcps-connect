@@ -4,17 +4,7 @@ const { safeError } = require("../utils/errorMessage");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
-
-function formatEventDate(date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+const { formatEventDate } = require("../utils/formatEventDate");
 
 // Best-effort, same pattern as every other email in this app (verification,
 // password reset, admin approval notice): a failed send is logged and

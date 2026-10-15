@@ -6,6 +6,11 @@ const registrationSchema = new mongoose.Schema(
     event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
     status: { type: String, enum: ["pending", "confirmed", "cancelled"], default: "confirmed" },
     attended: { type: Boolean, default: false },
+    // Set by scripts/sendEventReminders.js once a "your event is tomorrow"
+    // reminder has gone out for this registration, so a daily cron run
+    // doesn't re-email the same student every day between registering and
+    // the event actually happening.
+    reminderSent: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
