@@ -35,6 +35,7 @@ function publicUser(user) {
     emailVerified: user.emailVerified,
     approvalStatus: user.approvalStatus,
     avatar: user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4F46E5`,
+    eventReminders: user.eventReminders !== false,
   };
 }
 
@@ -60,6 +61,28 @@ async function sendVerificationEmail(user) {
       `,
       ctaText: "Verify my email",
       ctaUrl: verifyUrl,
+    }),
+  });
+}
+
+// Standard security practice (Google, GitHub, etc. all do this): whoever's
+// password just changed should hear about it immediately, however it
+// happened. This matters most of all for a reset, since that's exactly the
+// path an attacker who already has your password would use to lock you
+// out -- if that happens, this is what tells the real owner something's
+// wrong, even though they're not logged in to see anything in the app
+// itself. Best-effort, like every other email here.
+async function sendPasswordChangedNotice(user) {
+  await sendEmail({
+    to: user.email,
+    subject: "Your PCPS Connect password was changed",
+    html: renderEmail({
+      heading: "Password changed",
+      bodyHtml: `
+        <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
+        <p style="margin: 0;">This is a confirmation that your PCPS Connect password was just changed.</p>
+        <p style="margin: 16px 0 0;">If this was you, no action is needed. If you didn't do this, your account may be compromised -- contact PCPS administration right away.</p>
+      `,
     }),
   });
 }
@@ -197,7 +220,7 @@ async function getMe(req, res) {
 // PUT /api/auth/profile  -- update your own profile (requires login)
 async function updateProfile(req, res) {
   try {
-    const allowedFields = ["name", "studentId", "program", "semester", "phone", "avatar"];
+    const allowedFields = ["name", "studentId", "program", "semester", "phone", "avatar", "eventReminders"];
     const updates = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
@@ -267,6 +290,12 @@ async function changePassword(req, res) {
     // any other device/browser holding the old token gets logged out.
     const token = signToken(user._id);
     sendTokenCookie(res, token);
+
+    try {
+      await sendPasswordChangedNotice(user);
+    } catch (emailErr) {
+      console.error("Failed to send password-changed notice:", emailErr.message);
+    }
 
     res.status(200).json({ message: "Password changed successfully" });
   } catch (err) {
@@ -365,6 +394,12 @@ async function resetPassword(req, res) {
     user.password = await bcrypt.hash(newPassword, 10);
     user.passwordChangedAt = new Date();
     await user.save();
+
+    try {
+      await sendPasswordChangedNotice(user);
+    } catch (emailErr) {
+      console.error("Failed to send password-changed notice:", emailErr.message);
+    }
 
     res.status(200).json({ message: "Password reset successfully. You can now log in." });
   } catch (err) {
