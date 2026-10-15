@@ -114,6 +114,15 @@ async function cancelRegistration(req, res) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
 
+    // Once an event has happened the registration is attendance history
+    // (admins mark attended/absent on it), not a booking -- letting a
+    // student delete it would erase that record. A missing event (already
+    // deleted) is fine to clean up.
+    const event = await Event.findById(registration.event);
+    if (event && new Date(event.date) < new Date()) {
+      return res.status(400).json({ message: "This event has already taken place, so the registration can't be cancelled" });
+    }
+
     await registration.deleteOne();
     res.status(200).json({ message: "Registration cancelled" });
   } catch (err) {

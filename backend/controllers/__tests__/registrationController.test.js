@@ -200,6 +200,37 @@ describe("cancelRegistration", () => {
       user: { toString: () => USER_ID },
       deleteOne,
     });
+    Event.findById.mockResolvedValue(futureEvent());
+    const req = { params: { id: "reg1" }, user: { _id: { toString: () => USER_ID } } };
+    const res = mockRes();
+    await cancelRegistration(req, res);
+    expect(deleteOne).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("refuses to cancel once the event has already taken place", async () => {
+    const deleteOne = jest.fn().mockResolvedValue();
+    Registration.findById.mockResolvedValue({
+      user: { toString: () => USER_ID },
+      event: EVENT_ID,
+      deleteOne,
+    });
+    Event.findById.mockResolvedValue(futureEvent({ date: new Date(Date.now() - 86400000) }));
+    const req = { params: { id: "reg1" }, user: { _id: { toString: () => USER_ID } } };
+    const res = mockRes();
+    await cancelRegistration(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(deleteOne).not.toHaveBeenCalled();
+  });
+
+  it("still cleans up a registration whose event was already deleted", async () => {
+    const deleteOne = jest.fn().mockResolvedValue();
+    Registration.findById.mockResolvedValue({
+      user: { toString: () => USER_ID },
+      event: EVENT_ID,
+      deleteOne,
+    });
+    Event.findById.mockResolvedValue(null);
     const req = { params: { id: "reg1" }, user: { _id: { toString: () => USER_ID } } };
     const res = mockRes();
     await cancelRegistration(req, res);
