@@ -144,6 +144,18 @@ async function deleteUser(req, res) {
       }
     }
 
+    // Events this user created go with them -- but other students are
+    // registered for those events. Tell them it's cancelled (this has to
+    // happen before their Registrations are deleted, it looks them up) and
+    // delete those registrations too, otherwise they're left pointing at
+    // events that no longer exist.
+    const ownedEvents = await Event.find({ createdBy: user._id });
+    for (const ownedEvent of ownedEvents) {
+      await notifyEventCancelled(ownedEvent);
+    }
+    if (ownedEvents.length > 0) {
+      await Registration.deleteMany({ event: { $in: ownedEvents.map((e) => e._id) } });
+    }
     await Event.deleteMany({ createdBy: user._id });
     await Registration.deleteMany({ user: user._id });
     await ClubMembership.deleteMany({ user: user._id });
