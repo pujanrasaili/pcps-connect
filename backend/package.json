@@ -9,6 +9,7 @@
     "dev": "nodemon index.js",
     "seed": "node seed.js",
     "backfill": "node scripts/backfillVerification.js",
+    "reminders": "node scripts/sendEventReminders.js",
     "test": "jest"
   },
   "dependencies": {

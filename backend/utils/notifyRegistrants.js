@@ -2,17 +2,7 @@ const Registration = require("../models/Registration");
 const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
-
-function formatEventDate(date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+const { formatEventDate } = require("./formatEventDate");
 
 // Shared by both the owner/admin event routes (eventController) and the
 // admin-override routes (adminController) -- registered students have no

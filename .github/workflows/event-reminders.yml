@@ -1,0 +1,38 @@
+name: Event Reminders
+
+# Runs scripts/sendEventReminders.js once a day so students get a "your
+# event is tomorrow" email even though there's no always-on process in this
+# app to run a cron job itself. 09:00 UTC is mid-to-late morning in Nepal
+# (UTC+5:45) -- adjust the cron expression below if a different local time
+# is wanted.
+#
+# Needs these repo secrets set under Settings -> Secrets and variables ->
+# Actions (same values as the backend's .env -- see backend/.env.example):
+#   MONGO_URI, EMAIL_USER, EMAIL_APP_PASSWORD
+# Without them this job will run and fail cleanly (the script errors out
+# trying to connect), it just won't send anything.
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch: {} # lets this be triggered manually from the Actions tab too
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run reminders
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
