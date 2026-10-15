@@ -94,6 +94,11 @@ async function register(req, res) {
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email, and password are required" });
     }
+    // JSON can carry objects/arrays where strings belong; without this they
+    // fall through to .toLowerCase()/bcrypt below and come back as a 500.
+    if ([name, email, password].some((v) => typeof v !== "string")) {
+      return res.status(400).json({ message: "Invalid form data" });
+    }
 
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
@@ -160,6 +165,9 @@ async function login(req, res) {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
+    }
+    if (typeof email !== "string" || typeof password !== "string") {
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
     const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
