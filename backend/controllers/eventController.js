@@ -2,6 +2,7 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
+const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 
 // Attaches a live "registeredCount" to each event, computed from actual
@@ -24,20 +25,6 @@ async function withRegisteredCount(events) {
   });
 
   return isArray ? result : result[0];
-}
-
-// Validates a capacity value sent from the client. Returns the parsed
-// positive integer, or null if the value is invalid -- callers turn that
-// into a 400 instead of saving it. Without this, a bad value (blank field,
-// typo, a direct API call bypassing the frontend's own min="1" check)
-// could silently become NaN or <= 0, which breaks the registration gate:
-// NaN comparisons are always false, so "registeredCount >= event.capacity"
-// never blocks anyone (unlimited signups), while 0 or negative blocks
-// everyone with no clear error shown to the admin who set it.
-function parseCapacity(value) {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < 1) return null;
-  return n;
 }
 
 // GET /api/events  (public)
@@ -122,6 +109,8 @@ async function updateEvent(req, res) {
       if (parsedCapacity === null) {
         return res.status(400).json({ message: "Capacity must be a whole number of 1 or more" });
       }
+      const conflict = await capacityConflict(event._id, parsedCapacity);
+      if (conflict) return res.status(400).json({ message: conflict });
       event.capacity = parsedCapacity;
     }
 
