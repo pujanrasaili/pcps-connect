@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
+import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { formatDate } from "../../utils/formatDate";
@@ -22,6 +23,7 @@ const EMPTY_FORM = {
   capacity: 100,
   category: "",
   price: "Free",
+  club: "",
 };
 
 // Converts a stored ISO date into the "YYYY-MM-DDTHH:mm" shape a
@@ -35,6 +37,7 @@ function toDatetimeLocal(isoString) {
 
 export default function AdminEvents() {
   const { events, loading, refreshEvents } = useEvents();
+  const { clubs } = useClubs();
   const toast = useToast();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 250);
@@ -76,6 +79,7 @@ export default function AdminEvents() {
       capacity: event.capacity ?? 100,
       category: event.category || "",
       price: event.price || "Free",
+      club: event.club?._id || event.club || "",
     });
     setImageFile(null);
     setFormOpen(true);
@@ -227,6 +231,20 @@ export default function AdminEvents() {
               <label className="label-field">Price</label>
               <input name="price" className="input-field" value={form.price} onChange={handleChange} placeholder="Free or NPR 200" />
             </div>
+          </div>
+          <div>
+            <label className="label-field">Hosting club (optional)</label>
+            <select name="club" className="input-field" value={form.club} onChange={handleChange}>
+              <option value="">No club</option>
+              {clubs.map((c) => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
+            {!editingEvent && form.club && (
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+                Members of this club will be emailed when you create the event.
+              </p>
+            )}
           </div>
           <div>
             <label className="label-field">Event image {editingEvent && "(leave blank to keep current)"}</label>

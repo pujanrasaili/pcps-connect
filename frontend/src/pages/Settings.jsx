@@ -11,21 +11,20 @@ export default function Settings() {
   const { user, changePassword, updateUser } = useAuth();
   const toast = useToast();
   const [saved, setSaved] = useState(false);
-  const [savingReminders, setSavingReminders] = useState(false);
+  const [savingPref, setSavingPref] = useState(null);
   const [pwOpen, setPwOpen] = useState(false);
   const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [pwError, setPwError] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
 
-  // Mirrors the real `eventReminders` field on the user record -- this is
-  // the only toggle in this section because it's the only one with a
-  // matching backend feature (scripts/sendEventReminders.js). Saved
-  // immediately on toggle rather than batched, so what's on screen always
-  // reflects what the server will actually act on.
-  const handleToggleReminders = async () => {
-    setSavingReminders(true);
-    const result = await updateUser({ eventReminders: !user?.eventReminders });
-    setSavingReminders(false);
+  // Both toggles mirror real fields on the user record that the backend acts
+  // on (eventReminders -> scripts/sendEventReminders.js, clubUpdates ->
+  // utils/notifyClubMembers.js). Saved immediately on toggle rather than
+  // batched, so what's on screen always reflects what the server will do.
+  const handleTogglePref = async (key) => {
+    setSavingPref(key);
+    const result = await updateUser({ [key]: !(user?.[key] !== false) });
+    setSavingPref(null);
     if (!result.ok) {
       toast.error(result.message || "Failed to update preference");
       return;
@@ -109,8 +108,16 @@ export default function Settings() {
             title="Event reminders"
             desc="Get an email before events you registered for."
             checked={user?.eventReminders !== false}
-            onChange={handleToggleReminders}
-            disabled={savingReminders}
+            onChange={() => handleTogglePref("eventReminders")}
+            disabled={savingPref === "eventReminders"}
+          />
+          <PrefRow
+            icon={FaBell}
+            title="Club updates"
+            desc="Get an email when a club you've joined announces a new event."
+            checked={user?.clubUpdates !== false}
+            onChange={() => handleTogglePref("clubUpdates")}
+            disabled={savingPref === "clubUpdates"}
           />
         </div>
       </div>
