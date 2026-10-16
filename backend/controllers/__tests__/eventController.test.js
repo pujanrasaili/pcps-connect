@@ -5,6 +5,7 @@ jest.mock("../../models/WaitlistEntry");
 jest.mock("../../utils/notifyClubMembers");
 jest.mock("../../utils/notifyRegistrants");
 jest.mock("../../utils/waitlist");
+jest.mock("../../utils/audit");
 jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn() }));
 
 const Event = require("../../models/Event");

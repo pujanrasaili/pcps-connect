@@ -1,6 +1,7 @@
 const Club = require("../models/Club");
 const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
+const { recordAudit } = require("../utils/audit");
 
 // GET /api/clubs  (public)
 async function getClubs(req, res) {
@@ -59,6 +60,7 @@ async function deleteClub(req, res) {
     await User.updateMany({ favoriteClub: club._id }, { favoriteClub: null });
     await require("../models/Event").updateMany({ club: club._id }, { club: null });
 
+    await recordAudit(req.user, "club.deleted", `Deleted club "${club.name}"`);
     res.status(200).json({ message: "Club deleted" });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to delete club") });

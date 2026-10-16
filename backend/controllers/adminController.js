@@ -4,6 +4,8 @@ const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const { promoteFromWaitlist } = require("../utils/waitlist");
+const AuditLog = require("../models/AuditLog");
+const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
@@ -124,6 +126,12 @@ async function updateUser(req, res) {
     ) {
       await notifyApprovalDecision(user, newApprovalStatus);
     }
+    if ("role" in safeUpdates) {
+      await recordAudit(req.user, "user.role_changed", `Set ${user.name} (${user.email}) to ${user.role}`);
+    }
+    if (oldApprovalStatus !== null && newApprovalStatus !== oldApprovalStatus && ["approved", "rejected"].includes(newApprovalStatus)) {
+      await recordAudit(req.user, `user.${newApprovalStatus}`, `${newApprovalStatus === "approved" ? "Approved" : "Rejected"} ${user.name} (${user.email})`);
+    }
     res.status(200).json({ message: "User updated", user });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update user") });
@@ -166,6 +174,7 @@ async function deleteUser(req, res) {
     await WaitlistEntry.deleteMany({ user: user._id });
     await ClubMembership.deleteMany({ user: user._id });
     await user.deleteOne();
+    await recordAudit(req.user, "user.deleted", `Deleted account ${user.name} (${user.email})`);
 
     res.status(200).json({ message: "User deleted" });
   } catch (err) {
@@ -252,6 +261,7 @@ async function deleteEventAdmin(req, res) {
     await event.deleteOne();
     await Registration.deleteMany({ event: event._id });
     await WaitlistEntry.deleteMany({ event: event._id });
+    await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
     res.status(200).json({ message: "Event deleted" });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to delete event") });
@@ -297,7 +307,18 @@ async function updateRegistrationAttendance(req, res) {
   }
 }
 
+// GET /api/admin/audit  -- most recent admin actions, newest first
+async function getAuditLog(req, res) {
+  try {
+    const entries = await AuditLog.find().sort({ createdAt: -1 }).limit(200);
+    res.status(200).json({ entries });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch activity log") });
+  }
+}
+
 module.exports = {
+  getAuditLog,
   getAllUsers,
   getUserById,
   getUserEvents,
