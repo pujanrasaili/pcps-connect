@@ -39,6 +39,8 @@ pcps-connect/
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 - Editable student profile
+- Email notifications: registration confirmation, event reminders (opt out in Settings), reschedule/cancellation notices, account approval decisions, and a security notice whenever the password changes
+- "Add to calendar" (Google Calendar link or .ics download) for events you're registered for
 - Contact form that actually emails the college
 - Branded HTML emails (verification, password reset, notifications) instead of plain text
 - Toast notifications for every action, and a graceful fallback screen if anything ever crashes
@@ -62,6 +64,8 @@ pcps-connect/
 - Backend trusts exactly one reverse-proxy hop (Render's) so rate limiting keys on the real visitor IP, not the proxy's
 - Login sessions and single-purpose email links (verify/reset) use distinct token shapes, so a verify/reset link can never be reused as a login session
 - Attendee CSV export is sanitized against spreadsheet formula injection
+- Changing or resetting a password invalidates every older login session, and a password-reset link can't be replayed after use
+- CSRF header required on every state-changing request; admin event edits only accept whitelisted fields
 
 ## Getting Started (local development)
 
@@ -89,6 +93,35 @@ npm run dev
 
 Backend runs on `http://localhost:5000`, frontend on `http://localhost:5173`.
 
+## Testing
+
+```bash
+cd backend
+npm test
+```
+
+Jest unit tests cover the auth flow, registration and capacity rules, admin
+safety guards, email notifications, the CSRF middleware and shared utilities.
+GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests and a
+lint + production build of the frontend on every push and pull request.
+
+## Scheduled event reminders
+
+`backend/scripts/sendEventReminders.js` emails every registered student whose
+event starts within the next 24 hours (skipping anyone who turned reminders
+off in Settings, and never emailing the same registration twice). The app has
+no always-running process of its own, so `.github/workflows/event-reminders.yml`
+runs the script daily. To enable it, add these repository secrets under
+**Settings -> Secrets and variables -> Actions**, using the same values as the
+backend's `.env`:
+
+- `MONGO_URI`
+- `EMAIL_USER`
+- `EMAIL_APP_PASSWORD`
+
+It can also be triggered manually from the Actions tab, or locally with
+`npm run reminders` from `backend/`.
+
 ## Documentation
 
 See `backend/README.md` for the full API reference (endpoints, request/response
@@ -96,7 +129,6 @@ shapes, database models) and deeper notes on the auth flow.
 
 ## Future Improvements
 
-- Automated tests
 - True Google Workspace-restricted sign-in (PCPS's student email is hosted
   on Google Workspace — a real "Sign in with Google" limited to the
   @patancollege.edu.np domain is possible, but requires coordination with
