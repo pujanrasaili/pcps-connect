@@ -5,6 +5,7 @@ const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
 const { formatEventDate } = require("../utils/formatEventDate");
+const { promoteFromWaitlist } = require("../utils/waitlist");
 
 // Best-effort, same pattern as every other email in this app (verification,
 // password reset, admin approval notice): a failed send is logged and
@@ -124,6 +125,17 @@ async function cancelRegistration(req, res) {
     }
 
     await registration.deleteOne();
+
+    // The seat this frees up goes to whoever has been waiting longest. A
+    // problem promoting someone must never undo the cancellation itself.
+    if (event) {
+      try {
+        await promoteFromWaitlist(event);
+      } catch (promoteErr) {
+        console.error("Failed to promote from waitlist:", promoteErr.message);
+      }
+    }
+
     res.status(200).json({ message: "Registration cancelled" });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to cancel registration") });

@@ -1,5 +1,6 @@
 jest.mock("../../models/Registration");
 jest.mock("../../models/Event");
+jest.mock("../../utils/waitlist");
 // Without this, registerForEvent's best-effort confirmation email would make
 // a real SMTP connection attempt during every test run (no EMAIL_USER/
 // EMAIL_APP_PASSWORD in CI) -- mocked so tests stay fast and deterministic.
@@ -8,6 +9,7 @@ jest.mock("../../utils/sendEmail");
 const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
 const sendEmail = require("../../utils/sendEmail");
+const { promoteFromWaitlist } = require("../../utils/waitlist");
 const { registerForEvent, cancelRegistration } = require("../registrationController");
 
 function mockRes() {
@@ -205,6 +207,29 @@ describe("cancelRegistration", () => {
     const res = mockRes();
     await cancelRegistration(req, res);
     expect(deleteOne).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("offers the freed seat to the waitlist after a cancellation", async () => {
+    const deleteOne = jest.fn().mockResolvedValue();
+    const ev = futureEvent();
+    Registration.findById.mockResolvedValue({ user: { toString: () => USER_ID }, event: EVENT_ID, deleteOne });
+    Event.findById.mockResolvedValue(ev);
+    promoteFromWaitlist.mockResolvedValue(1);
+    const res = mockRes();
+    await cancelRegistration({ params: { id: "reg1" }, user: { _id: { toString: () => USER_ID } } }, res);
+    expect(promoteFromWaitlist).toHaveBeenCalledWith(ev);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("still cancels successfully if promoting from the waitlist throws", async () => {
+    const deleteOne = jest.fn().mockResolvedValue();
+    Registration.findById.mockResolvedValue({ user: { toString: () => USER_ID }, event: EVENT_ID, deleteOne });
+    Event.findById.mockResolvedValue(futureEvent());
+    promoteFromWaitlist.mockRejectedValue(new Error("db hiccup"));
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const res = mockRes();
+    await cancelRegistration({ params: { id: "reg1" }, user: { _id: { toString: () => USER_ID } } }, res);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 

@@ -1,5 +1,7 @@
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
+const WaitlistEntry = require("../models/WaitlistEntry");
+const { promoteFromWaitlist } = require("../utils/waitlist");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
@@ -125,6 +127,12 @@ async function updateEvent(req, res) {
 
     await event.save();
     await notifyEventRescheduled(event, { oldDate, oldLocation });
+    // Raising capacity opens seats for anyone queued.
+    try {
+      await promoteFromWaitlist(event);
+    } catch (promoteErr) {
+      console.error("Failed to promote from waitlist:", promoteErr.message);
+    }
     res.status(200).json({ message: "Event updated", event: await withRegisteredCount(event) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update event") });
@@ -150,6 +158,7 @@ async function deleteEvent(req, res) {
     // Clean up any registrations for this event so they don't become
     // dangling references pointing at a deleted event.
     await Registration.deleteMany({ event: event._id });
+    await WaitlistEntry.deleteMany({ event: event._id });
 
     res.status(200).json({ message: "Event deleted" });
   } catch (err) {

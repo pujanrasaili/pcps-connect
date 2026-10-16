@@ -2,6 +2,8 @@ const User = require("../models/User");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
+const WaitlistEntry = require("../models/WaitlistEntry");
+const { promoteFromWaitlist } = require("../utils/waitlist");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
@@ -155,10 +157,13 @@ async function deleteUser(req, res) {
       await notifyEventCancelled(ownedEvent);
     }
     if (ownedEvents.length > 0) {
-      await Registration.deleteMany({ event: { $in: ownedEvents.map((e) => e._id) } });
+      const ownedIds = ownedEvents.map((e) => e._id);
+      await Registration.deleteMany({ event: { $in: ownedIds } });
+      await WaitlistEntry.deleteMany({ event: { $in: ownedIds } });
     }
     await Event.deleteMany({ createdBy: user._id });
     await Registration.deleteMany({ user: user._id });
+    await WaitlistEntry.deleteMany({ user: user._id });
     await ClubMembership.deleteMany({ user: user._id });
     await user.deleteOne();
 
@@ -222,6 +227,12 @@ async function updateEventAdmin(req, res) {
       runValidators: true,
     });
     await notifyEventRescheduled(event, { oldDate, oldLocation });
+    // Raising capacity opens seats for anyone queued.
+    try {
+      await promoteFromWaitlist(event);
+    } catch (promoteErr) {
+      console.error("Failed to promote from waitlist:", promoteErr.message);
+    }
     res.status(200).json({ message: "Event updated", event });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update event") });
@@ -240,6 +251,7 @@ async function deleteEventAdmin(req, res) {
 
     await event.deleteOne();
     await Registration.deleteMany({ event: event._id });
+    await WaitlistEntry.deleteMany({ event: event._id });
     res.status(200).json({ message: "Event deleted" });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to delete event") });
