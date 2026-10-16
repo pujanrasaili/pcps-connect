@@ -54,6 +54,7 @@ pcps-connect/
 - Approve or reject pending student registrations
 - Promote/demote admin roles, delete accounts
 - Per-event attendee list with tap-to-toggle attendance marking, plus one-click CSV export for printable attendance sheets
+- Activity log of admin actions (role changes, approvals/rejections, deletions) with who did them, kept for a year
 - Live platform stats (total clubs, events, students, registrations)
 
 ### Security

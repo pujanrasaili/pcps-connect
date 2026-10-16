@@ -56,9 +56,9 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 |---|---|---|---|
 | GET | `/` | — | List all events, each with a live `registeredCount` computed from actual registrations (not a stored counter). |
 | GET | `/:id` | — | One event, same `registeredCount` treatment. |
-| POST | `/create` | Admin | `multipart/form-data`: `title, description, date, location, capacity?, category?, price?, image?` (file field `image`, uploaded to Cloudinary). |
-| PUT | `/:id` | Admin | Same fields, all optional; `multipart/form-data` if replacing the image. |
-| DELETE | `/:id` | Admin | Deletes the event and cascades: removes its `Registration` rows. |
+| POST | `/create` | Admin | `multipart/form-data`: `title, description, date, location, capacity?, category?, price?, club?, image?` (file field `image`, uploaded to Cloudinary). `club` is an optional club id; members of that club are emailed on creation (unless they turned club updates off). |
+| PUT | `/:id` | Admin | Same fields, all optional; `multipart/form-data` if replacing the image. Capacity can't be set below the number already registered; raising it promotes people from the waitlist. |
+| DELETE | `/:id` | Admin | Emails registrants that it's cancelled, then deletes the event and cascades: removes its `Registration` and `WaitlistEntry` rows. |
 
 ## Registrations — `/api/registrations`
 
@@ -67,6 +67,16 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 | POST | `/register` | Auth | `{ eventId }`. Rejected if the event already happened, the user is already registered, or the event is full. Capacity is enforced with a check-then-recheck-and-rollback pattern so two simultaneous requests for the last spot can't both succeed. |
 | GET | `/my` | Auth | The current user's own registrations, each with its event populated. |
 | DELETE | `/:id` | Auth | `:id` is the **registration's** own id (not the event id) — cancels it. 403s if it doesn't belong to the current user. |
+
+## Waitlist — `/api/waitlist`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/:eventId` | Auth | `{ onWaitlist, position? }` for the current user. |
+| POST | `/:eventId` | Auth | Join the waitlist. Only allowed for a full, upcoming event the user isn't already registered for. |
+| DELETE | `/:eventId` | Auth | Leave the waitlist. |
+
+When a seat opens (a registration is cancelled, or capacity is raised) the longest-waiting student is registered automatically and emailed.
 
 ## Club memberships — `/api/club-memberships`
 
@@ -91,6 +101,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 | DELETE | `/events/:id` | Delete any event. |
 | GET | `/events/:id/registrations` | Full attendee list for that event, each registration populated with its user — this is what powers the attendee modal and the CSV export. |
 | PUT | `/registrations/:id` | `{ attended }` — toggles attendance for one registration. |
+| GET | `/audit` | The 200 most recent admin actions (role changes, approvals/rejections, deletions), newest first. Entries expire after a year. |
 
 ## Contact — `/api/contact`
 
@@ -110,8 +121,10 @@ Full field definitions live in `models/*.js`; summary:
 
 - **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected)`
 - **Club** — `name, category, description, longDescription, image, icon, activities[], leadName, leadRole, email, foundedYear, createdBy (→User)`
-- **Event** — `title, description, date, location, image, capacity, category, price, createdBy (→User)`
+- **Event** — `title, description, date, location, image, capacity, category, price, club? (→Club), createdBy (→User)`
 - **Registration** — `user (→User), event (→Event), status (pending|confirmed|cancelled), attended`. Unique index on `(user, event)`.
+- **WaitlistEntry** — `user (→User), event (→Event)`. Unique index on `(user, event)`; oldest entry is promoted first.
+- **AuditLog** — `actor (→User), actorName, action, summary`. Expires after a year.
 - **ClubMembership** — `user (→User), club (→Club)`. Unique index on `(user, club)`.
 
 ## Error responses
