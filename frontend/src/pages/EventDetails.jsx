@@ -8,6 +8,7 @@ import {
   FaCheckCircle,
   FaArrowLeft,
   FaTimes,
+  FaCalendarPlus,
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
@@ -17,6 +18,7 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 import { formatDate, isPastEvent } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
+import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -157,6 +159,23 @@ export default function EventDetails() {
               <div className="mt-5 space-y-2">
                 <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   <FaCheckCircle /> You're registered for this event
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href={googleCalendarUrl(event)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
+                  >
+                    <FaCalendarPlus className="text-xs" /> Google Calendar
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => downloadIcs(event)}
+                    className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
+                  >
+                    <FaCalendarPlus className="text-xs" /> Download .ics
+                  </button>
                 </div>
                 <button
                   onClick={handleUnregister}
