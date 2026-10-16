@@ -140,6 +140,9 @@ export default function EventDetails() {
             <FaArrowLeft className="text-xs" /> Back to events
           </Link>
           <span className="badge bg-white/20 backdrop-blur">{event.category}</span>
+          {event.club?.name && (
+            <span className="badge ml-2 bg-white/20 backdrop-blur">Hosted by {event.club.name}</span>
+          )}
           {isPast && (
             <span className="badge ml-2 bg-slate-700/60 backdrop-blur">Past event</span>
           )}
