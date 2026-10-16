@@ -17,7 +17,8 @@ import RegistrationForm from "../components/RegistrationForm";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 import { formatDate, isPastEvent } from "../utils/formatDate";
-import { resolveUploadUrl } from "../services/api";
+import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
+import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
 
 export default function EventDetails() {
@@ -30,11 +31,16 @@ export default function EventDetails() {
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [unregistering, setUnregistering] = useState(false);
+  const toast = useToast();
+  // null = unknown/not loaded, otherwise { onWaitlist, position }
+  const [waitlist, setWaitlist] = useState(null);
+  const [waitlistBusy, setWaitlistBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setNotFound(false);
+    setWaitlist(null);
     getEventById(id).then((result) => {
       if (cancelled) return;
       if (!result) {
@@ -48,6 +54,27 @@ export default function EventDetails() {
       cancelled = true;
     };
   }, [id, getEventById]);
+
+  // A waitlist only matters for a full, upcoming event the student isn't
+  // already registered for. `registeredHere` is a plain boolean so the
+  // effect below only re-runs when it actually changes.
+  const registeredHere = event ? isRegistered(event._id) : false;
+  const eventKey = event?._id;
+  const eventFull = event ? (event.capacity ?? 100) - (event.registeredCount ?? 0) <= 0 : false;
+  const eventOver = event ? isPastEvent(event.date) : false;
+  const waitlistRelevant = isAuthenticated && eventFull && !registeredHere && !eventOver;
+
+  useEffect(() => {
+    if (!waitlistRelevant || !eventKey) return;
+    let cancelled = false;
+    api
+      .get(`/waitlist/${eventKey}`)
+      .then((res) => !cancelled && setWaitlist(res.data))
+      .catch(() => !cancelled && setWaitlist(null));
+    return () => {
+      cancelled = true;
+    };
+  }, [waitlistRelevant, eventKey]);
 
   if (loading) {
     return (
@@ -65,6 +92,32 @@ export default function EventDetails() {
   const isFull = spotsLeft <= 0;
   const isPast = isPastEvent(event.date);
   const registered = isRegistered(event._id);
+
+  const handleJoinWaitlist = async () => {
+    setWaitlistBusy(true);
+    try {
+      const res = await api.post(`/waitlist/${event._id}`);
+      setWaitlist({ onWaitlist: true, position: res.data.position });
+      toast.success("You're on the waitlist. We'll email you if a spot opens.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Couldn't join the waitlist"));
+    } finally {
+      setWaitlistBusy(false);
+    }
+  };
+
+  const handleLeaveWaitlist = async () => {
+    setWaitlistBusy(true);
+    try {
+      await api.delete(`/waitlist/${event._id}`);
+      setWaitlist({ onWaitlist: false });
+      toast.info("Removed from the waitlist.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Couldn't leave the waitlist"));
+    } finally {
+      setWaitlistBusy(false);
+    }
+  };
 
   const handleRegisterClick = () => {
     if (!isAuthenticated) return;
@@ -189,6 +242,26 @@ export default function EventDetails() {
               <Button className="mt-5 w-full" disabled variant="outline">
                 Event has ended
               </Button>
+            ) : isFull && isAuthenticated && waitlist?.onWaitlist ? (
+              <div className="mt-5 space-y-2">
+                <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                  You're #{waitlist.position} on the waitlist. We'll register you and email you if a spot opens.
+                </div>
+                <button
+                  onClick={handleLeaveWaitlist}
+                  disabled={waitlistBusy}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
+                >
+                  <FaTimes className="text-xs" /> {waitlistBusy ? "Leaving..." : "Leave waitlist"}
+                </button>
+              </div>
+            ) : isFull && isAuthenticated ? (
+              <div className="mt-5 space-y-2">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400">This event is full.</p>
+                <Button className="w-full" variant="outline" onClick={handleJoinWaitlist} disabled={waitlistBusy}>
+                  {waitlistBusy ? "Joining..." : "Join the waitlist"}
+                </Button>
+              </div>
             ) : isFull ? (
               <Button className="mt-5 w-full" disabled variant="outline">
                 Registration full
