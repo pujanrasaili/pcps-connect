@@ -2,6 +2,8 @@ jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
 jest.mock("../../models/ClubMembership");
+jest.mock("../../models/WaitlistEntry");
+jest.mock("../../utils/waitlist");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/notifyRegistrants");
 
@@ -9,6 +11,7 @@ const User = require("../../models/User");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const ClubMembership = require("../../models/ClubMembership");
+const WaitlistEntry = require("../../models/WaitlistEntry");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
 const { updateUser, deleteUser, updateEventAdmin } = require("../adminController");
@@ -240,6 +243,7 @@ describe("deleteUser -- admin safety guards", () => {
     expect(Event.deleteMany).toHaveBeenCalledWith({ createdBy: STUDENT_ID });
     expect(Registration.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
     expect(ClubMembership.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
+    expect(WaitlistEntry.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
     expect(deleteOne).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
   });
