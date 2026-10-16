@@ -57,6 +57,7 @@ async function deleteClub(req, res) {
     await ClubMembership.deleteMany({ club: club._id });
     const User = require("../models/User");
     await User.updateMany({ favoriteClub: club._id }, { favoriteClub: null });
+    await require("../models/Event").updateMany({ club: club._id }, { club: null });
 
     res.status(200).json({ message: "Club deleted" });
   } catch (err) {

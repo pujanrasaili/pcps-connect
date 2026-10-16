@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
     // (everyone gets reminded) doesn't change for accounts that never touch
     // this setting; a student can opt out from Settings.
     eventReminders: { type: Boolean, default: true },
+
+    // Whether this student wants an email when a club they've joined
+    // announces a new event. Defaults true; opt out from Settings.
+    clubUpdates: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

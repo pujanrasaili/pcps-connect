@@ -10,7 +10,10 @@ const eventSchema = new mongoose.Schema(
     capacity: { type: Number, default: 100, min: 1 },
     category: { type: String, default: "General" },
     price: { type: String, default: "Free" },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    // Optional: the club hosting this event. Members of that club get an email
+  // when it's announced (see utils/notifyClubMembers.js).
+  club: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: null, index: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   },
   { timestamps: true }
 );
