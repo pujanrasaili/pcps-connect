@@ -1,6 +1,8 @@
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
+const Club = require("../models/Club");
+const { notifyNewClubEvent } = require("../utils/notifyClubMembers");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
@@ -29,10 +31,21 @@ async function withRegisteredCount(events) {
   return isArray ? result : result[0];
 }
 
+// Turns the optional `club` field from the request into either null (no club,
+// including an empty string from a cleared form field) or the Club document.
+// Returns { error } instead if the id is malformed or the club doesn't exist.
+async function resolveClub(value) {
+  if (value === undefined || value === null || value === "" || value === "null") return { club: null };
+  if (typeof value !== "string" || !/^[a-f\d]{24}$/i.test(value)) return { error: "Invalid club" };
+  const club = await Club.findById(value);
+  if (!club) return { error: "Club not found" };
+  return { club };
+}
+
 // GET /api/events  (public)
 async function getEvents(req, res) {
   try {
-    const events = await Event.find().populate("createdBy", "name email").sort({ date: 1 });
+    const events = await Event.find().populate("createdBy", "name email").populate("club", "name").sort({ date: 1 });
     res.status(200).json({ events: await withRegisteredCount(events) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch events") });
@@ -42,7 +55,7 @@ async function getEvents(req, res) {
 // GET /api/events/:id  (public)
 async function getEventById(req, res) {
   try {
-    const event = await Event.findById(req.params.id).populate("createdBy", "name email");
+    const event = await Event.findById(req.params.id).populate("createdBy", "name email").populate("club", "name");
     if (!event) return res.status(404).json({ message: "Event not found" });
     res.status(200).json({ event: await withRegisteredCount(event) });
   } catch (err) {
@@ -66,6 +79,9 @@ async function createEvent(req, res) {
       }
     }
 
+    const { club, error: clubError } = await resolveClub(req.body.club);
+    if (clubError) return res.status(400).json({ message: clubError });
+
     let image = null;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
@@ -81,8 +97,11 @@ async function createEvent(req, res) {
       category: category || "General",
       price: price || "Free",
       image,
+      club: club ? club._id : null,
       createdBy: req.user._id,
     });
+
+    if (club) await notifyNewClubEvent(event, club);
 
     res.status(201).json({ message: "Event created", event: await withRegisteredCount(event) });
   } catch (err) {
@@ -114,6 +133,12 @@ async function updateEvent(req, res) {
       const conflict = await capacityConflict(event._id, parsedCapacity);
       if (conflict) return res.status(400).json({ message: conflict });
       event.capacity = parsedCapacity;
+    }
+
+    if (req.body.club !== undefined) {
+      const { club, error: clubError } = await resolveClub(req.body.club);
+      if (clubError) return res.status(400).json({ message: clubError });
+      event.club = club ? club._id : null;
     }
 
     const allowedFields = ["title", "description", "date", "location", "category", "price"];

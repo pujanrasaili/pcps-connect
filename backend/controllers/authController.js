@@ -36,6 +36,7 @@ function publicUser(user) {
     approvalStatus: user.approvalStatus,
     avatar: user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4F46E5`,
     eventReminders: user.eventReminders !== false,
+    clubUpdates: user.clubUpdates !== false,
   };
 }
 
@@ -228,7 +229,7 @@ async function getMe(req, res) {
 // PUT /api/auth/profile  -- update your own profile (requires login)
 async function updateProfile(req, res) {
   try {
-    const allowedFields = ["name", "studentId", "program", "semester", "phone", "avatar", "eventReminders"];
+    const allowedFields = ["name", "studentId", "program", "semester", "phone", "avatar", "eventReminders", "clubUpdates"];
     const updates = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
