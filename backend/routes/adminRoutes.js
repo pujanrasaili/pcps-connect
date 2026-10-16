@@ -11,6 +11,7 @@ const {
   deleteEventAdmin,
   getEventRegistrations,
   updateRegistrationAttendance,
+  getAuditLog,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
 
@@ -31,5 +32,6 @@ router.delete("/events/:id", deleteEventAdmin);
 router.get("/events/:id/registrations", getEventRegistrations);
 
 router.put("/registrations/:id", updateRegistrationAttendance);
+router.get("/audit", getAuditLog);
 
 module.exports = router;

@@ -4,6 +4,8 @@ jest.mock("../../models/Registration");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../utils/waitlist");
+jest.mock("../../models/AuditLog");
+jest.mock("../../utils/audit");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/notifyRegistrants");
 
@@ -12,9 +14,11 @@ const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const ClubMembership = require("../../models/ClubMembership");
 const WaitlistEntry = require("../../models/WaitlistEntry");
+const AuditLog = require("../../models/AuditLog");
+const { recordAudit } = require("../../utils/audit");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
-const { updateUser, deleteUser, updateEventAdmin } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin, getAuditLog } = require("../adminController");
 
 function mockRes() {
   const res = {};
@@ -314,5 +318,55 @@ describe("updateEventAdmin -- field whitelist and capacity checks", () => {
     await updateEventAdmin({ params: { id: "ev1" }, body: { capacity: 10 } }, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(Event.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe("admin audit log", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const actor = { _id: { toString: () => ADMIN_ID }, name: "Root Admin" };
+
+  it("records a role change", async () => {
+    User.findById.mockResolvedValue({ role: "user" });
+    User.findByIdAndUpdate.mockResolvedValue({ name: "Sita", email: "s@patancollege.edu.np", role: "admin" });
+    const res = mockRes();
+    await updateUser({ params: { id: STUDENT_ID }, user: actor, body: { role: "admin" } }, res);
+    expect(recordAudit).toHaveBeenCalledWith(actor, "user.role_changed", expect.stringContaining("admin"));
+  });
+
+  it("records an approval only on a real transition, not a no-op", async () => {
+    User.findById.mockResolvedValue({ approvalStatus: "approved" });
+    User.findByIdAndUpdate.mockResolvedValue({ name: "Sita", email: "s@patancollege.edu.np", approvalStatus: "approved" });
+    const res = mockRes();
+    await updateUser({ params: { id: STUDENT_ID }, user: actor, body: { approvalStatus: "approved" } }, res);
+    expect(recordAudit).not.toHaveBeenCalled();
+  });
+
+  it("records an approval transition", async () => {
+    User.findById.mockResolvedValue({ approvalStatus: "pending" });
+    User.findByIdAndUpdate.mockResolvedValue({ name: "Sita", email: "s@patancollege.edu.np", approvalStatus: "approved" });
+    sendEmail.mockResolvedValue();
+    const res = mockRes();
+    await updateUser({ params: { id: STUDENT_ID }, user: actor, body: { approvalStatus: "approved" } }, res);
+    expect(recordAudit).toHaveBeenCalledWith(actor, "user.approved", expect.stringContaining("Sita"));
+  });
+
+  it("records an account deletion", async () => {
+    const deleteOne = jest.fn().mockResolvedValue();
+    User.findById.mockResolvedValue({ _id: STUDENT_ID, name: "Sita", email: "s@patancollege.edu.np", role: "user", deleteOne });
+    Event.find.mockResolvedValue([]);
+    const res = mockRes();
+    await deleteUser({ params: { id: STUDENT_ID }, user: { ...actor, _id: { toString: () => ADMIN_ID } } }, res);
+    expect(recordAudit).toHaveBeenCalledWith(expect.anything(), "user.deleted", expect.stringContaining("Sita"));
+  });
+
+  it("lists entries newest first", async () => {
+    const limit = jest.fn().mockResolvedValue([{ summary: "x" }]);
+    const sort = jest.fn().mockReturnValue({ limit });
+    AuditLog.find.mockReturnValue({ sort });
+    const res = mockRes();
+    await getAuditLog({}, res);
+    expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
+    expect(res.json).toHaveBeenCalledWith({ entries: [{ summary: "x" }] });
   });
 });
