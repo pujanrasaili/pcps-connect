@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield } from "react-icons/fa";
+import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
@@ -11,6 +11,7 @@ const ADMIN_LINKS = [
   { to: "/admin/clubs", label: "Clubs", icon: FaUsers },
   { to: "/admin/events", label: "Events", icon: FaCalendarAlt },
   { to: "/admin/users", label: "Users", icon: FaUserShield, badgeKey: "pending" },
+  { to: "/admin/activity", label: "Activity", icon: FaHistory },
 ];
 
 export default function AdminLayout() {
