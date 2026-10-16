@@ -36,6 +36,7 @@ pcps-connect/
 - Real password reset via email, plus in-app change password from Settings
 - Full club directory: browse, search, filter by category, join/leave, favorite
 - Full event directory: browse, search, filter, register/unregister, live capacity tracking
+- Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 - Editable student profile
