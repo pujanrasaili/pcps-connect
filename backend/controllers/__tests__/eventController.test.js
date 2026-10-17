@@ -12,7 +12,7 @@ const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const Registration = require("../../models/Registration");
 const { notifyNewClubEvent } = require("../../utils/notifyClubMembers");
-const { createEvent, updateEvent } = require("../eventController");
+const { createEvent, updateEvent, getEventById } = require("../eventController");
 
 function mockRes() {
   const res = {};
@@ -113,5 +113,34 @@ describe("updateEvent -- club handling", () => {
     await updateEvent({ params: { id: "ev1" }, body: { club: CLUB_ID }, user: admin }, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(ev.save).not.toHaveBeenCalled();
+  });
+});
+
+describe("getEventById -- registration and rating stats", () => {
+  function populated(doc) {
+    const q = { populate: jest.fn() };
+    q.populate.mockReturnValue(q);
+    q.then = (resolve) => resolve(doc);
+    return q;
+  }
+
+  it("includes registered count and average rating", async () => {
+    Event.findById.mockReturnValue(populated({ _id: "ev1", toObject: () => ({ _id: "ev1", title: "T" }) }));
+    Registration.aggregate.mockResolvedValue([{ _id: "ev1", count: 4, ratingSum: 14, ratingCount: 3 }]);
+    const res = mockRes();
+    await getEventById({ params: { id: "ev1" } }, res);
+    expect(res.json).toHaveBeenCalledWith({
+      event: expect.objectContaining({ registeredCount: 4, averageRating: 4.7, ratingCount: 3 }),
+    });
+  });
+
+  it("reports no average when nobody has rated", async () => {
+    Event.findById.mockReturnValue(populated({ _id: "ev1", toObject: () => ({ _id: "ev1" }) }));
+    Registration.aggregate.mockResolvedValue([{ _id: "ev1", count: 2, ratingSum: 0, ratingCount: 0 }]);
+    const res = mockRes();
+    await getEventById({ params: { id: "ev1" } }, res);
+    expect(res.json).toHaveBeenCalledWith({
+      event: expect.objectContaining({ registeredCount: 2, averageRating: null, ratingCount: 0 }),
+    });
   });
 });
