@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaMapMarkerAlt, FaUsers } from "react-icons/fa";
+import { FaMapMarkerAlt, FaUsers, FaStar } from "react-icons/fa";
 import { formatDay, formatMonth, isPastEvent } from "../utils/formatDate";
 import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
@@ -69,6 +69,12 @@ export default function EventCard({ event }) {
             <span>{registeredCount}/{capacity} registered</span>
           )}
         </div>
+        {event.averageRating != null && (
+          <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <FaStar className="shrink-0 text-amber-400" />
+            <span>{event.averageRating.toFixed(1)} ({event.ratingCount})</span>
+          </div>
+        )}
         <div className="mt-4 flex items-center justify-between">
           <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">
             {event.price || "Free"}

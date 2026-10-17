@@ -159,6 +159,7 @@ export default function AdminEvents() {
                 <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered
+                  {event.averageRating != null && ` · ★ ${event.averageRating.toFixed(1)} (${event.ratingCount})`}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
