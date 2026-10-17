@@ -142,4 +142,44 @@ async function cancelRegistration(req, res) {
   }
 }
 
-module.exports = { registerForEvent, getMyRegistrations, cancelRegistration };
+// PUT /api/registrations/:id/feedback  (requires login + must own the registration)
+// Body: { rating: 1-5, feedback?: string up to 500 chars }
+// Only students an admin has marked as attended can rate, so ratings come
+// from people who were actually there. Can be edited later (it overwrites).
+async function submitFeedback(req, res) {
+  try {
+    const { rating, feedback } = req.body;
+
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be a whole number from 1 to 5" });
+    }
+    if (feedback !== undefined && typeof feedback !== "string") {
+      return res.status(400).json({ message: "Feedback must be text" });
+    }
+    const cleanFeedback = (feedback || "").trim();
+    if (cleanFeedback.length > 500) {
+      return res.status(400).json({ message: "Feedback must be 500 characters or fewer" });
+    }
+
+    const registration = await Registration.findById(req.params.id);
+    if (!registration) return res.status(404).json({ message: "Registration not found" });
+
+    if (registration.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    if (!registration.attended) {
+      return res.status(400).json({ message: "You can only rate events you attended" });
+    }
+
+    registration.rating = rating;
+    registration.feedback = cleanFeedback;
+    await registration.save();
+
+    res.status(200).json({ message: "Thanks for your feedback!", registration });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to save feedback") });
+  }
+}
+
+module.exports = {
+  submitFeedback, registerForEvent, getMyRegistrations, cancelRegistration };
