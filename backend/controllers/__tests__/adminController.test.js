@@ -470,3 +470,28 @@ describe("checkInByCode", () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ alreadyCheckedIn: true }));
   });
 });
+
+describe("getAttendanceReport", () => {
+  const { getAttendanceReport } = require("../adminController");
+  afterEach(() => jest.clearAllMocks());
+
+  it("aggregates the most recent past events into a report", async () => {
+    const limit = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: "e1", title: "Talk", date: "2026-10-01" }]) });
+    Event.find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit }) });
+    Registration.aggregate = jest.fn().mockResolvedValue([{ _id: "e1", registered: 4, attended: 3, ratingSum: 0, ratingCount: 0 }]);
+    const res = mockRes();
+
+    await getAttendanceReport({}, res);
+
+    expect(limit).toHaveBeenCalledWith(8);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json.mock.calls[0][0].events[0]).toMatchObject({ attendanceRate: 75, noShows: 1 });
+  });
+
+  it("returns 500 when the database fails", async () => {
+    Event.find = jest.fn().mockImplementation(() => { throw new Error("db down"); });
+    const res = mockRes();
+    await getAttendanceReport({}, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
