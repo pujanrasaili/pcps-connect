@@ -14,6 +14,7 @@ const {
   getAuditLog,
   announceToRegistrants,
   checkInByCode,
+  getAttendanceReport,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -40,5 +41,6 @@ router.put("/registrations/:id", updateRegistrationAttendance);
 // IP) legitimately scans far more than 30 students in 10 minutes.
 router.post("/check-in", checkInByCode);
 router.get("/audit", getAuditLog);
+router.get("/attendance-report", getAttendanceReport);
 
 module.exports = router;

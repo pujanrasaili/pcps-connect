@@ -13,6 +13,7 @@ const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } 
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
+const { buildAttendanceReport } = require("../utils/attendanceReport");
 
 // Best-effort, same pattern as every other email in this app -- a failed
 // send is logged and swallowed, never allowed to turn a successful approval
@@ -377,7 +378,37 @@ async function getAuditLog(req, res) {
   }
 }
 
+// GET /api/admin/attendance-report
+// Turnout and ratings for the 8 most recent past events, so organisers can
+// see which events actually brought people in without opening each one.
+async function getAttendanceReport(req, res) {
+  try {
+    const events = await Event.find({ date: { $lt: new Date() } })
+      .sort({ date: -1 })
+      .limit(8)
+      .select("title date");
+
+    const stats = await Registration.aggregate([
+      { $match: { event: { $in: events.map((e) => e._id) } } },
+      {
+        $group: {
+          _id: "$event",
+          registered: { $sum: 1 },
+          attended: { $sum: { $cond: ["$attended", 1, 0] } },
+          ratingSum: { $sum: { $ifNull: ["$rating", 0] } },
+          ratingCount: { $sum: { $cond: [{ $gt: ["$rating", 0] }, 1, 0] } },
+        },
+      },
+    ]);
+
+    res.status(200).json(buildAttendanceReport(events, stats));
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to build attendance report") });
+  }
+}
+
 module.exports = {
+  getAttendanceReport,
   checkInByCode,
   announceToRegistrants,
   getAuditLog,
