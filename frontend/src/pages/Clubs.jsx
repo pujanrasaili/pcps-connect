@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -126,6 +127,13 @@ export default function Clubs() {
                 </ul>
               </>
             )}
+
+            <Link
+              to={`/events?club=${selectedClub._id}`}
+              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-400"
+            >
+              View events from this club <FaArrowRight className="text-xs" />
+            </Link>
 
             <div className="mt-5 flex items-center justify-between gap-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4">
               <div className="text-sm">
