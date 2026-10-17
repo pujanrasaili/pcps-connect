@@ -3,6 +3,7 @@ const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const Club = require("../models/Club");
 const { recordAudit } = require("../utils/audit");
+const { ratingSummary } = require("../utils/ratingSummary");
 const { notifyNewClubEvent } = require("../utils/notifyClubMembers");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
@@ -20,13 +21,26 @@ async function withRegisteredCount(events) {
 
   const counts = await Registration.aggregate([
     { $match: { event: { $in: list.map((e) => e._id) } } },
-    { $group: { _id: "$event", count: { $sum: 1 } } },
+    {
+      $group: {
+        _id: "$event",
+        count: { $sum: 1 },
+        // $sum ignores the null rating of students who haven't rated.
+        ratingSum: { $sum: "$rating" },
+        ratingCount: { $sum: { $cond: [{ $gt: ["$rating", null] }, 1, 0] } },
+      },
+    },
   ]);
-  const countMap = new Map(counts.map((c) => [c._id.toString(), c.count]));
+  const countMap = new Map(counts.map((c) => [c._id.toString(), c]));
 
   const result = list.map((e) => {
     const obj = e.toObject ? e.toObject() : e;
-    return { ...obj, registeredCount: countMap.get(e._id.toString()) || 0 };
+    const stats = countMap.get(e._id.toString());
+    return {
+      ...obj,
+      registeredCount: stats?.count || 0,
+      ...ratingSummary(stats?.ratingSum, stats?.ratingCount),
+    };
   });
 
   return isArray ? result : result[0];
