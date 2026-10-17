@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes } from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useClubMembership } from "../context/ClubMembershipContext";
@@ -9,6 +9,7 @@ import { resolveUploadUrl } from "../services/api";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 import StarRating, { Stars } from "../components/StarRating";
+import CheckInQrModal from "../components/CheckInQrModal";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -20,6 +21,7 @@ export default function Profile() {
   // The registration currently being rated in the feedback modal, plus the
   // draft rating/comment being edited.
   const [rateTarget, setRateTarget] = useState(null);
+  const [qrTarget, setQrTarget] = useState(null);
   const [ratingDraft, setRatingDraft] = useState(0);
   const [commentDraft, setCommentDraft] = useState("");
   const [ratingSaving, setRatingSaving] = useState(false);
@@ -181,6 +183,16 @@ export default function Profile() {
                     )}
                     {!r.attended && !isPast && (
                       <button
+                        onClick={() => setQrTarget(r)}
+                        aria-label={`Check-in QR for ${r.event.title}`}
+                        title="Check-in QR"
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
+                      >
+                        <FaQrcode className="text-sm" />
+                      </button>
+                    )}
+                    {!r.attended && !isPast && (
+                      <button
                         onClick={() => handleUnregister(r.event._id)}
                         aria-label={`Unregister from ${r.event.title}`}
                         title="Unregister"
@@ -198,6 +210,8 @@ export default function Profile() {
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No event history yet.</p>
         )}
       </div>
+
+      <CheckInQrModal registration={qrTarget} onClose={() => setQrTarget(null)} />
 
       <Modal isOpen={!!rateTarget} onClose={() => setRateTarget(null)} title="How was the event?" size="sm">
         <form onSubmit={handleSubmitRating} className="space-y-4">
