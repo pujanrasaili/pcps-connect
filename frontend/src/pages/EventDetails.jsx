@@ -20,6 +20,7 @@ import { formatDate, isPastEvent } from "../utils/formatDate";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
+import { Stars } from "../components/StarRating";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -194,6 +195,14 @@ export default function EventDetails() {
                   {registeredCount}/{capacity} registered
                 </span>
               </li>
+              {event.averageRating != null && (
+                <li className="flex items-center gap-3">
+                  <Stars value={Math.round(event.averageRating)} />
+                  <span className="text-slate-600 dark:text-slate-300">
+                    {event.averageRating.toFixed(1)} · {event.ratingCount} rating{event.ratingCount > 1 ? "s" : ""}
+                  </span>
+                </li>
+              )}
               <li className="flex items-center gap-3">
                 <FaTag className="text-primary-500" />
                 <span className="text-slate-600 dark:text-slate-300">{event.price || "Free"}</span>
