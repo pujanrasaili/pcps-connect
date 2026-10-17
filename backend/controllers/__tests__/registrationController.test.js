@@ -10,7 +10,7 @@ const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
 const sendEmail = require("../../utils/sendEmail");
 const { promoteFromWaitlist } = require("../../utils/waitlist");
-const { registerForEvent, cancelRegistration } = require("../registrationController");
+const { registerForEvent, cancelRegistration, submitFeedback } = require("../registrationController");
 
 function mockRes() {
   const res = {};
@@ -261,5 +261,67 @@ describe("cancelRegistration", () => {
     await cancelRegistration(req, res);
     expect(deleteOne).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("submitFeedback", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  const reg = (over = {}) => ({
+    user: { toString: () => USER_ID },
+    attended: true,
+    save: jest.fn().mockResolvedValue(),
+    ...over,
+  });
+  const call = (body, id = "reg1") => {
+    const res = mockRes();
+    return submitFeedback({ params: { id }, body, user: { _id: { toString: () => USER_ID } } }, res).then(() => res);
+  };
+
+  it.each([[0], [6], [3.5], ["5"], [null], [undefined]])("rejects rating %p", async (rating) => {
+    const res = await call({ rating });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Registration.findById).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-text or overlong feedback", async () => {
+    expect((await call({ rating: 4, feedback: { a: 1 } })).status).toHaveBeenCalledWith(400);
+    expect((await call({ rating: 4, feedback: "x".repeat(501) })).status).toHaveBeenCalledWith(400);
+  });
+
+  it("404s for an unknown registration", async () => {
+    Registration.findById.mockResolvedValue(null);
+    expect((await call({ rating: 4 })).status).toHaveBeenCalledWith(404);
+  });
+
+  it("403s for someone else's registration", async () => {
+    Registration.findById.mockResolvedValue(reg({ user: { toString: () => "someone-else" } }));
+    const res = await call({ rating: 4 });
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  it("refuses unless the student was marked as attended", async () => {
+    const r = reg({ attended: false });
+    Registration.findById.mockResolvedValue(r);
+    const res = await call({ rating: 5 });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(r.save).not.toHaveBeenCalled();
+  });
+
+  it("saves a trimmed rating and comment for an attendee", async () => {
+    const r = reg();
+    Registration.findById.mockResolvedValue(r);
+    const res = await call({ rating: 5, feedback: "  Great session  " });
+    expect(r.rating).toBe(5);
+    expect(r.feedback).toBe("Great session");
+    expect(r.save).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("allows a rating with no comment", async () => {
+    const r = reg();
+    Registration.findById.mockResolvedValue(r);
+    await call({ rating: 3 });
+    expect(r.feedback).toBe("");
   });
 });
