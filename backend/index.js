@@ -16,6 +16,7 @@ const clubMembershipRoutes = require("./routes/clubMembershipRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const waitlistRoutes = require("./routes/waitlistRoutes");
+const certificateRoutes = require("./routes/certificateRoutes");
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use("/api/club-memberships", clubMembershipRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/certificates", certificateRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
