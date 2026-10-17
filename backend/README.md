@@ -66,6 +66,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 |---|---|---|---|
 | POST | `/register` | Auth | `{ eventId }`. Rejected if the event already happened, the user is already registered, or the event is full. Capacity is enforced with a check-then-recheck-and-rollback pattern so two simultaneous requests for the last spot can't both succeed. |
 | GET | `/my` | Auth | The current user's own registrations, each with its event populated. |
+| GET | `/:id/certificate` | Auth | Certificate details (student, event, club) plus a signed verification `code`. Owner only, and only once the student is marked attended. |
 | GET | `/:id/check-in-code` | Auth | `{ code }` for the QR the student shows at the door. Owner only. The code is an HMAC of the registration id, so nothing is stored. |
 | PUT | `/:id/feedback` | Auth | `{ rating: 1-5, feedback?: string ≤500 }`. Only the owner, and only once an admin has marked them as attended. Overwrites any earlier feedback. |
 | DELETE | `/:id` | Auth | `:id` is the **registration's** own id (not the event id) — cancels it. 403s if it doesn't belong to the current user. | Past events can't be cancelled. |
@@ -79,6 +80,12 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 | DELETE | `/:eventId` | Auth | Leave the waitlist. |
 
 When a seat opens (a registration is cancelled, or capacity is raised) the longest-waiting student is registered automatically and emailed.
+
+## Certificates — `/api/certificates`
+
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/verify/:code` | — | Public. `200 { valid: true, student: { name }, event: { title, date } }` for a genuine certificate; `404 { valid: false }` for a forged code or one whose attendance wasn't recorded. Check-in codes are signed under a different purpose and are rejected here. |
 
 ## Club memberships — `/api/club-memberships`
 
