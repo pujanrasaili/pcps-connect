@@ -35,7 +35,7 @@ pcps-connect/
 - JWT-based authentication with httpOnly cookies (secure against XSS token theft)
 - Real password reset via email, plus in-app change password from Settings
 - Full club directory: browse, search, filter by category, join/leave, favorite
-- Full event directory: browse, search, filter, register/unregister, live capacity tracking
+- Full event directory: browse, search (by name, place or club), filter, register/unregister, live capacity tracking, and a "View events" link from each club that shows only its events
 - Club events: an event can be hosted by a club, and members of that club are emailed when it is announced (opt out in Settings)
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
