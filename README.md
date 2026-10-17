@@ -56,6 +56,7 @@ pcps-connect/
 - Promote/demote admin roles, delete accounts
 - Per-event attendee list with tap-to-toggle attendance marking, plus one-click CSV export for printable attendance sheets
 - Attendance certificates: once an organiser marks a student as attended, they can print a certificate (A4 PDF) with a QR code that anyone can scan to confirm it's genuine
+- Attendance report: the admin overview shows turnout (registered vs. attended) and average rating for recent past events
 - QR check-in: each registered student has a personal QR code; an organiser scans it with a normal phone camera and the student is marked as attended (codes are signed, so they can't be forged)
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
 - Activity log of admin actions (role changes, approvals/rejections, deletions) with who did them, kept for a year
