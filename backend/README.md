@@ -66,7 +66,8 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 |---|---|---|---|
 | POST | `/register` | Auth | `{ eventId }`. Rejected if the event already happened, the user is already registered, or the event is full. Capacity is enforced with a check-then-recheck-and-rollback pattern so two simultaneous requests for the last spot can't both succeed. |
 | GET | `/my` | Auth | The current user's own registrations, each with its event populated. |
-| DELETE | `/:id` | Auth | `:id` is the **registration's** own id (not the event id) — cancels it. 403s if it doesn't belong to the current user. |
+| PUT | `/:id/feedback` | Auth | `{ rating: 1-5, feedback?: string ≤500 }`. Only the owner, and only once an admin has marked them as attended. Overwrites any earlier feedback. |
+| DELETE | `/:id` | Auth | `:id` is the **registration's** own id (not the event id) — cancels it. 403s if it doesn't belong to the current user. | Past events can't be cancelled. |
 
 ## Waitlist — `/api/waitlist`
 
@@ -122,7 +123,7 @@ Full field definitions live in `models/*.js`; summary:
 - **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected)`
 - **Club** — `name, category, description, longDescription, image, icon, activities[], leadName, leadRole, email, foundedYear, createdBy (→User)`
 - **Event** — `title, description, date, location, image, capacity, category, price, club? (→Club), createdBy (→User)`
-- **Registration** — `user (→User), event (→Event), status (pending|confirmed|cancelled), attended`. Unique index on `(user, event)`.
+- **Registration** — `user (→User), event (→Event), status (pending|confirmed|cancelled), attended, reminderSent, rating?, feedback?`. Unique index on `(user, event)`.
 - **WaitlistEntry** — `user (→User), event (→Event)`. Unique index on `(user, event)`; oldest entry is promoted first.
 - **AuditLog** — `actor (→User), actorName, action, summary`. Expires after a year.
 - **ClubMembership** — `user (→User), club (→Club)`. Unique index on `(user, club)`.
