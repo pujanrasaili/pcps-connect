@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv } from "react-icons/fa";
+import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaEnvelope } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
@@ -60,6 +60,30 @@ export default function AttendeesModal({ event, onClose }) {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [composing, setComposing] = useState(false);
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+
+  // Start from a clean composer each time the modal opens for an event.
+  useEffect(() => {
+    setComposing(false);
+    setMessage("");
+  }, [event]);
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const res = await api.post(`/admin/events/${event._id}/announce`, { message });
+      toast.success(res.data.message);
+      setComposing(false);
+      setMessage("");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to send message"));
+    } finally {
+      setSending(false);
+    }
+  };
 
   useEffect(() => {
     if (!event) return;
@@ -109,13 +133,48 @@ export default function AttendeesModal({ event, onClose }) {
             <p className="text-sm text-slate-500 dark:text-slate-400">
               {attendedCount}/{registrations.length} marked attended · tap a student to toggle
             </p>
+            <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => setComposing((v) => !v)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
+            >
+              <FaEnvelope /> Message everyone
+            </button>
             <button
               onClick={() => downloadAttendanceCsv(event, registrations)}
               className="flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
             >
               <FaFileCsv /> Export CSV
             </button>
+            </div>
           </div>
+          {composing && (
+            <form onSubmit={sendMessage} className="mb-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+              <label className="label-field" htmlFor="announce-message">
+                Message to all {registrations.length} registered student{registrations.length > 1 ? "s" : ""}
+              </label>
+              <textarea
+                id="announce-message"
+                rows={4}
+                maxLength={1000}
+                required
+                className="input-field"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="e.g. The session has moved to Room B2. Please bring your laptop."
+              />
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-400">{message.length}/1000 · sent by email, can't be undone</span>
+                <button
+                  type="submit"
+                  disabled={sending || !message.trim()}
+                  className="rounded-lg bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600 disabled:opacity-50"
+                >
+                  {sending ? "Sending..." : `Send to ${registrations.length}`}
+                </button>
+              </div>
+            </form>
+          )}
           {averageRating !== null && (
             <p className="mb-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <Stars value={Math.round(averageRating)} />
