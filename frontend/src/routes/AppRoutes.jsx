@@ -35,6 +35,7 @@ const AdminClubs = lazy(() => import("../pages/admin/AdminClubs"));
 const AdminEvents = lazy(() => import("../pages/admin/AdminEvents"));
 const AdminUsers = lazy(() => import("../pages/admin/AdminUsers"));
 const AdminActivity = lazy(() => import("../pages/admin/AdminActivity"));
+const AdminCheckIn = lazy(() => import("../pages/admin/AdminCheckIn"));
 
 // Shown briefly while a lazy-loaded page's chunk downloads -- only happens
 // on that page's first visit per session, since the browser caches the
@@ -125,6 +126,14 @@ export default function AppRoutes() {
           element={
             <AdminRoute>
               <AdminUsers />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/check-in"
+          element={
+            <AdminRoute>
+              <AdminCheckIn />
             </AdminRoute>
           }
         />

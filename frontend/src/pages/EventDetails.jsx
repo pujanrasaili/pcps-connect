@@ -9,6 +9,7 @@ import {
   FaArrowLeft,
   FaTimes,
   FaCalendarPlus,
+  FaQrcode,
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
@@ -21,12 +22,13 @@ import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
 import { Stars } from "../components/StarRating";
+import CheckInQrModal from "../components/CheckInQrModal";
 
 export default function EventDetails() {
   const { id } = useParams();
   const { getEventById } = useEvents();
   const { isAuthenticated } = useAuth();
-  const { isRegistered, cancelRegistration } = useRegistrations();
+  const { registrations, isRegistered, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -36,6 +38,7 @@ export default function EventDetails() {
   // null = unknown/not loaded, otherwise { onWaitlist, position }
   const [waitlist, setWaitlist] = useState(null);
   const [waitlistBusy, setWaitlistBusy] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +96,7 @@ export default function EventDetails() {
   const isFull = spotsLeft <= 0;
   const isPast = isPastEvent(event.date);
   const registered = isRegistered(event._id);
+  const myRegistration = registrations.find((r) => r.event?._id === event._id);
 
   const handleJoinWaitlist = async () => {
     setWaitlistBusy(true);
@@ -218,13 +222,20 @@ export default function EventDetails() {
 
             {registered && isPast ? (
               <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                <FaCheckCircle /> You attended this event
+                <FaCheckCircle /> {myRegistration?.attended ? "You attended this event" : "You were registered for this event"}
               </div>
             ) : registered ? (
               <div className="mt-5 space-y-2">
                 <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   <FaCheckCircle /> You're registered for this event
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setQrOpen(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
+                >
+                  <FaQrcode /> Show my check-in QR
+                </button>
                 <div className="grid grid-cols-2 gap-2">
                   <a
                     href={googleCalendarUrl(event)}
@@ -294,6 +305,8 @@ export default function EventDetails() {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Register for this event">
         <RegistrationForm event={event} onSuccess={() => setShowModal(false)} />
       </Modal>
+
+      <CheckInQrModal registration={qrOpen ? myRegistration : null} onClose={() => setQrOpen(false)} />
     </div>
   );
 }
