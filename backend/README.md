@@ -66,6 +66,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 |---|---|---|---|
 | POST | `/register` | Auth | `{ eventId }`. Rejected if the event already happened, the user is already registered, or the event is full. Capacity is enforced with a check-then-recheck-and-rollback pattern so two simultaneous requests for the last spot can't both succeed. |
 | GET | `/my` | Auth | The current user's own registrations, each with its event populated. |
+| GET | `/:id/check-in-code` | Auth | `{ code }` for the QR the student shows at the door. Owner only. The code is an HMAC of the registration id, so nothing is stored. |
 | PUT | `/:id/feedback` | Auth | `{ rating: 1-5, feedback?: string ≤500 }`. Only the owner, and only once an admin has marked them as attended. Overwrites any earlier feedback. |
 | DELETE | `/:id` | Auth | `:id` is the **registration's** own id (not the event id) — cancels it. 403s if it doesn't belong to the current user. | Past events can't be cancelled. |
 
@@ -102,6 +103,7 @@ When a seat opens (a registration is cancelled, or capacity is raised) the longe
 | DELETE | `/events/:id` | Delete any event. |
 | GET | `/events/:id/registrations` | Full attendee list for that event, each registration populated with its user — this is what powers the attendee modal and the CSV export. |
 | PUT | `/registrations/:id` | `{ attended }` — toggles attendance for one registration. |
+| POST | `/check-in` | `{ code }` — verifies a scanned check-in code and marks that registration attended. Idempotent (`alreadyCheckedIn`). Not rate-limited, since one admin phone scans many students. |
 | POST | `/events/:id/announce` | `{ message }` (1-1000 chars) — emails everyone registered for the event; returns `{ sent }`. Recorded in the activity log. |
 | GET | `/audit` | The 200 most recent admin actions (role changes, approvals/rejections, deletions), newest first. Entries expire after a year. |
 
