@@ -54,7 +54,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET | `/` | — | List all events, each with a live `registeredCount` computed from actual registrations (not a stored counter). |
+| GET | `/` | — | List all events, each with a live `registeredCount` computed from actual registrations (not a stored counter). Also `averageRating` (one decimal, `null` if unrated) and `ratingCount` from attendee feedback. |
 | GET | `/:id` | — | One event, same `registeredCount` treatment. |
 | POST | `/create` | Admin | `multipart/form-data`: `title, description, date, location, capacity?, category?, price?, club?, image?` (file field `image`, uploaded to Cloudinary). `club` is an optional club id; members of that club are emailed on creation (unless they turned club updates off). |
 | PUT | `/:id` | Admin | Same fields, all optional; `multipart/form-data` if replacing the image. Capacity can't be set below the number already registered; raising it promotes people from the waitlist. |
