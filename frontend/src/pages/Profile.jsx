@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode, FaCertificate } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useClubMembership } from "../context/ClubMembershipContext";
@@ -173,6 +174,16 @@ export default function Profile() {
                   <div className="flex shrink-0 items-center gap-2">
                     {r.attended && r.rating ? <Stars value={r.rating} className="text-xs" /> : null}
                     <span className={`badge ${badgeClass}`}>{label}</span>
+                    {r.attended && (
+                      <Link
+                        to={`/certificate/${r._id}`}
+                        aria-label={`Certificate for ${r.event.title}`}
+                        title="Attendance certificate"
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
+                      >
+                        <FaCertificate className="text-sm" />
+                      </Link>
+                    )}
                     {r.attended && (
                       <button
                         onClick={() => openRate(r)}

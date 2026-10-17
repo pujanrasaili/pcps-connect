@@ -36,6 +36,8 @@ const AdminEvents = lazy(() => import("../pages/admin/AdminEvents"));
 const AdminUsers = lazy(() => import("../pages/admin/AdminUsers"));
 const AdminActivity = lazy(() => import("../pages/admin/AdminActivity"));
 const AdminCheckIn = lazy(() => import("../pages/admin/AdminCheckIn"));
+const Certificate = lazy(() => import("../pages/Certificate"));
+const VerifyCertificate = lazy(() => import("../pages/VerifyCertificate"));
 
 // Shown briefly while a lazy-loaded page's chunk downloads -- only happens
 // on that page's first visit per session, since the browser caches the
@@ -57,6 +59,7 @@ export default function AppRoutes() {
         <Route path="/clubs" element={<Clubs />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
+        <Route path="/verify/:code" element={<VerifyCertificate />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -68,6 +71,16 @@ export default function AppRoutes() {
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Route>
+
+      {/* Standalone (no navbar/footer) so printing gives just the certificate */}
+      <Route
+        path="/certificate/:id"
+        element={
+          <ProtectedRoute>
+            <Certificate />
+          </ProtectedRoute>
+        }
+      />
 
       <Route element={<DashboardLayout />}>
         <Route
