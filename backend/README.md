@@ -102,6 +102,7 @@ When a seat opens (a registration is cancelled, or capacity is raised) the longe
 | DELETE | `/events/:id` | Delete any event. |
 | GET | `/events/:id/registrations` | Full attendee list for that event, each registration populated with its user — this is what powers the attendee modal and the CSV export. |
 | PUT | `/registrations/:id` | `{ attended }` — toggles attendance for one registration. |
+| POST | `/events/:id/announce` | `{ message }` (1-1000 chars) — emails everyone registered for the event; returns `{ sent }`. Recorded in the activity log. |
 | GET | `/audit` | The 200 most recent admin actions (role changes, approvals/rejections, deletions), newest first. Entries expire after a year. |
 
 ## Contact — `/api/contact`
