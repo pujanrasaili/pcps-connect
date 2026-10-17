@@ -8,7 +8,7 @@ const AuditLog = require("../models/AuditLog");
 const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
-const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
+const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } = require("../utils/notifyRegistrants");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
@@ -307,6 +307,32 @@ async function updateRegistrationAttendance(req, res) {
   }
 }
 
+// POST /api/admin/events/:id/announce  { message }
+// Emails everyone registered for the event. Recorded in the activity log
+// because it's the one admin action that sends mail to many students at once.
+async function announceToRegistrants(req, res) {
+  try {
+    const { message } = req.body;
+    if (typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+    const text = message.trim();
+    if (text.length > 1000) {
+      return res.status(400).json({ message: "Message must be 1000 characters or fewer" });
+    }
+
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    const sent = await notifyEventAnnouncement(event, text);
+    await recordAudit(req.user, "event.announcement", `Sent a message to ${sent} registrant(s) of "${event.title}"`);
+
+    res.status(200).json({ message: `Message sent to ${sent} student(s)`, sent });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to send message") });
+  }
+}
+
 // GET /api/admin/audit  -- most recent admin actions, newest first
 async function getAuditLog(req, res) {
   try {
@@ -318,6 +344,7 @@ async function getAuditLog(req, res) {
 }
 
 module.exports = {
+  announceToRegistrants,
   getAuditLog,
   getAllUsers,
   getUserById,
