@@ -71,9 +71,22 @@ export function RegistrationProvider({ children }) {
     }
   };
 
+  const submitFeedback = async (registrationId, rating, feedback) => {
+    try {
+      await api.put(`/registrations/${registrationId}/feedback`, { rating, feedback });
+      await refreshRegistrations();
+      toast.success("Thanks for your feedback!");
+      return { ok: true };
+    } catch (err) {
+      const message = getErrorMessage(err, "Failed to save feedback");
+      toast.error(message);
+      return { ok: false, message };
+    }
+  };
+
   return (
     <RegistrationContext.Provider
-      value={{ registrations, loading, isRegistered, registerForEvent, cancelRegistration, refreshRegistrations }}
+      value={{ registrations, loading, isRegistered, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
     >
       {children}
     </RegistrationContext.Provider>

@@ -3,6 +3,7 @@ import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv } from "react-icon
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
+import { Stars } from "./StarRating";
 
 // Wraps a CSV field in quotes and escapes any quotes inside it, so names
 // or emails containing commas don't break the column layout.
@@ -24,13 +25,15 @@ function csvField(value) {
 }
 
 function downloadAttendanceCsv(event, registrations) {
-  const header = ["Name", "Email", "Student ID", "Registered On", "Attended"];
+  const header = ["Name", "Email", "Student ID", "Registered On", "Attended", "Rating", "Feedback"];
   const rows = registrations.map((r) => [
     r.user?.name || "Unknown student",
     r.user?.email || "",
     r.user?.studentId || "",
     r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "",
     r.attended ? "Yes" : "No",
+    r.rating || "",
+    r.feedback || "",
   ]);
 
   const csv = [header, ...rows].map((row) => row.map(csvField).join(",")).join("\r\n");
@@ -86,6 +89,8 @@ export default function AttendeesModal({ event, onClose }) {
   };
 
   const attendedCount = registrations.filter((r) => r.attended).length;
+  const rated = registrations.filter((r) => r.rating);
+  const averageRating = rated.length ? rated.reduce((sum, r) => sum + r.rating, 0) / rated.length : null;
 
   return (
     <Modal isOpen={!!event} onClose={onClose} title={`Attendees — ${event?.title || ""}`} size="lg">
@@ -111,6 +116,13 @@ export default function AttendeesModal({ event, onClose }) {
               <FaFileCsv /> Export CSV
             </button>
           </div>
+          {averageRating !== null && (
+            <p className="mb-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <Stars value={Math.round(averageRating)} />
+              <span className="font-semibold">{averageRating.toFixed(1)}</span>
+              <span className="text-slate-400">from {rated.length} rating{rated.length > 1 ? "s" : ""}</span>
+            </p>
+          )}
           <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
             {registrations.map((r) => (
               <button
@@ -132,6 +144,12 @@ export default function AttendeesModal({ event, onClose }) {
                     {r.user?.email}
                     {r.user?.studentId ? ` · ${r.user.studentId}` : ""}
                   </p>
+                  {r.rating ? (
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                      <Stars value={r.rating} className="text-[10px]" />
+                      {r.feedback ? <span className="truncate italic">"{r.feedback}"</span> : null}
+                    </p>
+                  ) : null}
                 </div>
                 <span
                   className={`badge shrink-0 ${

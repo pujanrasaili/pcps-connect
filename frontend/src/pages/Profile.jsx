@@ -8,14 +8,21 @@ import { formatDate, isPastEvent } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
+import StarRating, { Stars } from "../components/StarRating";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
-  const { registrations, cancelRegistration } = useRegistrations();
+  const { registrations, cancelRegistration, submitFeedback } = useRegistrations();
   const { memberships, favoriteClubId, leaveClub } = useClubMembership();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  // The registration currently being rated in the feedback modal, plus the
+  // draft rating/comment being edited.
+  const [rateTarget, setRateTarget] = useState(null);
+  const [ratingDraft, setRatingDraft] = useState(0);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [ratingSaving, setRatingSaving] = useState(false);
   const [form, setForm] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
@@ -53,6 +60,24 @@ export default function Profile() {
 
   const handleLeaveClub = (clubId) => {
     leaveClub(clubId);
+  };
+
+  const openRate = (registration) => {
+    setRateTarget(registration);
+    setRatingDraft(registration.rating || 0);
+    setCommentDraft(registration.feedback || "");
+  };
+
+  const handleSubmitRating = async (e) => {
+    e.preventDefault();
+    if (!ratingDraft) {
+      toast.error("Pick a star rating first.");
+      return;
+    }
+    setRatingSaving(true);
+    const result = await submitFeedback(rateTarget._id, ratingDraft, commentDraft);
+    setRatingSaving(false);
+    if (result.ok) setRateTarget(null);
   };
 
   const handleUnregister = (eventId) => {
@@ -144,7 +169,16 @@ export default function Profile() {
                     <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {r.attended && r.rating ? <Stars value={r.rating} className="text-xs" /> : null}
                     <span className={`badge ${badgeClass}`}>{label}</span>
+                    {r.attended && (
+                      <button
+                        onClick={() => openRate(r)}
+                        className="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20"
+                      >
+                        {r.rating ? "Edit rating" : "Rate"}
+                      </button>
+                    )}
                     {!r.attended && !isPast && (
                       <button
                         onClick={() => handleUnregister(r.event._id)}
@@ -164,6 +198,29 @@ export default function Profile() {
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No event history yet.</p>
         )}
       </div>
+
+      <Modal isOpen={!!rateTarget} onClose={() => setRateTarget(null)} title="How was the event?" size="sm">
+        <form onSubmit={handleSubmitRating} className="space-y-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">{rateTarget?.event?.title}</p>
+          <StarRating value={ratingDraft} onChange={setRatingDraft} disabled={ratingSaving} />
+          <div>
+            <label className="label-field" htmlFor="rate-comment">Comments (optional)</label>
+            <textarea
+              id="rate-comment"
+              rows={3}
+              maxLength={500}
+              className="input-field"
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              placeholder="What went well? What could be better?"
+            />
+            <p className="mt-1 text-right text-xs text-slate-400">{commentDraft.length}/500</p>
+          </div>
+          <Button type="submit" className="w-full" disabled={ratingSaving}>
+            {ratingSaving ? "Saving..." : "Submit feedback"}
+          </Button>
+        </form>
+      </Modal>
 
       <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit profile" size="sm">
         <form onSubmit={handleSave} className="space-y-4">
