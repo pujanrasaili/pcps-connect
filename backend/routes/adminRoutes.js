@@ -12,8 +12,10 @@ const {
   getEventRegistrations,
   updateRegistrationAttendance,
   getAuditLog,
+  announceToRegistrants,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
+const { actionLimiter } = require("../middleware/rateLimit");
 
 const router = express.Router();
 
@@ -30,6 +32,7 @@ router.get("/events/:id", getEventByIdAdmin);
 router.put("/events/:id", updateEventAdmin);
 router.delete("/events/:id", deleteEventAdmin);
 router.get("/events/:id/registrations", getEventRegistrations);
+router.post("/events/:id/announce", actionLimiter, announceToRegistrants);
 
 router.put("/registrations/:id", updateRegistrationAttendance);
 router.get("/audit", getAuditLog);

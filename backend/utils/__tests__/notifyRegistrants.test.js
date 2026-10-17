@@ -3,7 +3,7 @@ jest.mock("../sendEmail");
 
 const Registration = require("../../models/Registration");
 const sendEmail = require("../sendEmail");
-const { notifyEventRescheduled, notifyEventCancelled } = require("../notifyRegistrants");
+const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } = require("../notifyRegistrants");
 
 // Registration.find(...).populate(...) -- mongoose's Query object is
 // chainable then awaitable; mocked here the same shape so the real
@@ -116,6 +116,38 @@ describe("notifyEventCancelled", () => {
   it("does nothing (no throw) when there are no registrants", async () => {
     mockRegistrants([]);
     await expect(notifyEventCancelled(fakeEvent())).resolves.not.toThrow();
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe("notifyEventAnnouncement", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it("emails every registrant the message and returns how many it tried", async () => {
+    sendEmail.mockResolvedValue();
+    mockRegistrants([
+      { user: { name: "Asha", email: "asha@patancollege.edu.np" } },
+      { user: { name: "Bibek", email: "bibek@patancollege.edu.np" } },
+    ]);
+    const count = await notifyEventAnnouncement(fakeEvent(), "Bring your laptop");
+    expect(count).toBe(2);
+    expect(sendEmail).toHaveBeenCalledTimes(2);
+    expect(sendEmail.mock.calls[0][0].html).toContain("Bring your laptop");
+  });
+
+  it("escapes HTML in the message but keeps line breaks", async () => {
+    sendEmail.mockResolvedValue();
+    mockRegistrants([{ user: { name: "Asha", email: "asha@patancollege.edu.np" } }]);
+    await notifyEventAnnouncement(fakeEvent(), "<script>alert(1)</script>\nSecond line");
+    const html = sendEmail.mock.calls[0][0].html;
+    expect(html).not.toContain("<script>alert(1)</script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).toContain("<br>Second line");
+  });
+
+  it("returns 0 when nobody is registered", async () => {
+    mockRegistrants([]);
+    expect(await notifyEventAnnouncement(fakeEvent(), "hi")).toBe(0);
     expect(sendEmail).not.toHaveBeenCalled();
   });
 });

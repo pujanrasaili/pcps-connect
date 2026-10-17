@@ -20,7 +20,7 @@ async function notifyRegistrants(eventId, { heading, bodyHtml }) {
     registrants = await Registration.find({ event: eventId }).populate("user", "name email");
   } catch (err) {
     console.error("Failed to look up registrants to notify:", err.message);
-    return;
+    return 0;
   }
 
   const sends = registrants
@@ -36,6 +36,7 @@ async function notifyRegistrants(eventId, { heading, bodyHtml }) {
     );
 
   await Promise.allSettled(sends);
+  return sends.length;
 }
 
 // event must have title/date/location from BEFORE the fields below were
@@ -76,4 +77,20 @@ async function notifyEventCancelled(event) {
   });
 }
 
-module.exports = { notifyEventRescheduled, notifyEventCancelled };
+// A free-text message from an admin to everyone registered for the event
+// (venue details, what to bring, a late start...). The text is escaped and
+// line breaks kept, so whatever an admin types can't inject markup into the
+// email. Returns how many emails were attempted.
+async function notifyEventAnnouncement(event, message) {
+  const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
+  return notifyRegistrants(event._id, {
+    heading: `Message about ${event.title}`,
+    bodyHtml: (user) => `
+      <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
+      <p style="margin: 0 0 16px;">The organisers of <strong>${escapeHtml(event.title)}</strong> (${formatEventDate(event.date)}, ${escapeHtml(event.location)}) have sent a message to everyone registered:</p>
+      <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${safeMessage}</div>
+    `,
+  });
+}
+
+module.exports = { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement };

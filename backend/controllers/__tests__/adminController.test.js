@@ -18,7 +18,8 @@ const AuditLog = require("../../models/AuditLog");
 const { recordAudit } = require("../../utils/audit");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
-const { updateUser, deleteUser, updateEventAdmin, getAuditLog } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants } = require("../adminController");
+const { notifyEventAnnouncement } = require("../../utils/notifyRegistrants");
 
 function mockRes() {
   const res = {};
@@ -368,5 +369,44 @@ describe("admin audit log", () => {
     await getAuditLog({}, res);
     expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
     expect(res.json).toHaveBeenCalledWith({ entries: [{ summary: "x" }] });
+  });
+});
+
+describe("announceToRegistrants", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const actor = { _id: "a1", name: "Root" };
+  const call = (body, id = "ev1") => {
+    const res = mockRes();
+    return announceToRegistrants({ params: { id }, body, user: actor }, res).then(() => res);
+  };
+
+  it.each([[undefined], [""], ["   "], [123], [{ a: 1 }]])("rejects message %p", async (message) => {
+    const res = await call({ message });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(notifyEventAnnouncement).not.toHaveBeenCalled();
+  });
+
+  it("rejects an over-long message", async () => {
+    const res = await call({ message: "x".repeat(1001) });
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("404s for an unknown event", async () => {
+    Event.findById.mockResolvedValue(null);
+    const res = await call({ message: "hello" });
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(notifyEventAnnouncement).not.toHaveBeenCalled();
+  });
+
+  it("sends the trimmed message, logs it, and reports how many were emailed", async () => {
+    const ev = { _id: "ev1", title: "Hack Night" };
+    Event.findById.mockResolvedValue(ev);
+    notifyEventAnnouncement.mockResolvedValue(7);
+    const res = await call({ message: "  Room changed to B2  " });
+    expect(notifyEventAnnouncement).toHaveBeenCalledWith(ev, "Room changed to B2");
+    expect(recordAudit).toHaveBeenCalledWith(actor, "event.announcement", expect.stringContaining("7"));
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ sent: 7 }));
   });
 });
