@@ -12,7 +12,8 @@ const Event = require("../../models/Event");
 const sendEmail = require("../../utils/sendEmail");
 const { promoteFromWaitlist } = require("../../utils/waitlist");
 const { verifyCheckInCode } = require("../../utils/checkInCode");
-const { registerForEvent, cancelRegistration, submitFeedback, getCheckInCode } = require("../registrationController");
+const { verifyCertificateCode } = require("../../utils/certificateCode");
+const { registerForEvent, cancelRegistration, submitFeedback, getCheckInCode, getCertificate } = require("../registrationController");
 
 function mockRes() {
   const res = {};
@@ -352,5 +353,55 @@ describe("getCheckInCode", () => {
     const res = await call(id);
     const { code } = res.json.mock.calls[0][0];
     expect(verifyCheckInCode(code)).toBe(id);
+  });
+});
+
+// findById(...).populate(...).populate(...) resolves to the document
+function chain(doc) {
+  const q = { populate: jest.fn() };
+  q.populate.mockReturnValue(q);
+  q.then = (resolve, reject) => Promise.resolve(doc).then(resolve, reject);
+  return q;
+}
+
+describe("getCertificate", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  const REG_ID = "a".repeat(24);
+  const reg = (over = {}) => ({
+    _id: REG_ID,
+    attended: true,
+    user: { _id: { toString: () => USER_ID }, name: "Sita", studentId: "S-1", program: "BCA" },
+    event: { title: "Hack Night", date: new Date("2027-01-01"), location: "Lab", club: { name: "Tech Club" } },
+    ...over,
+  });
+  const call = () => {
+    const res = mockRes();
+    return getCertificate({ params: { id: REG_ID }, user: { _id: { toString: () => USER_ID } } }, res).then(() => res);
+  };
+
+  it("404s for an unknown registration", async () => {
+    Registration.findById.mockReturnValue(chain(null));
+    expect((await call()).status).toHaveBeenCalledWith(404);
+  });
+
+  it("403s for someone else's registration", async () => {
+    Registration.findById.mockReturnValue(chain(reg({ user: { _id: { toString: () => "other" }, name: "X" } })));
+    expect((await call()).status).toHaveBeenCalledWith(403);
+  });
+
+  it("refuses unless the student was marked as attended", async () => {
+    Registration.findById.mockReturnValue(chain(reg({ attended: false })));
+    expect((await call()).status).toHaveBeenCalledWith(400);
+  });
+
+  it("returns the certificate details and a verifiable code", async () => {
+    Registration.findById.mockReturnValue(chain(reg()));
+    const res = await call();
+    const { certificate } = res.json.mock.calls[0][0];
+    expect(certificate).toEqual(
+      expect.objectContaining({ studentName: "Sita", eventTitle: "Hack Night", clubName: "Tech Club", program: "BCA" })
+    );
+    expect(verifyCertificateCode(certificate.code)).toBe(REG_ID);
   });
 });
