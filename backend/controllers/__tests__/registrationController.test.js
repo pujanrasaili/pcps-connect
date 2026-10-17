@@ -1,3 +1,4 @@
+process.env.JWT_SECRET = "test-secret";
 jest.mock("../../models/Registration");
 jest.mock("../../models/Event");
 jest.mock("../../utils/waitlist");
@@ -10,7 +11,8 @@ const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
 const sendEmail = require("../../utils/sendEmail");
 const { promoteFromWaitlist } = require("../../utils/waitlist");
-const { registerForEvent, cancelRegistration, submitFeedback } = require("../registrationController");
+const { verifyCheckInCode } = require("../../utils/checkInCode");
+const { registerForEvent, cancelRegistration, submitFeedback, getCheckInCode } = require("../registrationController");
 
 function mockRes() {
   const res = {};
@@ -323,5 +325,32 @@ describe("submitFeedback", () => {
     Registration.findById.mockResolvedValue(r);
     await call({ rating: 3 });
     expect(r.feedback).toBe("");
+  });
+});
+
+describe("getCheckInCode", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  const call = (id = "a".repeat(24)) => {
+    const res = mockRes();
+    return getCheckInCode({ params: { id }, user: { _id: { toString: () => USER_ID } } }, res).then(() => res);
+  };
+
+  it("404s for an unknown registration", async () => {
+    Registration.findById.mockResolvedValue(null);
+    expect((await call()).status).toHaveBeenCalledWith(404);
+  });
+
+  it("403s for someone else's registration", async () => {
+    Registration.findById.mockResolvedValue({ _id: "a".repeat(24), user: { toString: () => "other" } });
+    expect((await call()).status).toHaveBeenCalledWith(403);
+  });
+
+  it("returns a code that verifies back to the registration", async () => {
+    const id = "a".repeat(24);
+    Registration.findById.mockResolvedValue({ _id: id, user: { toString: () => USER_ID } });
+    const res = await call(id);
+    const { code } = res.json.mock.calls[0][0];
+    expect(verifyCheckInCode(code)).toBe(id);
   });
 });

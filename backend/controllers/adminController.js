@@ -6,6 +6,7 @@ const WaitlistEntry = require("../models/WaitlistEntry");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const AuditLog = require("../models/AuditLog");
 const { recordAudit } = require("../utils/audit");
+const { verifyCheckInCode } = require("../utils/checkInCode");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } = require("../utils/notifyRegistrants");
@@ -307,6 +308,39 @@ async function updateRegistrationAttendance(req, res) {
   }
 }
 
+// POST /api/admin/check-in  { code }
+// Marks the registration behind a scanned QR code as attended. Safe to scan
+// twice: the second time reports alreadyCheckedIn instead of failing.
+async function checkInByCode(req, res) {
+  try {
+    const registrationId = verifyCheckInCode(req.body.code);
+    if (!registrationId) {
+      return res.status(400).json({ message: "That check-in code isn't valid" });
+    }
+
+    const registration = await Registration.findById(registrationId)
+      .populate("user", "name studentId")
+      .populate("event", "title date");
+    if (!registration || !registration.event) {
+      return res.status(404).json({ message: "Registration not found -- it may have been cancelled" });
+    }
+
+    const alreadyCheckedIn = registration.attended;
+    if (!alreadyCheckedIn) {
+      registration.attended = true;
+      await registration.save();
+    }
+
+    res.status(200).json({
+      alreadyCheckedIn,
+      student: { name: registration.user?.name || "Unknown student", studentId: registration.user?.studentId || "" },
+      event: { title: registration.event.title, date: registration.event.date },
+    });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Check-in failed") });
+  }
+}
+
 // POST /api/admin/events/:id/announce  { message }
 // Emails everyone registered for the event. Recorded in the activity log
 // because it's the one admin action that sends mail to many students at once.
@@ -344,6 +378,7 @@ async function getAuditLog(req, res) {
 }
 
 module.exports = {
+  checkInByCode,
   announceToRegistrants,
   getAuditLog,
   getAllUsers,

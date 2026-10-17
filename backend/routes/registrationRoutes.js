@@ -4,6 +4,7 @@ const {
   getMyRegistrations,
   cancelRegistration,
   submitFeedback,
+  getCheckInCode,
 } = require("../controllers/registrationController");
 const { protect } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.post("/register", protect, actionLimiter, registerForEvent);
 router.get("/my", protect, getMyRegistrations);
+router.get("/:id/check-in-code", protect, getCheckInCode);
 router.put("/:id/feedback", protect, actionLimiter, submitFeedback);
 router.delete("/:id", protect, actionLimiter, cancelRegistration);
 
