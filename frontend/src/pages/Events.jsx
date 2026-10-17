@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { FaTimes } from "react-icons/fa";
 import EventCard from "../components/EventCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -18,6 +20,17 @@ export default function Events() {
   const [when, setWhen] = useState("upcoming");
   const debouncedQuery = useDebounce(query, 250);
 
+  // /events?club=<id> (linked from the Clubs page) narrows the list to one
+  // club's events. Kept in the URL so the filtered view can be shared and the
+  // back button behaves.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const clubFilter = searchParams.get("club");
+  const clubFilterName = useMemo(
+    () => events.find((e) => e.club?._id === clubFilter)?.club?.name,
+    [events, clubFilter]
+  );
+  const clearClubFilter = () => setSearchParams({}, { replace: true });
+
   const categories = useMemo(
     () => ["All", ...new Set(events.map((e) => e.category).filter(Boolean))],
     [events]
@@ -29,15 +42,19 @@ export default function Events() {
         const isPast = isPastEvent(event.date);
         const matchesWhen = when === "upcoming" ? !isPast : isPast;
         const matchesCategory = category === "All" || event.category === category;
-        const matchesQuery = event.title
-          .toLowerCase()
-          .includes(debouncedQuery.toLowerCase());
-        return matchesWhen && matchesCategory && matchesQuery;
+        const matchesClub = !clubFilter || event.club?._id === clubFilter;
+        // Search the fields students actually think in: the event name, where
+        // it is, and which club is hosting it.
+        const needle = debouncedQuery.toLowerCase();
+        const matchesQuery = [event.title, event.location, event.club?.name]
+          .filter(Boolean)
+          .some((field) => field.toLowerCase().includes(needle));
+        return matchesWhen && matchesCategory && matchesQuery && matchesClub;
       })
       .sort((a, b) =>
         when === "upcoming" ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date)
       );
-  }, [events, debouncedQuery, category, when]);
+  }, [events, debouncedQuery, category, when, clubFilter]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -80,10 +97,21 @@ export default function Events() {
 
         <div className="mx-auto mt-5 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
-            <SearchBar value={query} onChange={setQuery} placeholder="Search events..." />
+            <SearchBar value={query} onChange={setQuery} placeholder="Search by name, place or club..." />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
+
+        {clubFilter && (
+          <div className="mx-auto mt-4 flex max-w-4xl">
+            <button
+              onClick={clearClubFilter}
+              className="flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
+            >
+              Events from {clubFilterName || "this club"} <FaTimes className="text-xs" aria-label="Clear club filter" />
+            </button>
+          </div>
+        )}
 
         {loading ? (
           <div className="mt-16 flex justify-center">
