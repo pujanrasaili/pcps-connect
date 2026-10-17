@@ -13,6 +13,7 @@ const {
   updateRegistrationAttendance,
   getAuditLog,
   announceToRegistrants,
+  checkInByCode,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -35,6 +36,9 @@ router.get("/events/:id/registrations", getEventRegistrations);
 router.post("/events/:id/announce", actionLimiter, announceToRegistrants);
 
 router.put("/registrations/:id", updateRegistrationAttendance);
+// Deliberately not behind actionLimiter: at a busy door one admin phone (one
+// IP) legitimately scans far more than 30 students in 10 minutes.
+router.post("/check-in", checkInByCode);
 router.get("/audit", getAuditLog);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
 const { formatEventDate } = require("../utils/formatEventDate");
 const { promoteFromWaitlist } = require("../utils/waitlist");
+const { createCheckInCode } = require("../utils/checkInCode");
 
 // Best-effort, same pattern as every other email in this app (verification,
 // password reset, admin approval notice): a failed send is logged and
@@ -142,6 +143,23 @@ async function cancelRegistration(req, res) {
   }
 }
 
+// GET /api/registrations/:id/check-in-code  (requires login + must own the registration)
+// The code goes into the QR the student shows at the door; see utils/checkInCode.
+async function getCheckInCode(req, res) {
+  try {
+    const registration = await Registration.findById(req.params.id);
+    if (!registration) return res.status(404).json({ message: "Registration not found" });
+
+    if (registration.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+
+    res.status(200).json({ code: createCheckInCode(registration._id) });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to create check-in code") });
+  }
+}
+
 // PUT /api/registrations/:id/feedback  (requires login + must own the registration)
 // Body: { rating: 1-5, feedback?: string up to 500 chars }
 // Only students an admin has marked as attended can rate, so ratings come
@@ -182,4 +200,5 @@ async function submitFeedback(req, res) {
 }
 
 module.exports = {
+  getCheckInCode,
   submitFeedback, registerForEvent, getMyRegistrations, cancelRegistration };

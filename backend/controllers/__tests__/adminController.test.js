@@ -8,6 +8,7 @@ jest.mock("../../models/AuditLog");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/notifyRegistrants");
+process.env.JWT_SECRET = "test-secret";
 
 const User = require("../../models/User");
 const Event = require("../../models/Event");
@@ -18,8 +19,9 @@ const AuditLog = require("../../models/AuditLog");
 const { recordAudit } = require("../../utils/audit");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
-const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode } = require("../adminController");
 const { notifyEventAnnouncement } = require("../../utils/notifyRegistrants");
+const { createCheckInCode } = require("../../utils/checkInCode");
 
 function mockRes() {
   const res = {};
@@ -408,5 +410,63 @@ describe("announceToRegistrants", () => {
     expect(recordAudit).toHaveBeenCalledWith(actor, "event.announcement", expect.stringContaining("7"));
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ sent: 7 }));
+  });
+});
+
+describe("checkInByCode", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const REG_ID = "a".repeat(24);
+  const call = (code) => {
+    const res = mockRes();
+    return checkInByCode({ body: { code } }, res).then(() => res);
+  };
+  function populated(doc) {
+    const q = { populate: jest.fn() };
+    q.populate.mockReturnValue(q);
+    q.then = (resolve) => resolve(doc);
+    return q;
+  }
+
+  it("rejects a forged or malformed code without touching the database", async () => {
+    const res = await call(`${REG_ID}.forged`);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Registration.findById).not.toHaveBeenCalled();
+  });
+
+  it("404s when the registration no longer exists", async () => {
+    Registration.findById.mockReturnValue(populated(null));
+    const res = await call(createCheckInCode(REG_ID));
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("marks the student attended and reports who and which event", async () => {
+    const reg = {
+      attended: false,
+      user: { name: "Sita", studentId: "S-12" },
+      event: { title: "Hack Night", date: new Date() },
+      save: jest.fn().mockResolvedValue(),
+    };
+    Registration.findById.mockReturnValue(populated(reg));
+    const res = await call(createCheckInCode(REG_ID));
+    expect(reg.attended).toBe(true);
+    expect(reg.save).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ alreadyCheckedIn: false, student: { name: "Sita", studentId: "S-12" } })
+    );
+  });
+
+  it("scanning twice is harmless and says so", async () => {
+    const reg = {
+      attended: true,
+      user: { name: "Sita", studentId: "" },
+      event: { title: "Hack Night", date: new Date() },
+      save: jest.fn(),
+    };
+    Registration.findById.mockReturnValue(populated(reg));
+    const res = await call(createCheckInCode(REG_ID));
+    expect(reg.save).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ alreadyCheckedIn: true }));
   });
 });
