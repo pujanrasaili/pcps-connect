@@ -10,6 +10,7 @@ import {
   FaStar,
   FaCertificate,
   FaUsers,
+  FaUserTie,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -26,6 +27,7 @@ import {
 } from "recharts";
 import StatsCard from "../components/StatsCard";
 import { useAuth } from "../context/AuthContext";
+import { useLedClubs } from "../hooks/useLedClubs";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
@@ -39,6 +41,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { favoriteClubId, memberships } = useClubMembership();
   const { clubs } = useClubs();
+  const { clubs: ledClubs } = useLedClubs();
   const { events } = useEvents();
   const { registrations, cancelRegistration } = useRegistrations();
 
@@ -115,6 +118,20 @@ export default function Dashboard() {
         <StatsCard icon={FaHeart} label="Favorite Club" value={favoriteClub?.name.replace("PCPS ", "") || "—"} accent="accent" />
         <StatsCard icon={FaClock} label="Upcoming Registrations" value={upcoming.length} accent="amber" />
       </div>
+
+      {ledClubs.length > 0 && user?.role !== "admin" && (
+        <div className="card-surface flex min-w-0 flex-wrap items-center justify-between gap-3 p-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <FaUserTie className="shrink-0 text-amber-500" />
+            <p className="min-w-0 text-sm text-slate-700 dark:text-slate-200">
+              You lead <strong>{ledClubs.map((c) => c.name).join(", ")}</strong>. Create events, see registrations and check students in.
+            </p>
+          </div>
+          <Link to="/admin/events" className="shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-400">
+            Manage events <FaArrowRight className="inline text-xs" />
+          </Link>
+        </div>
+      )}
 
       {needsRating.length > 0 && (
         <div className="card-surface min-w-0 p-5">
