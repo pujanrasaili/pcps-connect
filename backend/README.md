@@ -112,6 +112,7 @@ When a seat opens (a registration is cancelled, or capacity is raised) the longe
 | PUT | `/registrations/:id` | `{ attended }` — toggles attendance for one registration. |
 | POST | `/check-in` | `{ code }` — verifies a scanned check-in code and marks that registration attended. Idempotent (`alreadyCheckedIn`). Not rate-limited, since one admin phone scans many students. |
 | POST | `/events/:id/announce` | `{ message }` (1-1000 chars) — emails everyone registered for the event; returns `{ sent }`. Recorded in the activity log. |
+| POST | `/clubs/:id/announce` | `{ message }` (1-1000 chars) — emails everyone who joined the club, except those who turned off club updates; returns `{ sent }`. Recorded in the activity log. |
 | GET | `/audit` | The 200 most recent admin actions (role changes, approvals/rejections, deletions), newest first. Entries expire after a year. |
 | GET | `/attendance-report` | Turnout for the 8 most recent past events: registered, attended, no-shows, attendance %, average rating, plus overall totals. |
 
