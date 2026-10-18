@@ -1,6 +1,8 @@
 jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
+jest.mock("../../models/Club");
+jest.mock("../../utils/notifyClubMembers");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../utils/waitlist");
@@ -21,6 +23,9 @@ const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
 const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode } = require("../adminController");
 const { notifyEventAnnouncement } = require("../../utils/notifyRegistrants");
+const Club = require("../../models/Club");
+const { notifyClubAnnouncement } = require("../../utils/notifyClubMembers");
+const { announceToClubMembers } = require("../adminController");
 const { createCheckInCode } = require("../../utils/checkInCode");
 
 function mockRes() {
@@ -493,5 +498,52 @@ describe("getAttendanceReport", () => {
     const res = mockRes();
     await getAttendanceReport({}, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("announceToClubMembers", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const actor = { _id: "a1", name: "Root" };
+  const call = (body, id = "c1") => {
+    const res = mockRes();
+    return announceToClubMembers({ params: { id }, body, user: actor }, res).then(() => res);
+  };
+
+  it.each([[undefined], [""], ["   "], [42]])("rejects message %p", async (message) => {
+    const res = await call({ message });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(notifyClubAnnouncement).not.toHaveBeenCalled();
+  });
+
+  it("rejects an over-long message", async () => {
+    const res = await call({ message: "x".repeat(1001) });
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("404s for an unknown club", async () => {
+    Club.findById.mockResolvedValue(null);
+    const res = await call({ message: "hello" });
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(notifyClubAnnouncement).not.toHaveBeenCalled();
+  });
+
+  it("sends the trimmed message, logs it, and reports how many were emailed", async () => {
+    const club = { _id: "c1", name: "Tech Club" };
+    Club.findById.mockResolvedValue(club);
+    notifyClubAnnouncement.mockResolvedValue(5);
+    const res = await call({ message: "  Meeting at 3  " });
+    expect(notifyClubAnnouncement).toHaveBeenCalledWith(club, "Meeting at 3");
+    expect(recordAudit).toHaveBeenCalledWith(actor, "club.announcement", expect.stringContaining("5 member(s)"));
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: "Message sent to 5 member(s)", sent: 5 });
+  });
+
+  it("returns 500 when sending fails", async () => {
+    Club.findById.mockResolvedValue({ _id: "c1", name: "Tech Club" });
+    notifyClubAnnouncement.mockRejectedValue(new Error("db down"));
+    const res = await call({ message: "hi" });
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(recordAudit).not.toHaveBeenCalled();
   });
 });
