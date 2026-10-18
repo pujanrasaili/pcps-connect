@@ -110,7 +110,7 @@ When a seat opens (a registration is cancelled, or capacity is raised) the longe
 | GET | `/events/:id` | One event (admin view). |
 | PUT | `/events/:id` | Update any event. |
 | DELETE | `/events/:id` | Delete any event. |
-| GET | `/events/:id/registrations` | Full attendee list for that event, each registration populated with its user — this is what powers the attendee modal and the CSV export. |
+| GET | `/events/:id/registrations` | Full attendee list for that event, each registration populated with its user — this is what powers the attendee modal and the CSV export. Also returns `waitlist`: the students queued for the event, oldest first (the order they are promoted in). |
 | PUT | `/registrations/:id` | `{ attended }` — toggles attendance for one registration. |
 | POST | `/check-in` | `{ code }` — verifies a scanned check-in code and marks that registration attended. Idempotent (`alreadyCheckedIn`). Not rate-limited, since one admin phone scans many students. |
 | POST | `/events/:id/announce` | `{ message }` (1-1000 chars) — emails everyone registered for the event; returns `{ sent }`. Recorded in the activity log. |
