@@ -27,6 +27,7 @@ function downloadAttendanceCsv(event, registrations) {
 export default function AttendeesModal({ event, onClose }) {
   const toast = useToast();
   const [registrations, setRegistrations] = useState([]);
+  const [waitlist, setWaitlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [composing, setComposing] = useState(false);
@@ -59,7 +60,10 @@ export default function AttendeesModal({ event, onClose }) {
     setLoading(true);
     api
       .get(`/admin/events/${event._id}/registrations`)
-      .then((res) => setRegistrations(res.data.registrations))
+      .then((res) => {
+        setRegistrations(res.data.registrations);
+        setWaitlist(res.data.waitlist || []);
+      })
       .catch((err) => toast.error(getErrorMessage(err, "Failed to load attendees")))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -191,6 +195,26 @@ export default function AttendeesModal({ event, onClose }) {
               </button>
             ))}
           </div>
+          {waitlist.length > 0 && (
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/60 p-3 dark:border-amber-900/50 dark:bg-amber-900/10">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                Waitlist ({waitlist.length}) · promoted in this order when a seat opens
+              </p>
+              <ol className="mt-2 max-h-40 space-y-1 overflow-y-auto text-sm text-slate-700 dark:text-slate-300">
+                {waitlist.map((w, i) => (
+                  <li key={w._id} className="flex gap-2">
+                    <span className="w-5 shrink-0 text-right text-slate-400">{i + 1}.</span>
+                    <span className="min-w-0 truncate">
+                      {w.user?.name || "Unknown student"}
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {w.user?.email ? ` · ${w.user.email}` : ""}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
         </>
       )}
     </Modal>
