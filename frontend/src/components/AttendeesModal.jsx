@@ -4,6 +4,7 @@ import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
 import { Stars } from "./StarRating";
+import SearchBar from "./SearchBar";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 
 function downloadAttendanceCsv(event, registrations) {
@@ -28,6 +29,8 @@ export default function AttendeesModal({ event, onClose }) {
   const toast = useToast();
   const [registrations, setRegistrations] = useState([]);
   const [waitlist, setWaitlist] = useState([]);
+  const [search, setSearch] = useState("");
+  const [onlyNotAttended, setOnlyNotAttended] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [composing, setComposing] = useState(false);
@@ -38,6 +41,8 @@ export default function AttendeesModal({ event, onClose }) {
   useEffect(() => {
     setComposing(false);
     setMessage("");
+    setSearch("");
+    setOnlyNotAttended(false);
   }, [event]);
 
   const sendMessage = async (e) => {
@@ -84,6 +89,18 @@ export default function AttendeesModal({ event, onClose }) {
       setUpdatingId(null);
     }
   };
+
+  // Narrowing the list is for finding someone quickly at the door; the counts,
+  // message and CSV export above/below always cover everyone.
+  const q = search.trim().toLowerCase();
+  const visibleRegistrations = registrations.filter(
+    (r) =>
+      (!onlyNotAttended || !r.attended) &&
+      (!q ||
+        (r.user?.name || "").toLowerCase().includes(q) ||
+        (r.user?.email || "").toLowerCase().includes(q) ||
+        (r.user?.studentId || "").toLowerCase().includes(q))
+  );
 
   const attendedCount = registrations.filter((r) => r.attended).length;
   const rated = registrations.filter((r) => r.rating);
@@ -155,8 +172,27 @@ export default function AttendeesModal({ event, onClose }) {
               <span className="text-slate-400">from {rated.length} rating{rated.length > 1 ? "s" : ""}</span>
             </p>
           )}
+          {registrations.length > 8 && (
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <div className="min-w-0 flex-1 basis-48">
+                <SearchBar value={search} onChange={setSearch} placeholder="Find by name, email or student ID..." />
+              </div>
+              <label className="flex shrink-0 items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={onlyNotAttended}
+                  onChange={(e) => setOnlyNotAttended(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-primary-500"
+                />
+                Not yet attended
+              </label>
+            </div>
+          )}
+          {visibleRegistrations.length === 0 && (
+            <p className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">No one matches.</p>
+          )}
           <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
-            {registrations.map((r) => (
+            {visibleRegistrations.map((r) => (
               <button
                 key={r._id}
                 onClick={() => toggleAttended(r)}
