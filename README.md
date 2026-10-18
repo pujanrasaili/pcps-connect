@@ -42,6 +42,7 @@ pcps-connect/
 - Admin → Users can export the current (filtered) list of students as an Excel-safe CSV
 - "Share this event" button on every event page (phone share sheet, or copies the link on desktop)
 - Installable on phones: "Add to home screen" gives a PCPS Connect app icon that opens full-screen (no offline caching, so data is never stale)
+- Admins can see who is on an event's waitlist, in promotion order, in the Attendees window
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
