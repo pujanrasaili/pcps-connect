@@ -21,7 +21,7 @@ const AuditLog = require("../../models/AuditLog");
 const { recordAudit } = require("../../utils/audit");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
-const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode, updateRegistrationAttendance, getEventRegistrations, getClubLeaders, setClubLeaders } = require("../adminController");
 const { notifyEventAnnouncement } = require("../../utils/notifyRegistrants");
 const Club = require("../../models/Club");
 const { notifyClubAnnouncement } = require("../../utils/notifyClubMembers");
@@ -382,7 +382,7 @@ describe("admin audit log", () => {
 describe("announceToRegistrants", () => {
   afterEach(() => jest.resetAllMocks());
 
-  const actor = { _id: "a1", name: "Root" };
+  const actor = { _id: "a1", name: "Root", role: "admin" };
   const call = (body, id = "ev1") => {
     const res = mockRes();
     return announceToRegistrants({ params: { id }, body, user: actor }, res).then(() => res);
@@ -424,7 +424,7 @@ describe("checkInByCode", () => {
   const REG_ID = "a".repeat(24);
   const call = (code) => {
     const res = mockRes();
-    return checkInByCode({ body: { code } }, res).then(() => res);
+    return checkInByCode({ body: { code }, user: { _id: "a1", role: "admin" } }, res).then(() => res);
   };
   function populated(doc) {
     const q = { populate: jest.fn() };
@@ -504,7 +504,7 @@ describe("getAttendanceReport", () => {
 describe("announceToClubMembers", () => {
   afterEach(() => jest.resetAllMocks());
 
-  const actor = { _id: "a1", name: "Root" };
+  const actor = { _id: "a1", name: "Root", role: "admin" };
   const call = (body, id = "c1") => {
     const res = mockRes();
     return announceToClubMembers({ params: { id }, body, user: actor }, res).then(() => res);
@@ -549,7 +549,6 @@ describe("announceToClubMembers", () => {
 });
 
 describe("getEventRegistrations", () => {
-  const { getEventRegistrations } = require("../adminController");
   afterEach(() => jest.resetAllMocks());
 
   const sorted = (docs) => ({ populate: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue(docs) }) });
@@ -560,7 +559,7 @@ describe("getEventRegistrations", () => {
     WaitlistEntry.find.mockReturnValue(sorted([{ _id: "w1" }, { _id: "w2" }]));
     const res = mockRes();
 
-    await getEventRegistrations({ params: { id: "e1" } }, res);
+    await getEventRegistrations({ params: { id: "e1" }, user: { _id: "a1", role: "admin" } }, res);
 
     expect(WaitlistEntry.find).toHaveBeenCalledWith({ event: "e1" });
     expect(res.status).toHaveBeenCalledWith(200);
@@ -570,8 +569,200 @@ describe("getEventRegistrations", () => {
   it("404s for an unknown event", async () => {
     Event.findById.mockResolvedValue(null);
     const res = mockRes();
-    await getEventRegistrations({ params: { id: "nope" } }, res);
+    await getEventRegistrations({ params: { id: "nope" }, user: { _id: "a1", role: "admin" } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
     expect(WaitlistEntry.find).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Club leaders: may manage ONLY the events/club they lead
+// ---------------------------------------------------------------------------
+describe("club leader permissions", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const LEADER = { _id: "leader1", name: "Pres", role: "user" };
+  const ownEvent = { _id: "e1", title: "Own", club: "clubA" };
+  const otherEvent = { _id: "e2", title: "Other", club: "clubB" };
+  const noClubEvent = { _id: "e3", title: "General", club: null };
+  // Club.exists({ _id: clubId, leaders }) -> truthy only for the club this person leads
+  const leadsOnlyClubA = () =>
+    Club.exists.mockImplementation(async (q) => (q._id === "clubA" && q.leaders === "leader1" ? { _id: "clubA" } : null));
+
+  describe("getEventRegistrations", () => {
+    const sorted = (docs) => ({ populate: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue(docs) }) });
+    it("lets a leader see their own club's event", async () => {
+      leadsOnlyClubA();
+      Event.findById.mockResolvedValue(ownEvent);
+      Registration.find.mockReturnValue(sorted([]));
+      WaitlistEntry.find.mockReturnValue(sorted([]));
+      const res = mockRes();
+      await getEventRegistrations({ params: { id: "e1" }, user: LEADER }, res);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+    it.each([["another club's", otherEvent], ["a no-club", noClubEvent]])("403s for %s event and reads no registrations", async (_l, ev) => {
+      leadsOnlyClubA();
+      Event.findById.mockResolvedValue(ev);
+      const res = mockRes();
+      await getEventRegistrations({ params: { id: ev._id }, user: LEADER }, res);
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(Registration.find).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("updateRegistrationAttendance", () => {
+    const run = (ev, user = LEADER) => {
+      const reg = { _id: "r1", event: ev._id, attended: false, save: jest.fn().mockResolvedValue(), populate: jest.fn().mockResolvedValue() };
+      Registration.findById.mockResolvedValue(reg);
+      Event.findById.mockResolvedValue(ev);
+      const res = mockRes();
+      return updateRegistrationAttendance({ params: { id: "r1" }, body: { attended: true }, user }, res).then(() => ({ res, reg }));
+    };
+    it("lets a leader mark attendance for their own club's event", async () => {
+      leadsOnlyClubA();
+      const { res, reg } = await run(ownEvent);
+      expect(reg.attended).toBe(true);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+    it("403s and changes nothing for another club's event", async () => {
+      leadsOnlyClubA();
+      const { res, reg } = await run(otherEvent);
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(reg.save).not.toHaveBeenCalled();
+    });
+    it("a plain student (no clubs led) is refused", async () => {
+      Club.exists.mockResolvedValue(null);
+      const { res, reg } = await run(ownEvent, { _id: "stu", role: "user" });
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(reg.save).not.toHaveBeenCalled();
+    });
+    it("an admin can mark any event", async () => {
+      const { res } = await run(otherEvent, { _id: "a1", role: "admin" });
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+    it("404s for an unknown registration", async () => {
+      Registration.findById.mockResolvedValue(null);
+      const res = mockRes();
+      await updateRegistrationAttendance({ params: { id: "x" }, body: { attended: true }, user: LEADER }, res);
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+  });
+
+  describe("checkInByCode", () => {
+    const REG = "b".repeat(24);
+    const populated = (doc) => {
+      const q = { populate: jest.fn() };
+      q.populate.mockReturnValue(q);
+      q.then = (resolve) => resolve(doc);
+      return q;
+    };
+    it("lets a leader check in a student of their own club's event", async () => {
+      leadsOnlyClubA();
+      const reg = { attended: false, user: { name: "S" }, event: ownEvent, save: jest.fn().mockResolvedValue() };
+      Registration.findById.mockReturnValue(populated(reg));
+      const res = mockRes();
+      await checkInByCode({ body: { code: createCheckInCode(REG) }, user: LEADER }, res);
+      expect(reg.attended).toBe(true);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+    it("refuses a student registered for another club's event and does not check them in", async () => {
+      leadsOnlyClubA();
+      const reg = { attended: false, user: { name: "S" }, event: otherEvent, save: jest.fn() };
+      Registration.findById.mockReturnValue(populated(reg));
+      const res = mockRes();
+      await checkInByCode({ body: { code: createCheckInCode(REG) }, user: LEADER }, res);
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(reg.save).not.toHaveBeenCalled();
+      expect(reg.attended).toBe(false);
+    });
+  });
+
+  describe("announcements", () => {
+    it("a leader can message their own event's registrants", async () => {
+      leadsOnlyClubA();
+      Event.findById.mockResolvedValue(ownEvent);
+      notifyEventAnnouncement.mockResolvedValue(3);
+      const res = mockRes();
+      await announceToRegistrants({ params: { id: "e1" }, body: { message: "hi" }, user: LEADER }, res);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+    it("a leader cannot message another club's event registrants", async () => {
+      leadsOnlyClubA();
+      Event.findById.mockResolvedValue(otherEvent);
+      const res = mockRes();
+      await announceToRegistrants({ params: { id: "e2" }, body: { message: "hi" }, user: LEADER }, res);
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(notifyEventAnnouncement).not.toHaveBeenCalled();
+    });
+    it("a leader can message their own club's members but not another club's", async () => {
+      leadsOnlyClubA();
+      Club.findById.mockImplementation(async (id) => ({ _id: id, name: id }));
+      notifyClubAnnouncement.mockResolvedValue(4);
+      const ok = mockRes();
+      await announceToClubMembers({ params: { id: "clubA" }, body: { message: "hi" }, user: LEADER }, ok);
+      expect(ok.status).toHaveBeenCalledWith(200);
+      const no = mockRes();
+      await announceToClubMembers({ params: { id: "clubB" }, body: { message: "hi" }, user: LEADER }, no);
+      expect(no.status).toHaveBeenCalledWith(403);
+      expect(notifyClubAnnouncement).toHaveBeenCalledTimes(1);
+    });
+  });
+});
+
+describe("club leader management (admin only)", () => {
+  afterEach(() => jest.resetAllMocks());
+  const ADMIN = { _id: "a1", name: "Root", role: "admin" };
+  const ID1 = "1".repeat(24);
+  const ID2 = "2".repeat(24);
+
+  const run = (fn, req) => {
+    const res = mockRes();
+    return fn({ user: ADMIN, ...req }, res).then(() => res);
+  };
+
+  it.each([[undefined], ["x"], [[123]], [["not-an-id"]], [Array(11).fill(ID1)]])("setClubLeaders rejects userIds %p", async (userIds) => {
+    const res = await run(setClubLeaders, { params: { id: "c1" }, body: { userIds } });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Club.findById).not.toHaveBeenCalled();
+  });
+
+  it("setClubLeaders 404s for an unknown club", async () => {
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
+    const res = await run(setClubLeaders, { params: { id: "c1" }, body: { userIds: [ID1] } });
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("setClubLeaders refuses ids that aren't approved accounts", async () => {
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ name: "Tech", save: jest.fn() }) });
+    User.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: ID1, name: "A" }]) });
+    const res = await run(setClubLeaders, { params: { id: "c1" }, body: { userIds: [ID1, ID2] } });
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("setClubLeaders saves the (de-duplicated) leaders and logs it", async () => {
+    const club = { name: "Tech", save: jest.fn().mockResolvedValue() };
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(club) });
+    User.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: ID1, name: "Sita" }]) });
+    const res = await run(setClubLeaders, { params: { id: "c1" }, body: { userIds: [ID1, ID1] } });
+    expect(User.find).toHaveBeenCalledWith(expect.objectContaining({ _id: { $in: [ID1] }, approvalStatus: "approved" }));
+    expect(club.leaders).toEqual([ID1]);
+    expect(recordAudit).toHaveBeenCalledWith(ADMIN, "club.leaders", expect.stringContaining("Sita"));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("setClubLeaders can clear all leaders", async () => {
+    const club = { name: "Tech", save: jest.fn().mockResolvedValue() };
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(club) });
+    User.find.mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+    const res = await run(setClubLeaders, { params: { id: "c1" }, body: { userIds: [] } });
+    expect(club.leaders).toEqual([]);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("getClubLeaders returns the populated leaders", async () => {
+    const q = { select: jest.fn().mockReturnThis(), populate: jest.fn().mockResolvedValue({ leaders: [{ name: "Sita" }] }) };
+    Club.findById.mockReturnValue(q);
+    const res = await run(getClubLeaders, { params: { id: "c1" } });
+    expect(res.json).toHaveBeenCalledWith({ leaders: [{ name: "Sita" }] });
   });
 });

@@ -15,6 +15,7 @@ const clubRoutes = require("./routes/clubRoutes");
 const clubMembershipRoutes = require("./routes/clubMembershipRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const statsRoutes = require("./routes/statsRoutes");
+const leaderRoutes = require("./routes/leaderRoutes");
 const waitlistRoutes = require("./routes/waitlistRoutes");
 const certificateRoutes = require("./routes/certificateRoutes");
 
@@ -52,6 +53,7 @@ app.use("/api/clubs", clubRoutes);
 app.use("/api/club-memberships", clubMembershipRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/stats", statsRoutes);
+app.use("/api/leader", leaderRoutes);
 app.use("/api/waitlist", waitlistRoutes);
 app.use("/api/certificates", certificateRoutes);
 

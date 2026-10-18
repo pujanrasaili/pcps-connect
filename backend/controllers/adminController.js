@@ -4,6 +4,7 @@ const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
 const Club = require("../models/Club");
 const { notifyClubAnnouncement } = require("../utils/notifyClubMembers");
+const { canManageEvent, canManageClub } = require("../utils/clubAccess");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const AuditLog = require("../models/AuditLog");
@@ -15,6 +16,8 @@ const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } 
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
+
+const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 
 // Best-effort, same pattern as every other email in this app -- a failed
@@ -177,6 +180,7 @@ async function deleteUser(req, res) {
     await Registration.deleteMany({ user: user._id });
     await WaitlistEntry.deleteMany({ user: user._id });
     await ClubMembership.deleteMany({ user: user._id });
+    await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
     await user.deleteOne();
     await recordAudit(req.user, "user.deleted", `Deleted account ${user.name} (${user.email})`);
 
@@ -279,6 +283,7 @@ async function getEventRegistrations(req, res) {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!(await canManageEvent(req.user, event))) return res.status(403).json(FORBIDDEN);
 
     const [registrations, waitlist] = await Promise.all([
       Registration.find({ event: req.params.id })
@@ -305,13 +310,15 @@ async function updateRegistrationAttendance(req, res) {
       return res.status(400).json({ message: "attended must be true or false" });
     }
 
-    const registration = await Registration.findByIdAndUpdate(
-      req.params.id,
-      { attended },
-      { new: true }
-    ).populate("user", "name email studentId");
-
+    const registration = await Registration.findById(req.params.id);
     if (!registration) return res.status(404).json({ message: "Registration not found" });
+
+    const event = await Event.findById(registration.event);
+    if (!event || !(await canManageEvent(req.user, event))) return res.status(403).json(FORBIDDEN);
+
+    registration.attended = attended;
+    await registration.save();
+    await registration.populate("user", "name email studentId");
     res.status(200).json({ message: "Attendance updated", registration });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update attendance") });
@@ -330,9 +337,12 @@ async function checkInByCode(req, res) {
 
     const registration = await Registration.findById(registrationId)
       .populate("user", "name studentId")
-      .populate("event", "title date");
+      .populate("event", "title date club");
     if (!registration || !registration.event) {
       return res.status(404).json({ message: "Registration not found -- it may have been cancelled" });
+    }
+    if (!(await canManageEvent(req.user, registration.event))) {
+      return res.status(403).json({ message: "This student is registered for an event you don't manage" });
     }
 
     const alreadyCheckedIn = registration.attended;
@@ -367,6 +377,7 @@ async function announceToRegistrants(req, res) {
 
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!(await canManageEvent(req.user, event))) return res.status(403).json(FORBIDDEN);
 
     const sent = await notifyEventAnnouncement(event, text);
     await recordAudit(req.user, "event.announcement", `Sent a message to ${sent} registrant(s) of "${event.title}"`);
@@ -393,6 +404,7 @@ async function announceToClubMembers(req, res) {
 
     const club = await Club.findById(req.params.id);
     if (!club) return res.status(404).json({ message: "Club not found" });
+    if (!(await canManageClub(req.user, club._id))) return res.status(403).json(FORBIDDEN);
 
     const sent = await notifyClubAnnouncement(club, text);
     await recordAudit(req.user, "club.announcement", `Sent a message to ${sent} member(s) of "${club.name}"`);
@@ -400,6 +412,50 @@ async function announceToClubMembers(req, res) {
     res.status(200).json({ message: `Message sent to ${sent} member(s)`, sent });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to send message") });
+  }
+}
+
+// GET /api/admin/clubs/:id/leaders -- the students who run this club's events
+async function getClubLeaders(req, res) {
+  try {
+    const club = await Club.findById(req.params.id).select("name +leaders").populate("leaders", "name email studentId");
+    if (!club) return res.status(404).json({ message: "Club not found" });
+    res.status(200).json({ leaders: club.leaders });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch club leaders") });
+  }
+}
+
+// PUT /api/admin/clubs/:id/leaders  { userIds: [...] }
+// Replaces the club's leader list. Leaders must be approved student accounts;
+// they can then manage only this club's events (utils/clubAccess.js).
+async function setClubLeaders(req, res) {
+  try {
+    const { userIds } = req.body;
+    if (!Array.isArray(userIds) || userIds.length > 10 || userIds.some((id) => typeof id !== "string" || !/^[a-f\d]{24}$/i.test(id))) {
+      return res.status(400).json({ message: "userIds must be a list of up to 10 user ids" });
+    }
+    const unique = [...new Set(userIds)];
+
+    const club = await Club.findById(req.params.id).select("name +leaders");
+    if (!club) return res.status(404).json({ message: "Club not found" });
+
+    const users = await User.find({ _id: { $in: unique }, approvalStatus: "approved" }).select("name email studentId");
+    if (users.length !== unique.length) {
+      return res.status(400).json({ message: "Every leader must be an approved student account" });
+    }
+
+    club.leaders = users.map((u) => u._id);
+    await club.save();
+    await recordAudit(
+      req.user,
+      "club.leaders",
+      `Set the leaders of "${club.name}" to ${users.length ? users.map((u) => u.name).join(", ") : "nobody"}`
+    );
+
+    res.status(200).json({ message: "Club leaders updated", leaders: users });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to update club leaders") });
   }
 }
 
@@ -447,6 +503,8 @@ module.exports = {
   checkInByCode,
   announceToRegistrants,
   announceToClubMembers,
+  getClubLeaders,
+  setClubLeaders,
   getAuditLog,
   getAllUsers,
   getUserById,

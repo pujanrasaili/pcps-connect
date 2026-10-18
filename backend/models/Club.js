@@ -14,6 +14,10 @@ const clubSchema = new mongoose.Schema(
     email: { type: String, default: "" },
     foundedYear: { type: String, default: "" },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    // Students who run this club's events (see utils/clubAccess.js). Never
+    // sent by the public club endpoints -- select:false keeps their identities
+    // out of every normal query; only the admin leaders endpoints opt in.
+    leaders: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], default: [], select: false },
   },
   { timestamps: true }
 );
