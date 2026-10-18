@@ -23,6 +23,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const debouncedQuery = useDebounce(query, 250);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -86,15 +87,24 @@ export default function AdminUsers() {
     }
   };
 
-  const filteredUsers = useMemo(
-    () =>
-      users.filter(
-        (u) =>
-          u.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-          u.email.toLowerCase().includes(debouncedQuery.toLowerCase())
-      ),
-    [users, debouncedQuery]
-  );
+  const statusCounts = useMemo(() => {
+    const counts = { all: users.length, pending: 0, approved: 0, rejected: 0 };
+    users.forEach((u) => {
+      if (counts[u.approvalStatus] !== undefined) counts[u.approvalStatus] += 1;
+    });
+    return counts;
+  }, [users]);
+
+  const filteredUsers = useMemo(() => {
+    const q = debouncedQuery.toLowerCase();
+    return users.filter(
+      (u) =>
+        (statusFilter === "all" || u.approvalStatus === statusFilter) &&
+        (u.name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          (u.studentId || "").toLowerCase().includes(q))
+    );
+  }, [users, debouncedQuery, statusFilter]);
 
   const { page, setPage, totalPages, pageItems: pagedUsers } = usePagination(filteredUsers, PAGE_SIZE);
 
@@ -123,7 +133,25 @@ export default function AdminUsers() {
       )}
 
       <div className="max-w-sm">
-        <SearchBar value={query} onChange={setQuery} placeholder="Search by name or email..." />
+        <SearchBar value={query} onChange={setQuery} placeholder="Search by name, email or student ID..." />
+      </div>
+
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by approval status">
+        {["all", "pending", "approved", "rejected"].map((status) => (
+          <button
+            key={status}
+            type="button"
+            onClick={() => setStatusFilter(status)}
+            aria-pressed={statusFilter === status}
+            className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
+              statusFilter === status
+                ? "bg-primary-500 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            }`}
+          >
+            {status} ({statusCounts[status]})
+          </button>
+        ))}
       </div>
 
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
@@ -133,7 +161,7 @@ export default function AdminUsers() {
           </div>
         ) : filteredUsers.length === 0 ? (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            {users.length === 0 ? "No registered students yet." : "No users match your search."}
+            {users.length === 0 ? "No registered students yet." : "No users match your search or filter."}
           </p>
         ) : (
           pagedUsers.map((u) => {
