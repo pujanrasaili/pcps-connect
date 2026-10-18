@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { FaFileCsv } from "react-icons/fa";
+import { buildCsv, downloadCsv } from "../../utils/csv";
 import { FaUserShield, FaUser, FaTrash, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -108,6 +110,24 @@ export default function AdminUsers() {
 
   const { page, setPage, totalPages, pageItems: pagedUsers } = usePagination(filteredUsers, PAGE_SIZE);
 
+  // Exports exactly what the filters/search currently show (all pages, not just
+  // the visible one), so "pending students" or "BIT semester 3" can be pulled out.
+  const exportCsv = () => {
+    const header = ["Name", "Email", "Student ID", "Program", "Semester", "Phone", "Status", "Role", "Joined"];
+    const rows = filteredUsers.map((u) => [
+      u.name,
+      u.email,
+      u.studentId || "",
+      u.program || "",
+      u.semester || "",
+      u.phone || "",
+      u.approvalStatus,
+      u.role,
+      u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "",
+    ]);
+    downloadCsv("pcps-students.csv", buildCsv(header, rows));
+  };
+
   const pendingCount = users.filter((u) => u.approvalStatus === "pending").length;
 
   return (
@@ -136,7 +156,7 @@ export default function AdminUsers() {
         <SearchBar value={query} onChange={setQuery} placeholder="Search by name, email or student ID..." />
       </div>
 
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by approval status">
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by approval status">
         {["all", "pending", "approved", "rejected"].map((status) => (
           <button
             key={status}
@@ -152,6 +172,14 @@ export default function AdminUsers() {
             {status} ({statusCounts[status]})
           </button>
         ))}
+        <button
+          type="button"
+          onClick={exportCsv}
+          disabled={filteredUsers.length === 0}
+          className="ml-auto flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+        >
+          <FaFileCsv /> Export CSV ({filteredUsers.length})
+        </button>
       </div>
 
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
