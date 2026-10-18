@@ -10,6 +10,7 @@ import {
   FaTimes,
   FaCalendarPlus,
   FaQrcode,
+  FaShareAlt,
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
@@ -21,6 +22,7 @@ import { formatDate, isPastEvent } from "../utils/formatDate";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
+import { shareEvent } from "../utils/share";
 import { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
 
@@ -129,6 +131,15 @@ export default function EventDetails() {
     setShowModal(true);
   };
 
+  const handleShare = async () => {
+    try {
+      const result = await shareEvent(event);
+      if (result === "copied") toast.success("Link copied to clipboard.");
+    } catch {
+      toast.error("Couldn't share this event. Copy the link from your address bar instead.");
+    }
+  };
+
   const handleUnregister = async () => {
     setUnregistering(true);
     await cancelRegistration(event._id);
@@ -219,6 +230,14 @@ export default function EventDetails() {
                 style={{ width: `${Math.min((registeredCount / capacity) * 100, 100)}%` }}
               />
             </div>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
+            >
+              <FaShareAlt className="text-xs" /> Share this event
+            </button>
 
             {registered && isPast ? (
               <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
