@@ -34,7 +34,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 | POST | `/login` | — | `{ email, password }`. Fails with a specific `code` (`EMAIL_NOT_VERIFIED`, `APPROVAL_PENDING`, `APPROVAL_REJECTED`) when login is blocked for one of those reasons. Sets the `token` cookie on success. |
 | POST | `/logout` | — | Clears the `token` cookie. |
 | GET | `/me` | Auth | Returns the current user — used by the frontend to check "am I logged in" on load. |
-| PUT | `/profile` | Auth | `{ name?, studentId?, program?, semester?, phone?, avatar? }` — field-whitelisted; can't be used to change role/approval/email/password. |
+| PUT | `/profile` | Auth | `{ name?, studentId?, program?, semester?, phone?, avatar? }` — field-whitelisted and length/type-checked (name ≤80, student ID ≤30, program ≤80, semester/phone ≤20, avatar must be an https link); can't be used to change role/approval/email/password. |
 | PUT | `/favorite-club` | Auth | `{ clubId }` — toggles that club as the user's one favorite. |
 | PUT | `/change-password` | Auth | `{ currentPassword, newPassword }` — re-verifies the current password first. |
 | POST | `/forgot-password` | — | `{ email }` — always returns the same generic message, whether or not the email is registered, to avoid leaking which emails have accounts. Emails a 15-minute reset link if it does. |
