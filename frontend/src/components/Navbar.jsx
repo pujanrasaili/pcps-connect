@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { useLedClubs } from "../hooks/useLedClubs";
 import logo from "../assets/images/pcps-logo.png";
 
 const BASE_NAV_LINKS = [
@@ -28,13 +29,18 @@ export default function Navbar() {
   const menuRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
+  const { clubs: ledClubs } = useLedClubs();
   const navigate = useNavigate();
 
   const navLinks = isAuthenticated
     ? [
         ...BASE_NAV_LINKS,
         { to: "/dashboard", label: "Dashboard" },
-        ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
+        ...(user?.role === "admin"
+          ? [{ to: "/admin", label: "Admin" }]
+          : ledClubs.length > 0
+            ? [{ to: "/admin/events", label: "Manage" }]
+            : []),
       ]
     : BASE_NAV_LINKS;
 
