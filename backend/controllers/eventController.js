@@ -10,6 +10,7 @@ const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
+const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
 
 // Attaches a live "registeredCount" to each event, computed from actual
 // Registration documents rather than a stored counter -- a stored counter
@@ -78,7 +79,7 @@ async function getEventById(req, res) {
   }
 }
 
-// POST /api/events/create  (requires login, multipart/form-data)
+// POST /api/events/create  (requires login + admin, or a club leader for their own club; multipart/form-data)
 async function createEvent(req, res) {
   try {
     const { title, description, date, location, capacity, category, price } = req.body;
@@ -96,6 +97,11 @@ async function createEvent(req, res) {
 
     const { club, error: clubError } = await resolveClub(req.body.club);
     if (clubError) return res.status(400).json({ message: clubError });
+
+    // Club leaders may only create events for a club they lead.
+    if (!isAdmin(req.user) && !(club && (await leadsClub(req.user, club._id)))) {
+      return res.status(403).json({ message: "You can only create events for a club you lead" });
+    }
 
     let image = null;
     if (req.file) {
@@ -124,14 +130,13 @@ async function createEvent(req, res) {
   }
 }
 
-// PUT /api/events/:id  (requires login + must be creator, or admin)
+// PUT /api/events/:id  (requires login + admin, or a leader of the event's club)
 async function updateEvent(req, res) {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const isOwner = event.createdBy.toString() === req.user._id.toString();
-    if (!isOwner && req.user.role !== "admin") {
+    if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
 
@@ -153,6 +158,11 @@ async function updateEvent(req, res) {
     if (req.body.club !== undefined) {
       const { club, error: clubError } = await resolveClub(req.body.club);
       if (clubError) return res.status(400).json({ message: clubError });
+      // A leader can move an event between clubs they lead, but not hand it
+      // to someone else's club or detach it from any club.
+      if (!isAdmin(req.user) && !(club && (await leadsClub(req.user, club._id)))) {
+        return res.status(403).json({ message: "You can only assign events to a club you lead" });
+      }
       event.club = club ? club._id : null;
     }
 
@@ -179,14 +189,13 @@ async function updateEvent(req, res) {
   }
 }
 
-// DELETE /api/events/:id  (requires login + must be creator, or admin)
+// DELETE /api/events/:id  (requires login + admin, or a leader of the event's club)
 async function deleteEvent(req, res) {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const isOwner = event.createdBy.toString() === req.user._id.toString();
-    if (!isOwner && req.user.role !== "admin") {
+    if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
 
