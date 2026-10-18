@@ -4,25 +4,7 @@ import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
 import { Stars } from "./StarRating";
-
-// Wraps a CSV field in quotes and escapes any quotes inside it, so names
-// or emails containing commas don't break the column layout.
-//
-// Student names come straight from registration with no character
-// restrictions, and this file is meant to be opened in Excel (hence the
-// BOM below). If a name/email/student ID starts with =, +, -, or @, Excel
-// reads it as a formula instead of text -- a student could register as
-// something like `=HYPERLINK("http://evil","click")` or a DDE payload
-// that runs when the admin opens the export. Prefixing a leading
-// apostrophe forces Excel (and Sheets/LibreOffice) to treat it as plain
-// text; it's invisible in the cell either way.
-function csvField(value) {
-  let str = String(value ?? "");
-  if (/^[=+\-@\t\r]/.test(str)) {
-    str = `'${str}`;
-  }
-  return `"${str.replace(/"/g, '""')}"`;
-}
+import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 
 function downloadAttendanceCsv(event, registrations) {
   const header = ["Name", "Email", "Student ID", "Registered On", "Attended", "Rating", "Feedback"];
@@ -35,20 +17,7 @@ function downloadAttendanceCsv(event, registrations) {
     r.rating || "",
     r.feedback || "",
   ]);
-
-  const csv = [header, ...rows].map((row) => row.map(csvField).join(",")).join("\r\n");
-  // Prefix with a UTF-8 BOM so Excel renders non-ASCII names correctly.
-  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
-
-  const safeTitle = (event?.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `${safeTitle}-attendance.csv`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  downloadCsv(`${slugify(event?.title, "event")}-attendance.csv`, buildCsv(header, rows));
 }
 
 // Lists everyone registered for a given event, with a tap-to-toggle
