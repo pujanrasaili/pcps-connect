@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaUsers } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaUsers, FaEnvelope } from "react-icons/fa";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
@@ -39,6 +39,28 @@ export default function AdminClubs() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [messageTarget, setMessageTarget] = useState(null);
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const openMessage = (club) => {
+    setMessage("");
+    setMessageTarget(club);
+  };
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const res = await api.post(`/admin/clubs/${messageTarget._id}/announce`, { message });
+      toast.success(res.data.message);
+      setMessageTarget(null);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to send message"));
+    } finally {
+      setSending(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -159,6 +181,14 @@ export default function AdminClubs() {
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <button
+                    onClick={() => openMessage(club)}
+                    aria-label={`Message members of ${club.name}`}
+                    title="Message members"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
+                  >
+                    <FaEnvelope />
+                  </button>
+                  <button
                     onClick={() => openEdit(club)}
                     aria-label={`Edit ${club.name}`}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
@@ -248,6 +278,30 @@ export default function AdminClubs() {
           <Button type="submit" className="w-full" disabled={saving}>
             {saving ? "Saving..." : editingClub ? "Save changes" : "Create club"}
           </Button>
+        </form>
+      </Modal>
+
+      <Modal isOpen={!!messageTarget} onClose={() => setMessageTarget(null)} title={`Message members — ${messageTarget?.name || ""}`} size="md">
+        <form onSubmit={sendMessage} className="space-y-3">
+          <label className="label-field" htmlFor="club-message">Message to everyone who joined this club</label>
+          <textarea
+            id="club-message"
+            rows={5}
+            maxLength={1000}
+            required
+            className="input-field"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="e.g. This week's meeting is moved to Friday, 3 PM, Room B2."
+          />
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs text-slate-400">
+              {message.length}/1000 · sent by email, can't be undone. Members who turned off club updates are skipped.
+            </span>
+            <Button type="submit" disabled={sending || !message.trim()}>
+              {sending ? "Sending..." : "Send"}
+            </Button>
+          </div>
         </form>
       </Modal>
 
