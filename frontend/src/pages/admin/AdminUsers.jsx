@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaFileCsv } from "react-icons/fa";
 import { buildCsv, downloadCsv } from "../../utils/csv";
+import { pluralize } from "../../utils/plural";
 import { FaUserShield, FaUser, FaTrash, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -137,7 +138,7 @@ export default function AdminUsers() {
           Manage Users
         </h1>
         <p className="text-slate-500 dark:text-slate-400">
-          {users.length} registered students
+          {pluralize(users.length, "registered student")}
           {pendingCount > 0 && (
             <span className="ml-2 badge bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
               {pendingCount} awaiting approval
