@@ -83,6 +83,7 @@ export default function Register() {
               <input
                 id="reg-name"
                 name="name"
+                maxLength={80}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
                 placeholder="Your full name"
@@ -122,6 +123,7 @@ export default function Register() {
               <input
                 id="reg-id"
                 name="studentId"
+                maxLength={30}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
                 placeholder="PCPS-BIT-2026-XXX"
