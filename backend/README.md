@@ -19,7 +19,9 @@ environment variables, and the overall project overview.
   reset link can never be reused as a login session.
 - A new account must have `emailVerified: true` **and**
   `approvalStatus: "approved"` before it can log in. Registration is
-  restricted to `@patancollege.edu.np` addresses.
+  restricted to `@patancollege.edu.np` addresses. The approval check also runs on
+  every authenticated request, so rejecting a student who is already logged in
+  cuts off their existing session immediately.
 
 Below, **Auth** means a valid `token` cookie is required; **Admin** means
 `protect` + `adminOnly`.
