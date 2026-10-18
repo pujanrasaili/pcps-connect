@@ -10,9 +10,9 @@ export default function DashboardLayout() {
       <ScrollToTop />
       <Navbar />
       <main className="flex-1 bg-slate-50 dark:bg-slate-950">
-        <div className="container-page grid gap-6 py-8 lg:grid-cols-[260px_1fr]">
+        <div className="container-page grid grid-cols-1 gap-6 py-8 lg:grid-cols-[260px_1fr]">
           <Sidebar className="lg:sticky lg:top-24 lg:h-fit" />
-          <div>
+          <div className="min-w-0">
             <Outlet />
           </div>
         </div>
