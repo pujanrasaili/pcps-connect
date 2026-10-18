@@ -121,6 +121,30 @@ describe("protect", () => {
   // Regression test for the fix made this session: a password change/reset
   // didn't invalidate tokens issued before it, so a stolen cookie (or a
   // replayed, already-used reset link) kept working indefinitely.
+  it.each(["rejected", "pending"])("rejects an already-logged-in user whose account is now %s", async (approvalStatus) => {
+    const token = jwt.sign({ id: "user1" }, JWT_SECRET);
+    User.findById.mockResolvedValue({ _id: "user1", role: "user", approvalStatus });
+    const req = { cookies: { token } };
+    const res = mockRes();
+    const next = jest.fn();
+
+    await protect(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("lets an approved user through", async () => {
+    const token = jwt.sign({ id: "user1" }, JWT_SECRET);
+    User.findById.mockResolvedValue({ _id: "user1", role: "user", approvalStatus: "approved" });
+    const req = { cookies: { token } };
+    const next = jest.fn();
+
+    await protect(req, mockRes(), next);
+
+    expect(next).toHaveBeenCalled();
+  });
+
   it("rejects a token issued before the user's last password change", async () => {
     const staleToken = jwt.sign({ id: "user1" }, JWT_SECRET, { expiresIn: "7d" });
     // Password changed 1 second after the token's iat.
