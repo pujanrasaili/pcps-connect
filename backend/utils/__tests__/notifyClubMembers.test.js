@@ -58,3 +58,39 @@ describe("notifyNewClubEvent", () => {
     expect(html).toContain("A&amp;B");
   });
 });
+
+describe("notifyClubAnnouncement", () => {
+  const { notifyClubAnnouncement } = require("../notifyClubMembers");
+  beforeEach(() => sendEmail.mockResolvedValue());
+  afterEach(() => jest.resetAllMocks());
+
+  it("emails members who haven't opted out and reports the count", async () => {
+    members([member(1), member(2, { clubUpdates: false }), member(3)]);
+    expect(await notifyClubAnnouncement(club, "Meeting moved")).toBe(2);
+    const sent = sendEmail.mock.calls.map((c) => c[0].to);
+    expect(sent).toEqual(["s1@patancollege.edu.np", "s3@patancollege.edu.np"]);
+    expect(sendEmail.mock.calls[0][0].subject).toBe("Message from PCPS Tech Club");
+  });
+
+  it("escapes HTML in the message and keeps line breaks", async () => {
+    members([member(1)]);
+    await notifyClubAnnouncement(club, "<script>x</script>\nline2");
+    const html = sendEmail.mock.calls[0][0].html;
+    expect(html).not.toContain("<script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).toContain("<br>line2");
+  });
+
+  it("lets a failed member lookup propagate so the admin sees an error", async () => {
+    ClubMembership.find.mockReturnValue({ populate: jest.fn().mockRejectedValue(new Error("db down")) });
+    await expect(notifyClubAnnouncement(club, "hi")).rejects.toThrow("db down");
+  });
+
+  it("one bounced address doesn't stop the others", async () => {
+    members([member(1), member(2)]);
+    sendEmail.mockRejectedValueOnce(new Error("bounce")).mockResolvedValue();
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    await expect(notifyClubAnnouncement(club, "hi")).resolves.toBe(2);
+    expect(sendEmail).toHaveBeenCalledTimes(2);
+  });
+});

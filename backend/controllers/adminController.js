@@ -2,6 +2,8 @@ const User = require("../models/User");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
+const Club = require("../models/Club");
+const { notifyClubAnnouncement } = require("../utils/notifyClubMembers");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const AuditLog = require("../models/AuditLog");
@@ -368,6 +370,32 @@ async function announceToRegistrants(req, res) {
   }
 }
 
+// POST /api/admin/clubs/:id/announce  { message }
+// Emails everyone who joined the club (except those who opted out of club
+// updates). Logged in the activity log like the event announcement.
+async function announceToClubMembers(req, res) {
+  try {
+    const { message } = req.body;
+    if (typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+    const text = message.trim();
+    if (text.length > 1000) {
+      return res.status(400).json({ message: "Message must be 1000 characters or fewer" });
+    }
+
+    const club = await Club.findById(req.params.id);
+    if (!club) return res.status(404).json({ message: "Club not found" });
+
+    const sent = await notifyClubAnnouncement(club, text);
+    await recordAudit(req.user, "club.announcement", `Sent a message to ${sent} member(s) of "${club.name}"`);
+
+    res.status(200).json({ message: `Message sent to ${sent} member(s)`, sent });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to send message") });
+  }
+}
+
 // GET /api/admin/audit  -- most recent admin actions, newest first
 async function getAuditLog(req, res) {
   try {
@@ -411,6 +439,7 @@ module.exports = {
   getAttendanceReport,
   checkInByCode,
   announceToRegistrants,
+  announceToClubMembers,
   getAuditLog,
   getAllUsers,
   getUserById,

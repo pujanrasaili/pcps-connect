@@ -13,6 +13,7 @@ const {
   updateRegistrationAttendance,
   getAuditLog,
   announceToRegistrants,
+  announceToClubMembers,
   checkInByCode,
   getAttendanceReport,
 } = require("../controllers/adminController");
@@ -35,6 +36,7 @@ router.put("/events/:id", updateEventAdmin);
 router.delete("/events/:id", deleteEventAdmin);
 router.get("/events/:id/registrations", getEventRegistrations);
 router.post("/events/:id/announce", actionLimiter, announceToRegistrants);
+router.post("/clubs/:id/announce", actionLimiter, announceToClubMembers);
 
 router.put("/registrations/:id", updateRegistrationAttendance);
 // Deliberately not behind actionLimiter: at a busy door one admin phone (one
