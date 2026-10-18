@@ -26,6 +26,14 @@ async function protect(req, res, next) {
       return res.status(401).json({ message: "Not logged in" });
     }
 
+    // Login only lets approved accounts in, but a token lasts days. If an
+    // admin rejects (or sends back to pending) a student who is already
+    // logged in, their existing cookie must stop working straight away,
+    // not whenever it happens to expire.
+    if (user.approvalStatus === "rejected" || user.approvalStatus === "pending") {
+      return res.status(401).json({ message: "Not logged in" });
+    }
+
     // If the password was changed/reset after this token was issued, the
     // token is stale -- reject it. Without this, changing your password
     // because you suspect your session/cookie leaked wouldn't actually log
