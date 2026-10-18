@@ -5,6 +5,7 @@ import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { getClubIcon } from "../../utils/iconMap";
 import { useDebounce } from "../../hooks/useDebounce";
+import { pluralize } from "../../utils/plural";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
@@ -146,7 +147,7 @@ export default function AdminClubs() {
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
             Manage Clubs
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">{clubs.length} clubs total</p>
+          <p className="text-slate-500 dark:text-slate-400">{pluralize(clubs.length, "club")} total</p>
         </div>
         <Button icon={FaPlus} onClick={openCreate}>
           Add Club

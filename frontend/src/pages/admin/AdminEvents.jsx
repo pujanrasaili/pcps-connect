@@ -6,6 +6,7 @@ import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { formatDate } from "../../utils/formatDate";
 import { useDebounce } from "../../hooks/useDebounce";
+import { pluralize } from "../../utils/plural";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import AttendeesModal from "../../components/AttendeesModal";
@@ -155,7 +156,7 @@ export default function AdminEvents() {
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
             Manage Events
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">{events.length} events total</p>
+          <p className="text-slate-500 dark:text-slate-400">{pluralize(events.length, "event")} total</p>
         </div>
         <Button icon={FaPlus} onClick={openCreate}>
           Add Event
