@@ -7,6 +7,8 @@ import {
   FaClock,
   FaArrowRight,
   FaTimes,
+  FaStar,
+  FaCertificate,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -49,6 +51,16 @@ export default function Dashboard() {
     .filter((r) => isUpcoming(r.event.date))
     .sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
 
+  // Events they attended but never rated: the organisers' only way to learn
+  // how it went, so worth a nudge right on the dashboard.
+  const needsRating = useMemo(
+    () =>
+      registeredEvents
+        .filter((r) => r.attended && !r.rating)
+        .sort((a, b) => new Date(b.event.date) - new Date(a.event.date)),
+    [registeredEvents]
+  );
+
   const favoriteClub = clubs.find((c) => c._id === favoriteClubId);
 
   const monthlyData = useMemo(() => {
@@ -90,6 +102,45 @@ export default function Dashboard() {
         <StatsCard icon={FaHeart} label="Favorite Club" value={favoriteClub?.name.replace("PCPS ", "") || "—"} accent="accent" />
         <StatsCard icon={FaClock} label="Upcoming Registrations" value={upcoming.length} accent="amber" />
       </div>
+
+      {needsRating.length > 0 && (
+        <div className="card-surface min-w-0 p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <FaStar className="text-amber-400" />
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">
+              How were the events you attended?
+            </h2>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {needsRating.slice(0, 3).map((r) => (
+              <li key={r._id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-slate-700 dark:text-slate-200">{r.event.title}</p>
+                  <p className="text-xs text-slate-400">{formatDate(r.event.date)}</p>
+                </div>
+                <span className="flex shrink-0 items-center gap-3">
+                  <Link
+                    to={`/certificate/${r._id}`}
+                    aria-label={`Certificate for ${r.event.title}`}
+                    title="Attendance certificate"
+                    className="text-slate-400 transition-colors hover:text-primary-500"
+                  >
+                    <FaCertificate />
+                  </Link>
+                  <Link to="/profile" className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                    Rate
+                  </Link>
+                </span>
+              </li>
+            ))}
+          </ul>
+          {needsRating.length > 3 && (
+            <Link to="/profile" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-400">
+              +{needsRating.length - 3} more in your profile
+            </Link>
+          )}
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="card-surface p-6">
