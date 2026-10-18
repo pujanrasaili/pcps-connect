@@ -7,6 +7,18 @@ const FOCUSABLE_SELECTOR =
 export default function Modal({ isOpen, onClose, title, children, size = "md" }) {
   const dialogRef = useRef(null);
 
+  // Callers usually pass an inline arrow function for onClose, which is a
+  // brand-new function on every render. If the effect below depended on it
+  // directly, every keystroke in a form inside the modal (each one re-renders
+  // the parent) would tear the effect down and set it up again -- restoring
+  // focus to the button that opened the modal and then moving it to the
+  // dialog's first control (the close button), so only the first character
+  // typed would land. A ref always holds the latest onClose without that.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -27,7 +39,7 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
 
     const onKey = (e) => {
       if (e.key === "Escape") {
-        onClose();
+        onCloseRef.current();
         return;
       }
       // Basic focus trap: Tab/Shift+Tab cycles within the dialog instead of
@@ -53,7 +65,7 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
       document.body.style.overflow = "";
       if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
