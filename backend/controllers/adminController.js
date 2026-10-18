@@ -1,3 +1,4 @@
+const { notifyNewLeaders } = require("../utils/notifyNewLeaders");
 const User = require("../models/User");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
@@ -445,8 +446,12 @@ async function setClubLeaders(req, res) {
       return res.status(400).json({ message: "Every leader must be an approved student account" });
     }
 
+    const before = new Set((club.leaders || []).map(String));
     club.leaders = users.map((u) => u._id);
     await club.save();
+    // Only people who weren't already leaders hear about it. Best-effort.
+    const added = users.filter((u) => !before.has(String(u._id)));
+    if (added.length) Promise.resolve(notifyNewLeaders(added, club)).catch(() => {});
     await recordAudit(
       req.user,
       "club.leaders",
