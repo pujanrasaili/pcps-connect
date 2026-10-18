@@ -251,23 +251,23 @@ export default function Profile() {
         <form onSubmit={handleSave} className="space-y-4">
           <div>
             <label className="label-field" htmlFor="edit-name">Full name</label>
-            <input id="edit-name" name="name" className="input-field" value={form.name} onChange={handleChange} />
+            <input id="edit-name" name="name" maxLength={80} className="input-field" value={form.name} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-studentId">Student ID</label>
-            <input id="edit-studentId" name="studentId" className="input-field" value={form.studentId} onChange={handleChange} />
+            <input id="edit-studentId" name="studentId" maxLength={30} className="input-field" value={form.studentId} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-program">Program</label>
-            <input id="edit-program" name="program" className="input-field" value={form.program} onChange={handleChange} />
+            <input id="edit-program" name="program" maxLength={80} className="input-field" value={form.program} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-semester">Semester</label>
-            <input id="edit-semester" name="semester" className="input-field" value={form.semester} onChange={handleChange} />
+            <input id="edit-semester" name="semester" maxLength={20} className="input-field" value={form.semester} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-phone">Phone number</label>
-            <input id="edit-phone" name="phone" className="input-field" value={form.phone} onChange={handleChange} />
+            <input id="edit-phone" name="phone" maxLength={20} className="input-field" value={form.phone} onChange={handleChange} />
           </div>
           <Button type="submit" className="w-full" disabled={saving}>
             {saving ? "Saving..." : "Save changes"}
