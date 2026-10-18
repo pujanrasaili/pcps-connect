@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory } from "react-icons/fa";
+import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
 import { api } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const ADMIN_LINKS = [
   { to: "/admin", label: "Overview", icon: FaChartPie, end: true },
@@ -12,6 +13,12 @@ const ADMIN_LINKS = [
   { to: "/admin/events", label: "Events", icon: FaCalendarAlt },
   { to: "/admin/users", label: "Users", icon: FaUserShield, badgeKey: "pending" },
   { to: "/admin/activity", label: "Activity", icon: FaHistory },
+];
+
+// Club leaders (non-admins) only get the pages they can actually use.
+const LEADER_LINKS = [
+  { to: "/admin/events", label: "My events", icon: FaCalendarAlt },
+  { to: "/admin/check-in", label: "Check-in", icon: FaQrcode },
 ];
 
 export default function AdminLayout() {
@@ -22,8 +29,12 @@ export default function AdminLayout() {
   // right after an admin approves/rejects someone and clicks elsewhere.
   const [pendingCount, setPendingCount] = useState(0);
   const { pathname } = useLocation();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const links = isAdmin ? ADMIN_LINKS : LEADER_LINKS;
 
   useEffect(() => {
+    if (!isAdmin) return;
     api
       .get("/admin/users")
       .then((res) => {
@@ -31,7 +42,7 @@ export default function AdminLayout() {
         setPendingCount(count);
       })
       .catch(() => {});
-  }, [pathname]);
+  }, [pathname, isAdmin]);
 
   const badges = { pending: pendingCount };
 
@@ -43,10 +54,10 @@ export default function AdminLayout() {
         <div className="container-page grid gap-6 py-8 lg:grid-cols-[220px_1fr]">
           <aside className="card-surface h-fit p-4 lg:sticky lg:top-24">
             <p className="px-2 pb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Admin Panel
+              {isAdmin ? "Admin Panel" : "Club Leader"}
             </p>
             <nav className="flex flex-col gap-1">
-              {ADMIN_LINKS.map(({ to, label, icon: Icon, end, badgeKey }) => {
+              {links.map(({ to, label, icon: Icon, end, badgeKey }) => {
                 const badgeCount = badgeKey ? badges[badgeKey] : 0; 
                 return (
                   <NavLink

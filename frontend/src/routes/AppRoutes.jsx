@@ -5,6 +5,7 @@ import DashboardLayout from "../layouts/DashboardLayout";
 import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
+import StaffRoute from "./StaffRoute";
 
 // Home loads eagerly since it's the page almost everyone lands on first.
 import Home from "../pages/Home";
@@ -129,9 +130,9 @@ export default function AppRoutes() {
         <Route
           path="/admin/events"
           element={
-            <AdminRoute>
+            <StaffRoute>
               <AdminEvents />
-            </AdminRoute>
+            </StaffRoute>
           }
         />
         <Route
@@ -145,9 +146,9 @@ export default function AppRoutes() {
         <Route
           path="/admin/check-in"
           element={
-            <AdminRoute>
+            <StaffRoute>
               <AdminCheckIn />
-            </AdminRoute>
+            </StaffRoute>
           }
         />
         <Route

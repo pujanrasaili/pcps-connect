@@ -3,6 +3,8 @@ import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy } from
 import { useEvents } from "../../context/EventsContext";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
+import { useAuth } from "../../context/AuthContext";
+import { useLedClubs } from "../../hooks/useLedClubs";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { formatDate } from "../../utils/formatDate";
 import { useDebounce } from "../../hooks/useDebounce";
@@ -38,8 +40,15 @@ function toDatetimeLocal(isoString) {
 
 export default function AdminEvents() {
   const { events, loading, refreshEvents } = useEvents();
-  const { clubs } = useClubs();
+  const { clubs: allClubs } = useClubs();
+  const { user } = useAuth();
+  const { clubs: ledClubs } = useLedClubs();
   const toast = useToast();
+  // A club leader (not an admin) sees and manages only their own clubs' events,
+  // and every event they create must belong to one of those clubs.
+  const leaderMode = user?.role !== "admin";
+  const ledIds = useMemo(() => new Set(ledClubs.map((c) => c._id)), [ledClubs]);
+  const clubs = leaderMode ? allClubs.filter((c) => ledIds.has(c._id)) : allClubs;
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 250);
   const [formOpen, setFormOpen] = useState(false);
@@ -52,9 +61,14 @@ export default function AdminEvents() {
   const [attendeesEvent, setAttendeesEvent] = useState(null);
   const [duplicatedFrom, setDuplicatedFrom] = useState(null);
 
+  const visibleEvents = useMemo(
+    () => (leaderMode ? events.filter((e) => ledIds.has(e.club?._id || e.club)) : events),
+    [events, leaderMode, ledIds]
+  );
+
   const filteredEvents = useMemo(
-    () => events.filter((e) => e.title.toLowerCase().includes(debouncedQuery.toLowerCase())),
-    [events, debouncedQuery]
+    () => visibleEvents.filter((e) => e.title.toLowerCase().includes(debouncedQuery.toLowerCase())),
+    [visibleEvents, debouncedQuery]
   );
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
@@ -67,7 +81,7 @@ export default function AdminEvents() {
   const openCreate = () => {
     setDuplicatedFrom(null);
     setEditingEvent(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, club: leaderMode ? clubs[0]?._id || "" : "" });
     setImageFile(null);
     setFormOpen(true);
   };
@@ -154,9 +168,9 @@ export default function AdminEvents() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Manage Events
+            {leaderMode ? "My Club Events" : "Manage Events"}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">{pluralize(events.length, "event")} total</p>
+          <p className="text-slate-500 dark:text-slate-400">{pluralize(visibleEvents.length, "event")} total</p>
         </div>
         <Button icon={FaPlus} onClick={openCreate}>
           Add Event
@@ -225,7 +239,7 @@ export default function AdminEvents() {
         {!loading && filteredEvents.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaCalendarAlt className="mx-auto mb-2 text-2xl text-slate-300" />
-            {events.length === 0 ? 'No events yet. Click "Add Event" to create one.' : "No events match your search."}
+            {visibleEvents.length === 0 ? 'No events yet. Click "Add Event" to create one.' : "No events match your search."}
           </p>
         )}
       </div>
@@ -272,9 +286,9 @@ export default function AdminEvents() {
             </div>
           </div>
           <div>
-            <label className="label-field">Hosting club (optional)</label>
-            <select name="club" className="input-field" value={form.club} onChange={handleChange}>
-              <option value="">No club</option>
+            <label className="label-field">{leaderMode ? "Hosting club" : "Hosting club (optional)"}</label>
+            <select name="club" className="input-field" value={form.club} onChange={handleChange} required={leaderMode}>
+              {!leaderMode && <option value="">No club</option>}
               {clubs.map((c) => (
                 <option key={c._id} value={c._id}>{c.name}</option>
               ))}
