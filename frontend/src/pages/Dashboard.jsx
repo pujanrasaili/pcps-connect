@@ -9,6 +9,7 @@ import {
   FaTimes,
   FaStar,
   FaCertificate,
+  FaUsers,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -27,6 +28,7 @@ import StatsCard from "../components/StatsCard";
 import { useAuth } from "../context/AuthContext";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useClubs } from "../context/ClubsContext";
+import { useEvents } from "../context/EventsContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { formatDate, isUpcoming } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
@@ -35,8 +37,9 @@ const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { favoriteClubId } = useClubMembership();
+  const { favoriteClubId, memberships } = useClubMembership();
   const { clubs } = useClubs();
+  const { events } = useEvents();
   const { registrations, cancelRegistration } = useRegistrations();
 
   // Only registrations whose event is still populated (guards against a
@@ -60,6 +63,16 @@ export default function Dashboard() {
         .sort((a, b) => new Date(b.event.date) - new Date(a.event.date)),
     [registeredEvents]
   );
+
+  // Upcoming events hosted by clubs the student joined, that they haven't
+  // signed up for yet -- the events they're most likely to care about.
+  const fromMyClubs = useMemo(() => {
+    const joinedIds = new Set(memberships.map((m) => m.club?._id).filter(Boolean));
+    const registeredIds = new Set(registeredEvents.map((r) => r.event._id));
+    return events
+      .filter((e) => e.club && joinedIds.has(e.club._id || e.club) && isUpcoming(e.date) && !registeredIds.has(e._id))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [events, memberships, registeredEvents]);
 
   const favoriteClub = clubs.find((c) => c._id === favoriteClubId);
 
@@ -137,6 +150,44 @@ export default function Dashboard() {
           {needsRating.length > 3 && (
             <Link to="/profile" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-400">
               +{needsRating.length - 3} more in your profile
+            </Link>
+          )}
+        </div>
+      )}
+
+      {fromMyClubs.length > 0 && (
+        <div className="card-surface min-w-0 p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <FaUsers className="text-primary-500" />
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">From your clubs</h2>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {fromMyClubs.slice(0, 3).map((e) => {
+              const full = (e.registeredCount || 0) >= (e.capacity || 0);
+              return (
+                <li key={e._id}>
+                  <Link
+                    to={`/events/${e._id}`}
+                    className="-mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-slate-700 dark:text-slate-200">{e.title}</p>
+                      <p className="truncate text-xs text-slate-400">
+                        {e.club?.name ? `${e.club.name} · ` : ""}
+                        {formatDate(e.date)}
+                      </p>
+                    </div>
+                    <span className={`badge shrink-0 ${full ? "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" : "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"}`}>
+                      {full ? "Full · join waitlist" : "Open"}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          {fromMyClubs.length > 3 && (
+            <Link to="/events" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-400">
+              +{fromMyClubs.length - 3} more on the Events page
             </Link>
           )}
         </div>
