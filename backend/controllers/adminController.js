@@ -280,11 +280,18 @@ async function getEventRegistrations(req, res) {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const registrations = await Registration.find({ event: req.params.id })
-      .populate("user", "name email studentId")
-      .sort({ createdAt: 1 });
+    const [registrations, waitlist] = await Promise.all([
+      Registration.find({ event: req.params.id })
+        .populate("user", "name email studentId")
+        .sort({ createdAt: 1 }),
+      // Oldest first -- the order students will be promoted in. Shows organisers
+      // how much unmet demand a full event has.
+      WaitlistEntry.find({ event: req.params.id })
+        .populate("user", "name email studentId")
+        .sort({ createdAt: 1 }),
+    ]);
 
-    res.status(200).json({ registrations });
+    res.status(200).json({ registrations, waitlist });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch registrations") });
   }

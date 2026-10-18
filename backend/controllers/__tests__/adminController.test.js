@@ -547,3 +547,31 @@ describe("announceToClubMembers", () => {
     expect(recordAudit).not.toHaveBeenCalled();
   });
 });
+
+describe("getEventRegistrations", () => {
+  const { getEventRegistrations } = require("../adminController");
+  afterEach(() => jest.resetAllMocks());
+
+  const sorted = (docs) => ({ populate: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue(docs) }) });
+
+  it("returns registrations and the waitlist in queue order", async () => {
+    Event.findById.mockResolvedValue({ _id: "e1" });
+    Registration.find.mockReturnValue(sorted([{ _id: "r1" }]));
+    WaitlistEntry.find.mockReturnValue(sorted([{ _id: "w1" }, { _id: "w2" }]));
+    const res = mockRes();
+
+    await getEventRegistrations({ params: { id: "e1" } }, res);
+
+    expect(WaitlistEntry.find).toHaveBeenCalledWith({ event: "e1" });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ registrations: [{ _id: "r1" }], waitlist: [{ _id: "w1" }, { _id: "w2" }] });
+  });
+
+  it("404s for an unknown event", async () => {
+    Event.findById.mockResolvedValue(null);
+    const res = mockRes();
+    await getEventRegistrations({ params: { id: "nope" } }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(WaitlistEntry.find).not.toHaveBeenCalled();
+  });
+});
