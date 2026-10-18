@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
@@ -49,6 +49,7 @@ export default function AdminEvents() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [attendeesEvent, setAttendeesEvent] = useState(null);
+  const [duplicatedFrom, setDuplicatedFrom] = useState(null);
 
   const filteredEvents = useMemo(
     () => events.filter((e) => e.title.toLowerCase().includes(debouncedQuery.toLowerCase())),
@@ -63,13 +64,36 @@ export default function AdminEvents() {
   };
 
   const openCreate = () => {
+    setDuplicatedFrom(null);
     setEditingEvent(null);
     setForm(EMPTY_FORM);
     setImageFile(null);
     setFormOpen(true);
   };
 
+  // Starts a brand-new event pre-filled from an existing one, for events that
+  // repeat (weekly workshops, annual fests). The date is left blank on purpose
+  // so a copy can't be saved with the old, already-past date, and the image
+  // isn't copied -- pick one again or leave it for the default.
+  const openDuplicate = (event) => {
+    setEditingEvent(null);
+    setDuplicatedFrom(event);
+    setForm({
+      title: event.title || "",
+      description: event.description || "",
+      date: "",
+      location: event.location || "",
+      capacity: event.capacity ?? 100,
+      category: event.category || "",
+      price: event.price || "Free",
+      club: event.club?._id || event.club || "",
+    });
+    setImageFile(null);
+    setFormOpen(true);
+  };
+
   const openEdit = (event) => {
+    setDuplicatedFrom(null);
     setEditingEvent(event);
     setForm({
       title: event.title || "",
@@ -172,6 +196,14 @@ export default function AdminEvents() {
                   <FaUserFriends />
                 </button>
                 <button
+                  onClick={() => openDuplicate(event)}
+                  aria-label={`Duplicate ${event.title}`}
+                  title="Duplicate as a new event"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-accent-50 hover:text-accent-500 dark:hover:bg-accent-900/20"
+                >
+                  <FaRegCopy />
+                </button>
+                <button
                   onClick={() => openEdit(event)}
                   aria-label={`Edit ${event.title}`}
                   className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
@@ -201,6 +233,11 @@ export default function AdminEvents() {
 
       <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingEvent ? "Edit Event" : "Add Event"} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
+          {duplicatedFrom && (
+            <p className="rounded-lg bg-primary-50 px-3 py-2 text-sm text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+              Copied from &ldquo;{duplicatedFrom.title}&rdquo;. Choose the new date &amp; time, and an image if you want one.
+            </p>
+          )}
           <div>
             <label className="label-field">Event title</label>
             <input name="title" className="input-field" value={form.title} onChange={handleChange} required />
