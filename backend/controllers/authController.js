@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { cleanProfileFields } = require("../utils/profileFields");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
@@ -105,6 +106,9 @@ async function register(req, res) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
+    const { values: profile, error: profileError } = cleanProfileFields({ name, studentId, program, semester, phone });
+    if (profileError) return res.status(400).json({ message: profileError });
+
     // The frontend already checks this shape (see Register.jsx), but that's
     // not a security boundary -- a direct API call bypasses it entirely, so
     // it's repeated here too, same reasoning as the admin self-demotion
@@ -129,7 +133,7 @@ async function register(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
-      name,
+      name: profile.name,
       email: email.toLowerCase(),
       password: hashedPassword,
       // Deliberately never reads a role from the request body -- otherwise
@@ -139,10 +143,10 @@ async function register(req, res) {
       // ordinary pending student account. Admins are only ever created by
       // promoting an existing user from the admin panel.
       role: "user",
-      studentId: studentId || "",
-      program: program || "",
-      semester: semester || "",
-      phone: phone || "",
+      studentId: profile.studentId || "",
+      program: profile.program || "",
+      semester: profile.semester || "",
+      phone: profile.phone || "",
     });
 
     try {
@@ -229,11 +233,11 @@ async function getMe(req, res) {
 // PUT /api/auth/profile  -- update your own profile (requires login)
 async function updateProfile(req, res) {
   try {
-    const allowedFields = ["name", "studentId", "program", "semester", "phone", "avatar", "eventReminders", "clubUpdates"];
-    const updates = {};
-    for (const field of allowedFields) {
-      if (req.body[field] !== undefined) updates[field] = req.body[field];
-    }
+    // Only the whitelisted profile fields are read from the body (so role,
+    // approval status, email etc. can't be set here), each type- and
+    // length-checked.
+    const { values: updates, error: profileError } = cleanProfileFields(req.body);
+    if (profileError) return res.status(400).json({ message: profileError });
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
       new: true,

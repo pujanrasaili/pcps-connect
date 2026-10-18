@@ -8,7 +8,7 @@ process.env.CLIENT_ORIGIN = "http://localhost:5173";
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const sendEmail = require("../../utils/sendEmail");
-const { register, login, changePassword } = require("../authController");
+const { register, login, changePassword, updateProfile } = require("../authController");
 
 function mockRes() {
   const res = {};
@@ -190,5 +190,57 @@ describe("changePassword", () => {
     const res = mockRes();
     await changePassword(req, res);
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("register -- profile field limits", () => {
+  afterEach(() => jest.resetAllMocks());
+  const base = { name: "Sita", email: "sita@patancollege.edu.np", password: "secret1" };
+
+  it("400s on an over-long name without touching the database", async () => {
+    const res = mockRes();
+    await register({ body: { ...base, name: "x".repeat(81) } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
+  it("400s on a non-text student ID", async () => {
+    const res = mockRes();
+    await register({ body: { ...base, studentId: { $gt: "" } } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
+  it("stores the trimmed name", async () => {
+    User.findOne.mockResolvedValue(null);
+    bcrypt.hash.mockResolvedValue("hashed");
+    User.create.mockResolvedValue({ _id: "u1", name: "Sita", email: base.email });
+    await register({ body: { ...base, name: "  Sita  " } }, mockRes());
+    expect(User.create).toHaveBeenCalledWith(expect.objectContaining({ name: "Sita", role: "user" }));
+  });
+});
+
+describe("updateProfile", () => {
+  afterEach(() => jest.resetAllMocks());
+  const call = (body) => {
+    const res = mockRes();
+    return updateProfile({ user: { _id: "u1" }, body }, res).then(() => res);
+  };
+
+  it("400s on bad input and does not update", async () => {
+    const res = await call({ name: "x".repeat(200) });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("never passes role or approvalStatus through to the update", async () => {
+    User.findByIdAndUpdate.mockResolvedValue(goodUser());
+    await call({ name: "Sita", role: "admin", approvalStatus: "approved" });
+    expect(User.findByIdAndUpdate).toHaveBeenCalledWith("u1", { name: "Sita" }, expect.any(Object));
+  });
+
+  it("rejects an http avatar link", async () => {
+    const res = await call({ avatar: "http://evil.example/x.png" });
+    expect(res.status).toHaveBeenCalledWith(400);
   });
 });
