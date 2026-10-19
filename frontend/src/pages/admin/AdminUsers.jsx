@@ -31,6 +31,8 @@ export default function AdminUsers() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const loadUsers = () => {
     setLoading(true);
@@ -73,6 +75,27 @@ export default function AdminUsers() {
       toast.error(getErrorMessage(err, "Failed to update approval status"));
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  // Approves every pending account currently shown (respects the search box), in
+  // batches of 200 to stay inside the server's per-request limit.
+  const handleBulkApprove = async () => {
+    const ids = filteredUsers.filter((u) => u.approvalStatus === "pending").map((u) => u._id);
+    setBulkBusy(true);
+    try {
+      let approved = 0;
+      for (let i = 0; i < ids.length; i += 200) {
+        const res = await api.put("/admin/users/bulk-approve", { userIds: ids.slice(i, i + 200) });
+        approved += res.data.approved || 0;
+      }
+      toast.success(`Approved ${pluralize(approved, "account")}.`);
+      setBulkOpen(false);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to approve accounts"));
+    } finally {
+      setBulkBusy(false);
+      loadUsers();
     }
   };
 
@@ -173,11 +196,20 @@ export default function AdminUsers() {
             {status} ({statusCounts[status]})
           </button>
         ))}
+        {statusFilter === "pending" && filteredUsers.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setBulkOpen(true)}
+            className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary-600"
+          >
+            <FaCheck /> Approve all ({filteredUsers.length})
+          </button>
+        )}
         <button
           type="button"
           onClick={exportCsv}
           disabled={filteredUsers.length === 0}
-          className="ml-auto flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+          className={`${statusFilter === "pending" && filteredUsers.length > 0 ? "" : "ml-auto "}flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50`}
         >
           <FaFileCsv /> Export CSV ({filteredUsers.length})
         </button>
@@ -271,6 +303,18 @@ export default function AdminUsers() {
       </div>
 
       <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+
+      <ConfirmDialog
+        isOpen={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        onConfirm={handleBulkApprove}
+        confirming={bulkBusy}
+        tone="success"
+        confirmLabel="Approve all"
+        confirmingLabel="Approving..."
+        title="Approve all pending accounts?"
+        message={`This approves the ${pluralize(filteredUsers.filter((u) => u.approvalStatus === "pending").length, "pending account")} shown here and emails each person that they can log in.`}
+      />
 
       <ConfirmDialog
         isOpen={!!deleteTarget}

@@ -3,7 +3,19 @@ import Button from "./Button";
 
 // Thin wrapper around Modal for "are you sure?" confirmations, so admin
 // pages don't each re-implement the same delete-confirmation UI.
-export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirming }) {
+export default function ConfirmDialog({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirming,
+  confirmLabel = "Delete",
+  confirmingLabel = "Deleting...",
+  tone = "danger",
+}) {
+  const toneClass =
+    tone === "success" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-500 hover:bg-rose-600";
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
       <p className="text-sm text-slate-600 dark:text-slate-300">{message}</p>
@@ -14,9 +26,9 @@ export default function ConfirmDialog({ isOpen, onClose, onConfirm, title, messa
         <button
           onClick={onConfirm}
           disabled={confirming}
-          className="flex-1 rounded-xl bg-rose-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors hover:bg-rose-600 disabled:opacity-50"
+          className={`flex-1 rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors disabled:opacity-50 ${toneClass}`}
         >
-          {confirming ? "Deleting..." : "Delete"}
+          {confirming ? confirmingLabel : confirmLabel}
         </button>
       </div>
     </Modal>
