@@ -46,6 +46,7 @@ pcps-connect/
 - The Attendees window has a quick search (name, email, student ID) and a "Not yet attended" filter for marking people at the door
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
+- Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 - Editable student profile
