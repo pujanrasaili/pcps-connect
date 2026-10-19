@@ -7,6 +7,7 @@ import { pluralize } from "../src/utils/plural.js";
 import { buildIcs, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent } from "../src/utils/formatDate.js";
+import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
 
 test("csvField quotes values and doubles inner quotes", () => {
   assert.equal(csvField('Sita "S" Rai'), '"Sita ""S"" Rai"');
@@ -88,4 +89,17 @@ test("isUpcoming / isPastEvent compare against the exact current time", () => {
   assert.equal(isPastEvent(hourAgo), true);
   assert.equal(isUpcoming(hourAgo), false);
   assert.equal(isUpcoming(hourAhead), true);
+});
+
+test("audit labels, tones and groups", () => {
+  assert.equal(actionLabel("user.selfDeleted"), "Self-deleted account");
+  assert.equal(actionLabel("club.leaders"), "Club leaders changed");
+  assert.equal(actionLabel("thing.some_action"), "Thing some action"); // unknown -> readable fallback
+  assert.equal(actionTone("user.selfDeleted"), "danger");
+  assert.equal(actionTone("event.deleted"), "danger");
+  assert.equal(actionTone("user.rejected"), "danger");
+  assert.equal(actionTone("user.approved"), "good");
+  assert.equal(actionTone("user.approved_bulk"), "good");
+  assert.equal(actionTone("club.leaders"), "info");
+  assert.equal(actionGroup("club.announcement"), "club");
 });
