@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaTrashAlt } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
+import { api, getErrorMessage } from "../services/api";
 
 export default function Settings() {
   const { theme, toggleTheme } = useTheme();
-  const { user, changePassword, updateUser } = useAuth();
+  const { user, changePassword, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
   const toast = useToast();
   const [saved, setSaved] = useState(false);
   const [savingPref, setSavingPref] = useState(null);
@@ -16,6 +19,34 @@ export default function Settings() {
   const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [pwError, setPwError] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
+
+  // Deleting your own account (students only -- admins are removed by another admin).
+  const [delOpen, setDelOpen] = useState(false);
+  const [delPassword, setDelPassword] = useState("");
+  const [delError, setDelError] = useState("");
+  const [delBusy, setDelBusy] = useState(false);
+
+  const closeDelModal = () => {
+    setDelOpen(false);
+    setDelPassword("");
+    setDelError("");
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    setDelBusy(true);
+    setDelError("");
+    try {
+      await api.delete("/auth/account", { data: { password: delPassword } });
+      // Leave this protected page first, otherwise logging out bounces to /login.
+      navigate("/", { replace: true });
+      await logout();
+      toast.success("Your account has been deleted.");
+    } catch (err) {
+      setDelError(getErrorMessage(err, "Couldn't delete your account"));
+      setDelBusy(false);
+    }
+  };
 
   // Both toggles mirror real fields on the user record that the backend acts
   // on (eventReminders -> scripts/sendEventReminders.js, clubUpdates ->
@@ -136,8 +167,56 @@ export default function Settings() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Update the password you use to log in.</p>
             </div>
           </button>
+          {user?.role !== "admin" && (
+            <button
+              type="button"
+              onClick={() => setDelOpen(true)}
+              className="flex w-full items-center gap-3 rounded-xl border border-rose-100 p-4 text-left transition-colors hover:bg-rose-50 dark:border-rose-900/40 dark:hover:bg-rose-900/10"
+            >
+              <FaTrashAlt className="text-rose-500" />
+              <div>
+                <p className="font-medium text-rose-600 dark:text-rose-400">Delete account</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Permanently remove your account, registrations and club memberships.
+                </p>
+              </div>
+            </button>
+          )}
         </div>
       </div>
+
+      <Modal isOpen={delOpen} onClose={closeDelModal} title="Delete your account?" size="sm">
+        <form onSubmit={handleDelete} className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            This permanently deletes your account, your event registrations (including certificates and ratings) and
+            your club memberships. It can't be undone.
+          </p>
+          {delError && (
+            <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
+              {delError}
+            </p>
+          )}
+          <div>
+            <label className="label-field" htmlFor="delete-password">Enter your password to confirm</label>
+            <input
+              id="delete-password"
+              type="password"
+              className="input-field"
+              value={delPassword}
+              onChange={(e) => setDelPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={delBusy || !delPassword}
+            className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-700 disabled:opacity-50"
+          >
+            {delBusy ? "Deleting..." : "Delete my account"}
+          </button>
+        </form>
+      </Modal>
 
       <Modal isOpen={pwOpen} onClose={closePwModal} title="Change password" size="sm">
         <form onSubmit={handlePwSubmit} className="space-y-4">

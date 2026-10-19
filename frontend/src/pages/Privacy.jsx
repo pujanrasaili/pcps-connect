@@ -49,8 +49,14 @@ export default function Privacy() {
           <Section title="5. Your choices">
             You can update your profile information at any time from the
             Profile page. You can leave a club or unregister from an event
-            whenever you like. To delete your account entirely, contact an
-            administrator via the{" "}
+            whenever you like. To delete your account entirely, use
+            &ldquo;Delete account&rdquo; on your{" "}
+            <Link to="/settings" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
+              Settings page
+            </Link>
+            . It removes your registrations, club memberships and profile
+            straight away. Administrator accounts are removed by another
+            administrator &mdash; ask via the{" "}
             <Link to="/contact" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
               Contact page
             </Link>
