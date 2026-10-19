@@ -7,6 +7,11 @@ const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
 const { escapeHtml } = require("../utils/escapeHtml");
 const { removeUserAndData } = require("../utils/deleteAccountData");
+const { buildPersonalData } = require("../utils/personalData");
+const Registration = require("../models/Registration");
+const WaitlistEntry = require("../models/WaitlistEntry");
+const ClubMembership = require("../models/ClubMembership");
+const Club = require("../models/Club");
 const { recordAudit } = require("../utils/audit");
 
 function signToken(userId) {
@@ -318,6 +323,24 @@ async function changePassword(req, res) {
   }
 }
 
+// GET /api/auth/export  (requires login)
+// Everything the app stores about the logged-in person, as a JSON download.
+async function exportMyData(req, res) {
+  try {
+    const [user, registrations, waitlist, memberships, ledClubs] = await Promise.all([
+      User.findById(req.user._id).populate("favoriteClub", "name"),
+      Registration.find({ user: req.user._id }).populate("event", "title date").sort({ createdAt: 1 }),
+      WaitlistEntry.find({ user: req.user._id }).populate("event", "title date").sort({ createdAt: 1 }),
+      ClubMembership.find({ user: req.user._id }).populate("club", "name").sort({ createdAt: 1 }),
+      Club.find({ leaders: req.user._id }).select("name").sort({ name: 1 }),
+    ]);
+    if (!user) return res.status(404).json({ message: "Account not found" });
+    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs }));
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to export your data") });
+  }
+}
+
 // DELETE /api/auth/account  { password }  (requires login)
 // Lets a student delete their own account and everything attached to it.
 // Needs the password again so a stolen session can't wipe someone's account.
@@ -568,6 +591,7 @@ module.exports = {
   toggleFavoriteClub,
   changePassword,
   deleteAccount,
+  exportMyData,
   forgotPassword,
   resetPassword,
   verifyEmail,

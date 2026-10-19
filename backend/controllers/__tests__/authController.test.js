@@ -3,6 +3,10 @@ jest.mock("bcryptjs");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/deleteAccountData");
 jest.mock("../../utils/audit");
+jest.mock("../../models/Registration");
+jest.mock("../../models/WaitlistEntry");
+jest.mock("../../models/ClubMembership");
+jest.mock("../../models/Club");
 
 process.env.JWT_SECRET = "test-secret";
 process.env.CLIENT_ORIGIN = "http://localhost:5173";
@@ -10,7 +14,11 @@ process.env.CLIENT_ORIGIN = "http://localhost:5173";
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const sendEmail = require("../../utils/sendEmail");
-const { register, login, changePassword, updateProfile, deleteAccount } = require("../authController");
+const { register, login, changePassword, updateProfile, deleteAccount, exportMyData } = require("../authController");
+const Registration = require("../../models/Registration");
+const WaitlistEntry = require("../../models/WaitlistEntry");
+const ClubMembership = require("../../models/ClubMembership");
+const Club = require("../../models/Club");
 const { removeUserAndData } = require("../../utils/deleteAccountData");
 const { recordAudit } = require("../../utils/audit");
 
@@ -302,5 +310,41 @@ describe("deleteAccount", () => {
     jest.spyOn(console, "error").mockImplementation(() => {});
     const res = await run({ password: "right" });
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("exportMyData", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const chain = (docs) => {
+    const q = { populate: jest.fn(), sort: jest.fn(), select: jest.fn(), then: (res, rej) => Promise.resolve(docs).then(res, rej) };
+    q.populate.mockReturnValue(q);
+    q.sort.mockReturnValue(q);
+    q.select.mockReturnValue(q);
+    return q;
+  };
+
+  it("returns only the caller's own data, scoped by their id", async () => {
+    User.findById.mockReturnValue(chain({ name: "Sita", email: "s@x.com", role: "user", password: "HASH" }));
+    Registration.find.mockReturnValue(chain([]));
+    WaitlistEntry.find.mockReturnValue(chain([]));
+    ClubMembership.find.mockReturnValue(chain([]));
+    Club.find.mockReturnValue(chain([]));
+    const res = mockRes();
+    await exportMyData({ user: { _id: "s1" } }, res);
+    expect(Registration.find).toHaveBeenCalledWith({ user: "s1" });
+    expect(ClubMembership.find).toHaveBeenCalledWith({ user: "s1" });
+    expect(res.status).toHaveBeenCalledWith(200);
+    const body = res.json.mock.calls[0][0];
+    expect(body.profile.name).toBe("Sita");
+    expect(JSON.stringify(body)).not.toContain("HASH");
+  });
+
+  it("500s cleanly on a database error", async () => {
+    User.findById.mockImplementation(() => { throw new Error("db"); });
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const res = mockRes();
+    await exportMyData({ user: { _id: "s1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
