@@ -121,12 +121,17 @@ Backend runs on `http://localhost:5000`, frontend on `http://localhost:5173`.
 ```bash
 cd backend
 npm test
+
+cd ../frontend
+npm test
 ```
 
 Jest unit tests cover the auth flow, registration and capacity rules, admin
 safety guards, email notifications, the CSRF middleware and shared utilities.
-GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests and a
-lint + production build of the frontend on every push and pull request.
+The frontend has zero-dependency unit tests (Node's built-in runner) for its
+shared helpers: CSV export safety, calendar files, page titles and date logic.
+GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests and the
+frontend lint, tests and production build on every push and pull request.
 
 ## Scheduled event reminders
 
