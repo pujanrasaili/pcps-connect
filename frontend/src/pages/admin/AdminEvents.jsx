@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
 import { useClubs } from "../../context/ClubsContext";
@@ -12,6 +12,7 @@ import { pluralize } from "../../utils/plural";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import AttendeesModal from "../../components/AttendeesModal";
+import AttendanceReportCard from "../../components/AttendanceReportCard";
 import SearchBar from "../../components/SearchBar";
 import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
@@ -60,6 +61,16 @@ export default function AdminEvents() {
   const [deleting, setDeleting] = useState(false);
   const [attendeesEvent, setAttendeesEvent] = useState(null);
   const [duplicatedFrom, setDuplicatedFrom] = useState(null);
+
+  // Leaders get a turnout summary for their own clubs (admins see theirs on the overview).
+  const [report, setReport] = useState(null);
+  useEffect(() => {
+    if (!leaderMode || ledClubs.length === 0) return;
+    api
+      .get("/admin/attendance-report")
+      .then((res) => setReport(res.data))
+      .catch(() => setReport(null));
+  }, [leaderMode, ledClubs.length]);
 
   const visibleEvents = useMemo(
     () => (leaderMode ? events.filter((e) => ledIds.has(e.club?._id || e.club)) : events),
@@ -176,6 +187,8 @@ export default function AdminEvents() {
           Add Event
         </Button>
       </div>
+
+      {leaderMode && <AttendanceReportCard report={report} />}
 
       <div className="max-w-sm">
         <SearchBar value={query} onChange={setQuery} placeholder="Search events..." />
