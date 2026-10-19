@@ -18,6 +18,7 @@ const ADMIN_LINKS = [
 // Club leaders (non-admins) only get the pages they can actually use.
 const LEADER_LINKS = [
   { to: "/admin/events", label: "My events", icon: FaCalendarAlt },
+  { to: "/admin/my-clubs", label: "My clubs", icon: FaUsers },
   { to: "/admin/check-in", label: "Check-in", icon: FaQrcode },
 ];
 
