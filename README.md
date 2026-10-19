@@ -49,6 +49,7 @@ pcps-connect/
 - Keyboard users get a "Skip to main content" link as the first tab stop; `robots.txt` keeps private pages (admin, dashboard, profile) out of search engines and a sitemap lists the public ones
 - Event cards show a "Registered" tag for events you've signed up for, and the Events page has a "Registered" tab listing all of them (upcoming first)
 - Dark mode is applied before first paint (no white flash on load), and the app still works in browsers that block local storage (private windows)
+- Students can delete their own account from Settings (password required): registrations, memberships, events they created and club-leader roles go with it; admins are removed by another admin so there's always one left
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
