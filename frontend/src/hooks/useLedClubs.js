@@ -10,7 +10,8 @@ import { useAuth } from "../context/AuthContext";
 // until the new answer arrives -- never a stale "no clubs".
 export function useLedClubs() {
   const { user, isAuthenticated } = useAuth();
-  const userId = isAuthenticated ? user?._id : null;
+  // The API's public user object exposes the id as `id` (not `_id`).
+  const userId = isAuthenticated ? user?.id ?? user?._id ?? null : null;
   const [state, setState] = useState({ forUser: null, clubs: [] });
 
   useEffect(() => {
