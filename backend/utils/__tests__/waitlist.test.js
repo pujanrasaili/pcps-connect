@@ -47,7 +47,7 @@ describe("promoteFromWaitlist", () => {
     expect(await promoteFromWaitlist(event)).toBe(1);
     expect(Registration.create).toHaveBeenCalledTimes(1);
     expect(Registration.create).toHaveBeenCalledWith(expect.objectContaining({ user: "u1", event: "ev1" }));
-    expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np" }));
+    expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np", icalEvent: expect.stringContaining("BEGIN:VEVENT") }));
   });
 
   it("fills several open seats in order", async () => {
