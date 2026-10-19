@@ -18,6 +18,7 @@ const {
   setClubLeaders,
   checkInByCode,
   getAttendanceReport,
+  bulkApproveUsers,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
@@ -45,6 +46,7 @@ router.use(adminOnly);
 router.get("/users", getAllUsers);
 router.get("/users/:id", getUserById);
 router.get("/users/:id/events", getUserEvents);
+router.put("/users/bulk-approve", bulkApproveUsers);
 router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
 
