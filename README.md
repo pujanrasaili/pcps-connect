@@ -47,6 +47,7 @@ pcps-connect/
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
 - Keyboard users get a "Skip to main content" link as the first tab stop; `robots.txt` keeps private pages (admin, dashboard, profile) out of search engines and a sitemap lists the public ones
+- Event cards show a "Registered" tag for events you've signed up for, and the Events page has a "Registered" tab listing all of them (upcoming first)
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
