@@ -5,7 +5,7 @@ const Registration = require("../models/Registration");
 const ClubMembership = require("../models/ClubMembership");
 const Club = require("../models/Club");
 const { notifyClubAnnouncement } = require("../utils/notifyClubMembers");
-const { canManageEvent, canManageClub } = require("../utils/clubAccess");
+const { canManageEvent, canManageClub, isAdmin, ledClubs } = require("../utils/clubAccess");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const AuditLog = require("../models/AuditLog");
@@ -479,7 +479,15 @@ async function getAuditLog(req, res) {
 // see which events actually brought people in without opening each one.
 async function getAttendanceReport(req, res) {
   try {
-    const events = await Event.find({ date: { $lt: new Date() } })
+    // Admins see every event; a club leader only sees their own clubs'.
+    const filter = { date: { $lt: new Date() } };
+    if (!isAdmin(req.user)) {
+      const led = await ledClubs(req.user);
+      if (led.length === 0) return res.status(403).json({ message: FORBIDDEN });
+      filter.club = { $in: led.map((c) => c._id) };
+    }
+
+    const events = await Event.find(filter)
       .sort({ date: -1 })
       .limit(8)
       .select("title date");
