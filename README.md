@@ -69,7 +69,7 @@ pcps-connect/
 - Admins can duplicate an event (pre-filled form, date left blank) for recurring workshops and fests
 - QR check-in: each registered student has a personal QR code; an organiser scans it with a normal phone camera and the student is marked as attended (codes are signed, so they can't be forged)
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
-- Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR and message their registrants and club members — nothing else (no users, other clubs or activity log); enforced on the server
+- Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR, message their registrants and club members, and see turnout and ratings for their clubs' past events — nothing else (no users, other clubs or activity log); enforced on the server
 - Activity log of admin actions (role changes, approvals/rejections, deletions) with who did them, kept for a year
 - Live platform stats (total clubs, events, students, registrations)
 
