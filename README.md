@@ -56,7 +56,7 @@ pcps-connect/
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 - Editable student profile
-- Email notifications: registration confirmation, event reminders (opt out in Settings), reschedule/cancellation notices, account approval decisions, and a security notice whenever the password changes
+- Email notifications: registration confirmation (with an add-to-calendar invite), event reminders (opt out in Settings), reschedule/cancellation notices, account approval decisions, and a security notice whenever the password changes
 - "Add to calendar" (Google Calendar link or .ics download) for events you're registered for
 - Contact form that actually emails the college
 - Branded HTML emails (verification, password reset, notifications) instead of plain text
