@@ -23,6 +23,7 @@ import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
 import { shareEvent } from "../utils/share";
+import { eventTitle } from "../utils/pageTitle";
 import { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
 
@@ -32,6 +33,10 @@ export default function EventDetails() {
   const { isAuthenticated } = useAuth();
   const { registrations, isRegistered, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
+
+  useEffect(() => {
+    document.title = eventTitle(event?.title);
+  }, [event?.title]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
