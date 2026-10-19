@@ -6,6 +6,8 @@ const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
 const { escapeHtml } = require("../utils/escapeHtml");
+const { removeUserAndData } = require("../utils/deleteAccountData");
+const { recordAudit } = require("../utils/audit");
 
 function signToken(userId) {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -316,6 +318,61 @@ async function changePassword(req, res) {
   }
 }
 
+// DELETE /api/auth/account  { password }  (requires login)
+// Lets a student delete their own account and everything attached to it.
+// Needs the password again so a stolen session can't wipe someone's account.
+// Admins can't use this -- an admin has to be demoted (or removed) by another
+// admin, which also guarantees there is always an admin left.
+async function deleteAccount(req, res) {
+  try {
+    const { password } = req.body;
+    if (!password || typeof password !== "string") {
+      return res.status(400).json({ message: "Enter your password to delete your account" });
+    }
+    if (req.user.role === "admin") {
+      return res.status(403).json({
+        message: "Admin accounts can't be deleted here. Ask another admin to change your role or remove the account.",
+      });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) return res.status(404).json({ message: "Account not found" });
+    if (!(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ message: "Password is incorrect" });
+    }
+
+    const { name, email } = user;
+    await removeUserAndData(user);
+    await recordAudit({ name }, "user.selfDeleted", `${name} (${email}) deleted their own account`);
+
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: "Your PCPS Connect account was deleted",
+        html: renderEmail({
+          heading: "Account deleted",
+          bodyHtml: `
+            <p style="margin: 0 0 12px;">Hi ${escapeHtml(name)},</p>
+            <p style="margin: 0;">Your PCPS Connect account and its registrations, club memberships and events have been deleted. If this wasn't you, contact the college administration right away.</p>
+          `,
+        }),
+      });
+    } catch (emailErr) {
+      console.error("Failed to send account-deleted notice:", emailErr.message);
+    }
+
+    res.status(200).json({ message: "Your account has been deleted" });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to delete account") });
+  }
+}
+
 // POST /api/auth/forgot-password
 // Always responds with the same generic message whether or not the email
 // is registered -- this prevents someone from using this endpoint to
@@ -510,6 +567,7 @@ module.exports = {
   updateProfile,
   toggleFavoriteClub,
   changePassword,
+  deleteAccount,
   forgotPassword,
   resetPassword,
   verifyEmail,

@@ -1,6 +1,8 @@
 jest.mock("../../models/User");
 jest.mock("bcryptjs");
 jest.mock("../../utils/sendEmail");
+jest.mock("../../utils/deleteAccountData");
+jest.mock("../../utils/audit");
 
 process.env.JWT_SECRET = "test-secret";
 process.env.CLIENT_ORIGIN = "http://localhost:5173";
@@ -8,7 +10,9 @@ process.env.CLIENT_ORIGIN = "http://localhost:5173";
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const sendEmail = require("../../utils/sendEmail");
-const { register, login, changePassword, updateProfile } = require("../authController");
+const { register, login, changePassword, updateProfile, deleteAccount } = require("../authController");
+const { removeUserAndData } = require("../../utils/deleteAccountData");
+const { recordAudit } = require("../../utils/audit");
 
 function mockRes() {
   const res = {};
@@ -242,5 +246,61 @@ describe("updateProfile", () => {
   it("rejects an http avatar link", async () => {
     const res = await call({ avatar: "http://evil.example/x.png" });
     expect(res.status).toHaveBeenCalledWith(400);
+  });
+});
+
+describe("deleteAccount", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  const student = { _id: "s1", role: "user" };
+  const dbUser = () => ({ _id: "s1", name: "Sita", email: "s@patancollege.edu.np", password: "hash" });
+  const run = (body, user = student) => {
+    const res = mockRes();
+    res.clearCookie = jest.fn();
+    return deleteAccount({ body, user }, res).then(() => res);
+  };
+
+  it.each([[{}], [{ password: "" }], [{ password: 123 }]])("requires a password (%p)", async (body) => {
+    const res = await run(body);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(removeUserAndData).not.toHaveBeenCalled();
+  });
+
+  it("refuses admins, without touching anything", async () => {
+    const res = await run({ password: "x" }, { _id: "a1", role: "admin" });
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(User.findById).not.toHaveBeenCalled();
+    expect(removeUserAndData).not.toHaveBeenCalled();
+  });
+
+  it("refuses a wrong password and deletes nothing", async () => {
+    User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(dbUser()) });
+    bcrypt.compare.mockResolvedValue(false);
+    const res = await run({ password: "wrong" });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(removeUserAndData).not.toHaveBeenCalled();
+    expect(res.clearCookie).not.toHaveBeenCalled();
+  });
+
+  it("deletes the account and data, logs the cookie out, audits and emails", async () => {
+    const user = dbUser();
+    User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(user) });
+    bcrypt.compare.mockResolvedValue(true);
+    sendEmail.mockResolvedValue();
+    const res = await run({ password: "right" });
+    expect(removeUserAndData).toHaveBeenCalledWith(user);
+    expect(recordAudit).toHaveBeenCalledWith({ name: "Sita" }, "user.selfDeleted", expect.stringContaining("Sita"));
+    expect(res.clearCookie).toHaveBeenCalledWith("token", expect.any(Object));
+    expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s@patancollege.edu.np" }));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("still succeeds if the goodbye email fails", async () => {
+    User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(dbUser()) });
+    bcrypt.compare.mockResolvedValue(true);
+    sendEmail.mockRejectedValue(new Error("smtp"));
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const res = await run({ password: "right" });
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });
