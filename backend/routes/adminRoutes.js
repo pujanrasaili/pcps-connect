@@ -34,6 +34,7 @@ router.get("/events/:id/registrations", staffOnly, getEventRegistrations);
 router.post("/events/:id/announce", staffOnly, actionLimiter, announceToRegistrants);
 router.post("/clubs/:id/announce", staffOnly, actionLimiter, announceToClubMembers);
 router.put("/registrations/:id", staffOnly, updateRegistrationAttendance);
+router.get("/attendance-report", staffOnly, getAttendanceReport);
 // Deliberately not behind actionLimiter: at a busy door one phone (one IP)
 // legitimately scans far more than 30 students in 10 minutes.
 router.post("/check-in", staffOnly, checkInByCode);
@@ -56,6 +57,5 @@ router.get("/clubs/:id/leaders", getClubLeaders);
 router.put("/clubs/:id/leaders", setClubLeaders);
 
 router.get("/audit", getAuditLog);
-router.get("/attendance-report", getAttendanceReport);
 
 module.exports = router;

@@ -488,7 +488,7 @@ describe("getAttendanceReport", () => {
     Registration.aggregate = jest.fn().mockResolvedValue([{ _id: "e1", registered: 4, attended: 3, ratingSum: 0, ratingCount: 0 }]);
     const res = mockRes();
 
-    await getAttendanceReport({}, res);
+    await getAttendanceReport({ user: { _id: "a1", role: "admin" } }, res);
 
     expect(limit).toHaveBeenCalledWith(8);
     expect(res.status).toHaveBeenCalledWith(200);
@@ -498,8 +498,28 @@ describe("getAttendanceReport", () => {
   it("returns 500 when the database fails", async () => {
     Event.find = jest.fn().mockImplementation(() => { throw new Error("db down"); });
     const res = mockRes();
-    await getAttendanceReport({}, res);
+    await getAttendanceReport({ user: { _id: "a1", role: "admin" } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+  it("limits a club leader's report to the clubs they lead", async () => {
+    Club.find = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue([{ _id: "cA" }]) }) });
+    const select = jest.fn().mockResolvedValue([]);
+    Event.find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ select }) }) });
+    Registration.aggregate = jest.fn().mockResolvedValue([]);
+    const res = mockRes();
+    await getAttendanceReport({ user: { _id: "leader1", role: "user" } }, res);
+    expect(Event.find).toHaveBeenCalledWith(expect.objectContaining({ club: { $in: ["cA"] } }));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("403s someone who leads no club, without querying events", async () => {
+    Club.find = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue([]) }) });
+    Event.find = jest.fn();
+    const res = mockRes();
+    await getAttendanceReport({ user: { _id: "stu", role: "user" } }, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(Event.find).not.toHaveBeenCalled();
   });
 });
 
