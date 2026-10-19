@@ -6,6 +6,8 @@ import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
 import Reveal from "../components/Reveal";
 import { useEvents } from "../context/EventsContext";
+import { useAuth } from "../context/AuthContext";
+import { useRegistrations } from "../context/RegistrationContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { usePagination } from "../hooks/usePagination";
 import Pagination from "../components/Pagination";
@@ -15,6 +17,12 @@ const PAGE_SIZE = 9;
 
 export default function Events() {
   const { events, loading, error } = useEvents();
+  const { isAuthenticated } = useAuth();
+  const { registrations } = useRegistrations();
+  const registeredIds = useMemo(
+    () => new Set(isAuthenticated ? registrations.map((r) => r.event?._id).filter(Boolean) : []),
+    [registrations, isAuthenticated]
+  );
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [when, setWhen] = useState("upcoming");
@@ -40,7 +48,8 @@ export default function Events() {
     return events
       .filter((event) => {
         const isPast = isPastEvent(event.date);
-        const matchesWhen = when === "upcoming" ? !isPast : isPast;
+        // "mine" = everything the student registered for, past or upcoming.
+        const matchesWhen = when === "mine" ? registeredIds.has(event._id) : when === "upcoming" ? !isPast : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesClub = !clubFilter || event.club?._id === clubFilter;
         // Search the fields students actually think in: the event name, where
@@ -51,10 +60,15 @@ export default function Events() {
           .some((field) => field.toLowerCase().includes(needle));
         return matchesWhen && matchesCategory && matchesQuery && matchesClub;
       })
-      .sort((a, b) =>
-        when === "upcoming" ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date)
-      );
-  }, [events, debouncedQuery, category, when, clubFilter]);
+      .sort((a, b) => {
+        const pastA = isPastEvent(a.date);
+        const pastB = isPastEvent(b.date);
+        // "Registered" lists what's coming first (soonest first), then what's done (latest first).
+        if (when === "mine" && pastA !== pastB) return pastA ? 1 : -1;
+        const newestFirst = when === "past" || (when === "mine" && pastA);
+        return newestFirst ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
+      });
+  }, [events, debouncedQuery, category, when, clubFilter, registeredIds]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -79,6 +93,7 @@ export default function Events() {
             {[
               ["upcoming", "Upcoming"],
               ["past", "Past"],
+              ...(isAuthenticated ? [["mine", "Registered"]] : []),
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -136,7 +151,11 @@ export default function Events() {
         ) : (
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
             <p className="text-lg font-medium">
-              {when === "upcoming" ? "No upcoming events match your search." : "No past events match your search."}
+              {when === "mine"
+                ? "You haven't registered for any matching events."
+                : when === "upcoming"
+                  ? "No upcoming events match your search."
+                  : "No past events match your search."}
             </p>
             <p className="mt-1 text-sm">Try a different name or category.</p>
           </div>
