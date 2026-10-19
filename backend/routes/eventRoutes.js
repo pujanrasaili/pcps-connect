@@ -9,6 +9,7 @@ const {
 const { protect } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const upload = require("../middleware/upload");
+const { actionLimiter } = require("../middleware/rateLimit");
 
 const router = express.Router();
 
@@ -19,7 +20,9 @@ router.get("/:id", getEventById);
 // calling the API directly could post arbitrary public "events" to the site.
 // staffOnly is the cheap outer gate; the controller then checks that a leader
 // is acting on their own club's events.
-router.post("/create", protect, staffOnly, upload.single("image"), createEvent);
+// Creating a club event emails every member, so it is rate limited like the
+// other "send emails" actions (a club leader can't flood their members).
+router.post("/create", protect, staffOnly, actionLimiter, upload.single("image"), createEvent);
 router.put("/:id", protect, staffOnly, upload.single("image"), updateEvent);
 router.delete("/:id", protect, staffOnly, deleteEvent);
 
