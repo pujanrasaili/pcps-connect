@@ -6,6 +6,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
 import StaffRoute from "./StaffRoute";
+import TitleManager from "../components/TitleManager";
 
 // Home loads eagerly since it's the page almost everyone lands on first.
 import Home from "../pages/Home";
@@ -55,6 +56,7 @@ function RouteFallback() {
 export default function AppRoutes() {
   return (
     <Suspense fallback={<RouteFallback />}>
+    <TitleManager />
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
