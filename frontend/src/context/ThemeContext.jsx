@@ -4,8 +4,14 @@ const ThemeContext = createContext(null);
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem("pcps_theme");
-    if (saved) return saved;
+    // Storage can throw (private windows, blocked site data) -- fall back to the system theme.
+    let saved = null;
+    try {
+      saved = localStorage.getItem("pcps_theme");
+    } catch {
+      saved = null;
+    }
+    if (saved === "dark" || saved === "light") return saved;
     return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
@@ -18,7 +24,11 @@ export function ThemeProvider({ children }) {
     } else {
       root.classList.remove("dark");
     }
-    localStorage.setItem("pcps_theme", theme);
+    try {
+      localStorage.setItem("pcps_theme", theme);
+    } catch {
+      // Not persisting the choice is fine; it still applies for this visit.
+    }
   }, [theme]);
 
   const toggleTheme = () =>
