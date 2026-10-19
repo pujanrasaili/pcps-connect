@@ -48,7 +48,7 @@ export default function Privacy() {
 
           <Section title="5. Your choices">
             You can update your profile information at any time from the
-            Profile page. You can leave a club or unregister from an event
+            Profile page, and download a copy of your data from the Settings page. You can leave a club or unregister from an event
             whenever you like. To delete your account entirely, use
             &ldquo;Delete account&rdquo; on your{" "}
             <Link to="/settings" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
