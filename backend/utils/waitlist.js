@@ -4,6 +4,7 @@ const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
+const { buildIcs } = require("./ics");
 
 async function sendSpotOpenedEmail(user, event) {
   try {
@@ -20,6 +21,7 @@ async function sendSpotOpenedEmail(user, event) {
           <p style="margin: 16px 0 0;">Can't make it any more? Unregister from your Dashboard so the next person gets the spot.</p>
         `,
       }),
+      icalEvent: buildIcs(event),
     });
   } catch (err) {
     console.error("Failed to send waitlist promotion email:", err.message);
