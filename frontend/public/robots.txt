@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
+Disallow: /certificate/
+Allow: /
+
+Sitemap: https://pcps-connect.vercel.app/sitemap.xml
