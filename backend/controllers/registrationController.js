@@ -6,6 +6,7 @@ const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
 const { formatEventDate } = require("../utils/formatEventDate");
 const { promoteFromWaitlist } = require("../utils/waitlist");
+const { buildIcs } = require("../utils/ics");
 const { createCheckInCode } = require("../utils/checkInCode");
 const { createCertificateCode } = require("../utils/certificateCode");
 
@@ -27,6 +28,7 @@ async function sendRegistrationConfirmation(user, event) {
           <p style="margin: 16px 0 0;">You can cancel anytime from your Dashboard if your plans change.</p>
         `,
       }),
+      icalEvent: buildIcs(event),
     });
   } catch (emailErr) {
     console.error("Failed to send registration confirmation email:", emailErr.message);

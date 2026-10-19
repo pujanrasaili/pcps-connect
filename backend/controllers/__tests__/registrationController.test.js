@@ -113,6 +113,9 @@ describe("registerForEvent", () => {
     expect(emailArg.subject).toMatch(/Hack Night/);
     expect(emailArg.html).toContain("Hack Night");
     expect(emailArg.html).toContain("Lab 3");
+    // Carries a calendar invite so mail apps can offer "add to calendar".
+    expect(emailArg.icalEvent).toContain("BEGIN:VEVENT");
+    expect(emailArg.icalEvent).toContain("SUMMARY:Hack Night");
   });
 
   // A failed email send is a side effect, never a reason to fail a
