@@ -23,7 +23,7 @@ const { recordAudit } = require("../../utils/audit");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
 const { notifyNewLeaders } = require("../../utils/notifyNewLeaders");
-const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode, updateRegistrationAttendance, getEventRegistrations, getClubLeaders, setClubLeaders } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode, updateRegistrationAttendance, getEventRegistrations, getClubLeaders, setClubLeaders, bulkApproveUsers } = require("../adminController");
 const { notifyEventAnnouncement } = require("../../utils/notifyRegistrants");
 const Club = require("../../models/Club");
 const { notifyClubAnnouncement } = require("../../utils/notifyClubMembers");
@@ -787,5 +787,44 @@ describe("club leader management (admin only)", () => {
     Club.findById.mockReturnValue(q);
     const res = await run(getClubLeaders, { params: { id: "c1" } });
     expect(res.json).toHaveBeenCalledWith({ leaders: [{ name: "Sita" }] });
+  });
+});
+
+describe("bulkApproveUsers", () => {
+  afterEach(() => jest.resetAllMocks());
+  const ADMIN = { _id: "a1", name: "Root", role: "admin" };
+  const ID1 = "1".repeat(24);
+  const ID2 = "2".repeat(24);
+  const run = (body) => {
+    const res = mockRes();
+    return bulkApproveUsers({ user: ADMIN, body }, res).then(() => res);
+  };
+
+  it.each([[{}], [{ userIds: [] }], [{ userIds: "x" }], [{ userIds: ["nope"] }], [{ userIds: Array(201).fill(ID1) }]])(
+    "rejects %p",
+    async (body) => {
+      const res = await run(body);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(User.find).not.toHaveBeenCalled();
+      expect(User.updateMany).not.toHaveBeenCalled();
+    }
+  );
+
+  it("approves only still-pending accounts, emails them and audits once", async () => {
+    sendEmail.mockResolvedValue();
+    User.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: ID1, name: "A", email: "a@x.com" }]) });
+    const res = await run({ userIds: [ID1, ID2, ID1] });
+    expect(User.find).toHaveBeenCalledWith({ _id: { $in: [ID1, ID2] }, approvalStatus: "pending" });
+    expect(User.updateMany).toHaveBeenCalledWith({ _id: { $in: [ID1] }, approvalStatus: "pending" }, { approvalStatus: "approved" });
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(recordAudit).toHaveBeenCalledTimes(1);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ approved: 1 }));
+  });
+
+  it("does nothing when none of the accounts are pending", async () => {
+    User.find.mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+    const res = await run({ userIds: [ID1] });
+    expect(User.updateMany).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ approved: 0 }));
   });
 });

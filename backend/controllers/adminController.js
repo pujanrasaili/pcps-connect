@@ -147,6 +147,38 @@ async function updateUser(req, res) {
   }
 }
 
+// PUT /api/admin/users/bulk-approve  { userIds: [...] }
+// Approves many pending accounts at once (start-of-semester sign-up rush).
+// Only accounts that are still "pending" are touched, so ids that were already
+// approved/rejected (or don't exist) are skipped rather than overwritten.
+async function bulkApproveUsers(req, res) {
+  try {
+    const { userIds } = req.body;
+    if (
+      !Array.isArray(userIds) ||
+      userIds.length === 0 ||
+      userIds.length > 200 ||
+      userIds.some((id) => typeof id !== "string" || !/^[a-f\d]{24}$/i.test(id))
+    ) {
+      return res.status(400).json({ message: "userIds must be a list of 1 to 200 user ids" });
+    }
+    const ids = [...new Set(userIds)];
+
+    const pending = await User.find({ _id: { $in: ids }, approvalStatus: "pending" }).select("name email");
+    if (pending.length === 0) {
+      return res.status(200).json({ message: "No pending accounts to approve", approved: 0 });
+    }
+
+    await User.updateMany({ _id: { $in: pending.map((u) => u._id) }, approvalStatus: "pending" }, { approvalStatus: "approved" });
+    await Promise.allSettled(pending.map((u) => notifyApprovalDecision(u, "approved")));
+    await recordAudit(req.user, "user.approved_bulk", `Approved ${pending.length} account${pending.length === 1 ? "" : "s"} at once`);
+
+    res.status(200).json({ message: `Approved ${pending.length} account${pending.length === 1 ? "" : "s"}`, approved: pending.length });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to approve accounts") });
+  }
+}
+
 // DELETE /api/admin/users/:id  -- cascade-deletes their events/registrations
 async function deleteUser(req, res) {
   try {
@@ -494,6 +526,7 @@ async function getAttendanceReport(req, res) {
 }
 
 module.exports = {
+  bulkApproveUsers,
   getAttendanceReport,
   checkInByCode,
   announceToRegistrants,
