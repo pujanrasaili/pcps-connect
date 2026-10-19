@@ -1,21 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaHistory } from "react-icons/fa";
 import { api, getErrorMessage } from "../../services/api";
+import { actionLabel, actionTone, actionGroup } from "../../utils/auditLabels";
+import SearchBar from "../../components/SearchBar";
+import { useDebounce } from "../../hooks/useDebounce";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 
 const PAGE_SIZE = 15;
 
-// Colour by kind of action so destructive ones stand out when scanning.
-function badgeClass(action) {
-  if (action.endsWith(".deleted") || action.endsWith(".rejected")) {
-    return "bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400";
-  }
-  if (action.endsWith(".approved")) {
-    return "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400";
-  }
-  return "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
-}
+const TONE_CLASS = {
+  danger: "bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+  good: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+  info: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+};
+
+const GROUPS = [
+  ["all", "All"],
+  ["user", "People"],
+  ["event", "Events"],
+  ["club", "Clubs"],
+];
 
 function formatWhen(iso) {
   return new Date(iso).toLocaleString("en-US", {
@@ -31,6 +36,9 @@ export default function AdminActivity() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [group, setGroup] = useState("all");
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 250);
 
   useEffect(() => {
     api
@@ -40,7 +48,16 @@ export default function AdminActivity() {
       .finally(() => setLoading(false));
   }, []);
 
-  const { page, setPage, totalPages, pageItems } = usePagination(entries, PAGE_SIZE);
+  const filtered = useMemo(() => {
+    const q = debouncedQuery.trim().toLowerCase();
+    return entries.filter(
+      (e) =>
+        (group === "all" || actionGroup(e.action) === group) &&
+        (!q || e.summary.toLowerCase().includes(q) || (e.actorName || "").toLowerCase().includes(q))
+    );
+  }, [entries, group, debouncedQuery]);
+
+  const { page, setPage, totalPages, pageItems } = usePagination(filtered, PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -49,6 +66,29 @@ export default function AdminActivity() {
         <p className="text-slate-500 dark:text-slate-400">
           Who approved, rejected, promoted or deleted what. Entries are kept for a year.
         </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="w-full sm:w-72">
+          <SearchBar value={query} onChange={setQuery} placeholder="Search by person or detail..." />
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by kind of action">
+          {GROUPS.map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setGroup(value)}
+              aria-pressed={group === value}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                group === value
+                  ? "bg-primary-500 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="card-surface p-6">
@@ -63,6 +103,8 @@ export default function AdminActivity() {
             <FaHistory className="mx-auto mb-2 text-2xl text-slate-300" />
             No admin activity recorded yet.
           </p>
+        ) : filtered.length === 0 ? (
+          <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">No activity matches your filter.</p>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {pageItems.map((entry) => (
@@ -73,8 +115,8 @@ export default function AdminActivity() {
                     by {entry.actorName} · {formatWhen(entry.createdAt)}
                   </p>
                 </div>
-                <span className={`badge shrink-0 ${badgeClass(entry.action)}`}>
-                  {entry.action.replace(".", " ").replace("_", " ")}
+                <span className={`badge shrink-0 ${TONE_CLASS[actionTone(entry.action)]}`}>
+                  {actionLabel(entry.action)}
                 </span>
               </div>
             ))}
