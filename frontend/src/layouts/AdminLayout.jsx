@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode } from "react-icons/fa";
 import Navbar from "../components/Navbar";
+import SkipLink from "../components/SkipLink";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
 import { api } from "../services/api";
@@ -50,8 +51,9 @@ export default function AdminLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
+      <SkipLink />
       <Navbar />
-      <main className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <main id="main-content" tabIndex={-1} className="flex-1 bg-slate-50 dark:bg-slate-950 outline-none">
         <div className="container-page grid gap-6 py-8 lg:grid-cols-[220px_1fr]">
           <aside className="card-surface h-fit p-4 lg:sticky lg:top-24">
             <p className="px-2 pb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
