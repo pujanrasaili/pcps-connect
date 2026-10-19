@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaTrashAlt } from "react-icons/fa";
+import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaTrashAlt, FaDownload } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import { api, getErrorMessage } from "../services/api";
+import { downloadJson } from "../utils/downloadJson";
 
 export default function Settings() {
   const { theme, toggleTheme } = useTheme();
@@ -19,6 +20,20 @@ export default function Settings() {
   const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [pwError, setPwError] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
+
+  const [exporting, setExporting] = useState(false);
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await api.get("/auth/export");
+      downloadJson("pcps-connect-my-data.json", res.data);
+      toast.success("Your data was downloaded.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Couldn't download your data"));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Deleting your own account (students only -- admins are removed by another admin).
   const [delOpen, setDelOpen] = useState(false);
@@ -165,6 +180,20 @@ export default function Settings() {
             <div>
               <p className="font-medium text-slate-800 dark:text-slate-100">Change password</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">Update the password you use to log in.</p>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex w-full items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 disabled:opacity-60"
+          >
+            <FaDownload className="text-primary-500" />
+            <div>
+              <p className="font-medium text-slate-800 dark:text-slate-100">{exporting ? "Preparing..." : "Download my data"}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                A file with your profile, registrations, ratings and club memberships.
+              </p>
             </div>
           </button>
           {user?.role !== "admin" && (
