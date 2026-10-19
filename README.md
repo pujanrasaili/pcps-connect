@@ -38,6 +38,7 @@ pcps-connect/
 - Full event directory: browse, search (by name, place or club), filter, register/unregister, live capacity tracking, and a "View events" link from each club that shows only its events
 - Club events: an event can be hosted by a club, and members of that club are emailed when it is announced (opt out in Settings)
 - Admins can email a message to all members of a club from Admin → Clubs (members who turned off club updates are skipped)
+- Admins can approve every pending sign-up at once ("Approve all" on the Pending filter, respects search) — each person is emailed and it's logged as one activity entry
 - Admin → Users can be filtered by approval status (pending / approved / rejected, with counts) and searched by student ID
 - Admin → Users can export the current (filtered) list of students as an Excel-safe CSV
 - "Share this event" button on every event page (phone share sheet, or copies the link on desktop)
@@ -49,6 +50,7 @@ pcps-connect/
 - Keyboard users get a "Skip to main content" link as the first tab stop; `robots.txt` keeps private pages (admin, dashboard, profile) out of search engines and a sitemap lists the public ones
 - Event cards show a "Registered" tag for events you've signed up for, and the Events page has a "Registered" tab listing all of them (upcoming first)
 - Dark mode is applied before first paint (no white flash on load), and the app still works in browsers that block local storage (private windows)
+- Students can download all the data the app holds about them (profile, registrations, ratings, memberships) as a JSON file from Settings
 - Students can delete their own account from Settings (password required): registrations, memberships, events they created and club-leader roles go with it; admins are removed by another admin so there's always one left
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
