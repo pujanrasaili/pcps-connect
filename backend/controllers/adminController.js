@@ -1,4 +1,5 @@
 const { notifyNewLeaders } = require("../utils/notifyNewLeaders");
+const { removeUserAndData } = require("../utils/deleteAccountData");
 const User = require("../models/User");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
@@ -163,26 +164,7 @@ async function deleteUser(req, res) {
       }
     }
 
-    // Events this user created go with them -- but other students are
-    // registered for those events. Tell them it's cancelled (this has to
-    // happen before their Registrations are deleted, it looks them up) and
-    // delete those registrations too, otherwise they're left pointing at
-    // events that no longer exist.
-    const ownedEvents = await Event.find({ createdBy: user._id });
-    for (const ownedEvent of ownedEvents) {
-      await notifyEventCancelled(ownedEvent);
-    }
-    if (ownedEvents.length > 0) {
-      const ownedIds = ownedEvents.map((e) => e._id);
-      await Registration.deleteMany({ event: { $in: ownedIds } });
-      await WaitlistEntry.deleteMany({ event: { $in: ownedIds } });
-    }
-    await Event.deleteMany({ createdBy: user._id });
-    await Registration.deleteMany({ user: user._id });
-    await WaitlistEntry.deleteMany({ user: user._id });
-    await ClubMembership.deleteMany({ user: user._id });
-    await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
-    await user.deleteOne();
+    await removeUserAndData(user);
     await recordAudit(req.user, "user.deleted", `Deleted account ${user.name} (${user.email})`);
 
     res.status(200).json({ message: "User deleted" });
