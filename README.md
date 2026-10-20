@@ -52,6 +52,8 @@ pcps-connect/
 - Dark mode is applied before first paint (no white flash on load), and the app still works in browsers that block local storage (private windows)
 - Students can download all the data the app holds about them (profile, registrations, ratings, memberships) as a JSON file from Settings
 - Students can delete their own account from Settings (password required): registrations, memberships, events they created and club-leader roles go with it; admins are removed by another admin so there's always one left
+- Event and club photos are requested from Cloudinary at the size they're shown (auto format and quality), so pages load fast on mobile data even when the uploaded photo is several MB
+- A club's details window lists its next three upcoming events, linking straight to each
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
