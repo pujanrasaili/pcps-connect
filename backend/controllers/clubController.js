@@ -2,6 +2,7 @@ const Club = require("../models/Club");
 const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
+const { pickClubFields } = require("../utils/clubFields");
 
 // GET /api/clubs  (public)
 async function getClubs(req, res) {
@@ -27,7 +28,7 @@ async function getClubById(req, res) {
 // POST /api/clubs  (requires login + admin)
 async function createClub(req, res) {
   try {
-    const club = await Club.create({ ...req.body, createdBy: req.user._id });
+    const club = await Club.create({ ...pickClubFields(req.body), createdBy: req.user._id });
     res.status(201).json({ message: "Club created", club });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to create club") });
@@ -37,7 +38,7 @@ async function createClub(req, res) {
 // PUT /api/clubs/:id  (requires login + admin)
 async function updateClub(req, res) {
   try {
-    const club = await Club.findByIdAndUpdate(req.params.id, req.body, {
+    const club = await Club.findByIdAndUpdate(req.params.id, pickClubFields(req.body), {
       new: true,
       runValidators: true,
     });
