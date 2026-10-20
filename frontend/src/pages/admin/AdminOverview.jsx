@@ -82,7 +82,7 @@ export default function AdminOverview() {
         </Link>
       )}
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 lg:grid-cols-4">
         <StatsCard icon={FaUsers} label="Total Clubs" value={clubs.length} accent="primary" />
         <StatsCard icon={FaCalendarAlt} label="Total Events" value={events.length} accent="accent" />
         <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
