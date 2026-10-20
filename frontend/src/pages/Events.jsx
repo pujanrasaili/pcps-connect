@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
 import EventCard from "../components/EventCard";
@@ -12,6 +12,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import { usePagination } from "../hooks/usePagination";
 import Pagination from "../components/Pagination";
 import { isPastEvent } from "../utils/formatDate";
+import { hasOpenSpots, readEventFilters, withEventFilters } from "../utils/eventFilters";
 
 const PAGE_SIZE = 9;
 
@@ -23,21 +24,28 @@ export default function Events() {
     () => new Set(isAuthenticated ? registrations.map((r) => r.event?._id).filter(Boolean) : []),
     [registrations, isAuthenticated]
   );
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
-  const [when, setWhen] = useState("upcoming");
-  const debouncedQuery = useDebounce(query, 250);
-
-  // /events?club=<id> (linked from the Clubs page) narrows the list to one
-  // club's events. Kept in the URL so the filtered view can be shared and the
-  // back button behaves.
+  // Every filter lives in the URL (?when=&category=&q=&open=&club=) so a
+  // filtered list can be shared and the back button behaves.
   const [searchParams, setSearchParams] = useSearchParams();
-  const clubFilter = searchParams.get("club");
+  const { when, category, openOnly, club: clubFilter, query: urlQuery } = readEventFilters(searchParams, { isAuthenticated });
+  const update = (patch) => setSearchParams((prev) => withEventFilters(prev, patch), { replace: true });
+  const setWhen = (value) => update({ when: value });
+  const setCategory = (value) => update({ category: value });
+
+  // The search box types into local state (instant) and is copied into the URL
+  // once typing pauses.
+  const [query, setQuery] = useState(urlQuery);
+  const debouncedQuery = useDebounce(query, 250);
+  useEffect(() => {
+    if (debouncedQuery !== urlQuery) update({ q: debouncedQuery });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
+
   const clubFilterName = useMemo(
     () => events.find((e) => e.club?._id === clubFilter)?.club?.name,
     [events, clubFilter]
   );
-  const clearClubFilter = () => setSearchParams({}, { replace: true });
+  const clearClubFilter = () => setSearchParams((prev) => { const n = new URLSearchParams(prev); n.delete("club"); return n; }, { replace: true });
 
   const categories = useMemo(
     () => ["All", ...new Set(events.map((e) => e.category).filter(Boolean))],
@@ -52,13 +60,14 @@ export default function Events() {
         const matchesWhen = when === "mine" ? registeredIds.has(event._id) : when === "upcoming" ? !isPast : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesClub = !clubFilter || event.club?._id === clubFilter;
+        const matchesSpots = !openOnly || hasOpenSpots(event);
         // Search the fields students actually think in: the event name, where
         // it is, and which club is hosting it.
         const needle = debouncedQuery.toLowerCase();
         const matchesQuery = [event.title, event.location, event.club?.name]
           .filter(Boolean)
           .some((field) => field.toLowerCase().includes(needle));
-        return matchesWhen && matchesCategory && matchesQuery && matchesClub;
+        return matchesWhen && matchesCategory && matchesQuery && matchesClub && matchesSpots;
       })
       .sort((a, b) => {
         const pastA = isPastEvent(a.date);
@@ -68,7 +77,7 @@ export default function Events() {
         const newestFirst = when === "past" || (when === "mine" && pastA);
         return newestFirst ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
       });
-  }, [events, debouncedQuery, category, when, clubFilter, registeredIds]);
+  }, [events, debouncedQuery, category, when, clubFilter, registeredIds, openOnly]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -115,6 +124,18 @@ export default function Events() {
             <SearchBar value={query} onChange={setQuery} placeholder="Search by name, place or club..." />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
+        </div>
+
+        <div className="mx-auto mt-4 flex max-w-4xl">
+          <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <input
+              type="checkbox"
+              checked={openOnly}
+              onChange={(e) => update({ open: e.target.checked })}
+              className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+            />
+            Only events with spots left
+          </label>
         </div>
 
         {clubFilter && (
