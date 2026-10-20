@@ -9,6 +9,7 @@ import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
+import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { clubLink } from "../src/utils/share.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
@@ -167,4 +168,35 @@ test("hasOpenSpots uses the card's default capacity of 100", () => {
   assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 9 }), true);
   assert.equal(hasOpenSpots({ registeredCount: 99 }), true);
   assert.equal(hasOpenSpots({}), true);
+});
+
+test("slow tracker flags only requests that outlive the threshold, and clears when they finish", () => {
+  let nextHandle = 0;
+  const pending = new Map();
+  const tracker = createSlowTracker({
+    thresholdMs: 4000,
+    setTimer: (fn) => { pending.set(++nextHandle, fn); return nextHandle; },
+    clearTimer: (h) => pending.delete(h),
+  });
+  let notifications = 0;
+  tracker.subscribe(() => { notifications += 1; });
+
+  tracker.start("fast");
+  tracker.end("fast"); // answered in time: timer cancelled, never slow
+  assert.equal(pending.size, 0);
+  assert.equal(tracker.isSlow(), false);
+  assert.equal(notifications, 0);
+
+  tracker.start("a");
+  tracker.start("b");
+  pending.get(2)(); // request "a" hits the threshold
+  assert.equal(tracker.isSlow(), true);
+  assert.equal(notifications, 1);
+
+  tracker.end("a"); // the slow one finishes; "b" is still under the threshold
+  assert.equal(tracker.isSlow(), false);
+  assert.equal(notifications, 2);
+  tracker.end("b");
+  tracker.end("never-started"); // harmless
+  assert.equal(notifications, 2);
 });
