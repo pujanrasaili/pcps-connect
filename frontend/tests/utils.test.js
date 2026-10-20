@@ -6,8 +6,9 @@ import { csvField, buildCsv, slugify } from "../src/utils/csv.js";
 import { pluralize } from "../src/utils/plural.js";
 import { buildIcs, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
-import { isUpcoming, isPastEvent } from "../src/utils/formatDate.js";
+import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
+import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
 test("csvField quotes values and doubles inner quotes", () => {
   assert.equal(csvField('Sita "S" Rai'), '"Sita ""S"" Rai"');
@@ -102,4 +103,36 @@ test("audit labels, tones and groups", () => {
   assert.equal(actionTone("user.approved_bulk"), "good");
   assert.equal(actionTone("club.leaders"), "info");
   assert.equal(actionGroup("club.announcement"), "club");
+});
+
+test("optimizeImageUrl adds Cloudinary resizing only where it is safe", () => {
+  const plain = "https://res.cloudinary.com/demo/image/upload/v1712345678/pcps-connect/events/a.jpg";
+  assert.equal(
+    optimizeImageUrl(plain, 800),
+    "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_800,c_limit/v1712345678/pcps-connect/events/a.jpg"
+  );
+  // no version segment, single path piece
+  assert.equal(
+    optimizeImageUrl("https://res.cloudinary.com/demo/image/upload/sample.jpg", 400),
+    "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_400,c_limit/sample.jpg"
+  );
+  // already transformed -> left alone
+  const transformed = "https://res.cloudinary.com/demo/image/upload/w_300,c_fill/v1/a.jpg";
+  assert.equal(optimizeImageUrl(transformed, 800), transformed);
+  // other hosts, missing width, empty -> unchanged
+  assert.equal(optimizeImageUrl("https://example.com/a.jpg", 800), "https://example.com/a.jpg");
+  assert.equal(optimizeImageUrl(plain), plain);
+  assert.equal(optimizeImageUrl(null, 800), null);
+  assert.equal(optimizeImageUrl("http://res.cloudinary.com/demo/image/upload/v1/a.jpg", 800), "http://res.cloudinary.com/demo/image/upload/v1/a.jpg");
+});
+
+test("relativeDay labels the next week by calendar day, local time", () => {
+  const now = new Date(2026, 9, 20, 23, 30); // 20 Oct, 11:30pm local
+  const at = (y, m, d, h = 9) => new Date(y, m, d, h).toISOString();
+  assert.equal(relativeDay(at(2026, 9, 20, 23), now), "Today");
+  assert.equal(relativeDay(at(2026, 9, 21), now), "Tomorrow"); // 9am tomorrow, even though it's 11:30pm now
+  assert.equal(relativeDay(at(2026, 9, 24), now), "In 4 days");
+  assert.equal(relativeDay(at(2026, 9, 27), now), "In 7 days");
+  assert.equal(relativeDay(at(2026, 9, 28), now), null); // beyond a week: just show the date
+  assert.equal(relativeDay(at(2026, 9, 19), now), null); // past
 });
