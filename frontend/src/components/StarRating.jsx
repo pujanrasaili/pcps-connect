@@ -3,7 +3,7 @@ import { FaStar, FaRegStar } from "react-icons/fa";
 // Read-only row of stars for showing an existing rating.
 export function Stars({ value, className = "" }) {
   return (
-    <span className={`inline-flex items-center gap-0.5 text-amber-400 ${className}`} aria-label={`${value} out of 5 stars`}>
+    <span role="img" className={`inline-flex items-center gap-0.5 text-amber-400 ${className}`} aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((n) => (n <= value ? <FaStar key={n} /> : <FaRegStar key={n} className="text-slate-300 dark:text-slate-600" />))}
     </span>
   );
