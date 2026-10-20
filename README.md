@@ -54,6 +54,7 @@ pcps-connect/
 - Students can delete their own account from Settings (password required): registrations, memberships, events they created and club-leader roles go with it; admins are removed by another admin so there's always one left
 - Event and club photos are requested from Cloudinary at the size they're shown (auto format and quality), so pages load fast on mobile data even when the uploaded photo is several MB
 - A club's details window lists its next three upcoming events, linking straight to each
+- The student dashboard marks events happening within a week as "Today", "Tomorrow" or "In N days"
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
