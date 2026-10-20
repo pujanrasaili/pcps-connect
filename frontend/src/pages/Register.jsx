@@ -134,7 +134,7 @@ export default function Register() {
             {errors.studentId && <p className="mt-1 text-xs text-rose-500">{errors.studentId}</p>}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
               <div className="relative">

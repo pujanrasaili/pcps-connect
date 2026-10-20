@@ -10,7 +10,7 @@ export default function MainLayout() {
       <ScrollToTop />
       <SkipLink />
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 overflow-x-clip outline-none">
         <Outlet />
       </main>
       <Footer />

@@ -274,7 +274,7 @@ export default function AdminEvents() {
             <label className="label-field">Description</label>
             <textarea name="description" rows={3} className="input-field resize-none" value={form.description} onChange={handleChange} required />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field">Date &amp; time</label>
               <input name="date" type="datetime-local" className="input-field" value={form.date} onChange={handleChange} required />
@@ -284,7 +284,7 @@ export default function AdminEvents() {
               <input name="location" className="input-field" value={form.location} onChange={handleChange} required />
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="label-field">Capacity</label>
               <input name="capacity" type="number" min="1" className="input-field" value={form.capacity} onChange={handleChange} required />
