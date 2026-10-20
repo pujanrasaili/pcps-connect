@@ -123,7 +123,7 @@ export default function Profile() {
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {memberships.map((m) => (
               <div key={m._id} className="flex items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-3">
-                <img src={resolveUploadUrl(m.club?.image)} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                <img src={resolveUploadUrl(m.club?.image, 120)} alt="" className="h-12 w-12 rounded-lg object-cover" />
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1.5 truncate font-medium text-slate-800 dark:text-slate-100">
                     {m.club?.name}

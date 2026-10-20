@@ -85,7 +85,7 @@ export default function AdminOverview() {
 
       <AttendanceReportCard report={report} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card-surface p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">Coming Up</h2>

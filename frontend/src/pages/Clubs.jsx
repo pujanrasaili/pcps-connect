@@ -89,7 +89,7 @@ export default function Clubs() {
           </div>
         ) : filteredClubs.length > 0 ? (
           <>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pagedClubs.map((club, i) => (
                 <Reveal key={club._id} delay={(i % 6) * 80}>
                   <ClubCard club={club} onView={setSelectedClub} />
