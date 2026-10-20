@@ -7,6 +7,8 @@ import FilterButtons from "../components/FilterButtons";
 import Modal from "../components/Modal";
 import Reveal from "../components/Reveal";
 import { useClubs } from "../context/ClubsContext";
+import { useEvents } from "../context/EventsContext";
+import { formatDate, isUpcoming } from "../utils/formatDate";
 import { useDebounce } from "../hooks/useDebounce";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useRequireAuth } from "../hooks/useRequireAuth";
@@ -21,6 +23,17 @@ export default function Clubs() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
   const [selectedClub, setSelectedClub] = useState(null);
+  const { events } = useEvents();
+  // The next few events this club is hosting, shown in its details window.
+  const clubEvents = useMemo(
+    () =>
+      selectedClub
+        ? events
+            .filter((e) => (e.club?._id || e.club) === selectedClub._id && isUpcoming(e.date))
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+        : [],
+    [events, selectedClub]
+  );
   const debouncedQuery = useDebounce(query, 250);
   const { isJoined, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
   const requireAuth = useRequireAuth();
@@ -96,7 +109,7 @@ export default function Clubs() {
       <Modal isOpen={!!selectedClub} onClose={() => setSelectedClub(null)} title={selectedClub?.name} size="lg">
         {selectedClub && (
           <div>
-            <img src={resolveUploadUrl(selectedClub.image)} alt="" className="mb-4 h-48 w-full rounded-xl object-cover" />
+            <img src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-48 w-full rounded-xl object-cover" />
             <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
               {selectedClub.foundedYear && (
                 <span className="flex items-center gap-1.5">
@@ -128,11 +141,31 @@ export default function Clubs() {
               </>
             )}
 
+            {clubEvents.length > 0 && (
+              <>
+                <h4 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">Upcoming events</h4>
+                <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
+                  {clubEvents.slice(0, 3).map((e) => (
+                    <li key={e._id}>
+                      <Link
+                        to={`/events/${e._id}`}
+                        className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                      >
+                        <span className="min-w-0 truncate font-medium text-slate-700 dark:text-slate-200">{e.title}</span>
+                        <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{formatDate(e.date)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
             <Link
               to={`/events?club=${selectedClub._id}`}
               className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-400"
             >
-              View events from this club <FaArrowRight className="text-xs" />
+              {clubEvents.length > 3 ? `See all ${clubEvents.length} upcoming events` : "View events from this club"}{" "}
+              <FaArrowRight className="text-xs" />
             </Link>
 
             <div className="mt-5 flex items-center justify-between gap-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4">
