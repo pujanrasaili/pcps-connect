@@ -15,7 +15,7 @@ export function useRequireAuth() {
     if (isAuthenticated) {
       action();
     } else {
-      navigate("/login", { state: { from: location.pathname } });
+      navigate("/login", { state: { from: location.pathname + location.search } });
     }
   };
 }
