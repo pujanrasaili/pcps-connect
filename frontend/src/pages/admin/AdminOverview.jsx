@@ -13,6 +13,7 @@ import { useClubs } from "../../context/ClubsContext";
 import { useEvents } from "../../context/EventsContext";
 import { api, getErrorMessage } from "../../services/api";
 import AttendanceReportCard from "../../components/AttendanceReportCard";
+import InsightsCard from "../../components/InsightsCard";
 import { formatDate, isUpcoming } from "../../utils/formatDate";
 
 export default function AdminOverview() {
@@ -21,6 +22,7 @@ export default function AdminOverview() {
   const [users, setUsers] = useState(null);
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
+  const [insights, setInsights] = useState(null);
 
   useEffect(() => {
     api
@@ -32,6 +34,10 @@ export default function AdminOverview() {
       .get("/admin/attendance-report")
       .then((res) => setReport(res.data))
       .catch(() => setReport(null));
+    api
+      .get("/admin/insights")
+      .then((res) => setInsights(res.data))
+      .catch(() => setInsights(null));
   }, []);
 
   const totalRegistrations = events.reduce((sum, e) => sum + (e.registeredCount || 0), 0);
@@ -82,6 +88,8 @@ export default function AdminOverview() {
         <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
         <StatsCard icon={FaClipboardList} label="Total Event Registrations" value={totalRegistrations} accent="amber" />
       </div>
+
+      <InsightsCard insights={insights} />
 
       <AttendanceReportCard report={report} />
 
