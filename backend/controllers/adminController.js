@@ -22,6 +22,7 @@ const { escapeHtml } = require("../utils/escapeHtml");
 const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
+const { pickAdminUserFields } = require("../utils/adminUserFields");
 
 // Best-effort, same pattern as every other email in this app -- a failed
 // send is logged and swallowed, never allowed to turn a successful approval
@@ -83,7 +84,7 @@ async function getUserEvents(req, res) {
   }
 }
 
-// PUT /api/admin/users/:id  (password field is ignored even if sent)
+// PUT /api/admin/users/:id  (only role, approval status and plain profile fields are accepted -- see utils/adminUserFields.js)
 //
 // Two safety nets here that the frontend already enforces via disabled
 // buttons, but the UI alone isn't a security boundary -- a direct API call
@@ -96,7 +97,7 @@ async function getUserEvents(req, res) {
 //      way to promote anyone back short of editing the database directly.
 async function updateUser(req, res) {
   try {
-    const { password, ...safeUpdates } = req.body;
+    const safeUpdates = pickAdminUserFields(req.body);
     const targetId = req.params.id;
 
     if (targetId === req.user._id.toString() && ("role" in safeUpdates || "approvalStatus" in safeUpdates)) {

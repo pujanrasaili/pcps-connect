@@ -81,6 +81,19 @@ describe("updateUser -- admin safety guards", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
+  it("ignores fields an admin should not set (verification, email, token fields, password)", async () => {
+    User.findByIdAndUpdate.mockResolvedValue({ _id: OTHER_ADMIN_ID, name: "Sita" });
+    const req = {
+      params: { id: OTHER_ADMIN_ID },
+      user: { _id: { toString: () => ADMIN_ID } },
+      body: { name: "Sita", phone: "98", emailVerified: true, email: "x@y.com", password: "hash", passwordChangedAt: null, eventReminders: false },
+    };
+    const res = mockRes();
+    await updateUser(req, res);
+    expect(User.findByIdAndUpdate).toHaveBeenCalledWith(OTHER_ADMIN_ID, { name: "Sita", phone: "98" }, expect.any(Object));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
   it("blocks demoting the last remaining admin", async () => {
     User.findById.mockResolvedValue({ role: "admin" });
     User.countDocuments.mockResolvedValue(1);
