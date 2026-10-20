@@ -10,6 +10,7 @@
     "seed": "node seed.js",
     "backfill": "node scripts/backfillVerification.js",
     "reminders": "node scripts/sendEventReminders.js",
+    "digest": "node scripts/sendWeeklyDigest.js",
     "test": "jest"
   },
   "dependencies": {
