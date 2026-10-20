@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import SkipLink from "../components/SkipLink";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
+import SlowServerNotice from "../components/SlowServerNotice";
 
 export default function MainLayout() {
   return (
@@ -10,6 +11,7 @@ export default function MainLayout() {
       <ScrollToTop />
       <SkipLink />
       <Navbar />
+      <SlowServerNotice />
       <main id="main-content" tabIndex={-1} className="flex-1 overflow-x-clip outline-none">
         <Outlet />
       </main>
