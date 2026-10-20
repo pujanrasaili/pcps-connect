@@ -51,13 +51,13 @@ export default function Privacy() {
             Profile page, and download a copy of your data from the Settings page. You can leave a club or unregister from an event
             whenever you like. To delete your account entirely, use
             &ldquo;Delete account&rdquo; on your{" "}
-            <Link to="/settings" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
+            <Link to="/settings" className="text-primary-600 dark:text-primary-300 underline underline-offset-2">
               Settings page
             </Link>
             . It removes your registrations, club memberships and profile
             straight away. Administrator accounts are removed by another
             administrator &mdash; ask via the{" "}
-            <Link to="/contact" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
+            <Link to="/contact" className="text-primary-600 dark:text-primary-300 underline underline-offset-2">
               Contact page
             </Link>
             .
@@ -79,7 +79,7 @@ export default function Privacy() {
 
           <Section title="8. Contact">
             Questions about your data? Reach out via the{" "}
-            <Link to="/contact" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
+            <Link to="/contact" className="text-primary-600 dark:text-primary-300 underline underline-offset-2">
               Contact page
             </Link>
             .

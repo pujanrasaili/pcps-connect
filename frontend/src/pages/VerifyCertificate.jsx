@@ -64,7 +64,7 @@ export default function VerifyCertificate() {
 
           {state.status === "error" && <p className="py-10 text-rose-500">{state.message}</p>}
 
-          <Link to="/" className="mt-6 inline-block text-sm font-semibold text-primary-600 hover:underline dark:text-primary-400">
+          <Link to="/" className="mt-6 inline-block text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
             Go to PCPS Connect
           </Link>
         </div>

@@ -127,7 +127,7 @@ export default function Dashboard() {
               You lead <strong>{ledClubs.map((c) => c.name).join(", ")}</strong>. Create events, see registrations and check students in.
             </p>
           </div>
-          <Link to="/admin/events" className="shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-400">
+          <Link to="/admin/events" className="shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-300">
             Manage events <FaArrowRight className="inline text-xs" />
           </Link>
         </div>
@@ -146,18 +146,18 @@ export default function Dashboard() {
               <li key={r._id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-slate-700 dark:text-slate-200">{r.event.title}</p>
-                  <p className="text-xs text-slate-400">{formatDate(r.event.date)}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
                 </div>
                 <span className="flex shrink-0 items-center gap-3">
                   <Link
                     to={`/certificate/${r._id}`}
                     aria-label={`Certificate for ${r.event.title}`}
                     title="Attendance certificate"
-                    className="text-slate-400 transition-colors hover:text-primary-500"
+                    className="text-slate-500 dark:text-slate-400 transition-colors hover:text-primary-500"
                   >
                     <FaCertificate />
                   </Link>
-                  <Link to="/profile" className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                  <Link to="/profile" className="text-xs font-semibold text-primary-600 dark:text-primary-300">
                     Rate
                   </Link>
                 </span>
@@ -165,7 +165,7 @@ export default function Dashboard() {
             ))}
           </ul>
           {needsRating.length > 3 && (
-            <Link to="/profile" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/profile" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
               +{needsRating.length - 3} more in your profile
             </Link>
           )}
@@ -189,12 +189,12 @@ export default function Dashboard() {
                   >
                     <div className="min-w-0">
                       <p className="truncate text-slate-700 dark:text-slate-200">{e.title}</p>
-                      <p className="truncate text-xs text-slate-400">
+                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">
                         {e.club?.name ? `${e.club.name} · ` : ""}
                         {formatDate(e.date)}
                       </p>
                     </div>
-                    <span className={`badge shrink-0 ${full ? "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" : "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"}`}>
+                    <span className={`badge shrink-0 ${full ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"}`}>
                       {full ? "Full · join waitlist" : "Open"}
                     </span>
                   </Link>
@@ -203,7 +203,7 @@ export default function Dashboard() {
             })}
           </ul>
           {fromMyClubs.length > 3 && (
-            <Link to="/events" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/events" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
               +{fromMyClubs.length - 3} more on the Events page
             </Link>
           )}
@@ -263,7 +263,7 @@ export default function Dashboard() {
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
             Upcoming Registrations
           </h2>
-          <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-400">
+          <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300">
             Find more events <FaArrowRight className="text-xs" />
           </Link>
         </div>
@@ -281,7 +281,7 @@ export default function Dashboard() {
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       {relativeDay(r.event.date) && (
-                        <span className="font-semibold text-accent-500">{relativeDay(r.event.date)} · </span>
+                        <span className="font-semibold text-accent-600 dark:text-accent-300">{relativeDay(r.event.date)} · </span>
                       )}
                       {formatDate(r.event.date)}
                     </p>
@@ -294,7 +294,7 @@ export default function Dashboard() {
                   onClick={() => handleUnregister(r.event._id)}
                   aria-label={`Unregister from ${r.event.title}`}
                   title="Unregister"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-sm" />
                 </button>
@@ -313,7 +313,7 @@ export default function Dashboard() {
 
 function EmptyChart() {
   return (
-    <div className="flex h-full items-center justify-center text-sm text-slate-400">
+    <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
       No data yet — register for an event to see your stats.
     </div>
   );

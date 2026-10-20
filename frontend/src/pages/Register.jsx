@@ -79,7 +79,7 @@ export default function Register() {
           <div>
             <label htmlFor="reg-name" className="label-field">Full name</label>
             <div className="relative">
-              <FaUser className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <FaUser className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
                 id="reg-name"
                 name="name"
@@ -97,7 +97,7 @@ export default function Register() {
           <div>
             <label htmlFor="reg-email" className="label-field">Email address</label>
             <div className="relative">
-              <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
                 id="reg-email"
                 name="email"
@@ -112,14 +112,14 @@ export default function Register() {
             {errors.email ? (
               <p className="mt-1 text-xs text-rose-500">{errors.email}</p>
             ) : (
-              <p className="mt-1 text-xs text-slate-400">Must be a PCPS email address (@patancollege.edu.np)</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Must be a PCPS email address (@patancollege.edu.np)</p>
             )}
           </div>
 
           <div>
             <label htmlFor="reg-id" className="label-field">Student ID</label>
             <div className="relative">
-              <FaIdCard className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <FaIdCard className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
                 id="reg-id"
                 name="studentId"
@@ -138,7 +138,7 @@ export default function Register() {
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
               <div className="relative">
-                <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                 <input
                   id="reg-password"
                   name="password"
@@ -155,7 +155,7 @@ export default function Register() {
             <div>
               <label htmlFor="reg-confirm" className="label-field">Confirm</label>
               <div className="relative">
-                <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                 <input
                   id="reg-confirm"
                   name="confirmPassword"
@@ -180,11 +180,11 @@ export default function Register() {
               className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
             />
             I agree to the PCPS Connect{" "}
-            <Link to="/terms" target="_blank" className="font-medium text-primary-600 dark:text-primary-400 underline underline-offset-2">
+            <Link to="/terms" target="_blank" className="font-medium text-primary-600 dark:text-primary-300 underline underline-offset-2">
               terms of use
             </Link>{" "}
             and{" "}
-            <Link to="/privacy" target="_blank" className="font-medium text-primary-600 dark:text-primary-400 underline underline-offset-2">
+            <Link to="/privacy" target="_blank" className="font-medium text-primary-600 dark:text-primary-300 underline underline-offset-2">
               privacy policy
             </Link>
             .
@@ -197,7 +197,7 @@ export default function Register() {
 
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
             Already have an account?{" "}
-            <Link to="/login" className="font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/login" className="font-semibold text-primary-600 dark:text-primary-300">
               Log in
             </Link>
           </p>

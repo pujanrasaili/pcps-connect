@@ -77,7 +77,7 @@ export default function Navbar() {
 
   const linkClass = ({ isActive }) =>
     `text-sm font-medium transition-colors hover:text-primary-500 ${
-      isActive ? "text-primary-600 dark:text-primary-400" : "text-slate-600 dark:text-slate-300"
+      isActive ? "text-primary-600 dark:text-primary-300" : "text-slate-600 dark:text-slate-300"
     }`;
 
   return (
@@ -105,7 +105,7 @@ export default function Navbar() {
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
@@ -170,7 +170,7 @@ export default function Navbar() {
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
-            className="rounded-full p-2 text-slate-500"
+            className="rounded-full p-2 text-slate-500 dark:text-slate-400"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>

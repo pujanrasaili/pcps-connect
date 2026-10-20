@@ -84,7 +84,7 @@ export default function Login() {
           <div>
             <label htmlFor="login-email" className="label-field">Email address</label>
             <div className="relative">
-              <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
                 id="login-email"
                 name="email"
@@ -102,12 +102,12 @@ export default function Login() {
           <div>
             <div className="flex items-center justify-between">
               <label htmlFor="login-password" className="label-field">Password</label>
-              <Link to="/forgot-password" className="text-xs font-medium text-primary-600 dark:text-primary-400">
+              <Link to="/forgot-password" className="text-xs font-medium text-primary-600 dark:text-primary-300">
                 Forgot password?
               </Link>
             </div>
             <div className="relative">
-              <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
                 id="login-password"
                 name="password"
@@ -122,7 +122,7 @@ export default function Login() {
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
@@ -150,7 +150,7 @@ export default function Login() {
 
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
             Don't have an account?{" "}
-            <Link to="/register" className="font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/register" className="font-semibold text-primary-600 dark:text-primary-300">
               Sign up
             </Link>
           </p>

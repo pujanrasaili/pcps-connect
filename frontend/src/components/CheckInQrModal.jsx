@@ -45,7 +45,7 @@ export default function CheckInQrModal({ registration, onClose }) {
             <QRCodeSVG value={url} size={208} level="M" />
           </div>
         )}
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Show this to an organiser at the door. It's personal to you, so don't share a screenshot of it.
         </p>
       </div>

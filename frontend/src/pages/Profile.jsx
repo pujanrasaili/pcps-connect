@@ -137,7 +137,7 @@ export default function Profile() {
                   onClick={() => handleLeaveClub(m.club._id)}
                   aria-label={`Leave ${m.club?.name}`}
                   title="Leave club"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-sm" />
                 </button>
@@ -161,10 +161,10 @@ export default function Profile() {
               const isPast = isPastEvent(r.event.date);
               const label = r.attended ? "Attended" : isPast ? "Past" : "Upcoming";
               const badgeClass = r.attended
-                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                 : isPast
-                ? "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                : "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
+                ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
               return (
                 <div key={r._id} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
@@ -179,7 +179,7 @@ export default function Profile() {
                         to={`/certificate/${r._id}`}
                         aria-label={`Certificate for ${r.event.title}`}
                         title="Attendance certificate"
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
                       >
                         <FaCertificate className="text-sm" />
                       </Link>
@@ -187,7 +187,7 @@ export default function Profile() {
                     {r.attended && (
                       <button
                         onClick={() => openRate(r)}
-                        className="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20"
+                        className="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/20"
                       >
                         {r.rating ? "Edit rating" : "Rate"}
                       </button>
@@ -197,7 +197,7 @@ export default function Profile() {
                         onClick={() => setQrTarget(r)}
                         aria-label={`Check-in QR for ${r.event.title}`}
                         title="Check-in QR"
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
                       >
                         <FaQrcode className="text-sm" />
                       </button>
@@ -207,7 +207,7 @@ export default function Profile() {
                         onClick={() => handleUnregister(r.event._id)}
                         aria-label={`Unregister from ${r.event.title}`}
                         title="Unregister"
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                       >
                         <FaTimes className="text-sm" />
                       </button>
@@ -239,7 +239,7 @@ export default function Profile() {
               onChange={(e) => setCommentDraft(e.target.value)}
               placeholder="What went well? What could be better?"
             />
-            <p className="mt-1 text-right text-xs text-slate-400">{commentDraft.length}/500</p>
+            <p className="mt-1 text-right text-xs text-slate-500 dark:text-slate-400">{commentDraft.length}/500</p>
           </div>
           <Button type="submit" className="w-full" disabled={ratingSaving}>
             {ratingSaving ? "Saving..." : "Submit feedback"}

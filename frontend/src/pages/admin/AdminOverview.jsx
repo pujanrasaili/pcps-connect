@@ -53,7 +53,7 @@ export default function AdminOverview() {
       </div>
 
       {error && (
-        <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
+        <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
           {error}
         </p>
       )}
@@ -72,7 +72,7 @@ export default function AdminOverview() {
             {pendingUsers.length} {pendingUsers.length === 1 ? "student is" : "students are"} waiting
             for approval
           </p>
-          <FaArrowRight className="shrink-0 text-xs text-amber-600 dark:text-amber-400" />
+          <FaArrowRight className="shrink-0 text-xs text-amber-700 dark:text-amber-400" />
         </Link>
       )}
 
@@ -89,7 +89,7 @@ export default function AdminOverview() {
         <div className="card-surface p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">Coming Up</h2>
-            <Link to="/admin/events" className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/admin/events" className="text-xs font-semibold text-primary-600 dark:text-primary-300">
               View all
             </Link>
           </div>

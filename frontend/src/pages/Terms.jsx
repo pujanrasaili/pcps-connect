@@ -58,7 +58,7 @@ export default function Terms() {
 
           <Section title="8. Contact">
             Questions about these terms? Reach out via the{" "}
-            <Link to="/contact" className="text-primary-600 dark:text-primary-400 underline underline-offset-2">
+            <Link to="/contact" className="text-primary-600 dark:text-primary-300 underline underline-offset-2">
               Contact page
             </Link>
             .

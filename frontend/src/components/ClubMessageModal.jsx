@@ -44,7 +44,7 @@ export default function ClubMessageModal({ club, onClose }) {
           placeholder="e.g. This week's meeting is moved to Friday, 3 PM, Room B2."
         />
         <div className="flex items-center justify-between gap-3">
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-500 dark:text-slate-400">
             {message.length}/1000 · sent by email, can't be undone. Members who turned off club updates are skipped.
           </span>
           <Button type="submit" disabled={sending || !message.trim()}>

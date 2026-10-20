@@ -33,7 +33,7 @@ export default function EventCard({ event }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent" />
         <div className="absolute left-3 top-3 flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-white dark:bg-slate-900 shadow-md">
-          <span className="text-xs font-bold text-accent-500">
+          <span className="text-xs font-bold text-accent-600 dark:text-accent-300">
             {formatMonth(event.date)}
           </span>
           <span className="text-lg font-bold leading-none text-slate-800 dark:text-slate-100">
@@ -80,11 +80,11 @@ export default function EventCard({ event }) {
         )}
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">
+            <span className="text-sm font-semibold text-primary-600 dark:text-primary-300">
               {event.price || "Free"}
             </span>
             {registered && (
-              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                 <FaCheckCircle /> Registered
               </span>
             )}

@@ -126,13 +126,13 @@ export default function AttendeesModal({ event, onClose }) {
             <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => setComposing((v) => !v)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-400 dark:hover:bg-primary-900/50"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50"
             >
               <FaEnvelope /> Message everyone
             </button>
             <button
               onClick={() => downloadAttendanceCsv(event, registrations)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
             >
               <FaFileCsv /> Export CSV
             </button>
@@ -154,7 +154,7 @@ export default function AttendeesModal({ event, onClose }) {
                 placeholder="e.g. The session has moved to Room B2. Please bring your laptop."
               />
               <div className="mt-2 flex items-center justify-between gap-3">
-                <span className="text-xs text-slate-400">{message.length}/1000 · sent by email, can't be undone</span>
+                <span className="text-xs text-slate-500 dark:text-slate-400">{message.length}/1000 · sent by email, can't be undone</span>
                 <button
                   type="submit"
                   disabled={sending || !message.trim()}
@@ -169,7 +169,7 @@ export default function AttendeesModal({ event, onClose }) {
             <p className="mb-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <Stars value={Math.round(averageRating)} />
               <span className="font-semibold">{averageRating.toFixed(1)}</span>
-              <span className="text-slate-400">from {rated.length} rating{rated.length > 1 ? "s" : ""}</span>
+              <span className="text-slate-500 dark:text-slate-400">from {rated.length} rating{rated.length > 1 ? "s" : ""}</span>
             </p>
           )}
           {registrations.length > 8 && (
@@ -222,8 +222,8 @@ export default function AttendeesModal({ event, onClose }) {
                 <span
                   className={`badge shrink-0 ${
                     r.attended
-                      ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                   }`}
                 >
                   {r.attended ? "Attended" : "Not yet"}
@@ -239,7 +239,7 @@ export default function AttendeesModal({ event, onClose }) {
               <ol className="mt-2 max-h-40 space-y-1 overflow-y-auto text-sm text-slate-700 dark:text-slate-300">
                 {waitlist.map((w, i) => (
                   <li key={w._id} className="flex gap-2">
-                    <span className="w-5 shrink-0 text-right text-slate-400">{i + 1}.</span>
+                    <span className="w-5 shrink-0 text-right text-slate-500 dark:text-slate-400">{i + 1}.</span>
                     <span className="min-w-0 truncate">
                       {w.user?.name || "Unknown student"}
                       <span className="text-xs text-slate-500 dark:text-slate-400">

@@ -10,9 +10,9 @@ import { usePagination } from "../../hooks/usePagination";
 const PAGE_SIZE = 15;
 
 const TONE_CLASS = {
-  danger: "bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
-  good: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
-  info: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  danger: "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
+  good: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  info: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
 };
 
 const GROUPS = [

@@ -123,7 +123,7 @@ export default function Settings() {
       </div>
 
       {saved && (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
           <FaCheckCircle /> Preferences saved.
         </div>
       )}
@@ -204,7 +204,7 @@ export default function Settings() {
             >
               <FaTrashAlt className="text-rose-500" />
               <div>
-                <p className="font-medium text-rose-600 dark:text-rose-400">Delete account</p>
+                <p className="font-medium text-rose-700 dark:text-rose-400">Delete account</p>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Permanently remove your account, registrations and club memberships.
                 </p>
@@ -221,7 +221,7 @@ export default function Settings() {
             your club memberships. It can't be undone.
           </p>
           {delError && (
-            <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-600 dark:bg-rose-900/20 dark:text-rose-400">
+            <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-400">
               {delError}
             </p>
           )}
@@ -250,7 +250,7 @@ export default function Settings() {
       <Modal isOpen={pwOpen} onClose={closePwModal} title="Change password" size="sm">
         <form onSubmit={handlePwSubmit} className="space-y-4">
           {pwError && (
-            <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
+            <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
               {pwError}
             </p>
           )}

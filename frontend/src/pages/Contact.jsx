@@ -46,7 +46,7 @@ export default function Contact() {
     <div className="section-y">
       <div className="container-page">
         <div className="text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-primary-500">
+          <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
             We'd Love to Hear from You
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
@@ -73,7 +73,7 @@ export default function Contact() {
                 href="https://maps.app.goo.gl/KVubJE1PGXbJNMv56"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block border-t border-slate-100 dark:border-slate-800 px-4 py-3 text-center text-sm font-semibold text-primary-600 dark:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                className="block border-t border-slate-100 dark:border-slate-800 px-4 py-3 text-center text-sm font-semibold text-primary-600 dark:text-primary-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
                 Get directions on Google Maps
               </a>
@@ -82,12 +82,12 @@ export default function Contact() {
 
           <div className="card-surface p-6 sm:p-8">
             {sent && (
-              <div className="mb-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <div className="mb-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 <FaCheckCircle /> Message sent — we'll get back to you soon.
               </div>
             )}
             {serverError && (
-              <p className="mb-5 rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
+              <p className="mb-5 rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
                 {serverError}
               </p>
             )}

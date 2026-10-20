@@ -258,7 +258,7 @@ export default function AdminClubs() {
                     onClick={() => openMessage(club)}
                     aria-label={`Message members of ${club.name}`}
                     title="Message members"
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
                   >
                     <FaEnvelope />
                   </button>
@@ -266,21 +266,21 @@ export default function AdminClubs() {
                     onClick={() => openLeaders(club)}
                     aria-label={`Manage leaders of ${club.name}`}
                     title="Club leaders"
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20"
                   >
                     <FaUserTie />
                   </button>
                   <button
                     onClick={() => openEdit(club)}
                     aria-label={`Edit ${club.name}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => setDeleteTarget(club)}
                     aria-label={`Delete ${club.name}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                   >
                     <FaTrash />
                   </button>
@@ -377,7 +377,7 @@ export default function AdminClubs() {
             placeholder="e.g. This week's meeting is moved to Friday, 3 PM, Room B2."
           />
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
               {message.length}/1000 · sent by email, can't be undone. Members who turned off club updates are skipped.
             </span>
             <Button type="submit" disabled={sending || !message.trim()}>

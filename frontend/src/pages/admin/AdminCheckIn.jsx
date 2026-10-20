@@ -84,7 +84,7 @@ export default function AdminCheckIn() {
           </p>
           <p
             className={`mt-3 text-sm font-semibold ${
-              result.alreadyCheckedIn ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"
+              result.alreadyCheckedIn ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
             }`}
           >
             {result.alreadyCheckedIn ? "Already checked in earlier" : "Checked in"}
