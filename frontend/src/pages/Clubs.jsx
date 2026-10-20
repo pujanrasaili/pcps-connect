@@ -22,15 +22,19 @@ const PAGE_SIZE = 9;
 
 export default function Clubs() {
   const { clubs, loading, error } = useClubs();
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
   const [params, setParams] = useSearchParams();
   const toast = useToast();
   // The open club lives in the URL (?club=<id>) so a club can be linked to and
   // shared, and the browser's Back button closes the window.
   const clubId = params.get("club");
   const selectedClub = useMemo(() => clubs.find((c) => c._id === clubId) || null, [clubs, clubId]);
-  const setSelectedClub = (club) => setParams(club ? { club: club._id } : {});
+  const setSelectedClub = (club) =>
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (club) next.set("club", club._id);
+      else next.delete("club");
+      return next;
+    });
 
   useEffect(() => {
     if (!selectedClub) return;
@@ -60,7 +64,36 @@ export default function Clubs() {
         : [],
     [events, selectedClub]
   );
+  // Search and category live in the URL too (?q=&category=) so a filtered list
+  // can be shared. The club window (?club=) is kept when they change.
+  const category = params.get("category") || "All";
+  const urlQuery = params.get("q") || "";
+  const setFilter = (key, value, fallback = "") =>
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (!value || value === fallback) next.delete(key);
+        else next.set(key, value);
+        return next;
+      },
+      { replace: true }
+    );
+  const setCategory = (value) => setFilter("category", value, "All");
+  const [query, setQuery] = useState(urlQuery);
   const debouncedQuery = useDebounce(query, 250);
+  useEffect(() => {
+    if (debouncedQuery !== urlQuery) setFilter("q", debouncedQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
+  const clearFilters = () => {
+    setQuery("");
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("q");
+      next.delete("category");
+      return next;
+    }, { replace: true });
+  };
   const { isJoined, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
   const requireAuth = useRequireAuth();
 
@@ -72,9 +105,10 @@ export default function Clubs() {
   const filteredClubs = useMemo(() => {
     return clubs.filter((club) => {
       const matchesCategory = category === "All" || club.category === category;
-      const matchesQuery = club.name
-        .toLowerCase()
-        .includes(debouncedQuery.toLowerCase());
+      const needle = debouncedQuery.toLowerCase();
+      const matchesQuery = [club.name, club.category, club.description]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(needle));
       return matchesCategory && matchesQuery;
     });
   }, [clubs, debouncedQuery, category]);
@@ -99,7 +133,7 @@ export default function Clubs() {
 
         <div className="mx-auto mt-8 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
-            <SearchBar value={query} onChange={setQuery} placeholder="Search clubs..." />
+            <SearchBar value={query} onChange={setQuery} placeholder="Search by name, topic or category..." />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
@@ -128,6 +162,11 @@ export default function Clubs() {
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
             <p className="text-lg font-medium">No clubs match your search.</p>
             <p className="mt-1 text-sm">Try a different name or category.</p>
+            {(query || category !== "All") && (
+              <button onClick={clearFilters} className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
+                Clear filters
+              </button>
+            )}
           </div>
         )}
       </div>
