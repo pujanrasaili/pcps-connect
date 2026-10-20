@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight } from "react-icons/fa";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -15,6 +15,8 @@ import { useRequireAuth } from "../hooks/useRequireAuth";
 import { resolveUploadUrl } from "../services/api";
 import { usePagination } from "../hooks/usePagination";
 import Pagination from "../components/Pagination";
+import { useToast } from "../context/ToastContext";
+import { shareClub } from "../utils/share";
 
 const PAGE_SIZE = 9;
 
@@ -22,7 +24,31 @@ export default function Clubs() {
   const { clubs, loading, error } = useClubs();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const [selectedClub, setSelectedClub] = useState(null);
+  const [params, setParams] = useSearchParams();
+  const toast = useToast();
+  // The open club lives in the URL (?club=<id>) so a club can be linked to and
+  // shared, and the browser's Back button closes the window.
+  const clubId = params.get("club");
+  const selectedClub = useMemo(() => clubs.find((c) => c._id === clubId) || null, [clubs, clubId]);
+  const setSelectedClub = (club) => setParams(club ? { club: club._id } : {});
+
+  useEffect(() => {
+    if (!selectedClub) return;
+    const previous = document.title;
+    document.title = `${selectedClub.name} | PCPS Connect`;
+    return () => {
+      document.title = previous.startsWith(selectedClub.name) ? "Clubs | PCPS Connect" : previous;
+    };
+  }, [selectedClub]);
+
+  const handleShare = async () => {
+    try {
+      const result = await shareClub(selectedClub);
+      if (result === "copied") toast.success("Link copied to clipboard.");
+    } catch {
+      toast.error("Couldn't share this club. Copy the link from your address bar instead.");
+    }
+  };
   const { events } = useEvents();
   // The next few events this club is hosting, shown in its details window.
   const clubEvents = useMemo(
@@ -180,6 +206,13 @@ export default function Clubs() {
                 )}
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={handleShare}
+                  aria-label="Share this club"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
+                >
+                  <FaShareAlt />
+                </button>
                 <button
                   onClick={() => requireAuth(() => toggleFavorite(selectedClub._id))}
                   aria-pressed={isFavorite(selectedClub._id)}
