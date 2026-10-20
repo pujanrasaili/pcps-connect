@@ -171,7 +171,7 @@ export default function EventDetails() {
         </div>
       </div>
 
-      <div className="container-page grid gap-8 py-10 lg:grid-cols-[1fr_340px]">
+      <div className="container-page grid grid-cols-1 gap-8 py-10 lg:grid-cols-[1fr_340px]">
         <div className="space-y-8">
           <div className="card-surface p-6">
             <h2 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">

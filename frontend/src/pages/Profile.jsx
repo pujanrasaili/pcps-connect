@@ -107,7 +107,7 @@ export default function Profile() {
           </Button>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <InfoRow icon={FaIdBadge} label="Student ID" value={user?.studentId || "Not set"} />
           <InfoRow icon={FaEnvelope} label="Email" value={user?.email} />
           <InfoRow icon={FaPhone} label="Phone" value={user?.phone || "Not set"} />
@@ -120,7 +120,7 @@ export default function Profile() {
           Registered Clubs
         </h2>
         {memberships.length > 0 ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             {memberships.map((m) => (
               <div key={m._id} className="flex items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-3">
                 <img src={resolveUploadUrl(m.club?.image, 120)} alt="" className="h-12 w-12 rounded-lg object-cover" />
@@ -281,12 +281,12 @@ export default function Profile() {
 function InfoRow({ icon: Icon, label, value }) {
   return (
     <div className="flex items-center gap-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 p-3">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300">
         <Icon />
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{value}</p>
+        <p className="break-words text-sm font-medium text-slate-800 dark:text-slate-100">{value}</p>
       </div>
     </div>
   );

@@ -301,7 +301,7 @@ export default function AdminClubs() {
 
       <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingClub ? "Edit Club" : "Add Club"} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field">Club name</label>
               <input name="name" className="input-field" value={form.name} onChange={handleChange} required />
@@ -319,7 +319,7 @@ export default function AdminClubs() {
             <label className="label-field">Full description</label>
             <textarea name="longDescription" rows={3} className="input-field resize-none" value={form.longDescription} onChange={handleChange} />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field">Image URL</label>
               <input name="image" className="input-field" value={form.image} onChange={handleChange} placeholder="https://..." />
@@ -337,7 +337,7 @@ export default function AdminClubs() {
             <label className="label-field">Activities (one per line)</label>
             <textarea name="activities" rows={3} className="input-field resize-none" value={form.activities} onChange={handleChange} />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field">Club lead name</label>
               <input name="leadName" className="input-field" value={form.leadName} onChange={handleChange} />
@@ -347,7 +347,7 @@ export default function AdminClubs() {
               <input name="leadRole" className="input-field" value={form.leadRole} onChange={handleChange} placeholder="Club President" />
             </div>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field">Contact email</label>
               <input name="email" type="email" className="input-field" value={form.email} onChange={handleChange} />

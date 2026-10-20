@@ -38,12 +38,12 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", accen
       onMouseMove={tilt.onMouseMove}
       onMouseLeave={tilt.onMouseLeave}
       style={tilt.style}
-      className="card-surface flex items-center gap-4 p-5 animate-slide-up"
+      className="card-surface flex items-center gap-3 p-4 animate-slide-up sm:gap-4 sm:p-5"
     >
       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${accents[accent]}`}>
         <Icon className="text-xl" />
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">
           {isNumeric ? animatedValue : value}
           {suffix}

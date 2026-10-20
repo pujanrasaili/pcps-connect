@@ -54,7 +54,7 @@ export default function Contact() {
           </h1>
         </div>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.3fr]">
+        <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.3fr]">
           <div className="space-y-4">
             <ContactRow icon={FaMapMarkerAlt} title="Address" text="PCPS College, Kandevatasthan, Lalitpur, Nepal" />
             <ContactRow icon={FaPhoneAlt} title="Phone" text="01-5181198" />
@@ -92,7 +92,7 @@ export default function Contact() {
               </p>
             )}
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="c-name" className="label-field">Full name</label>
                   <input

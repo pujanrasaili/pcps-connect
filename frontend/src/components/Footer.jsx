@@ -23,7 +23,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
-      <div className="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container-page grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <img src={logo} alt="PCPS College" className="h-10 w-auto" />
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
