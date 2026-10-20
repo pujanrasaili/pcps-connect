@@ -73,7 +73,7 @@ export default function Certificate() {
         <div className="flex min-h-full w-full flex-col items-center justify-between gap-6 border-4 border-double border-primary-500 px-8 py-8 text-center sm:px-14">
           <div className="flex flex-col items-center">
             <img src={logo} alt="" className="h-16 w-16 object-contain" />
-            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
               Patan College of Professional Studies
             </p>
           </div>
@@ -82,16 +82,16 @@ export default function Certificate() {
             <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-primary-600 sm:text-5xl">
               Certificate of Attendance
             </h1>
-            <p className="mt-5 text-sm text-slate-500">This is to certify that</p>
+            <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">This is to certify that</p>
             <p className="mt-2 border-b border-slate-300 px-6 pb-2 font-display text-3xl font-bold sm:text-4xl">
               {certificate.studentName}
             </p>
             {(certificate.studentId || certificate.program) && (
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 {[certificate.program, certificate.studentId && `ID ${certificate.studentId}`].filter(Boolean).join(" · ")}
               </p>
             )}
-            <p className="mt-5 text-sm text-slate-500">attended</p>
+            <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">attended</p>
             <p className="mt-1 text-xl font-semibold sm:text-2xl">{certificate.eventTitle}</p>
             <p className="mt-1 text-sm text-slate-600">
               {formatDate(certificate.eventDate)}
@@ -101,12 +101,12 @@ export default function Certificate() {
           </div>
 
           <div className="flex w-full items-end justify-between gap-4 text-left">
-            <p className="max-w-[16rem] text-[10px] leading-snug text-slate-400">
+            <p className="max-w-[16rem] text-[10px] leading-snug text-slate-500 dark:text-slate-400">
               Issued by PCPS Connect. Scan the code to confirm this certificate is genuine.
             </p>
             <div className="flex flex-col items-center">
               <QRCodeSVG value={verifyUrl} size={72} level="M" />
-              <p className="mt-1 text-[9px] uppercase tracking-wider text-slate-400">Verify</p>
+              <p className="mt-1 text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Verify</p>
             </div>
           </div>
         </div>

@@ -191,7 +191,7 @@ export default function EventDetails() {
                 </div>
                 <div>
                   <p className="font-medium text-slate-800 dark:text-slate-100">{event.createdBy.name}</p>
-                  <p className="text-sm text-primary-600 dark:text-primary-400">{event.createdBy.email}</p>
+                  <p className="text-sm text-primary-600 dark:text-primary-300">{event.createdBy.email}</p>
                 </div>
               </div>
             </div>
@@ -245,12 +245,12 @@ export default function EventDetails() {
             </button>
 
             {registered && isPast ? (
-              <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 <FaCheckCircle /> {myRegistration?.attended ? "You attended this event" : "You were registered for this event"}
               </div>
             ) : registered ? (
               <div className="mt-5 space-y-2">
-                <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                   <FaCheckCircle /> You're registered for this event
                 </div>
                 <button

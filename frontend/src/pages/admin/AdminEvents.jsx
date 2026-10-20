@@ -219,7 +219,7 @@ export default function AdminEvents() {
                   onClick={() => setAttendeesEvent(event)}
                   aria-label={`View attendees for ${event.title}`}
                   title="View attendees"
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
                 >
                   <FaUserFriends />
                 </button>
@@ -227,21 +227,21 @@ export default function AdminEvents() {
                   onClick={() => openDuplicate(event)}
                   aria-label={`Duplicate ${event.title}`}
                   title="Duplicate as a new event"
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-accent-50 hover:text-accent-500 dark:hover:bg-accent-900/20"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-accent-50 hover:text-accent-500 dark:hover:bg-accent-900/20"
                 >
                   <FaRegCopy />
                 </button>
                 <button
                   onClick={() => openEdit(event)}
                   aria-label={`Edit ${event.title}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
                 >
                   <FaEdit />
                 </button>
                 <button
                   onClick={() => setDeleteTarget(event)}
                   aria-label={`Delete ${event.title}`}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                 >
                   <FaTrash />
                 </button>
@@ -307,7 +307,7 @@ export default function AdminEvents() {
               ))}
             </select>
             {!editingEvent && form.club && (
-              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
                 Members of this club will be emailed when you create the event.
               </p>
             )}

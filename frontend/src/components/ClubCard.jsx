@@ -60,7 +60,7 @@ export default function ClubCard({ club, onView }) {
           </span>
           <button
             onClick={() => onView?.(club)}
-            className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:gap-2 transition-all"
+            className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300 hover:gap-2 transition-all"
           >
             View <FaArrowRight className="text-xs" />
           </button>
@@ -69,7 +69,7 @@ export default function ClubCard({ club, onView }) {
           onClick={() => requireAuth(() => toggleJoin(club._id))}
           className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
             joined
-              ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
+              ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
               : "bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
           }`}
         >

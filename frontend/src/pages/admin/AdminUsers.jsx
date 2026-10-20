@@ -14,9 +14,9 @@ import { usePagination } from "../../hooks/usePagination";
 
 const PAGE_SIZE = 10;
 const STATUS_STYLES = {
-  approved: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
-  pending: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-  rejected: "bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+  approved: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  pending: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  rejected: "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400",
 };
 
 export default function AdminUsers() {
@@ -163,7 +163,7 @@ export default function AdminUsers() {
         <p className="text-slate-500 dark:text-slate-400">
           {pluralize(users.length, "registered student")}
           {pendingCount > 0 && (
-            <span className="ml-2 badge bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+            <span className="ml-2 badge bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
               {pendingCount} awaiting approval
             </span>
           )}
@@ -171,7 +171,7 @@ export default function AdminUsers() {
       </div>
 
       {error && (
-        <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-600 dark:text-rose-400">
+        <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
           {error}
         </p>
       )}
@@ -209,7 +209,7 @@ export default function AdminUsers() {
           type="button"
           onClick={exportCsv}
           disabled={filteredUsers.length === 0}
-          className={`${statusFilter === "pending" && filteredUsers.length > 0 ? "" : "ml-auto "}flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50`}
+          className={`${statusFilter === "pending" && filteredUsers.length > 0 ? "" : "ml-auto "}flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50`}
         >
           <FaFileCsv /> Export CSV ({filteredUsers.length})
         </button>
@@ -232,7 +232,7 @@ export default function AdminUsers() {
               <div key={u._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-slate-800 dark:text-slate-100">
-                    {u.name} {isSelf && <span className="text-xs text-slate-400">(you)</span>}
+                    {u.name} {isSelf && <span className="text-xs text-slate-500 dark:text-slate-400">(you)</span>}
                   </p>
                   <p className="truncate text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
                 </div>
@@ -240,7 +240,7 @@ export default function AdminUsers() {
                 <div className="flex shrink-0 flex-wrap items-center gap-1.5">
                   {!u.emailVerified && (
                     <span
-                      className="badge bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                      className="badge bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                       title="Hasn't clicked their email verification link yet"
                     >
                       <FaEnvelope className="mr-1 text-[10px]" /> Unverified
@@ -265,7 +265,7 @@ export default function AdminUsers() {
                         onClick={() => setApproval(u, "approved")}
                         disabled={updatingId === u._id}
                         title="Approve"
-                        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-30 dark:hover:bg-emerald-900/20"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-30 dark:hover:bg-emerald-900/20"
                       >
                         <FaCheck />
                       </button>
@@ -273,7 +273,7 @@ export default function AdminUsers() {
                         onClick={() => setApproval(u, "rejected")}
                         disabled={updatingId === u._id}
                         title="Reject"
-                        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 dark:hover:bg-rose-900/20"
+                        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 dark:hover:bg-rose-900/20"
                       >
                         <FaTimes />
                       </button>
@@ -283,7 +283,7 @@ export default function AdminUsers() {
                     onClick={() => toggleRole(u)}
                     disabled={isSelf || updatingId === u._id}
                     title={isSelf ? "You can't change your own role" : u.role === "admin" ? "Demote to student" : "Promote to admin"}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-primary-900/20"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-primary-900/20"
                   >
                     {u.role === "admin" ? <FaUser /> : <FaUserShield />}
                   </button>
@@ -291,7 +291,7 @@ export default function AdminUsers() {
                     onClick={() => setDeleteTarget(u)}
                     disabled={isSelf}
                     aria-label={`Delete ${u.name}`}
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-rose-900/20"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-rose-900/20"
                   >
                     <FaTrash />
                   </button>

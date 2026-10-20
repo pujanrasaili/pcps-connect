@@ -85,7 +85,7 @@ export default function ResetPassword() {
               <div>
                 <label htmlFor="rp-password" className="label-field">New password</label>
                 <div className="relative">
-                  <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                   <input
                     id="rp-password"
                     name="password"
@@ -103,7 +103,7 @@ export default function ResetPassword() {
               <div>
                 <label htmlFor="rp-confirm" className="label-field">Confirm new password</label>
                 <div className="relative">
-                  <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                   <input
                     id="rp-confirm"
                     name="confirmPassword"

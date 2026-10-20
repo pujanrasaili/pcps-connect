@@ -76,7 +76,7 @@ export default function Events() {
     <div className="section-y">
       <div className="container-page">
         <div className="text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-accent-500">
+          <span className="text-sm font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">
             What's Happening
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
@@ -100,8 +100,8 @@ export default function Events() {
                 onClick={() => setWhen(value)}
                 className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${
                   when === value
-                    ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-400"
-                    : "text-slate-500 dark:text-slate-400"
+                    ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
+                    : "text-slate-600 dark:text-slate-400"
                 }`}
               >
                 {label}

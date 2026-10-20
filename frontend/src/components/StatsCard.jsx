@@ -28,8 +28,8 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", accen
   const accents = {
     primary: "bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300",
     accent: "bg-accent-50 text-accent-500 dark:bg-accent-900/40 dark:text-accent-300",
-    emerald: "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300",
-    amber: "bg-amber-50 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300",
+    emerald: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+    amber: "bg-amber-50 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
   };
 
   return (

@@ -59,7 +59,7 @@ export default function Clubs() {
     <div className="section-y">
       <div className="container-page">
         <div className="text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-primary-500">
+          <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
             Student Life
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
@@ -162,7 +162,7 @@ export default function Clubs() {
 
             <Link
               to={`/events?club=${selectedClub._id}`}
-              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-400"
+              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
             >
               {clubEvents.length > 3 ? `See all ${clubEvents.length} upcoming events` : "View events from this club"}{" "}
               <FaArrowRight className="text-xs" />
@@ -192,7 +192,7 @@ export default function Clubs() {
                   onClick={() => requireAuth(() => toggleJoin(selectedClub._id))}
                   className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                     isJoined(selectedClub._id)
-                      ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
                       : "bg-primary-500 text-white hover:bg-primary-600"
                   }`}
                 >

@@ -38,7 +38,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-primary-500 hover:text-white dark:bg-slate-800 dark:text-slate-400"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-primary-500 hover:text-white dark:bg-slate-800 dark:text-slate-400"
               >
                 <Icon className="text-sm" />
               </a>
@@ -106,7 +106,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-slate-100 py-5 text-center text-xs text-slate-400 dark:border-slate-800">
+      <div className="border-t border-slate-100 py-5 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
         © {year} Patan College of Professional Studies. PCPS Connect — Club & Event Management System.
       </div>
     </footer>

@@ -54,7 +54,7 @@ export default function Home() {
       <section className="section-y">
         <div className="container-page">
           <Reveal className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wide text-primary-500">
+            <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
               On Campus
             </span>
             <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
@@ -162,14 +162,14 @@ export default function Home() {
         <div className="container-page">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="text-sm font-semibold uppercase tracking-wide text-primary-500">
+              <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
                 Get Involved
               </span>
               <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
                 Featured Clubs
               </h2>
             </div>
-            <Link to="/clubs" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/clubs" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
               View all clubs <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
@@ -188,14 +188,14 @@ export default function Home() {
         <div className="container-page">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="text-sm font-semibold uppercase tracking-wide text-accent-500">
+              <span className="text-sm font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">
                 Mark Your Calendar
               </span>
               <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
                 Upcoming Events
               </h2>
             </div>
-            <Link to="/events" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-400">
+            <Link to="/events" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
               View all events <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
