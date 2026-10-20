@@ -179,6 +179,17 @@ export default function Events() {
                   : "No past events match your search."}
             </p>
             <p className="mt-1 text-sm">Try a different name or category.</p>
+            {(query || category !== "All" || openOnly) && (
+              <button
+                onClick={() => {
+                  setQuery("");
+                  update({ q: "", category: "All", open: false });
+                }}
+                className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         )}
       </div>
