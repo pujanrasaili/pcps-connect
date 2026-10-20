@@ -828,3 +828,55 @@ describe("bulkApproveUsers", () => {
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ approved: 0 }));
   });
 });
+
+describe("getInsights", () => {
+  const { getInsights } = require("../adminController");
+  afterEach(() => jest.clearAllMocks());
+
+  it("combines monthly registrations, top clubs and overall turnout", async () => {
+    const now = new Date();
+    Registration.aggregate = jest
+      .fn()
+      .mockResolvedValueOnce([{ _id: { y: now.getUTCFullYear(), m: now.getUTCMonth() + 1 }, count: 5 }]) // monthly
+      .mockResolvedValueOnce([{ _id: null, registered: 8, attended: 6 }]); // turnout
+    ClubMembership.aggregate = jest.fn().mockResolvedValue([{ _id: "c1", members: 12 }]);
+    Club.find = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: "c1", name: "Coding" }]) });
+    Event.find = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: "e1" }]) });
+    const res = mockRes();
+
+    await getInsights({ user: { _id: "a1", role: "admin" } }, res);
+
+    const body = res.json.mock.calls[0][0];
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(body.registrationsByMonth).toHaveLength(6);
+    expect(body.registrationsByMonth[5].count).toBe(5);
+    expect(body.topClubs).toEqual([{ _id: "c1", name: "Coding", members: 12 }]);
+    expect(body.attendance).toEqual({ attended: 6, registered: 8, rate: 75 });
+  });
+
+  it("works on an empty database (no clubs, no past events) with a null rate", async () => {
+    Registration.aggregate = jest.fn().mockResolvedValue([]);
+    ClubMembership.aggregate = jest.fn().mockResolvedValue([]);
+    Club.find = jest.fn();
+    Event.find = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+    const res = mockRes();
+
+    await getInsights({ user: { _id: "a1", role: "admin" } }, res);
+
+    const body = res.json.mock.calls[0][0];
+    expect(body.topClubs).toEqual([]);
+    expect(body.attendance).toEqual({ attended: 0, registered: 0, rate: null });
+    expect(body.registrationsByMonth.every((m) => m.count === 0)).toBe(true);
+    expect(Club.find).not.toHaveBeenCalled();
+    expect(Registration.aggregate).toHaveBeenCalledTimes(1); // no turnout query without past events
+  });
+
+  it("returns 500 when the database fails", async () => {
+    Registration.aggregate = jest.fn().mockRejectedValue(new Error("db down"));
+    ClubMembership.aggregate = jest.fn().mockResolvedValue([]);
+    Event.find = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+    const res = mockRes();
+    await getInsights({ user: { _id: "a1", role: "admin" } }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+});

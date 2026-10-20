@@ -19,6 +19,7 @@ const {
   checkInByCode,
   getAttendanceReport,
   bulkApproveUsers,
+  getInsights,
 } = require("../controllers/adminController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
@@ -43,6 +44,7 @@ router.post("/check-in", staffOnly, checkInByCode);
 // Everything below is admin-only.
 router.use(adminOnly);
 
+router.get("/insights", getInsights);
 router.get("/users", getAllUsers);
 router.get("/users/:id", getUserById);
 router.get("/users/:id/events", getUserEvents);

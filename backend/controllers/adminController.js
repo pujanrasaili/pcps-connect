@@ -21,6 +21,7 @@ const { escapeHtml } = require("../utils/escapeHtml");
 
 const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
+const { fillMonthly, rankClubs } = require("../utils/insights");
 
 // Best-effort, same pattern as every other email in this app -- a failed
 // send is logged and swallowed, never allowed to turn a successful approval
@@ -525,7 +526,48 @@ async function getAttendanceReport(req, res) {
   }
 }
 
+// GET /api/admin/insights  (admin only)
+// Three small trends for the overview: registrations per month (last 6),
+// the most popular clubs by members, and overall turnout at past events.
+async function getInsights(req, res) {
+  try {
+    const now = new Date();
+    const since = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
+
+    const [monthly, memberCounts, pastEvents] = await Promise.all([
+      Registration.aggregate([
+        { $match: { createdAt: { $gte: since }, status: { $ne: "cancelled" } } },
+        { $group: { _id: { y: { $year: "$createdAt" }, m: { $month: "$createdAt" } }, count: { $sum: 1 } } },
+      ]),
+      ClubMembership.aggregate([{ $group: { _id: "$club", members: { $sum: 1 } } }, { $sort: { members: -1 } }, { $limit: 5 }]),
+      Event.find({ date: { $lt: now } }).select("_id"),
+    ]);
+
+    const clubs = memberCounts.length ? await Club.find({ _id: { $in: memberCounts.map((c) => c._id) } }).select("name") : [];
+
+    let attended = 0;
+    let registered = 0;
+    if (pastEvents.length) {
+      const [totals] = await Registration.aggregate([
+        { $match: { event: { $in: pastEvents.map((e) => e._id) }, status: { $ne: "cancelled" } } },
+        { $group: { _id: null, registered: { $sum: 1 }, attended: { $sum: { $cond: ["$attended", 1, 0] } } } },
+      ]);
+      attended = totals?.attended || 0;
+      registered = totals?.registered || 0;
+    }
+
+    res.status(200).json({
+      registrationsByMonth: fillMonthly(monthly, now, 6),
+      topClubs: rankClubs(memberCounts, clubs),
+      attendance: { attended, registered, rate: registered ? Math.round((attended / registered) * 100) : null },
+    });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to build insights") });
+  }
+}
+
 module.exports = {
+  getInsights,
   bulkApproveUsers,
   getAttendanceReport,
   checkInByCode,
