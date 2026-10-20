@@ -154,7 +154,7 @@ export default function EventDetails() {
   return (
     <div>
       <div className="relative h-64 sm:h-80">
-        <img src={resolveUploadUrl(event.image)} alt={event.title} className="h-full w-full object-cover" />
+        <img src={resolveUploadUrl(event.image, 1600)} alt={event.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent" />
         <div className="container-page absolute inset-x-0 bottom-6 text-white">
           <Link to="/events" className="mb-3 inline-flex items-center gap-1.5 text-sm text-white/85 hover:text-white">

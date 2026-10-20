@@ -26,7 +26,7 @@ export default function EventCard({ event }) {
     >
       <div className="relative h-44 overflow-hidden">
         <img
-          src={resolveUploadUrl(event.image)}
+          src={resolveUploadUrl(event.image, 800)}
           alt={event.title}
           loading="lazy"
           className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${isPast ? "grayscale" : ""}`}

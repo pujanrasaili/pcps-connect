@@ -62,7 +62,7 @@ export default function Home() {
             </h2>
           </Reveal>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-2 items-stretch">
+          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
             <Reveal direction="left" className="h-full">
               <div
                 ref={photoTilt.ref}
@@ -173,7 +173,7 @@ export default function Home() {
               View all clubs <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featuredClubs.map((club, i) => (
               <Reveal key={club._id} delay={i * 100}>
                 <ClubCard club={club} onView={setSelectedClub} />
@@ -199,7 +199,7 @@ export default function Home() {
               View all events <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {upcomingEvents.map((event, i) => (
               <Reveal key={event._id} delay={i * 100}>
                 <EventCard event={event} />
@@ -254,7 +254,7 @@ export default function Home() {
       <Modal isOpen={!!selectedClub} onClose={() => setSelectedClub(null)} title={selectedClub?.name}>
         {selectedClub && (
           <div>
-            <img src={resolveUploadUrl(selectedClub.image)} alt="" className="mb-4 h-40 w-full rounded-xl object-cover" />
+            <img src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-40 w-full rounded-xl object-cover" />
             <p className="text-sm text-slate-600 dark:text-slate-300">{selectedClub.longDescription || selectedClub.description}</p>
             <Link
               to="/clubs"

@@ -23,7 +23,7 @@ export default function ClubCard({ club, onView }) {
     >
       <div className="relative h-40 overflow-hidden bg-slate-100 dark:bg-slate-800">
         <img
-          src={resolveUploadUrl(club.image)}
+          src={resolveUploadUrl(club.image, 800)}
           alt={`${club.name} banner`}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
