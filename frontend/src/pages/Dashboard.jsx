@@ -32,7 +32,7 @@ import { useClubMembership } from "../context/ClubMembershipContext";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { useRegistrations } from "../context/RegistrationContext";
-import { formatDate, isUpcoming } from "../utils/formatDate";
+import { formatDate, isUpcoming, relativeDay } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
@@ -276,10 +276,15 @@ export default function Dashboard() {
                   to={`/events/${r.event._id}`}
                   className="flex min-w-0 flex-1 items-center gap-3 rounded-lg -mx-2 px-2 py-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <img src={resolveUploadUrl(r.event.image)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  <img src={resolveUploadUrl(r.event.image, 120)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {relativeDay(r.event.date) && (
+                        <span className="font-semibold text-accent-500">{relativeDay(r.event.date)} · </span>
+                      )}
+                      {formatDate(r.event.date)}
+                    </p>
                   </div>
                 </Link>
                 <span className="badge shrink-0 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
