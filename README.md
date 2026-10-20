@@ -37,6 +37,7 @@ pcps-connect/
 - Full club directory: browse, search, filter by category, join/leave, favorite
 - Full event directory: browse, search (by name, place or club), filter, register/unregister, live capacity tracking, and a "View events" link from each club that shows only its events
 - Club events: an event can be hosted by a club, and members of that club are emailed when it is announced (opt out in Settings)
+- Weekly digest: every Sunday morning each student gets one email listing the next 7 days of events from the clubs they joined (skipping events they already registered for or that are full; nobody gets an empty digest). Runs from a GitHub Actions schedule, can be previewed with a dry run, and the "Club updates" switch in Settings turns it off
 - Admins can email a message to all members of a club from Admin → Clubs (members who turned off club updates are skipped)
 - Admins can approve every pending sign-up at once ("Approve all" on the Pending filter, respects search) — each person is emailed and it's logged as one activity entry
 - Admin → Users can be filtered by approval status (pending / approved / rejected, with counts) and searched by student ID

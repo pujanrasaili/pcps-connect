@@ -65,7 +65,7 @@ export default function Settings() {
 
   // Both toggles mirror real fields on the user record that the backend acts
   // on (eventReminders -> scripts/sendEventReminders.js, clubUpdates ->
-  // utils/notifyClubMembers.js). Saved immediately on toggle rather than
+  // utils/notifyClubMembers.js and scripts/sendWeeklyDigest.js). Saved immediately on toggle rather than
   // batched, so what's on screen always reflects what the server will do.
   const handleTogglePref = async (key) => {
     setSavingPref(key);
@@ -160,7 +160,7 @@ export default function Settings() {
           <PrefRow
             icon={FaBell}
             title="Club updates"
-            desc="Get an email when a club you've joined announces a new event."
+            desc="Get an email when a club you've joined announces a new event, plus a short weekly summary of what your clubs have planned."
             checked={user?.clubUpdates !== false}
             onChange={() => handleTogglePref("clubUpdates")}
             disabled={savingPref === "clubUpdates"}
