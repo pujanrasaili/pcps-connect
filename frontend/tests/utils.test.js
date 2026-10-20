@@ -8,6 +8,7 @@ import { buildIcs, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
+import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
 import { clubLink } from "../src/utils/share.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
@@ -141,4 +142,29 @@ test("relativeDay labels the next week by calendar day, local time", () => {
 test("clubLink builds a deep link that opens the club's details", () => {
   assert.equal(clubLink({ _id: "abc123" }, "https://pcps-connect.vercel.app"), "https://pcps-connect.vercel.app/clubs?club=abc123");
   assert.equal(clubLink({ _id: "a b" }, "https://x.test"), "https://x.test/clubs?club=a%20b");
+});
+
+test("event filters: defaults, hand-edited values and the logged-out 'mine' fallback", () => {
+  const p = (q) => new URLSearchParams(q);
+  assert.deepEqual(readEventFilters(p("")), { when: "upcoming", category: "All", query: "", openOnly: false, club: "" });
+  assert.equal(readEventFilters(p("when=past")).when, "past");
+  assert.equal(readEventFilters(p("when=bogus")).when, "upcoming");
+  assert.equal(readEventFilters(p("when=mine")).when, "upcoming"); // needs login
+  assert.equal(readEventFilters(p("when=mine"), { isAuthenticated: true }).when, "mine");
+  assert.equal(readEventFilters(p("open=1&q=hack&category=Tech")).openOnly, true);
+});
+
+test("withEventFilters drops defaults and keeps other params", () => {
+  const base = new URLSearchParams("club=c1&when=past");
+  assert.equal(withEventFilters(base, { when: "upcoming" }).toString(), "club=c1");
+  assert.equal(withEventFilters(base, { category: "Tech", open: true }).toString(), "club=c1&when=past&category=Tech&open=1");
+  assert.equal(withEventFilters(new URLSearchParams("open=1"), { open: false }).toString(), "");
+  assert.equal(withEventFilters(new URLSearchParams(), { q: "" }).toString(), "");
+});
+
+test("hasOpenSpots uses the card's default capacity of 100", () => {
+  assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 10 }), false);
+  assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 9 }), true);
+  assert.equal(hasOpenSpots({ registeredCount: 99 }), true);
+  assert.equal(hasOpenSpots({}), true);
 });
