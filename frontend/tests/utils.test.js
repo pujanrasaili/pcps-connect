@@ -8,6 +8,7 @@ import { buildIcs, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
+import { clubLink } from "../src/utils/share.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
 test("csvField quotes values and doubles inner quotes", () => {
@@ -135,4 +136,9 @@ test("relativeDay labels the next week by calendar day, local time", () => {
   assert.equal(relativeDay(at(2026, 9, 27), now), "In 7 days");
   assert.equal(relativeDay(at(2026, 9, 28), now), null); // beyond a week: just show the date
   assert.equal(relativeDay(at(2026, 9, 19), now), null); // past
+});
+
+test("clubLink builds a deep link that opens the club's details", () => {
+  assert.equal(clubLink({ _id: "abc123" }, "https://pcps-connect.vercel.app"), "https://pcps-connect.vercel.app/clubs?club=abc123");
+  assert.equal(clubLink({ _id: "a b" }, "https://x.test"), "https://x.test/clubs?club=a%20b");
 });
