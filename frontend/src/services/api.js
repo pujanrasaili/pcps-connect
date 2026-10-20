@@ -1,4 +1,5 @@
 import axios from "axios";
+import { optimizeImageUrl } from "../utils/imageUrl";
 
 // Centralized axios instance. Every request automatically includes the
 // httpOnly auth cookie (withCredentials) -- the backend uses a cookie, not
@@ -22,9 +23,11 @@ export const api = axios.create({
 // backend's origin, so <img src="..."> resolves correctly. The API base
 // already ends in "/api", so strip that off to get the bare origin.
 const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
-export function resolveUploadUrl(path) {
+// `width` (optional) asks Cloudinary for a smaller, modern-format copy -- pass
+// roughly the largest size the image is displayed at, in CSS pixels x2 for sharp screens.
+export function resolveUploadUrl(path, width) {
   if (!path) return null;
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  if (path.startsWith("http://") || path.startsWith("https://")) return optimizeImageUrl(path, width);
   return `${API_ORIGIN}${path}`;
 }
 
