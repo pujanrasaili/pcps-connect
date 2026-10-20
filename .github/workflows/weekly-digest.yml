@@ -1,0 +1,44 @@
+name: Weekly Digest
+
+# Runs scripts/sendWeeklyDigest.js once a week so each student gets one email
+# with the coming week's events from the clubs they joined. 02:00 UTC on
+# Sunday is early Sunday morning in Nepal (UTC+5:45), the start of the local
+# week -- adjust the cron expression below for a different day or time.
+#
+# Uses the same repo secrets as the daily reminders: MONGO_URI, EMAIL_USER,
+# EMAIL_APP_PASSWORD. Optionally add CLIENT_ORIGIN (your site's address) so the
+# links in the email point at it; it defaults to https://pcps-connect.vercel.app.
+#
+# To preview who would be emailed without sending anything, run the job
+# manually from the Actions tab with "dry run" ticked.
+
+on:
+  schedule:
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "Dry run (list recipients, send nothing)"
+        type: boolean
+        default: false
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run digest -- ${{ inputs.dry && '--dry' || '' }}
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          CLIENT_ORIGIN: ${{ secrets.CLIENT_ORIGIN }}
