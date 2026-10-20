@@ -98,7 +98,7 @@ pcps-connect/
 - Login sessions and single-purpose email links (verify/reset) use distinct token shapes, so a verify/reset link can never be reused as a login session
 - Attendee CSV export is sanitized against spreadsheet formula injection
 - Changing or resetting a password invalidates every older login session, and a password-reset link can't be replayed after use
-- CSRF header required on every state-changing request; admin event edits only accept whitelisted fields
+- CSRF header required on every state-changing request; admin event and club edits only accept whitelisted fields (a club edit cannot change its leaders or creator)
 
 ## Getting Started (local development)
 
