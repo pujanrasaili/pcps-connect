@@ -54,6 +54,8 @@ pcps-connect/
 - Students can delete their own account from Settings (password required): registrations, memberships, events they created and club-leader roles go with it; admins are removed by another admin so there's always one left
 - Event and club photos are requested from Cloudinary at the size they're shown (auto format and quality), so pages load fast on mobile data even when the uploaded photo is several MB
 - A club's details window lists its next three upcoming events, linking straight to each
+- Every club has its own shareable link (`/clubs?club=<id>`) with a Share button; the Clubs and Events filters (search, category, Upcoming/Past/Registered, "only events with spots left") are stored in the URL, so a filtered list can be shared and survives a refresh
+- Accessibility: text meets WCAG AA contrast in light and dark mode (checked with an axe-core sweep of every page), long titles never cause sideways scrolling on phones, and ratings are announced to screen readers
 - The student dashboard marks events happening within a week as "Today", "Tomorrow" or "In N days"
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
@@ -81,6 +83,7 @@ pcps-connect/
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
 - Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR, message their registrants and club members, and see turnout and ratings for their clubs' past events — nothing else (no users, other clubs or activity log); enforced on the server
 - Activity log of admin actions (role changes, approvals/rejections, deletions) with who did them, kept for a year; filter it by people / events / clubs or search by name
+- Insights card on the admin overview: registrations per month (last 6 months), the most popular clubs by members, and overall turnout at past events
 - Live platform stats (total clubs, events, students, registrations)
 
 ### Security
