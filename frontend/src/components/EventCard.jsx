@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
+import { FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { formatDay, formatMonth, isPastEvent } from "../utils/formatDate";
 import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
 import { useRegistrations } from "../context/RegistrationContext";
+import { useSavedEvents } from "../hooks/useSavedEvents";
 
 export default function EventCard({ event }) {
   const capacity = event.capacity ?? 100;
@@ -14,6 +15,8 @@ export default function EventCard({ event }) {
   const isPast = isPastEvent(event.date);
   const { isRegistered, isPending } = useRegistrations();
   const registered = isRegistered(event._id);
+  const { isSaved, toggle } = useSavedEvents();
+  const saved = isSaved(event._id);
   const tilt = useTilt({ max: 6, scale: 1.015 });
 
   return (
@@ -95,9 +98,20 @@ export default function EventCard({ event }) {
               )
             )}
           </span>
-          <Link to={`/events/${event._id}`} className="btn-outline !px-4 !py-2 text-sm">
-            Details
-          </Link>
+          <span className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => toggle(event._id)}
+              aria-pressed={saved}
+              aria-label={saved ? `Remove ${event.title} from saved events` : `Save ${event.title} for later`}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-primary-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-primary-300 dark:hover:bg-slate-800/50"
+            >
+              {saved ? <FaBookmark /> : <FaRegBookmark />}
+            </button>
+            <Link to={`/events/${event._id}`} className="btn-outline !px-4 !py-2 text-sm">
+              Details
+            </Link>
+          </span>
         </div>
       </div>
     </div>
