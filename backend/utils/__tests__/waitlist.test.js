@@ -50,6 +50,15 @@ describe("promoteFromWaitlist", () => {
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np", icalEvent: expect.stringContaining("BEGIN:VEVENT") }));
   });
 
+  it("on an approval event, the promoted student becomes a pending request and is told so", async () => {
+    Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
+    queue(entry(1));
+    expect(await promoteFromWaitlist({ ...event, requiresApproval: true })).toBe(1);
+    expect(Registration.create).toHaveBeenCalledWith({ user: "u1", event: "ev1", status: "pending" });
+    const mail = sendEmail.mock.calls[0][0];
+    expect(mail.html).toMatch(/with the organisers/);
+  });
+
   it("fills several open seats in order", async () => {
     Registration.countDocuments.mockResolvedValueOnce(8).mockResolvedValueOnce(9).mockResolvedValueOnce(10);
     queue(entry(1), entry(2), entry(3));
