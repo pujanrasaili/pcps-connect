@@ -1,39 +1,10 @@
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
 const { safeError } = require("../utils/errorMessage");
-const sendEmail = require("../utils/sendEmail");
-const renderEmail = require("../utils/emailTemplate");
-const { escapeHtml } = require("../utils/escapeHtml");
-const { formatEventDate } = require("../utils/formatEventDate");
 const { promoteFromWaitlist } = require("../utils/waitlist");
-const { buildIcs } = require("../utils/ics");
+const { sendRegistrationConfirmation, sendRequestReceived } = require("../utils/registrationEmails");
 const { createCheckInCode } = require("../utils/checkInCode");
 const { createCertificateCode } = require("../utils/certificateCode");
-
-// Best-effort, same pattern as every other email in this app (verification,
-// password reset, admin approval notice): a failed send is logged and
-// swallowed, never allowed to turn a successful registration into a 500.
-async function sendRegistrationConfirmation(user, event) {
-  try {
-    await sendEmail({
-      to: user.email,
-      subject: `You're registered: ${event.title}`,
-      html: renderEmail({
-        heading: "Registration confirmed",
-        bodyHtml: `
-          <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-          <p style="margin: 0 0 16px;">You're confirmed for <strong>${escapeHtml(event.title)}</strong>. Here are the details:</p>
-          <p style="margin: 0 0 4px;"><strong>When:</strong> ${formatEventDate(event.date)}</p>
-          <p style="margin: 0;"><strong>Where:</strong> ${escapeHtml(event.location)}</p>
-          <p style="margin: 16px 0 0;">You can cancel anytime from your Dashboard if your plans change.</p>
-        `,
-      }),
-      icalEvent: buildIcs(event),
-    });
-  } catch (emailErr) {
-    console.error("Failed to send registration confirmation email:", emailErr.message);
-  }
-}
 
 // POST /api/registrations/register  (requires login)
 async function registerForEvent(req, res) {
@@ -63,7 +34,9 @@ async function registerForEvent(req, res) {
       registration = await Registration.create({
         user: req.user._id,
         event: eventId,
-        status: "confirmed",
+        // Events that need organiser approval start as a request ("pending").
+        // It still holds a seat, so approving never hits a full event.
+        status: event.requiresApproval ? "pending" : "confirmed",
       });
     } catch (err) {
       // Unique index on (user, event) -- two simultaneous clicks from the
@@ -86,6 +59,10 @@ async function registerForEvent(req, res) {
       return res.status(400).json({ message: "This event is full" });
     }
 
+    if (registration.status === "pending") {
+      await sendRequestReceived(req.user, event);
+      return res.status(201).json({ message: "Request sent -- the organisers will review it", registration });
+    }
     await sendRegistrationConfirmation(req.user, event);
 
     res.status(201).json({ message: "Registered for event", registration });
@@ -155,6 +132,10 @@ async function getCheckInCode(req, res) {
 
     if (registration.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+
+    if (registration.status === "pending") {
+      return res.status(400).json({ message: "Your request is still waiting for the organisers' approval" });
     }
 
     res.status(200).json({ code: createCheckInCode(registration._id) });
