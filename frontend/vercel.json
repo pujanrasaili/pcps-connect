@@ -1,5 +1,35 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/events/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(WhatsApp|facebookexternalhit|Facebot|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview)"
+        }
+      ],
+      "destination": "/api/preview?type=event&id=:id"
+    },
+    {
+      "source": "/clubs",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(WhatsApp|facebookexternalhit|Facebot|Twitterbot|TelegramBot|Slackbot|LinkedInBot|Discordbot|Pinterest|SkypeUriPreview)"
+        },
+        {
+          "type": "query",
+          "key": "club",
+          "value": "(?<club>[a-fA-F0-9]{24})"
+        }
+      ],
+      "destination": "/api/preview?type=club&id=:club"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
