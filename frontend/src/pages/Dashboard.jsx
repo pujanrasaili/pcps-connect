@@ -11,6 +11,7 @@ import {
   FaCertificate,
   FaUsers,
   FaUserTie,
+  FaCalendarPlus,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -34,6 +35,7 @@ import { useEvents } from "../context/EventsContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { formatDate, isUpcoming, relativeDay } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
+import { downloadIcsAll } from "../utils/calendar";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
@@ -263,9 +265,19 @@ export default function Dashboard() {
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
             Upcoming Registrations
           </h2>
-          <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300">
-            Find more events <FaArrowRight className="text-xs" />
-          </Link>
+          <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
+            {upcoming.length > 0 && (
+              <button
+                onClick={() => downloadIcsAll(upcoming.map((r) => r.event))}
+                className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
+              >
+                <FaCalendarPlus className="text-xs" /> Add all to calendar
+              </button>
+            )}
+            <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300">
+              Find more events <FaArrowRight className="text-xs" />
+            </Link>
+          </div>
         </div>
 
         {upcoming.length > 0 ? (
