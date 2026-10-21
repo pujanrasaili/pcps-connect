@@ -210,6 +210,7 @@ export default function Events() {
           </div>
         ) : filteredEvents.length > 0 ? (
           <>
+            <h2 className="sr-only">Event list</h2>
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pagedEvents.map((event, i) => (
                 <Reveal key={event._id} delay={(i % 6) * 80}>
