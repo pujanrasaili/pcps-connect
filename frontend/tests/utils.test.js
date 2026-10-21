@@ -13,7 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
-import { parseSaved, toggleSaved } from "../src/utils/savedEvents.js";
+import { parseSaved, toggleSaved, savedUpcoming } from "../src/utils/savedEvents.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
 test("csvField quotes values and doubles inner quotes", () => {
@@ -285,4 +285,18 @@ test("toggleSaved adds newest first, removes on second tap, and never mutates", 
   assert.deepEqual(toggleSaved(start, "c"), ["c", "a", "b"]);
   assert.deepEqual(toggleSaved(start, "a"), ["b"]);
   assert.deepEqual(start, ["a", "b"]);
+});
+
+test("savedUpcoming keeps saved, upcoming, not-yet-joined events, soonest first", () => {
+  const day = (n) => new Date(Date.now() + n * 86400000).toISOString();
+  const events = [
+    { _id: "late", date: day(9) },
+    { _id: "soon", date: day(2) },
+    { _id: "past", date: day(-2) },
+    { _id: "joined", date: day(3) },
+    { _id: "unsaved", date: day(1) },
+  ];
+  const ids = savedUpcoming(events, ["late", "soon", "past", "joined"], (id) => id === "joined").map((e) => e._id);
+  assert.deepEqual(ids, ["soon", "late"]);
+  assert.deepEqual(savedUpcoming(events, []), []);
 });
