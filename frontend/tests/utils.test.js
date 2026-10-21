@@ -67,6 +67,16 @@ test("buildIcs produces a valid, escaped single-event calendar", () => {
   assert.match(ics, /UID:e1@pcps-connect/);
 });
 
+test("every event in a calendar file carries a day-before and an hour-before reminder", () => {
+  const ics = buildIcsCalendar([event, { ...event, _id: "e2" }]);
+  assert.equal(ics.match(/BEGIN:VALARM/g).length, 4);
+  assert.equal(ics.match(/END:VALARM/g).length, 4);
+  assert.equal(ics.match(/TRIGGER:-P1D/g).length, 2);
+  assert.equal(ics.match(/TRIGGER:-PT1H/g).length, 2);
+  // Each alarm sits inside its event, before END:VEVENT.
+  for (const chunk of ics.split("BEGIN:VEVENT").slice(1)) assert.ok(chunk.indexOf("END:VALARM") < chunk.indexOf("END:VEVENT"));
+});
+
 test("buildIcs folds lines longer than 75 characters", () => {
   const ics = buildIcs({ ...event, description: "x".repeat(200) });
   for (const line of ics.split("\r\n")) assert.ok(line.length <= 75, `line too long: ${line.length}`);
