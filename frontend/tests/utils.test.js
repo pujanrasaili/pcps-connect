@@ -13,6 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
+import { parseSaved, toggleSaved } from "../src/utils/savedEvents.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
 test("csvField quotes values and doubles inner quotes", () => {
@@ -153,6 +154,7 @@ test("event filters: defaults, hand-edited values and the logged-out 'mine' fall
   assert.equal(readEventFilters(p("when=past")).when, "past");
   assert.equal(readEventFilters(p("when=bogus")).when, "upcoming");
   assert.equal(readEventFilters(p("when=mine")).when, "upcoming"); // needs login
+  assert.equal(readEventFilters(p("when=saved")).when, "saved"); // no login needed
   assert.equal(readEventFilters(p("when=mine"), { isAuthenticated: true }).when, "mine");
   assert.equal(readEventFilters(p("open=1&q=hack&category=Tech")).openOnly, true);
   assert.equal(readEventFilters(p("view=calendar")).view, "calendar");
@@ -268,4 +270,19 @@ test("relatedEvents prefers the same club, then category, soonest first, skippin
   assert.deepEqual(relatedEvents(events, cur).map((e) => e._id), ["club-early", "club-late", "cat-soon"]);
   assert.equal(relatedEvents(events, cur, 1).length, 1);
   assert.deepEqual(relatedEvents(events, null), []);
+});
+
+test("parseSaved survives missing, corrupted and odd storage", () => {
+  assert.deepEqual(parseSaved(null), []);
+  assert.deepEqual(parseSaved("{oops"), []);
+  assert.deepEqual(parseSaved('{"a":1}'), []);
+  assert.deepEqual(parseSaved('["a","b","a",3,"",null]'), ["a", "b"]);
+  assert.equal(parseSaved(JSON.stringify(Array.from({ length: 500 }, (_, i) => `e${i}`))).length, 200);
+});
+
+test("toggleSaved adds newest first, removes on second tap, and never mutates", () => {
+  const start = ["a", "b"];
+  assert.deepEqual(toggleSaved(start, "c"), ["c", "a", "b"]);
+  assert.deepEqual(toggleSaved(start, "a"), ["b"]);
+  assert.deepEqual(start, ["a", "b"]);
 });

@@ -1,7 +1,7 @@
 // Helpers for the Events page filters, which live in the URL so a filtered
 // list can be shared ("/events?when=past&category=Technology&open=1").
 
-export const WHEN_VALUES = ["upcoming", "past", "mine"];
+export const WHEN_VALUES = ["upcoming", "past", "mine", "saved"];
 
 // Same default the event card uses when an event has no capacity set.
 export function hasOpenSpots(event) {
