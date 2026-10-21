@@ -65,7 +65,7 @@ pcps-connect/
 - Personal dashboard with participation charts (Recharts), registered events, and joined clubs
 - Editable student profile
 - Email notifications: registration confirmation (with an add-to-calendar invite), event reminders (opt out in Settings), reschedule/cancellation notices, account approval decisions, and a security notice whenever the password changes
-- "Add to calendar" (Google Calendar link or .ics download) for events you're registered for
+- "Add to calendar" (Google Calendar link or .ics download) for events you're registered for; the calendar file includes a reminder a day before and an hour before
 - "Calendar" view on the Events page: a month grid (Sunday first) with each day's events, tap a day to list them; it keeps your category, search, club and spots-left filters and is shareable as `?view=calendar`
 - Each event page suggests "More events you may like": upcoming events from the same club first, then the same category
 - "Save for later" bookmark on every event card and event page, and a "Saved" tab on the Events page; kept in your own browser, so no login is needed; upcoming saved events also show on the student dashboard
