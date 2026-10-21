@@ -61,7 +61,7 @@ export default function AdminLayout() {
             <p className="px-2 pb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {isAdmin ? "Admin Panel" : "Club Leader"}
             </p>
-            <nav className="flex flex-col gap-1">
+            <nav aria-label="Admin menu" className="flex flex-col gap-1">
               {links.map(({ to, label, icon: Icon, end, badgeKey }) => {
                 const badgeCount = badgeKey ? badges[badgeKey] : 0; 
                 return (

@@ -88,7 +88,7 @@ export default function Navbar() {
           : "border-transparent dark:border-white/5 bg-white/60 dark:bg-slate-950/60 backdrop-blur"
       }`}
     >
-      <nav className="container-page flex h-16 items-center justify-between">
+      <nav aria-label="Main" className="container-page flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="PCPS College" className="h-9 w-auto" />
         </Link>
