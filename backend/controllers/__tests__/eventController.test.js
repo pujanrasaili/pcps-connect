@@ -144,3 +144,34 @@ describe("getEventById -- registration and rating stats", () => {
     });
   });
 });
+
+describe("requiresApproval flag (multipart checkbox strings)", () => {
+  it("create: 'true' turns approval on, anything else leaves it off", async () => {
+    let res = mockRes();
+    await createEvent({ body: { ...baseBody, requiresApproval: "true" }, user: admin }, res);
+    expect(Event.create).toHaveBeenLastCalledWith(expect.objectContaining({ requiresApproval: true }));
+
+    res = mockRes();
+    await createEvent({ body: baseBody, user: admin }, res);
+    expect(Event.create).toHaveBeenLastCalledWith(expect.objectContaining({ requiresApproval: false }));
+  });
+
+  it("update: changes the flag only when the field is sent", async () => {
+    const make = () => ({
+      _id: "ev1", createdBy: { toString: () => "admin1" }, date: new Date("2027-01-01"), location: "Lab", club: null,
+      requiresApproval: false, save: jest.fn().mockResolvedValue(),
+    });
+    let ev = make();
+    Event.findById.mockResolvedValue(ev);
+    await updateEvent({ params: { id: "ev1" }, body: { requiresApproval: "true" }, user: admin }, mockRes());
+    expect(ev.requiresApproval).toBe(true);
+
+    ev = { ...make(), requiresApproval: true };
+    Event.findById.mockResolvedValue(ev);
+    await updateEvent({ params: { id: "ev1" }, body: { title: "New title" }, user: admin }, mockRes());
+    expect(ev.requiresApproval).toBe(true); // untouched
+
+    await updateEvent({ params: { id: "ev1" }, body: { requiresApproval: "false" }, user: admin }, mockRes());
+    expect(ev.requiresApproval).toBe(false);
+  });
+});

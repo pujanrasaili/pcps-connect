@@ -10,6 +10,9 @@ const eventSchema = new mongoose.Schema(
     capacity: { type: Number, default: 100, min: 1 },
     category: { type: String, default: "General" },
     price: { type: String, default: "Free" },
+    // When true, joining is a request: the registration starts "pending" and an
+    // organiser approves or declines it (see adminController.decideRegistration).
+    requiresApproval: { type: Boolean, default: false },
     // Optional: the club hosting this event. Members of that club get an email
   // when it's announced (see utils/notifyClubMembers.js).
   club: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: null, index: true },

@@ -10,6 +10,7 @@ const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
+const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
 
 // Attaches a live "registeredCount" to each event, computed from actual
@@ -117,6 +118,7 @@ async function createEvent(req, res) {
       capacity: parsedCapacity,
       category: category || "General",
       price: price || "Free",
+      requiresApproval: parseFlag(req.body.requiresApproval) === true,
       image,
       club: club ? club._id : null,
       createdBy: req.user._id,
@@ -170,6 +172,8 @@ async function updateEvent(req, res) {
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) event[field] = req.body[field];
     }
+    const requiresApproval = parseFlag(req.body.requiresApproval);
+    if (requiresApproval !== undefined) event.requiresApproval = requiresApproval;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
       event.image = uploaded.secure_url;
