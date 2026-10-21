@@ -25,6 +25,14 @@ describe("buildIcs", () => {
     expect(ics).toContain("DESCRIPTION:Bring a laptop\;\\nsnacks\\, too");
   });
 
+  it("adds a day-before and an hour-before reminder inside the event", () => {
+    const ics = buildIcs(event);
+    expect(ics).toContain("TRIGGER:-P1D");
+    expect(ics).toContain("TRIGGER:-PT1H");
+    expect(ics.indexOf("END:VALARM")).toBeLessThan(ics.indexOf("END:VEVENT"));
+    expect(ics.match(/BEGIN:VALARM/g)).toHaveLength(2);
+  });
+
   it("folds lines longer than 75 characters", () => {
     const ics = buildIcs({ ...event, description: "x".repeat(200) });
     for (const line of ics.split("\r\n")) expect(line.length).toBeLessThanOrEqual(75);
