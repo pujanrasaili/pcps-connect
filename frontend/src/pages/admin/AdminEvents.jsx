@@ -214,6 +214,9 @@ export default function AdminEvents() {
                 <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered{event.requiresApproval ? " · approval needed" : ""}
+                  {event.pendingCount > 0 && (
+                    <span className="font-semibold text-amber-700 dark:text-amber-400"> · {event.pendingCount} awaiting your decision</span>
+                  )}
                   {event.averageRating != null && ` · ★ ${event.averageRating.toFixed(1)} (${event.ratingCount})`}
                 </p>
               </div>
