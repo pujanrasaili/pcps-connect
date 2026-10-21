@@ -12,6 +12,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import { usePagination } from "../hooks/usePagination";
 import Pagination from "../components/Pagination";
 import EventCalendar from "../components/EventCalendar";
+import { useSavedEvents } from "../hooks/useSavedEvents";
 import { isPastEvent } from "../utils/formatDate";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../utils/eventFilters";
 
@@ -36,6 +37,7 @@ export default function Events() {
   // The search box types into local state (instant) and is copied into the URL
   // once typing pauses.
   const [query, setQuery] = useState(urlQuery);
+  const { savedIds } = useSavedEvents();
   const debouncedQuery = useDebounce(query, 250);
   useEffect(() => {
     if (debouncedQuery !== urlQuery) update({ q: debouncedQuery });
@@ -58,7 +60,14 @@ export default function Events() {
       .filter((event) => {
         const isPast = isPastEvent(event.date);
         // "mine" = everything the student registered for, past or upcoming.
-        const matchesWhen = when === "mine" ? registeredIds.has(event._id) : when === "upcoming" ? !isPast : isPast;
+        const matchesWhen =
+          when === "mine"
+            ? registeredIds.has(event._id)
+            : when === "saved"
+              ? savedIds.includes(event._id)
+              : when === "upcoming"
+                ? !isPast
+                : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesClub = !clubFilter || event.club?._id === clubFilter;
         const matchesSpots = !openOnly || hasOpenSpots(event);
@@ -74,11 +83,12 @@ export default function Events() {
         const pastA = isPastEvent(a.date);
         const pastB = isPastEvent(b.date);
         // "Registered" lists what's coming first (soonest first), then what's done (latest first).
-        if (when === "mine" && pastA !== pastB) return pastA ? 1 : -1;
-        const newestFirst = when === "past" || (when === "mine" && pastA);
+        const mixed = when === "mine" || when === "saved";
+        if (mixed && pastA !== pastB) return pastA ? 1 : -1;
+        const newestFirst = when === "past" || (mixed && pastA);
         return newestFirst ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
       });
-  }, [events, debouncedQuery, category, when, clubFilter, registeredIds, openOnly]);
+  }, [events, debouncedQuery, category, when, clubFilter, registeredIds, savedIds, openOnly]);
 
   // The calendar shows every month, so it ignores the Upcoming/Past/Registered
   // tabs but keeps the category, search, club and spots-left filters.
@@ -118,6 +128,7 @@ export default function Events() {
               ["upcoming", "Upcoming"],
               ["past", "Past"],
               ...(isAuthenticated ? [["mine", "Registered"]] : []),
+              ["saved", "Saved"],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -213,11 +224,19 @@ export default function Events() {
             <p className="text-lg font-medium">
               {when === "mine"
                 ? "You haven't registered for any matching events."
-                : when === "upcoming"
+                : when === "saved"
+                  ? savedIds.length === 0
+                    ? "You haven't saved any events yet."
+                    : "None of your saved events match."
+                  : when === "upcoming"
                   ? "No upcoming events match your search."
                   : "No past events match your search."}
             </p>
-            <p className="mt-1 text-sm">Try a different name or category.</p>
+            <p className="mt-1 text-sm">
+              {when === "saved" && savedIds.length === 0
+                ? "Tap the bookmark on an event to keep it here for later."
+                : "Try a different name or category."}
+            </p>
             {(query || category !== "All" || openOnly) && (
               <button
                 onClick={() => {
