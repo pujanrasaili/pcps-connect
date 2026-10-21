@@ -9,6 +9,7 @@ import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
+import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
@@ -251,4 +252,20 @@ test("shiftMonth rolls the year over in both directions", () => {
   assert.deepEqual(shiftMonth(2027, 0, -1), { year: 2026, month: 11 });
   assert.deepEqual(shiftMonth(2026, 5, 0), { year: 2026, month: 5 });
   assert.equal(dayKey(new Date(2027, 0, 5, 23, 59)), "2027-01-05");
+});
+
+test("relatedEvents prefers the same club, then category, soonest first, skipping past and itself", () => {
+  const future = (days) => new Date(Date.now() + days * 86400000).toISOString();
+  const cur = { _id: "c", club: { _id: "A" }, category: "Tech", date: future(5) };
+  const events = [
+    cur,
+    { _id: "past", club: { _id: "A" }, category: "Tech", date: future(-3) },
+    { _id: "cat-soon", club: { _id: "B" }, category: "Tech", date: future(1) },
+    { _id: "club-late", club: { _id: "A" }, category: "Arts", date: future(20) },
+    { _id: "club-early", club: { _id: "A" }, category: "Arts", date: future(2) },
+    { _id: "other", club: { _id: "B" }, category: "Arts", date: future(1) },
+  ];
+  assert.deepEqual(relatedEvents(events, cur).map((e) => e._id), ["club-early", "club-late", "cat-soon"]);
+  assert.equal(relatedEvents(events, cur, 1).length, 1);
+  assert.deepEqual(relatedEvents(events, null), []);
 });
