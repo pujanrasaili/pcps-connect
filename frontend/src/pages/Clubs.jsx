@@ -18,7 +18,7 @@ import { pluralize } from "../utils/plural";
 import Pagination from "../components/Pagination";
 import { useToast } from "../context/ToastContext";
 import { shareClub } from "../utils/share";
-import { filterClubs } from "../utils/clubFilters";
+import { CLUB_SORTS, filterClubs, sortClubs } from "../utils/clubFilters";
 import { useAuth } from "../context/AuthContext";
 
 const PAGE_SIZE = 9;
@@ -85,6 +85,8 @@ export default function Clubs() {
   const { isAuthenticated } = useAuth();
   // "Only my clubs" needs a login, so the link is ignored for visitors.
   const mineOnly = isAuthenticated && params.get("mine") === "1";
+  const sortParam = params.get("sort");
+  const sort = CLUB_SORTS.some(([value]) => value === sortParam) ? sortParam : "default";
   const [query, setQuery] = useState(urlQuery);
   const debouncedQuery = useDebounce(query, 250);
   useEffect(() => {
@@ -110,8 +112,8 @@ export default function Clubs() {
   );
 
   const filteredClubs = useMemo(
-    () => filterClubs(clubs, { category, query: debouncedQuery, mineOnly, isJoined }),
-    [clubs, debouncedQuery, category, mineOnly, isJoined]
+    () => sortClubs(filterClubs(clubs, { category, query: debouncedQuery, mineOnly, isJoined }), sort),
+    [clubs, debouncedQuery, category, mineOnly, isJoined, sort]
   );
 
   const { page, setPage, totalPages, pageItems: pagedClubs } = usePagination(filteredClubs, PAGE_SIZE);
@@ -139,8 +141,8 @@ export default function Clubs() {
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
 
-        {isAuthenticated && (
-          <div className="mx-auto mt-4 flex max-w-4xl">
+        <div className="mx-auto mt-4 flex max-w-4xl flex-wrap items-center justify-between gap-3">
+          {isAuthenticated ? (
             <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <input
                 type="checkbox"
@@ -150,8 +152,24 @@ export default function Clubs() {
               />
               Only clubs I've joined
             </label>
-          </div>
-        )}
+          ) : (
+            <span />
+          )}
+          <label className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+            Sort by
+            <select
+              value={sort}
+              onChange={(e) => setFilter("sort", e.target.value, "default")}
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            >
+              {CLUB_SORTS.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         {loading ? (
           <div className="mt-16 flex justify-center">
@@ -164,6 +182,7 @@ export default function Clubs() {
           </div>
         ) : filteredClubs.length > 0 ? (
           <>
+            <h2 className="sr-only">Club list</h2>
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pagedClubs.map((club, i) => (
                 <Reveal key={club._id} delay={(i % 6) * 80}>
