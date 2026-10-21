@@ -40,13 +40,33 @@ describe("pickClubFields", () => {
 });
 
 describe("getClubs / getClubById", () => {
-  it("lists clubs sorted by name", async () => {
-    const sort = jest.fn().mockResolvedValue([{ name: "A" }]);
+  it("lists clubs sorted by name, with a public member count", async () => {
+    const sort = jest.fn().mockResolvedValue([{ _id: "c1", name: "A" }, { _id: "c2", name: "B" }]);
     Club.find = jest.fn().mockReturnValue({ sort });
+    ClubMembership.aggregate = jest.fn().mockResolvedValue([{ _id: "c1", members: 7 }]);
     const res = mockRes();
     await getClubs({}, res);
     expect(sort).toHaveBeenCalledWith({ name: 1 });
-    expect(res.json).toHaveBeenCalledWith({ clubs: [{ name: "A" }] });
+    expect(res.json).toHaveBeenCalledWith({
+      clubs: [{ _id: "c1", name: "A", memberCount: 7 }, { _id: "c2", name: "B", memberCount: 0 }],
+    });
+  });
+
+  it("still lists clubs if counting members fails", async () => {
+    Club.find = jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue([{ _id: "c1", name: "A" }]) });
+    ClubMembership.aggregate = jest.fn().mockRejectedValue(new Error("db hiccup"));
+    const res = mockRes();
+    await getClubs({}, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json.mock.calls[0][0].clubs[0]).toMatchObject({ name: "A", memberCount: 0 });
+  });
+
+  it("returns one club with its member count", async () => {
+    Club.findById = jest.fn().mockResolvedValue({ _id: "c1", toObject: () => ({ _id: "c1", name: "A" }) });
+    ClubMembership.countDocuments = jest.fn().mockResolvedValue(4);
+    const res = mockRes();
+    await getClubById({ params: { id: "c1" } }, res);
+    expect(res.json).toHaveBeenCalledWith({ club: { _id: "c1", name: "A", memberCount: 4 } });
   });
 
   it("returns 404 for an unknown or malformed id", async () => {

@@ -3,12 +3,20 @@ const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
 const { pickClubFields } = require("../utils/clubFields");
+const { withMemberCounts } = require("../utils/memberCounts");
 
 // GET /api/clubs  (public)
 async function getClubs(req, res) {
   try {
     const clubs = await Club.find().sort({ name: 1 });
-    res.status(200).json({ clubs });
+    // The member count is a nice-to-have: if counting fails the list still loads.
+    let counts = [];
+    try {
+      counts = await ClubMembership.aggregate([{ $group: { _id: "$club", members: { $sum: 1 } } }]);
+    } catch (countErr) {
+      console.error("Failed to count club members:", countErr.message);
+    }
+    res.status(200).json({ clubs: withMemberCounts(clubs, counts) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch clubs") });
   }
@@ -19,7 +27,8 @@ async function getClubById(req, res) {
   try {
     const club = await Club.findById(req.params.id);
     if (!club) return res.status(404).json({ message: "Club not found" });
-    res.status(200).json({ club });
+    const memberCount = await ClubMembership.countDocuments({ club: club._id }).catch(() => 0);
+    res.status(200).json({ club: { ...club.toObject(), memberCount } });
   } catch (err) {
     res.status(404).json({ message: "Club not found" });
   }
