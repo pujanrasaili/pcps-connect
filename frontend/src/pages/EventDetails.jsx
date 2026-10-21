@@ -11,6 +11,8 @@ import {
   FaCalendarPlus,
   FaQrcode,
   FaShareAlt,
+  FaBookmark,
+  FaRegBookmark,
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
@@ -28,6 +30,7 @@ import { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
 import EventCard from "../components/EventCard";
 import { relatedEvents } from "../utils/relatedEvents";
+import { useSavedEvents } from "../hooks/useSavedEvents";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -48,6 +51,7 @@ export default function EventDetails() {
   const [waitlist, setWaitlist] = useState(null);
   const [waitlistBusy, setWaitlistBusy] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const { isSaved, toggle: toggleSaved } = useSavedEvents();
   const related = useMemo(() => relatedEvents(allEvents, event), [allEvents, event]);
 
   useEffect(() => {
@@ -249,6 +253,15 @@ export default function EventDetails() {
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
             >
               <FaShareAlt className="text-xs" /> Share this event
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleSaved(event._id)}
+              aria-pressed={isSaved(event._id)}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
+            >
+              {isSaved(event._id) ? <FaBookmark className="text-xs" /> : <FaRegBookmark className="text-xs" />}
+              {isSaved(event._id) ? "Saved for later" : "Save for later"}
             </button>
 
             {confirmedHere && isPast ? (
