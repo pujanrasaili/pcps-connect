@@ -10,6 +10,7 @@ import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
+import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
@@ -147,12 +148,14 @@ test("clubLink builds a deep link that opens the club's details", () => {
 
 test("event filters: defaults, hand-edited values and the logged-out 'mine' fallback", () => {
   const p = (q) => new URLSearchParams(q);
-  assert.deepEqual(readEventFilters(p("")), { when: "upcoming", category: "All", query: "", openOnly: false, club: "" });
+  assert.deepEqual(readEventFilters(p("")), { when: "upcoming", category: "All", query: "", openOnly: false, club: "", view: "list" });
   assert.equal(readEventFilters(p("when=past")).when, "past");
   assert.equal(readEventFilters(p("when=bogus")).when, "upcoming");
   assert.equal(readEventFilters(p("when=mine")).when, "upcoming"); // needs login
   assert.equal(readEventFilters(p("when=mine"), { isAuthenticated: true }).when, "mine");
   assert.equal(readEventFilters(p("open=1&q=hack&category=Tech")).openOnly, true);
+  assert.equal(readEventFilters(p("view=calendar")).view, "calendar");
+  assert.equal(readEventFilters(p("view=nonsense")).view, "list");
 });
 
 test("withEventFilters drops defaults and keeps other params", () => {
@@ -160,6 +163,8 @@ test("withEventFilters drops defaults and keeps other params", () => {
   assert.equal(withEventFilters(base, { when: "upcoming" }).toString(), "club=c1");
   assert.equal(withEventFilters(base, { category: "Tech", open: true }).toString(), "club=c1&when=past&category=Tech&open=1");
   assert.equal(withEventFilters(new URLSearchParams("open=1"), { open: false }).toString(), "");
+  assert.equal(withEventFilters(new URLSearchParams(), { view: "calendar" }).toString(), "view=calendar");
+  assert.equal(withEventFilters(new URLSearchParams("view=calendar"), { view: "list" }).toString(), "");
   assert.equal(withEventFilters(new URLSearchParams(), { q: "" }).toString(), "");
 });
 
@@ -211,4 +216,39 @@ test("buildIcsCalendar puts several events in one calendar, and a single event m
   assert.match(ics, /UID:e2@pcps-connect/);
   assert.equal(buildIcsCalendar([event], now), buildIcs(event, now));
   assert.equal(buildIcsCalendar([], now).includes("BEGIN:VEVENT"), false); // empty list: valid, empty calendar
+});
+
+test("buildMonthGrid lays out full Sunday-first weeks and files events under their local day", () => {
+  // March 2027 starts on a Monday and has 31 days -> 5 weeks, first cell is Sun 28 Feb.
+  const at = (d, h) => new Date(2027, 2, d, h).toISOString();
+  const events = [
+    { _id: "late", date: at(5, 18) },
+    { _id: "early", date: at(5, 9) },
+    { _id: "other", date: at(20, 12) },
+    { _id: "next-month", date: new Date(2027, 3, 2, 9).toISOString() },
+  ];
+  const weeks = buildMonthGrid(2027, 2, events);
+  assert.equal(weeks.length, 5);
+  assert.ok(weeks.every((w) => w.length === 7));
+  assert.equal(weeks[0][0].key, "2027-02-28");
+  assert.equal(weeks[0][0].inMonth, false);
+  assert.equal(weeks[0][1].key, "2027-03-01");
+  assert.equal(weeks[0][1].inMonth, true);
+  const cell = weeks.flat().find((c) => c.key === "2027-03-05");
+  assert.deepEqual(cell.events.map((e) => e._id), ["early", "late"]); // earliest first
+  assert.equal(weeks.flat().find((c) => c.key === "2027-03-20").events.length, 1);
+  // April 2 falls in the trailing padding of March's last week, and still shows its event.
+  assert.equal(weeks.flat().find((c) => c.key === "2027-04-02").events[0]._id, "next-month");
+});
+
+test("buildMonthGrid handles a month that fits in four weeks and one that needs six", () => {
+  assert.equal(buildMonthGrid(2026, 1, []).length, 4); // Feb 2026: starts Sunday, 28 days
+  assert.equal(buildMonthGrid(2026, 7, []).length, 6); // Aug 2026: starts Saturday, 31 days
+});
+
+test("shiftMonth rolls the year over in both directions", () => {
+  assert.deepEqual(shiftMonth(2026, 11, 1), { year: 2027, month: 0 });
+  assert.deepEqual(shiftMonth(2027, 0, -1), { year: 2026, month: 11 });
+  assert.deepEqual(shiftMonth(2026, 5, 0), { year: 2026, month: 5 });
+  assert.equal(dayKey(new Date(2027, 0, 5, 23, 59)), "2027-01-05");
 });
