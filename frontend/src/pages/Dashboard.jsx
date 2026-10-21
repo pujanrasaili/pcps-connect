@@ -12,6 +12,7 @@ import {
   FaUsers,
   FaUserTie,
   FaCalendarPlus,
+  FaBookmark,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -36,6 +37,8 @@ import { useRegistrations } from "../context/RegistrationContext";
 import { formatDate, isUpcoming, relativeDay } from "../utils/formatDate";
 import { resolveUploadUrl } from "../services/api";
 import { downloadIcsAll } from "../utils/calendar";
+import { useSavedEvents } from "../hooks/useSavedEvents";
+import { savedUpcoming } from "../utils/savedEvents";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
@@ -80,6 +83,12 @@ export default function Dashboard() {
       .filter((e) => e.club && joinedIds.has(e.club._id || e.club) && isUpcoming(e.date) && !registeredIds.has(e._id))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [events, memberships, registeredEvents]);
+
+  const { savedIds } = useSavedEvents();
+  const savedForLater = useMemo(() => {
+    const joined = new Set(registeredEvents.map((r) => r.event._id));
+    return savedUpcoming(events, savedIds, (id) => joined.has(id));
+  }, [events, savedIds, registeredEvents]);
 
   const favoriteClub = clubs.find((c) => c._id === favoriteClubId);
 
@@ -209,6 +218,36 @@ export default function Dashboard() {
           {fromMyClubs.length > 3 && (
             <Link to="/events" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
               +{fromMyClubs.length - 3} more on the Events page
+            </Link>
+          )}
+        </div>
+      )}
+
+      {savedForLater.length > 0 && (
+        <div className="card-surface min-w-0 p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <FaBookmark className="text-primary-500" />
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">Saved for later</h2>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {savedForLater.slice(0, 3).map((e) => (
+              <li key={e._id}>
+                <Link
+                  to={`/events/${e._id}`}
+                  className="-mx-2 block rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  <p className="truncate text-slate-700 dark:text-slate-200">{e.title}</p>
+                  <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                    {e.club?.name ? `${e.club.name} · ` : ""}
+                    {formatDate(e.date)}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {savedForLater.length > 3 && (
+            <Link to="/events?when=saved" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
+              See all {savedForLater.length} saved events
             </Link>
           )}
         </div>
