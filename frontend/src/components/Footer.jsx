@@ -47,9 +47,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">
+          <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
             Quick Links
-          </h4>
+          </h2>
           <ul className="mt-4 space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
             {[
               ["Home", "/"],
@@ -68,9 +68,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">
+          <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
             Account
-          </h4>
+          </h2>
           <ul className="mt-4 space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
             {[
               ["Login", "/login"],
@@ -91,9 +91,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <h4 className="font-display font-semibold text-slate-800 dark:text-slate-100">
+          <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
             Contact
-          </h4>
+          </h2>
           <ul className="mt-4 space-y-3 text-sm text-slate-500 dark:text-slate-400">
             <li className="flex items-start gap-2.5">
               <FaMapMarkerAlt className="mt-0.5 shrink-0 text-primary-500" />
