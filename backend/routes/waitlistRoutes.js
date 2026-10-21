@@ -3,7 +3,11 @@ const { getWaitlistStatus, joinWaitlist, leaveWaitlist } = require("../controlle
 const { protect } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
 
+const { validateIdParam } = require("../middleware/validateId");
+
 const router = express.Router();
+router.param("eventId", validateIdParam);
+
 
 router.get("/:eventId", protect, getWaitlistStatus);
 router.post("/:eventId", protect, actionLimiter, joinWaitlist);

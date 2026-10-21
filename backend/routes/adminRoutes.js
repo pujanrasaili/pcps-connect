@@ -26,7 +26,11 @@ const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const { actionLimiter } = require("../middleware/rateLimit");
 
+const { validateIdParam } = require("../middleware/validateId");
+
 const router = express.Router();
+router.param("id", validateIdParam);
+
 
 router.use(protect);
 

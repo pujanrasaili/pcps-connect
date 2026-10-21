@@ -11,7 +11,11 @@ const { staffOnly } = require("../middleware/staff");
 const upload = require("../middleware/upload");
 const { actionLimiter } = require("../middleware/rateLimit");
 
+const { validateIdParam } = require("../middleware/validateId");
+
 const router = express.Router();
+router.param("id", validateIdParam);
+
 
 router.get("/", getEvents);
 router.get("/:id", getEventById);
