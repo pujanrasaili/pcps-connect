@@ -97,6 +97,7 @@ pcps-connect/
 - Passwords hashed with bcrypt, never stored in plain text
 - Rate limiting on login/register/password-reset routes (brute-force protection)
 - `helmet` security headers
+- Malformed ids in links or requests (e.g. `/api/events/abc`) get a clean 404 instead of a database error, and auth endpoints reject non-text input with a 400
 - Role-based authorization enforced server-side on every protected route, not just hidden in the UI
 - Admin role can only ever be granted by an existing admin through the admin panel — never self-assigned at registration
 - User-supplied input (names, contact form) is HTML-escaped before being placed in outgoing emails
