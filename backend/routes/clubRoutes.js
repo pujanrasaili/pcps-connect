@@ -2,7 +2,11 @@ const express = require("express");
 const { getClubs, getClubById, createClub, updateClub, deleteClub } = require("../controllers/clubController");
 const { protect, adminOnly } = require("../middleware/auth");
 
+const { validateIdParam } = require("../middleware/validateId");
+
 const router = express.Router();
+router.param("id", validateIdParam);
+
 
 router.get("/", getClubs);
 router.get("/:id", getClubById);

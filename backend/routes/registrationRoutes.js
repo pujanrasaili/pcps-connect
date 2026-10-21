@@ -10,7 +10,11 @@ const {
 const { protect } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
 
+const { validateIdParam } = require("../middleware/validateId");
+
 const router = express.Router();
+router.param("id", validateIdParam);
+
 
 router.post("/register", protect, actionLimiter, registerForEvent);
 router.get("/my", protect, getMyRegistrations);
