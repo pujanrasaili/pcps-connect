@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaList, FaRegCalendarAlt } from "react-icons/fa";
 import EventCard from "../components/EventCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -11,6 +11,7 @@ import { useRegistrations } from "../context/RegistrationContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { usePagination } from "../hooks/usePagination";
 import Pagination from "../components/Pagination";
+import EventCalendar from "../components/EventCalendar";
 import { isPastEvent } from "../utils/formatDate";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../utils/eventFilters";
 
@@ -27,7 +28,7 @@ export default function Events() {
   // Every filter lives in the URL (?when=&category=&q=&open=&club=) so a
   // filtered list can be shared and the back button behaves.
   const [searchParams, setSearchParams] = useSearchParams();
-  const { when, category, openOnly, club: clubFilter, query: urlQuery } = readEventFilters(searchParams, { isAuthenticated });
+  const { when, category, openOnly, club: clubFilter, query: urlQuery, view } = readEventFilters(searchParams, { isAuthenticated });
   const update = (patch) => setSearchParams((prev) => withEventFilters(prev, patch), { replace: true });
   const setWhen = (value) => update({ when: value });
   const setCategory = (value) => update({ category: value });
@@ -79,6 +80,19 @@ export default function Events() {
       });
   }, [events, debouncedQuery, category, when, clubFilter, registeredIds, openOnly]);
 
+  // The calendar shows every month, so it ignores the Upcoming/Past/Registered
+  // tabs but keeps the category, search, club and spots-left filters.
+  const calendarEvents = useMemo(() => {
+    const needle = debouncedQuery.toLowerCase();
+    return events.filter(
+      (event) =>
+        (category === "All" || event.category === category) &&
+        (!clubFilter || event.club?._id === clubFilter) &&
+        (!openOnly || hasOpenSpots(event)) &&
+        [event.title, event.location, event.club?.name].filter(Boolean).some((field) => field.toLowerCase().includes(needle))
+    );
+  }, [events, debouncedQuery, category, clubFilter, openOnly]);
+
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
   return (
@@ -97,7 +111,8 @@ export default function Events() {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 flex max-w-4xl justify-center">
+        <div className="mx-auto mt-8 flex max-w-4xl flex-wrap items-center justify-center gap-3">
+          {view === "list" && (
           <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
             {[
               ["upcoming", "Upcoming"],
@@ -114,6 +129,26 @@ export default function Events() {
                 }`}
               >
                 {label}
+              </button>
+            ))}
+          </div>
+          )}
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label="View">
+            {[
+              ["list", "List", FaList],
+              ["calendar", "Calendar", FaRegCalendarAlt],
+            ].map(([value, label, Icon]) => (
+              <button
+                key={value}
+                onClick={() => update({ view: value })}
+                aria-pressed={view === value}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+                  view === value
+                    ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
+                    : "text-slate-600 dark:text-slate-400"
+                }`}
+              >
+                <Icon className="text-xs" /> {label}
               </button>
             ))}
           </div>
@@ -157,6 +192,10 @@ export default function Events() {
           <div className="mt-16 text-center text-rose-500">
             <p className="font-medium">Couldn't load events.</p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
+          </div>
+        ) : view === "calendar" ? (
+          <div className="mt-10">
+            <EventCalendar events={calendarEvents} registeredIds={registeredIds} />
           </div>
         ) : filteredEvents.length > 0 ? (
           <>
