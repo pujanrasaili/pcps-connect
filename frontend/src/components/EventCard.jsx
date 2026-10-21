@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle } from "react-icons/fa";
+import { FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf } from "react-icons/fa";
 import { formatDay, formatMonth, isPastEvent } from "../utils/formatDate";
 import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
@@ -12,7 +12,7 @@ export default function EventCard({ event }) {
   const isFillingUp = spotsLeft <= 15 && spotsLeft > 0;
   const isFull = spotsLeft <= 0;
   const isPast = isPastEvent(event.date);
-  const { isRegistered } = useRegistrations();
+  const { isRegistered, isPending } = useRegistrations();
   const registered = isRegistered(event._id);
   const tilt = useTilt({ max: 6, scale: 1.015 });
 
@@ -84,9 +84,15 @@ export default function EventCard({ event }) {
               {event.price || "Free"}
             </span>
             {registered && (
-              <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                <FaCheckCircle /> Registered
-              </span>
+              isPending(event._id) ? (
+                <span className="flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
+                  <FaHourglassHalf /> Pending approval
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                  <FaCheckCircle /> Registered
+                </span>
+              )
             )}
           </span>
           <Link to={`/events/${event._id}`} className="btn-outline !px-4 !py-2 text-sm">

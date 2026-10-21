@@ -58,6 +58,8 @@ export default function Dashboard() {
   const upcoming = registeredEvents
     .filter((r) => isUpcoming(r.event.date))
     .sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
+  // Requests the organisers haven't approved yet aren't in the calendar file.
+  const upcomingConfirmed = upcoming.filter((r) => r.status !== "pending");
 
   // Events they attended but never rated: the organisers' only way to learn
   // how it went, so worth a nudge right on the dashboard.
@@ -266,9 +268,9 @@ export default function Dashboard() {
             Upcoming Registrations
           </h2>
           <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
-            {upcoming.length > 0 && (
+            {upcomingConfirmed.length > 0 && (
               <button
-                onClick={() => downloadIcsAll(upcoming.map((r) => r.event))}
+                onClick={() => downloadIcsAll(upcomingConfirmed.map((r) => r.event))}
                 className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
               >
                 <FaCalendarPlus className="text-xs" /> Add all to calendar
@@ -291,6 +293,9 @@ export default function Dashboard() {
                   <img src={resolveUploadUrl(r.event.image, 120)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
+                    {r.status === "pending" && (
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">Pending approval</p>
+                    )}
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       {relativeDay(r.event.date) && (
                         <span className="font-semibold text-accent-600 dark:text-accent-300">{relativeDay(r.event.date)} · </span>

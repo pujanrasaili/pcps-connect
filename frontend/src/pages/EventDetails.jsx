@@ -31,7 +31,7 @@ export default function EventDetails() {
   const { id } = useParams();
   const { getEventById } = useEvents();
   const { isAuthenticated } = useAuth();
-  const { registrations, isRegistered, cancelRegistration } = useRegistrations();
+  const { registrations, isRegistered, isPending, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
 
   useEffect(() => {
@@ -104,6 +104,10 @@ export default function EventDetails() {
   const isPast = isPastEvent(event.date);
   const registered = isRegistered(event._id);
   const myRegistration = registrations.find((r) => r.event?._id === event._id);
+  // "Registered" in the UI means confirmed: a request still waiting for the
+  // organisers gets its own state (no QR code, no calendar links yet).
+  const pendingHere = isPending(event._id);
+  const confirmedHere = registered && !pendingHere;
 
   const handleJoinWaitlist = async () => {
     setWaitlistBusy(true);
@@ -244,9 +248,22 @@ export default function EventDetails() {
               <FaShareAlt className="text-xs" /> Share this event
             </button>
 
-            {registered && isPast ? (
+            {confirmedHere && isPast ? (
               <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 <FaCheckCircle /> {myRegistration?.attended ? "You attended this event" : "You were registered for this event"}
+              </div>
+            ) : pendingHere ? (
+              <div className="mt-5 space-y-2">
+                <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                  Request sent -- waiting for the organisers. A seat is being held for you, and we'll email you when they decide.
+                </div>
+                <button
+                  onClick={handleUnregister}
+                  disabled={unregistering}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
+                >
+                  <FaTimes className="text-xs" /> {unregistering ? "Withdrawing..." : "Withdraw request"}
+                </button>
               </div>
             ) : registered ? (
               <div className="mt-5 space-y-2">
@@ -315,7 +332,7 @@ export default function EventDetails() {
               </Button>
             ) : isAuthenticated ? (
               <Button className="mt-5 w-full" onClick={handleRegisterClick}>
-                Register now
+                {event.requiresApproval ? "Request to join" : "Register now"}
               </Button>
             ) : (
               <Link to="/login" state={{ from: `/events/${event._id}` }} className="btn-primary mt-5 w-full">
@@ -326,7 +343,7 @@ export default function EventDetails() {
         </aside>
       </div>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Register for this event">
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={event.requiresApproval ? "Request to join this event" : "Register for this event"}>
         <RegistrationForm event={event} onSuccess={() => setShowModal(false)} />
       </Modal>
 
