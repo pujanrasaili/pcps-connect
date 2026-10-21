@@ -67,6 +67,7 @@ pcps-connect/
 - Email notifications: registration confirmation (with an add-to-calendar invite), event reminders (opt out in Settings), reschedule/cancellation notices, account approval decisions, and a security notice whenever the password changes
 - "Add to calendar" (Google Calendar link or .ics download) for events you're registered for
 - "Calendar" view on the Events page: a month grid (Sunday first) with each day's events, tap a day to list them; it keeps your category, search, club and spots-left filters and is shareable as `?view=calendar`
+- Each event page suggests "More events you may like": upcoming events from the same club first, then the same category
 - Contact form that actually emails the college
 - Branded HTML emails (verification, password reset, notifications) instead of plain text
 - Toast notifications for every action, and a graceful fallback screen if anything ever crashes
