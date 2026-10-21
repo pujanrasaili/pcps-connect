@@ -134,6 +134,20 @@ describe("getEventById -- registration and rating stats", () => {
     });
   });
 
+  it("includes how many join requests are still pending (0 when none)", async () => {
+    Event.findById.mockReturnValue(populated({ _id: "ev1", toObject: () => ({ _id: "ev1" }) }));
+    Registration.aggregate.mockResolvedValue([{ _id: "ev1", count: 5, pendingCount: 3, ratingSum: 0, ratingCount: 0 }]);
+    let res = mockRes();
+    await getEventById({ params: { id: "ev1" } }, res);
+    expect(res.json).toHaveBeenCalledWith({ event: expect.objectContaining({ registeredCount: 5, pendingCount: 3 }) });
+
+    Registration.aggregate.mockResolvedValue([]);
+    Event.findById.mockReturnValue(populated({ _id: "ev1", toObject: () => ({ _id: "ev1" }) }));
+    res = mockRes();
+    await getEventById({ params: { id: "ev1" } }, res);
+    expect(res.json).toHaveBeenCalledWith({ event: expect.objectContaining({ pendingCount: 0 }) });
+  });
+
   it("reports no average when nobody has rated", async () => {
     Event.findById.mockReturnValue(populated({ _id: "ev1", toObject: () => ({ _id: "ev1" }) }));
     Registration.aggregate.mockResolvedValue([{ _id: "ev1", count: 2, ratingSum: 0, ratingCount: 0 }]);

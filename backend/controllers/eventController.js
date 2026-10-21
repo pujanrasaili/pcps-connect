@@ -27,6 +27,8 @@ async function withRegisteredCount(events) {
       $group: {
         _id: "$event",
         count: { $sum: 1 },
+        // Join requests still waiting for an organiser (approval events only).
+        pendingCount: { $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] } },
         // $sum ignores the null rating of students who haven't rated.
         ratingSum: { $sum: "$rating" },
         ratingCount: { $sum: { $cond: [{ $gt: ["$rating", null] }, 1, 0] } },
@@ -41,6 +43,7 @@ async function withRegisteredCount(events) {
     return {
       ...obj,
       registeredCount: stats?.count || 0,
+      pendingCount: stats?.pendingCount || 0,
       ...ratingSummary(stats?.ratingSum, stats?.ratingCount),
     };
   });
