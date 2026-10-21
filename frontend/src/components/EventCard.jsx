@@ -65,7 +65,7 @@ export default function EventCard({ event }) {
         <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <FaUsers className="text-primary-500 shrink-0" />
           {isFull ? (
-            <span className="font-medium text-rose-500">Fully booked</span>
+            <span className="font-medium text-rose-600 dark:text-rose-400">Fully booked</span>
           ) : isFillingUp ? (
             <span className="font-medium text-amber-500">{spotsLeft} spots left</span>
           ) : (
