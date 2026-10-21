@@ -13,6 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
+import { filterClubs } from "../src/utils/clubFilters.js";
 import { parseSaved, toggleSaved, savedUpcoming } from "../src/utils/savedEvents.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
@@ -299,4 +300,18 @@ test("savedUpcoming keeps saved, upcoming, not-yet-joined events, soonest first"
   const ids = savedUpcoming(events, ["late", "soon", "past", "joined"], (id) => id === "joined").map((e) => e._id);
   assert.deepEqual(ids, ["soon", "late"]);
   assert.deepEqual(savedUpcoming(events, []), []);
+});
+
+test("filterClubs combines category, search and 'only my clubs'", () => {
+  const clubs = [
+    { _id: "a", name: "Coding Club", category: "Technology", description: "Weekly hacks" },
+    { _id: "b", name: "Art Circle", category: "Arts", description: "Drawing and painting" },
+    { _id: "c", name: "Robotics", category: "Technology" },
+  ];
+  const joined = (id) => id === "c";
+  assert.equal(filterClubs(clubs).length, 3);
+  assert.deepEqual(filterClubs(clubs, { category: "Technology" }).map((c) => c._id), ["a", "c"]);
+  assert.deepEqual(filterClubs(clubs, { query: "PAINT" }).map((c) => c._id), ["b"]);
+  assert.deepEqual(filterClubs(clubs, { mineOnly: true, isJoined: joined }).map((c) => c._id), ["c"]);
+  assert.deepEqual(filterClubs(clubs, { mineOnly: true, category: "Arts", isJoined: joined }), []);
 });
