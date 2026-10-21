@@ -38,6 +38,7 @@ pcps-connect/
 - Full event directory: browse, search (by name, place or club), filter, register/unregister, live capacity tracking, and a "View events" link from each club that shows only its events
 - Club events: an event can be hosted by a club, and members of that club are emailed when it is announced (opt out in Settings)
 - Weekly digest: every Sunday morning each student gets one email listing the next 7 days of events from the clubs they joined (skipping events they already registered for or that are full; nobody gets an empty digest). Runs from a GitHub Actions schedule, can be previewed with a dry run, and the "Club updates" switch in Settings turns it off
+- Events can require organiser approval ("Approve each person who joins" when creating an event): students send a request instead of being confirmed, a seat is held for them, and the organiser approves or declines from the attendee list; the student is emailed either way and only approved students get the QR code, calendar links and reminders
 - Admins can email a message to all members of a club from Admin → Clubs (members who turned off club updates are skipped)
 - Admins can approve every pending sign-up at once ("Approve all" on the Pending filter, respects search) — each person is emailed and it's logged as one activity entry
 - Admin → Users can be filtered by approval status (pending / approved / rejected, with counts) and searched by student ID
@@ -84,6 +85,7 @@ pcps-connect/
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
 - Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR, message their registrants and club members, and see turnout and ratings for their clubs' past events — nothing else (no users, other clubs or activity log); enforced on the server
 - Activity log of admin actions (role changes, approvals/rejections, deletions) with who did them, kept for a year; filter it by people / events / clubs or search by name
+- "Add all to calendar" on the student dashboard downloads every confirmed upcoming registration as one .ics file
 - Insights card on the admin overview: registrations per month (last 6 months), the most popular clubs by members, and overall turnout at past events
 - Live platform stats (total clubs, events, students, registrations)
 
