@@ -36,16 +36,21 @@ export function RegistrationProvider({ children }) {
   const isRegistered = (eventId) =>
     isAuthenticated && registrations.some((r) => r.event?._id === eventId);
 
+  // A request to join an event that needs organiser approval, not yet decided.
+  const isPending = (eventId) =>
+    isAuthenticated && registrations.some((r) => r.event?._id === eventId && r.status === "pending");
+
   const registerForEvent = async (eventId) => {
     if (!isAuthenticated) {
       toast.error("Please log in to register.");
       return { ok: false, message: "Please log in to register." };
     }
     try {
-      await api.post("/registrations/register", { eventId });
+      const res = await api.post("/registrations/register", { eventId });
       await refreshRegistrations();
-      toast.success("You're registered for this event!");
-      return { ok: true, message: "Registration successful!" };
+      const pending = res.data?.registration?.status === "pending";
+      toast.success(pending ? "Request sent -- the organisers will review it." : "You're registered for this event!");
+      return { ok: true, pending, message: pending ? "Request sent!" : "Registration successful!" };
     } catch (err) {
       const message = getErrorMessage(err, "Registration failed");
       toast.error(message);
@@ -62,7 +67,7 @@ export function RegistrationProvider({ children }) {
     try {
       await api.delete(`/registrations/${registration._id}`);
       await refreshRegistrations();
-      toast.info("Unregistered from event.");
+      toast.info(registration.status === "pending" ? "Request withdrawn." : "Unregistered from event.");
       return { ok: true };
     } catch (err) {
       const message = getErrorMessage(err, "Failed to cancel registration");
@@ -86,7 +91,7 @@ export function RegistrationProvider({ children }) {
 
   return (
     <RegistrationContext.Provider
-      value={{ registrations, loading, isRegistered, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
+      value={{ registrations, loading, isRegistered, isPending, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
     >
       {children}
     </RegistrationContext.Provider>
