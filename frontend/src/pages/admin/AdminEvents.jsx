@@ -28,6 +28,7 @@ const EMPTY_FORM = {
   category: "",
   price: "Free",
   club: "",
+  requiresApproval: false,
 };
 
 // Converts a stored ISO date into the "YYYY-MM-DDTHH:mm" shape a
@@ -85,8 +86,8 @@ export default function AdminEvents() {
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const openCreate = () => {
@@ -113,6 +114,7 @@ export default function AdminEvents() {
       category: event.category || "",
       price: event.price || "Free",
       club: event.club?._id || event.club || "",
+      requiresApproval: !!event.requiresApproval,
     });
     setImageFile(null);
     setFormOpen(true);
@@ -130,6 +132,7 @@ export default function AdminEvents() {
       category: event.category || "",
       price: event.price || "Free",
       club: event.club?._id || event.club || "",
+      requiresApproval: !!event.requiresApproval,
     });
     setImageFile(null);
     setFormOpen(true);
@@ -210,7 +213,7 @@ export default function AdminEvents() {
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered
+                  {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered{event.requiresApproval ? " · approval needed" : ""}
                   {event.averageRating != null && ` · ★ ${event.averageRating.toFixed(1)} (${event.ratingCount})`}
                 </p>
               </div>
@@ -298,6 +301,21 @@ export default function AdminEvents() {
               <input name="price" className="input-field" value={form.price} onChange={handleChange} placeholder="Free or NPR 200" />
             </div>
           </div>
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+            <input
+              type="checkbox"
+              name="requiresApproval"
+              checked={form.requiresApproval}
+              onChange={handleChange}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary-500"
+            />
+            <span className="text-sm">
+              <span className="font-medium text-slate-800 dark:text-slate-100">Approve each person who joins</span>
+              <span className="block text-slate-500 dark:text-slate-400">
+                Students send a request instead of being confirmed straight away. A seat is held for each request, and you approve or decline them from the attendee list.
+              </span>
+            </span>
+          </label>
           <div>
             <label className="label-field">{leaderMode ? "Hosting club" : "Hosting club (optional)"}</label>
             <select name="club" className="input-field" value={form.club} onChange={handleChange} required={leaderMode}>
