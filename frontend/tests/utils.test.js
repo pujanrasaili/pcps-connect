@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { csvField, buildCsv, slugify } from "../src/utils/csv.js";
 import { pluralize } from "../src/utils/plural.js";
-import { buildIcs, googleCalendarUrl } from "../src/utils/calendar.js";
+import { buildIcs, buildIcsCalendar, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
@@ -199,4 +199,16 @@ test("slow tracker flags only requests that outlive the threshold, and clears wh
   tracker.end("b");
   tracker.end("never-started"); // harmless
   assert.equal(notifications, 2);
+});
+
+test("buildIcsCalendar puts several events in one calendar, and a single event matches buildIcs", () => {
+  const now = new Date("2026-10-01T00:00:00Z");
+  const second = { ...event, _id: "e2", title: "Quiz Night" };
+  const ics = buildIcsCalendar([event, second], now);
+  assert.equal(ics.match(/BEGIN:VCALENDAR/g).length, 1);
+  assert.equal(ics.match(/BEGIN:VEVENT/g).length, 2);
+  assert.match(ics, /UID:e1@pcps-connect/);
+  assert.match(ics, /UID:e2@pcps-connect/);
+  assert.equal(buildIcsCalendar([event], now), buildIcs(event, now));
+  assert.equal(buildIcsCalendar([], now).includes("BEGIN:VEVENT"), false); // empty list: valid, empty calendar
 });
