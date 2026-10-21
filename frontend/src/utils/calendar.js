@@ -27,14 +27,10 @@ function foldLine(line) {
   return parts.join("\r\n");
 }
 
-export function buildIcs(event, now = new Date()) {
+function eventLines(event, now) {
   const start = new Date(event.date);
   const end = new Date(start.getTime() + DEFAULT_DURATION_MS);
-  const lines = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//PCPS Connect//Events//EN",
-    "CALSCALE:GREGORIAN",
+  return [
     "BEGIN:VEVENT",
     `UID:${event._id}@pcps-connect`,
     `DTSTAMP:${toCalendarDate(now)}`,
@@ -44,9 +40,25 @@ export function buildIcs(event, now = new Date()) {
     `LOCATION:${escapeIcsText(event.location)}`,
     `DESCRIPTION:${escapeIcsText(event.description)}`,
     "END:VEVENT",
+  ];
+}
+
+// One calendar file holding any number of events (e.g. everything a student
+// is registered for), so it can be imported in a single step.
+export function buildIcsCalendar(events, now = new Date()) {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//PCPS Connect//Events//EN",
+    "CALSCALE:GREGORIAN",
+    ...events.flatMap((event) => eventLines(event, now)),
     "END:VCALENDAR",
   ];
   return lines.map(foldLine).join("\r\n") + "\r\n";
+}
+
+export function buildIcs(event, now = new Date()) {
+  return buildIcsCalendar([event], now);
 }
 
 export function googleCalendarUrl(event) {
@@ -62,14 +74,24 @@ export function googleCalendarUrl(event) {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-export function downloadIcs(event) {
-  const blob = new Blob([buildIcs(event)], { type: "text/calendar;charset=utf-8" });
+function saveIcs(content, filename) {
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${event.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "event"}.ics`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+}
+
+export function downloadIcs(event) {
+  const name = event.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "event";
+  saveIcs(buildIcs(event), `${name}.ics`);
+}
+
+// Every given event in one .ics file (the dashboard's "Add all to calendar").
+export function downloadIcsAll(events, filename = "pcps-events.ics") {
+  saveIcs(buildIcsCalendar(events), filename);
 }
