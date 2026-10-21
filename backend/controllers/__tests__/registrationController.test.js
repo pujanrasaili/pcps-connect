@@ -23,11 +23,22 @@ function mockRes() {
 }
 
 const USER_ID = "user1";
-const EVENT_ID = "event1";
+const EVENT_ID = "64b7f0c2a1b2c3d4e5f60001";
 
 function futureEvent(overrides = {}) {
   return { _id: EVENT_ID, capacity: 2, date: new Date(Date.now() + 86400000), ...overrides };
 }
+
+describe("registerForEvent -- malformed ids", () => {
+  it("answers 404 without touching the database when eventId isn't a real id", async () => {
+    for (const eventId of ["abc", "undefined", { $gt: "" }, 42]) {
+      const res = mockRes();
+      await registerForEvent({ body: { eventId }, user: { _id: USER_ID } }, res);
+      expect(res.status).toHaveBeenCalledWith(404);
+    }
+    expect(Event.findById).not.toHaveBeenCalled();
+  });
+});
 
 describe("registerForEvent", () => {
   afterEach(() => jest.clearAllMocks());
