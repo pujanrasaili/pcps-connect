@@ -13,7 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
-import { filterClubs } from "../src/utils/clubFilters.js";
+import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
 import { parseSaved, toggleSaved, savedUpcoming } from "../src/utils/savedEvents.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
 
@@ -314,4 +314,18 @@ test("filterClubs combines category, search and 'only my clubs'", () => {
   assert.deepEqual(filterClubs(clubs, { query: "PAINT" }).map((c) => c._id), ["b"]);
   assert.deepEqual(filterClubs(clubs, { mineOnly: true, isJoined: joined }).map((c) => c._id), ["c"]);
   assert.deepEqual(filterClubs(clubs, { mineOnly: true, category: "Arts", isJoined: joined }), []);
+});
+
+test("sortClubs orders by members or name without touching the original list", () => {
+  const clubs = [
+    { _id: "a", name: "Robotics", memberCount: 5 },
+    { _id: "b", name: "Art", memberCount: 12 },
+    { _id: "c", name: "Chess" },
+    { _id: "d", name: "Band", memberCount: 5 },
+  ];
+  assert.deepEqual(sortClubs(clubs, "members").map((c) => c._id), ["b", "d", "a", "c"]);
+  assert.deepEqual(sortClubs(clubs, "name").map((c) => c._id), ["b", "d", "c", "a"]);
+  assert.equal(sortClubs(clubs, "default"), clubs);
+  assert.equal(sortClubs(clubs, "bogus"), clubs);
+  assert.deepEqual(clubs.map((c) => c._id), ["a", "b", "c", "d"]);
 });
