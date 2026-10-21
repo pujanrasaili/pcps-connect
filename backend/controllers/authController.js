@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const { isObjectId } = require("../middleware/validateId");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { cleanProfileFields } = require("../utils/profileFields");
@@ -264,6 +265,8 @@ async function toggleFavoriteClub(req, res) {
   try {
     const { clubId } = req.body;
     if (!clubId) return res.status(400).json({ message: "clubId is required" });
+
+    if (!isObjectId(clubId)) return res.status(404).json({ message: "Club not found" });
 
     const Club = require("../models/Club");
     const club = await Club.findById(clubId);

@@ -1,4 +1,5 @@
 const Registration = require("../models/Registration");
+const { isObjectId } = require("../middleware/validateId");
 const Event = require("../models/Event");
 const { safeError } = require("../utils/errorMessage");
 const { promoteFromWaitlist } = require("../utils/waitlist");
@@ -11,6 +12,8 @@ async function registerForEvent(req, res) {
   try {
     const { eventId } = req.body;
     if (!eventId) return res.status(400).json({ message: "eventId is required" });
+
+    if (!isObjectId(eventId)) return res.status(404).json({ message: "Event not found" });
 
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });

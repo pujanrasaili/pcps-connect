@@ -34,10 +34,10 @@ function mockRes() {
 
 const ADMIN = { _id: "a1", role: "admin" };
 const STUDENT = { _id: "stu", role: "user", name: "Asha", email: "asha@patancollege.edu.np" };
-const event = (extra = {}) => ({ _id: "ev1", title: "Hack Night", location: "Lab 3", capacity: 5, club: "cA", date: new Date(Date.now() + 864e5), ...extra });
+const event = (extra = {}) => ({ _id: "64b7f0c2a1b2c3d4e5f60002", title: "Hack Night", location: "Lab 3", capacity: 5, club: "cA", date: new Date(Date.now() + 864e5), ...extra });
 const pendingReg = (extra = {}) => ({
   _id: "r1",
-  event: "ev1",
+  event: "64b7f0c2a1b2c3d4e5f60002",
   status: "pending",
   user: { _id: "stu", name: "Asha", email: "asha@patancollege.edu.np" },
   save: jest.fn().mockResolvedValue(),
@@ -62,8 +62,8 @@ describe("registerForEvent on an approval event", () => {
   it("creates a pending request (holding a seat) and emails 'request received', not a confirmation", async () => {
     setup();
     const res = mockRes();
-    await registerForEvent({ body: { eventId: "ev1" }, user: STUDENT }, res);
-    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "ev1", status: "pending" });
+    await registerForEvent({ body: { eventId: "64b7f0c2a1b2c3d4e5f60002" }, user: STUDENT }, res);
+    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "pending" });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json.mock.calls[0][0].message).toMatch(/request sent/i);
     expect(sendEmail).toHaveBeenCalledTimes(1);
@@ -76,7 +76,7 @@ describe("registerForEvent on an approval event", () => {
     setup();
     Registration.countDocuments.mockResolvedValue(5);
     const res = mockRes();
-    await registerForEvent({ body: { eventId: "ev1" }, user: STUDENT }, res);
+    await registerForEvent({ body: { eventId: "64b7f0c2a1b2c3d4e5f60002" }, user: STUDENT }, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(Registration.create).not.toHaveBeenCalled();
   });
@@ -85,8 +85,8 @@ describe("registerForEvent on an approval event", () => {
     setup();
     Event.findById.mockResolvedValue(event()); // requiresApproval undefined
     const res = mockRes();
-    await registerForEvent({ body: { eventId: "ev1" }, user: STUDENT }, res);
-    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "ev1", status: "confirmed" });
+    await registerForEvent({ body: { eventId: "64b7f0c2a1b2c3d4e5f60002" }, user: STUDENT }, res);
+    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "confirmed" });
   });
 });
 

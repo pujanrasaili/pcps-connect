@@ -1,4 +1,5 @@
 const ClubMembership = require("../models/ClubMembership");
+const { isObjectId } = require("../middleware/validateId");
 const Club = require("../models/Club");
 const { safeError } = require("../utils/errorMessage");
 
@@ -18,6 +19,8 @@ async function joinClub(req, res) {
   try {
     const { clubId } = req.body;
     if (!clubId) return res.status(400).json({ message: "clubId is required" });
+
+    if (!isObjectId(clubId)) return res.status(404).json({ message: "Club not found" });
 
     const club = await Club.findById(clubId);
     if (!club) return res.status(404).json({ message: "Club not found" });
