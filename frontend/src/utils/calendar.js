@@ -27,6 +27,12 @@ function foldLine(line) {
   return parts.join("\r\n");
 }
 
+// Reminders the calendar app shows on its own: a day before and an hour before.
+const ALARM_LINES = [
+  ["-P1D", "Tomorrow"],
+  ["-PT1H", "Starting in 1 hour"],
+].flatMap(([trigger, text]) => ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${text}`, `TRIGGER:${trigger}`, "END:VALARM"]);
+
 function eventLines(event, now) {
   const start = new Date(event.date);
   const end = new Date(start.getTime() + DEFAULT_DURATION_MS);
@@ -39,6 +45,7 @@ function eventLines(event, now) {
     `SUMMARY:${escapeIcsText(event.title)}`,
     `LOCATION:${escapeIcsText(event.location)}`,
     `DESCRIPTION:${escapeIcsText(event.description)}`,
+    ...ALARM_LINES,
     "END:VEVENT",
   ];
 }
