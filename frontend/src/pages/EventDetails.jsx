@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import {
   FaMapMarkerAlt,
@@ -26,10 +26,12 @@ import { shareEvent } from "../utils/share";
 import { eventTitle } from "../utils/pageTitle";
 import { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
+import EventCard from "../components/EventCard";
+import { relatedEvents } from "../utils/relatedEvents";
 
 export default function EventDetails() {
   const { id } = useParams();
-  const { getEventById } = useEvents();
+  const { getEventById, events: allEvents } = useEvents();
   const { isAuthenticated } = useAuth();
   const { registrations, isRegistered, isPending, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
@@ -46,6 +48,7 @@ export default function EventDetails() {
   const [waitlist, setWaitlist] = useState(null);
   const [waitlistBusy, setWaitlistBusy] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const related = useMemo(() => relatedEvents(allEvents, event), [allEvents, event]);
 
   useEffect(() => {
     let cancelled = false;
@@ -342,6 +345,19 @@ export default function EventDetails() {
           </div>
         </aside>
       </div>
+
+      {related.length > 0 && (
+        <section className="container-page pb-16" aria-labelledby="related-events">
+          <h2 id="related-events" className="font-display text-xl font-semibold text-slate-900 dark:text-white">
+            More events you may like
+          </h2>
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((e) => (
+              <EventCard key={e._id} event={e} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={event.requiresApproval ? "Request to join this event" : "Register for this event"}>
         <RegistrationForm event={event} onSuccess={() => setShowModal(false)} />
