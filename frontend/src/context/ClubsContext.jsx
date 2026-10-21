@@ -25,6 +25,14 @@ export function ClubsProvider({ children }) {
     refreshClubs();
   }, [refreshClubs]);
 
+  // Keeps the public member count in step when the logged-in student joins or
+  // leaves, without refetching (and flashing the list's loading spinner).
+  const adjustMemberCount = useCallback((clubId, delta) => {
+    setClubs((prev) =>
+      prev.map((c) => (c._id === clubId && typeof c.memberCount === "number" ? { ...c, memberCount: Math.max(0, c.memberCount + delta) } : c))
+    );
+  }, []);
+
   const getClubById = useCallback(
     async (id) => {
       const cached = clubs.find((c) => c._id === id);
@@ -40,7 +48,7 @@ export function ClubsProvider({ children }) {
   );
 
   return (
-    <ClubsContext.Provider value={{ clubs, loading, error, refreshClubs, getClubById }}>
+    <ClubsContext.Provider value={{ clubs, loading, error, refreshClubs, getClubById, adjustMemberCount }}>
       {children}
     </ClubsContext.Provider>
   );

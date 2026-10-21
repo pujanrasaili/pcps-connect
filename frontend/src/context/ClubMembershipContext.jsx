@@ -2,12 +2,14 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { api, getErrorMessage } from "../services/api";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
+import { useClubs } from "./ClubsContext";
 
 const ClubMembershipContext = createContext(null);
 
 export function ClubMembershipProvider({ children }) {
   const { isAuthenticated, authChecked, user, refreshUser } = useAuth();
   const toast = useToast();
+  const { adjustMemberCount } = useClubs();
   const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -45,6 +47,7 @@ export function ClubMembershipProvider({ children }) {
     try {
       await api.post("/club-memberships/join", { clubId });
       await refreshMemberships();
+      adjustMemberCount(clubId, 1);
       toast.success("Joined club!");
     } catch (err) {
       toast.error(getErrorMessage(err, "Failed to join club"));
@@ -56,6 +59,7 @@ export function ClubMembershipProvider({ children }) {
     try {
       await api.delete(`/club-memberships/${clubId}`);
       await refreshMemberships();
+      adjustMemberCount(clubId, -1);
       toast.info("Left club.");
     } catch (err) {
       toast.error(getErrorMessage(err, "Failed to leave club"));

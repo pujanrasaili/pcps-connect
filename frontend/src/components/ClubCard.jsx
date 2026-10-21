@@ -4,6 +4,7 @@ import { useTilt } from "../hooks/useTilt";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 import { getClubIcon } from "../utils/iconMap";
 import { resolveUploadUrl } from "../services/api";
+import { pluralize } from "../utils/plural";
 
 export default function ClubCard({ club, onView }) {
   const Icon = getClubIcon(club.icon);
@@ -56,7 +57,7 @@ export default function ClubCard({ club, onView }) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <FaUsers className="text-primary-500" /> {club.category}
+            <FaUsers className="text-primary-500" /> {typeof club.memberCount === "number" ? pluralize(club.memberCount, "member") : club.category}
           </span>
           <button
             onClick={() => onView?.(club)}

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt } from "react-icons/fa";
+import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -14,6 +14,7 @@ import { useClubMembership } from "../context/ClubMembershipContext";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 import { resolveUploadUrl } from "../services/api";
 import { usePagination } from "../hooks/usePagination";
+import { pluralize } from "../utils/plural";
 import Pagination from "../components/Pagination";
 import { useToast } from "../context/ToastContext";
 import { shareClub } from "../utils/share";
@@ -176,6 +177,11 @@ export default function Clubs() {
           <div>
             <img src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-48 w-full rounded-xl object-cover" />
             <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
+              {typeof selectedClub.memberCount === "number" && (
+                <span className="flex items-center gap-1.5">
+                  <FaUsers className="text-primary-500" /> {pluralize(selectedClub.memberCount, "member")}
+                </span>
+              )}
               {selectedClub.foundedYear && (
                 <span className="flex items-center gap-1.5">
                   <FaCalendarAlt className="text-primary-500" /> Founded {selectedClub.foundedYear}
