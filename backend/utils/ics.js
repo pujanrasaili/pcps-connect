@@ -22,6 +22,12 @@ function fold(line) {
   return parts.join("\r\n");
 }
 
+// Reminders the calendar app shows on its own: a day before and an hour before.
+const ALARM_LINES = [
+  ["-P1D", "Tomorrow"],
+  ["-PT1H", "Starting in 1 hour"],
+].flatMap(([trigger, text]) => ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${text}`, `TRIGGER:${trigger}`, "END:VALARM"]);
+
 function buildIcs(event, now = new Date()) {
   const start = new Date(event.date);
   const end = new Date(start.getTime() + DEFAULT_DURATION_MS);
@@ -39,6 +45,7 @@ function buildIcs(event, now = new Date()) {
     `SUMMARY:${escapeText(event.title)}`,
     `LOCATION:${escapeText(event.location)}`,
     `DESCRIPTION:${escapeText(event.description)}`,
+    ...ALARM_LINES,
     "END:VEVENT",
     "END:VCALENDAR",
   ];
