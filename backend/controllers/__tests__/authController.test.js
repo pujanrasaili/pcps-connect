@@ -14,7 +14,7 @@ process.env.CLIENT_ORIGIN = "http://localhost:5173";
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
 const sendEmail = require("../../utils/sendEmail");
-const { register, login, changePassword, updateProfile, deleteAccount, exportMyData } = require("../authController");
+const { register, login, forgotPassword, resendVerification, resetPassword, changePassword, updateProfile, deleteAccount, exportMyData } = require("../authController");
 const Registration = require("../../models/Registration");
 const WaitlistEntry = require("../../models/WaitlistEntry");
 const ClubMembership = require("../../models/ClubMembership");
@@ -346,5 +346,52 @@ describe("exportMyData", () => {
     const res = mockRes();
     await exportMyData({ user: { _id: "s1" } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("forgotPassword / resendVerification -- email must be text", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  it.each([
+    ["forgotPassword", forgotPassword],
+    ["resendVerification", resendVerification],
+  ])("%s answers 400 (not 500) for a non-text email", async (_name, handler) => {
+    for (const email of [{ $gt: "" }, 123, ["a@patancollege.edu.np"], true]) {
+      const res = mockRes();
+      await handler({ body: { email } }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(User.findOne).not.toHaveBeenCalled();
+  });
+
+  it("forgotPassword still gives the generic answer for an unknown email", async () => {
+    User.findOne.mockResolvedValue(null);
+    const res = mockRes();
+    await forgotPassword({ body: { email: "Nobody@patancollege.edu.np" } }, res);
+    expect(User.findOne).toHaveBeenCalledWith({ email: "nobody@patancollege.edu.np" });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("password fields must be text", () => {
+  afterEach(() => jest.resetAllMocks());
+
+  it("changePassword rejects a non-text password with 400", async () => {
+    for (const body of [
+      { currentPassword: "old-secret", newPassword: ["a", "b", "c", "d", "e", "f"] },
+      { currentPassword: { $ne: "" }, newPassword: "new-secret" },
+    ]) {
+      const res = mockRes();
+      await changePassword({ user: { id: "u1" }, body }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(bcrypt.hash).not.toHaveBeenCalled();
+  });
+
+  it("resetPassword rejects a non-text new password with 400", async () => {
+    const res = mockRes();
+    await resetPassword({ body: { token: "t", newPassword: ["a", "b", "c", "d", "e", "f"] } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(bcrypt.hash).not.toHaveBeenCalled();
   });
 });

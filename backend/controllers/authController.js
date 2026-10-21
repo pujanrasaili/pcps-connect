@@ -283,7 +283,7 @@ async function toggleFavoriteClub(req, res) {
 async function changePassword(req, res) {
   try {
     const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
+    if (!currentPassword || !newPassword || typeof currentPassword !== "string" || typeof newPassword !== "string") {
       return res.status(400).json({ message: "Current password and new password are required" });
     }
     if (newPassword.length < 6) {
@@ -403,7 +403,8 @@ async function deleteAccount(req, res) {
 async function forgotPassword(req, res) {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    // Must be text: a number or object would otherwise crash on .toLowerCase().
+    if (!email || typeof email !== "string") return res.status(400).json({ message: "Email is required" });
 
     const genericResponse = {
       message: "If an account exists for that email, a reset link has been sent.",
@@ -449,7 +450,7 @@ async function forgotPassword(req, res) {
 async function resetPassword(req, res) {
   try {
     const { token, newPassword } = req.body;
-    if (!token || !newPassword) {
+    if (!token || !newPassword || typeof newPassword !== "string") {
       return res.status(400).json({ message: "Token and new password are required" });
     }
     if (newPassword.length < 6) {
@@ -561,7 +562,8 @@ async function verifyEmail(req, res) {
 async function resendVerification(req, res) {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    // Must be text: a number or object would otherwise crash on .toLowerCase().
+    if (!email || typeof email !== "string") return res.status(400).json({ message: "Email is required" });
 
     const genericResponse = {
       message: "If that account needs verification, a new link has been sent.",
