@@ -18,6 +18,8 @@ import { pluralize } from "../utils/plural";
 import Pagination from "../components/Pagination";
 import { useToast } from "../context/ToastContext";
 import { shareClub } from "../utils/share";
+import { filterClubs } from "../utils/clubFilters";
+import { useAuth } from "../context/AuthContext";
 
 const PAGE_SIZE = 9;
 
@@ -80,6 +82,9 @@ export default function Clubs() {
       { replace: true }
     );
   const setCategory = (value) => setFilter("category", value, "All");
+  const { isAuthenticated } = useAuth();
+  // "Only my clubs" needs a login, so the link is ignored for visitors.
+  const mineOnly = isAuthenticated && params.get("mine") === "1";
   const [query, setQuery] = useState(urlQuery);
   const debouncedQuery = useDebounce(query, 250);
   useEffect(() => {
@@ -92,6 +97,7 @@ export default function Clubs() {
       const next = new URLSearchParams(prev);
       next.delete("q");
       next.delete("category");
+      next.delete("mine");
       return next;
     }, { replace: true });
   };
@@ -103,16 +109,10 @@ export default function Clubs() {
     [clubs]
   );
 
-  const filteredClubs = useMemo(() => {
-    return clubs.filter((club) => {
-      const matchesCategory = category === "All" || club.category === category;
-      const needle = debouncedQuery.toLowerCase();
-      const matchesQuery = [club.name, club.category, club.description]
-        .filter(Boolean)
-        .some((field) => field.toLowerCase().includes(needle));
-      return matchesCategory && matchesQuery;
-    });
-  }, [clubs, debouncedQuery, category]);
+  const filteredClubs = useMemo(
+    () => filterClubs(clubs, { category, query: debouncedQuery, mineOnly, isJoined }),
+    [clubs, debouncedQuery, category, mineOnly, isJoined]
+  );
 
   const { page, setPage, totalPages, pageItems: pagedClubs } = usePagination(filteredClubs, PAGE_SIZE);
 
@@ -139,6 +139,20 @@ export default function Clubs() {
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
 
+        {isAuthenticated && (
+          <div className="mx-auto mt-4 flex max-w-4xl">
+            <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+              <input
+                type="checkbox"
+                checked={mineOnly}
+                onChange={(e) => setFilter("mine", e.target.checked ? "1" : "")}
+                className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+              />
+              Only clubs I've joined
+            </label>
+          </div>
+        )}
+
         {loading ? (
           <div className="mt-16 flex justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
@@ -161,9 +175,13 @@ export default function Clubs() {
           </>
         ) : (
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
-            <p className="text-lg font-medium">No clubs match your search.</p>
-            <p className="mt-1 text-sm">Try a different name or category.</p>
-            {(query || category !== "All") && (
+            <p className="text-lg font-medium">
+              {mineOnly && !query && category === "All" ? "You haven't joined any clubs yet." : "No clubs match your search."}
+            </p>
+            <p className="mt-1 text-sm">
+              {mineOnly && !query && category === "All" ? "Untick the box to browse every club." : "Try a different name or category."}
+            </p>
+            {(query || category !== "All" || mineOnly) && (
               <button onClick={clearFilters} className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
                 Clear filters
               </button>
