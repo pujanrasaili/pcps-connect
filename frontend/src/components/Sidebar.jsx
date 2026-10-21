@@ -33,7 +33,7 @@ export default function Sidebar({ className = "" }) {
         </div>
       </div>
 
-      <nav className="flex flex-col gap-1">
+      <nav aria-label="Dashboard menu" className="flex flex-col gap-1">
         {LINKS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
