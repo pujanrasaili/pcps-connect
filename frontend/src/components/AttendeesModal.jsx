@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaEnvelope } from "react-icons/fa";
+import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaEnvelope, FaCheck, FaTimes } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
@@ -8,12 +8,13 @@ import SearchBar from "./SearchBar";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 
 function downloadAttendanceCsv(event, registrations) {
-  const header = ["Name", "Email", "Student ID", "Registered On", "Attended", "Rating", "Feedback"];
+  const header = ["Name", "Email", "Student ID", "Registered On", "Status", "Attended", "Rating", "Feedback"];
   const rows = registrations.map((r) => [
     r.user?.name || "Unknown student",
     r.user?.email || "",
     r.user?.studentId || "",
     r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "",
+    r.status === "pending" ? "Pending approval" : "Confirmed",
     r.attended ? "Yes" : "No",
     r.rating || "",
     r.feedback || "",
@@ -74,6 +75,25 @@ export default function AttendeesModal({ event, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event]);
 
+  // Approve or decline a join request (events that need organiser approval).
+  // Approving swaps in the confirmed registration; declining removes the row.
+  const decide = async (registration, decision) => {
+    setUpdatingId(registration._id);
+    try {
+      const res = await api.put(`/admin/registrations/${registration._id}/decision`, { decision });
+      setRegistrations((prev) =>
+        decision === "approve"
+          ? prev.map((r) => (r._id === registration._id ? res.data.registration : r))
+          : prev.filter((r) => r._id !== registration._id)
+      );
+      toast.success(decision === "approve" ? "Approved -- the student has been emailed." : "Declined -- the student has been emailed.");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to update the request"));
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   const toggleAttended = async (registration) => {
     setUpdatingId(registration._id);
     try {
@@ -92,8 +112,10 @@ export default function AttendeesModal({ event, onClose }) {
 
   // Narrowing the list is for finding someone quickly at the door; the counts,
   // message and CSV export above/below always cover everyone.
+  const pending = registrations.filter((r) => r.status === "pending");
+  const confirmed = registrations.filter((r) => r.status !== "pending");
   const q = search.trim().toLowerCase();
-  const visibleRegistrations = registrations.filter(
+  const visibleRegistrations = confirmed.filter(
     (r) =>
       (!onlyNotAttended || !r.attended) &&
       (!q ||
@@ -102,7 +124,7 @@ export default function AttendeesModal({ event, onClose }) {
         (r.user?.studentId || "").toLowerCase().includes(q))
   );
 
-  const attendedCount = registrations.filter((r) => r.attended).length;
+  const attendedCount = confirmed.filter((r) => r.attended).length;
   const rated = registrations.filter((r) => r.rating);
   const averageRating = rated.length ? rated.reduce((sum, r) => sum + r.rating, 0) / rated.length : null;
 
@@ -121,7 +143,7 @@ export default function AttendeesModal({ event, onClose }) {
         <>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {attendedCount}/{registrations.length} marked attended · tap a student to toggle
+              {attendedCount}/{confirmed.length} marked attended · tap a student to toggle
             </p>
             <div className="flex shrink-0 items-center gap-2">
             <button
@@ -172,7 +194,7 @@ export default function AttendeesModal({ event, onClose }) {
               <span className="text-slate-500 dark:text-slate-400">from {rated.length} rating{rated.length > 1 ? "s" : ""}</span>
             </p>
           )}
-          {registrations.length > 8 && (
+          {confirmed.length > 8 && (
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <div className="min-w-0 flex-1 basis-48">
                 <SearchBar value={search} onChange={setSearch} placeholder="Find by name, email or student ID..." />
@@ -188,7 +210,45 @@ export default function AttendeesModal({ event, onClose }) {
               </label>
             </div>
           )}
-          {visibleRegistrations.length === 0 && (
+          {pending.length > 0 && (
+            <div className="mb-4 rounded-xl border border-primary-200 bg-primary-50/60 p-3 dark:border-primary-900/50 dark:bg-primary-900/10">
+              <p className="text-sm font-semibold text-primary-800 dark:text-primary-200">
+                Waiting for your approval ({pending.length})
+              </p>
+              <ul className="mt-2 divide-y divide-primary-100 dark:divide-primary-900/40">
+                {pending.map((r) => (
+                  <li key={r._id} className="flex flex-wrap items-center gap-3 py-2.5">
+                    <div className="min-w-0 flex-1 basis-40">
+                      <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.user?.name || "Unknown student"}</p>
+                      <p className="truncate text-xs text-slate-600 dark:text-slate-400">
+                        {r.user?.email}
+                        {r.user?.studentId ? ` · ${r.user.studentId}` : ""}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        onClick={() => decide(r, "approve")}
+                        disabled={updatingId === r._id}
+                        aria-label={`Approve ${r.user?.name || "student"}`}
+                        className="flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-800 disabled:opacity-50"
+                      >
+                        <FaCheck /> Approve
+                      </button>
+                      <button
+                        onClick={() => decide(r, "reject")}
+                        disabled={updatingId === r._id}
+                        aria-label={`Decline ${r.user?.name || "student"}`}
+                        className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-rose-900/30 dark:hover:text-rose-400"
+                      >
+                        <FaTimes /> Decline
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {confirmed.length > 0 && visibleRegistrations.length === 0 && (
             <p className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">No one matches.</p>
           )}
           <div className="max-h-96 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
