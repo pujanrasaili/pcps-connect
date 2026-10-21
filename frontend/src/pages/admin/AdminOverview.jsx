@@ -42,6 +42,8 @@ export default function AdminOverview() {
 
   const totalRegistrations = events.reduce((sum, e) => sum + (e.registeredCount || 0), 0);
   const pendingUsers = users?.filter((u) => u.approvalStatus === "pending") ?? [];
+  // Join requests waiting on an organiser, across upcoming events that need approval.
+  const pendingRequests = events.filter((e) => isUpcoming(e.date)).reduce((sum, e) => sum + (e.pendingCount || 0), 0);
   const nextEvents = events
     .filter((e) => isUpcoming(e.date))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -79,6 +81,19 @@ export default function AdminOverview() {
             for approval
           </p>
           <FaArrowRight className="shrink-0 text-xs text-amber-700 dark:text-amber-400" />
+        </Link>
+      )}
+
+      {pendingRequests > 0 && (
+        <Link
+          to="/admin/events"
+          className="flex items-center gap-3 rounded-xl border border-primary-200 bg-primary-50 p-4 transition-colors hover:bg-primary-100 dark:border-primary-900/50 dark:bg-primary-900/20 dark:hover:bg-primary-900/30"
+        >
+          <FaExclamationCircle className="shrink-0 text-lg text-primary-500" />
+          <p className="flex-1 text-sm font-medium text-primary-800 dark:text-primary-200">
+            {pendingRequests} {pendingRequests === 1 ? "request to join an event is" : "requests to join events are"} waiting for a decision
+          </p>
+          <FaArrowRight className="shrink-0 text-xs text-primary-700 dark:text-primary-300" />
         </Link>
       )}
 
