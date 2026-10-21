@@ -23,6 +23,8 @@ const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
 const { pickAdminUserFields } = require("../utils/adminUserFields");
+const { parseFlag } = require("../utils/eventFlags");
+const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/registrationEmails");
 
 // Best-effort, same pattern as every other email in this app -- a failed
 // send is logged and swallowed, never allowed to turn a successful approval
@@ -246,6 +248,8 @@ async function updateEventAdmin(req, res) {
     for (const field of ["title", "description", "date", "location", "category", "price", "image"]) {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     }
+    const requiresApproval = parseFlag(req.body.requiresApproval);
+    if (requiresApproval !== undefined) updates.requiresApproval = requiresApproval;
     if (req.body.capacity !== undefined) {
       const parsedCapacity = parseCapacity(req.body.capacity);
       if (parsedCapacity === null) {
@@ -332,6 +336,9 @@ async function updateRegistrationAttendance(req, res) {
 
     const event = await Event.findById(registration.event);
     if (!event || !(await canManageEvent(req.user, event))) return res.status(403).json(FORBIDDEN);
+    if (registration.status === "pending") {
+      return res.status(400).json({ message: "Approve this request before marking attendance" });
+    }
 
     registration.attended = attended;
     await registration.save();
@@ -339,6 +346,49 @@ async function updateRegistrationAttendance(req, res) {
     res.status(200).json({ message: "Attendance updated", registration });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update attendance") });
+  }
+}
+
+// PUT /api/admin/registrations/:id/decision  { decision: "approve" | "reject" }
+// For events that require approval. Approving confirms the student (and sends
+// the confirmation with its calendar invite); declining removes the request,
+// frees the seat for the waitlist and tells the student. Only a request that is
+// still pending can be decided, so a double click can't send two emails.
+async function decideRegistration(req, res) {
+  try {
+    const { decision } = req.body;
+    if (decision !== "approve" && decision !== "reject") {
+      return res.status(400).json({ message: 'decision must be "approve" or "reject"' });
+    }
+
+    const registration = await Registration.findById(req.params.id).populate("user", "name email studentId");
+    if (!registration) return res.status(404).json({ message: "Request not found -- the student may have withdrawn it" });
+
+    const event = await Event.findById(registration.event);
+    if (!event || !(await canManageEvent(req.user, event))) return res.status(403).json(FORBIDDEN);
+
+    if (registration.status !== "pending") {
+      return res.status(400).json({ message: "This request has already been decided" });
+    }
+
+    if (decision === "approve") {
+      registration.status = "confirmed";
+      await registration.save();
+      if (registration.user?.email) await sendRegistrationConfirmation(registration.user, event);
+      return res.status(200).json({ message: "Request approved", registration });
+    }
+
+    await registration.deleteOne();
+    if (registration.user?.email) await sendRequestDeclined(registration.user, event);
+    // The declined request's seat can go to whoever is next in line.
+    try {
+      await promoteFromWaitlist(event);
+    } catch (promoteErr) {
+      console.error("Failed to promote from waitlist:", promoteErr.message);
+    }
+    res.status(200).json({ message: "Request declined", registration: { _id: registration._id, status: "declined" } });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to decide on the request") });
   }
 }
 
@@ -360,6 +410,10 @@ async function checkInByCode(req, res) {
     }
     if (!(await canManageEvent(req.user, registration.event))) {
       return res.status(403).json({ message: "This student is registered for an event you don't manage" });
+    }
+
+    if (registration.status === "pending") {
+      return res.status(400).json({ message: "This student's request hasn't been approved yet" });
     }
 
     const alreadyCheckedIn = registration.attended;
@@ -509,7 +563,7 @@ async function getAttendanceReport(req, res) {
       .select("title date");
 
     const stats = await Registration.aggregate([
-      { $match: { event: { $in: events.map((e) => e._id) } } },
+      { $match: { event: { $in: events.map((e) => e._id) }, status: { $ne: "pending" } } },
       {
         $group: {
           _id: "$event",
@@ -537,7 +591,7 @@ async function getInsights(req, res) {
 
     const [monthly, memberCounts, pastEvents] = await Promise.all([
       Registration.aggregate([
-        { $match: { createdAt: { $gte: since }, status: { $ne: "cancelled" } } },
+        { $match: { createdAt: { $gte: since }, status: { $nin: ["cancelled", "pending"] } } },
         { $group: { _id: { y: { $year: "$createdAt" }, m: { $month: "$createdAt" } }, count: { $sum: 1 } } },
       ]),
       ClubMembership.aggregate([{ $group: { _id: "$club", members: { $sum: 1 } } }, { $sort: { members: -1 } }, { $limit: 5 }]),
@@ -550,7 +604,7 @@ async function getInsights(req, res) {
     let registered = 0;
     if (pastEvents.length) {
       const [totals] = await Registration.aggregate([
-        { $match: { event: { $in: pastEvents.map((e) => e._id) }, status: { $ne: "cancelled" } } },
+        { $match: { event: { $in: pastEvents.map((e) => e._id) }, status: { $nin: ["cancelled", "pending"] } } },
         { $group: { _id: null, registered: { $sum: 1 }, attended: { $sum: { $cond: ["$attended", 1, 0] } } } },
       ]);
       attended = totals?.attended || 0;
@@ -568,6 +622,7 @@ async function getInsights(req, res) {
 }
 
 module.exports = {
+  decideRegistration,
   getInsights,
   bulkApproveUsers,
   getAttendanceReport,

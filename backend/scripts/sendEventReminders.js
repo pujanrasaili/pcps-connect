@@ -46,6 +46,8 @@ async function run() {
     const registrations = await Registration.find({
       event: event._id,
       reminderSent: false,
+      // Students whose request hasn't been approved aren't going yet.
+      status: { $ne: "pending" },
     }).populate("user", "name email eventReminders");
 
     for (const registration of registrations) {
