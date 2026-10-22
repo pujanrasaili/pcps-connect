@@ -22,6 +22,7 @@ const {
   getInsights,
   decideRegistration,
 } = require("../controllers/adminController");
+const { setNotice } = require("../controllers/noticeController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -67,5 +68,6 @@ router.get("/clubs/:id/leaders", getClubLeaders);
 router.put("/clubs/:id/leaders", setClubLeaders);
 
 router.get("/audit", getAuditLog);
+router.put("/notice", setNotice);
 
 module.exports = router;
