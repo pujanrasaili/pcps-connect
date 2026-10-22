@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 
 jest.mock("../../models/User");
 const User = require("../../models/User");
-const { protect, adminOnly } = require("../auth");
+const { protect, adminOnly, optionalAuth } = require("../auth");
 
 const JWT_SECRET = "test-secret-for-jest";
 
@@ -237,5 +237,53 @@ describe("adminOnly", () => {
 
     expect(res.status).toHaveBeenCalledWith(403);
     expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe("optionalAuth", () => {
+  const originalSecret = process.env.JWT_SECRET;
+  beforeAll(() => {
+    process.env.JWT_SECRET = JWT_SECRET;
+  });
+  afterAll(() => {
+    process.env.JWT_SECRET = originalSecret;
+  });
+  afterEach(() => jest.clearAllMocks());
+
+  it("lets a visitor with no cookie through as a guest", async () => {
+    const req = { cookies: {} };
+    const next = jest.fn();
+    await optionalAuth(req, mockRes(), next);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(req.user).toBeUndefined();
+  });
+
+  it("treats an invalid token as a guest (once), never as an error", async () => {
+    const req = { cookies: { token: "garbage" } };
+    const res = mockRes();
+    const next = jest.fn();
+    await optionalAuth(req, res, next);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(res.status).not.toHaveBeenCalled();
+    expect(req.user).toBeUndefined();
+  });
+
+  it("attaches the user for a valid login", async () => {
+    const user = { _id: "u1", approvalStatus: "approved" };
+    User.findById.mockResolvedValue(user);
+    const req = { cookies: { token: jwt.sign({ id: "u1" }, JWT_SECRET) } };
+    const next = jest.fn();
+    await optionalAuth(req, mockRes(), next);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(req.user).toBe(user);
+  });
+
+  it("treats a rejected account's token as a guest", async () => {
+    User.findById.mockResolvedValue({ _id: "u1", approvalStatus: "rejected" });
+    const req = { cookies: { token: jwt.sign({ id: "u1" }, JWT_SECRET) } };
+    const next = jest.fn();
+    await optionalAuth(req, mockRes(), next);
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(req.user).toBeUndefined();
   });
 });
