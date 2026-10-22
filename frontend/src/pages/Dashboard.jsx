@@ -13,6 +13,8 @@ import {
   FaUserTie,
   FaCalendarPlus,
   FaBookmark,
+  FaRegCircle,
+  FaCheckCircle,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -39,16 +41,17 @@ import { resolveUploadUrl } from "../services/api";
 import { downloadIcsAll } from "../utils/calendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { savedUpcoming } from "../utils/savedEvents";
+import { pendingGettingStarted } from "../utils/gettingStarted";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { favoriteClubId, memberships } = useClubMembership();
+  const { favoriteClubId, memberships, loaded: membershipsLoaded } = useClubMembership();
   const { clubs } = useClubs();
   const { clubs: ledClubs } = useLedClubs();
   const { events } = useEvents();
-  const { registrations, cancelRegistration } = useRegistrations();
+  const { registrations, cancelRegistration, loaded: registrationsLoaded } = useRegistrations();
 
   // Only registrations whose event is still populated (guards against a
   // deleted event leaving a dangling reference).
@@ -110,6 +113,17 @@ export default function Dashboard() {
     return Object.entries(buckets).map(([name, value]) => ({ name, value }));
   }, [registeredEvents]);
 
+  // Only once both lists have really loaded: on a slow server an established
+  // student would otherwise briefly (or for a minute) be told they've done nothing.
+  const gettingStarted =
+    membershipsLoaded && registrationsLoaded
+      ? pendingGettingStarted({
+          joinedClubs: memberships.length,
+          favoriteClub: favoriteClubId,
+          registrations: registeredEvents.length,
+        })
+      : null;
+
   const handleUnregister = (eventId) => {
     cancelRegistration(eventId);
   };
@@ -131,6 +145,42 @@ export default function Dashboard() {
         <StatsCard icon={FaHeart} label="Favorite Club" value={favoriteClub?.name.replace("PCPS ", "") || "—"} accent="accent" />
         <StatsCard icon={FaClock} label="Upcoming Registrations" value={upcoming.length} accent="amber" />
       </div>
+
+      {gettingStarted && (
+        <div className="card-surface min-w-0 p-5">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">Get started</h2>
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              {gettingStarted.done} of {gettingStarted.total} done
+            </span>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {gettingStarted.steps.map((step) => (
+              <li key={step.id}>
+                {step.done ? (
+                  <p className="flex items-center gap-3 py-2.5 text-sm text-slate-500 dark:text-slate-400">
+                    <FaCheckCircle className="shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                    <span className="line-through">{step.label}</span>
+                    <span className="sr-only">(done)</span>
+                  </p>
+                ) : (
+                  <Link
+                    to={step.to}
+                    className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  >
+                    <FaRegCircle className="shrink-0 text-slate-400" aria-hidden="true" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium text-slate-700 dark:text-slate-200">{step.label}</span>
+                      <span className="block text-xs text-slate-500 dark:text-slate-400">{step.hint}</span>
+                    </span>
+                    <FaArrowRight className="shrink-0 text-xs text-primary-600 dark:text-primary-300" aria-hidden="true" />
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {ledClubs.length > 0 && user?.role !== "admin" && (
         <div className="card-surface flex min-w-0 flex-wrap items-center justify-between gap-3 p-5">
