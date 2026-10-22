@@ -1,6 +1,7 @@
+import PasswordInput from "../components/PasswordInput";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock, FaIdCard } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaIdCard } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
@@ -83,6 +84,7 @@ export default function Register() {
               <input
                 id="reg-name"
                 name="name"
+                autoComplete="name"
                 maxLength={80}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
@@ -101,6 +103,7 @@ export default function Register() {
               <input
                 id="reg-email"
                 name="email"
+                autoComplete="email"
                 type="email"
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
@@ -137,36 +140,12 @@ export default function Register() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
-              <div className="relative">
-                <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
-                <input
-                  id="reg-password"
-                  name="password"
-                  type="password"
-                  className="input-field"
-                  style={{ paddingLeft: "2.75rem" }}
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={handleChange}
-                />
-              </div>
+              <PasswordInput icon id="reg-password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
               {errors.password && <p className="mt-1 text-xs text-rose-500">{errors.password}</p>}
             </div>
             <div>
               <label htmlFor="reg-confirm" className="label-field">Confirm</label>
-              <div className="relative">
-                <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
-                <input
-                  id="reg-confirm"
-                  name="confirmPassword"
-                  type="password"
-                  className="input-field"
-                  style={{ paddingLeft: "2.75rem" }}
-                  placeholder="••••••••"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                />
-              </div>
+              <PasswordInput icon id="reg-confirm" name="confirmPassword" placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
               {errors.confirmPassword && <p className="mt-1 text-xs text-rose-500">{errors.confirmPassword}</p>}
             </div>
           </div>

@@ -1,6 +1,7 @@
+import PasswordInput from "../components/PasswordInput";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { FaLock, FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
@@ -84,37 +85,13 @@ export default function ResetPassword() {
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div>
                 <label htmlFor="rp-password" className="label-field">New password</label>
-                <div className="relative">
-                  <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
-                  <input
-                    id="rp-password"
-                    name="password"
-                    type="password"
-                    className="input-field"
-                    style={{ paddingLeft: "2.75rem" }}
-                    placeholder="••••••••"
-                    value={form.password}
-                    onChange={handleChange}
-                  />
-                </div>
+                <PasswordInput icon id="rp-password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
                 {errors.password && <p className="mt-1 text-xs text-rose-500">{errors.password}</p>}
               </div>
 
               <div>
                 <label htmlFor="rp-confirm" className="label-field">Confirm new password</label>
-                <div className="relative">
-                  <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
-                  <input
-                    id="rp-confirm"
-                    name="confirmPassword"
-                    type="password"
-                    className="input-field"
-                    style={{ paddingLeft: "2.75rem" }}
-                    placeholder="••••••••"
-                    value={form.confirmPassword}
-                    onChange={handleChange}
-                  />
-                </div>
+                <PasswordInput icon id="rp-confirm" name="confirmPassword" placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
                 {errors.confirmPassword && <p className="mt-1 text-xs text-rose-500">{errors.confirmPassword}</p>}
               </div>
 
