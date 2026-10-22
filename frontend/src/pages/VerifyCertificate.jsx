@@ -32,6 +32,7 @@ export default function VerifyCertificate() {
         <div className="mx-auto max-w-md text-center">
           {state.status === "loading" && (
             <div className="flex justify-center py-10">
+              <h1 className="sr-only">Checking certificate</h1>
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
             </div>
           )}
@@ -62,7 +63,12 @@ export default function VerifyCertificate() {
             </div>
           )}
 
-          {state.status === "error" && <p className="py-10 text-rose-600 dark:text-rose-400">{state.message}</p>}
+          {state.status === "error" && (
+            <div className="py-10">
+              <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">Couldn't check this certificate</h1>
+              <p className="mt-2 text-rose-700 dark:text-rose-400">{state.message}</p>
+            </div>
+          )}
 
           <Link to="/" className="mt-6 inline-block text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
             Go to PCPS Connect
