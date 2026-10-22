@@ -12,16 +12,20 @@ export function ClubMembershipProvider({ children }) {
   const { adjustMemberCount } = useClubs();
   const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(false);
+  // True once memberships have actually been fetched (a failed fetch doesn't count).
+  const [loaded, setLoaded] = useState(false);
 
   const refreshMemberships = useCallback(async () => {
     if (!isAuthenticated) {
       setMemberships([]);
+      setLoaded(false);
       return;
     }
     setLoading(true);
     try {
       const res = await api.get("/club-memberships/my");
       setMemberships(res.data.memberships);
+      setLoaded(true);
     } catch {
       setMemberships([]);
     } finally {
@@ -92,6 +96,7 @@ export function ClubMembershipProvider({ children }) {
       value={{
         memberships,
         loading,
+        loaded,
         favoriteClubId,
         isJoined,
         isFavorite,
