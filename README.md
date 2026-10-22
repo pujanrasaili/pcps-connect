@@ -71,6 +71,7 @@ pcps-connect/
 - "Calendar" view on the Events page: a month grid (Sunday first) with each day's events, tap a day to list them; it keeps your category, search, club and spots-left filters and is shareable as `?view=calendar`
 - Each event page suggests "More events you may like": upcoming events from the same club first, then the same category
 - "Save for later" bookmark on every event card and event page, and a "Saved" tab on the Events page; kept in your own browser, so no login is needed; upcoming saved events also show on the student dashboard
+- A Help & FAQ page (`/help`, linked in the footer) answers the common questions: signing up and approval, registering, waitlists, QR check-in, certificates, reminders and data export
 - Contact form that actually emails the college
 - Branded HTML emails (verification, password reset, notifications) instead of plain text
 - Toast notifications for every action, and a graceful fallback screen if anything ever crashes
