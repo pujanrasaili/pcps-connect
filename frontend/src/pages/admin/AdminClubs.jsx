@@ -303,30 +303,30 @@ export default function AdminClubs() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field">Club name</label>
-              <input name="name" className="input-field" value={form.name} onChange={handleChange} required />
+              <label className="label-field" htmlFor="club-name">Club name</label>
+              <input id="club-name" name="name" className="input-field" value={form.name} onChange={handleChange} required />
             </div>
             <div>
-              <label className="label-field">Category</label>
-              <input name="category" className="input-field" value={form.category} onChange={handleChange} required placeholder="Technology, Arts, Sports..." />
+              <label className="label-field" htmlFor="club-category">Category</label>
+              <input id="club-category" name="category" className="input-field" value={form.category} onChange={handleChange} required placeholder="Technology, Arts, Sports..." />
             </div>
           </div>
           <div>
-            <label className="label-field">Short description</label>
-            <textarea name="description" rows={2} className="input-field resize-none" value={form.description} onChange={handleChange} required />
+            <label className="label-field" htmlFor="club-description">Short description</label>
+            <textarea id="club-description" name="description" rows={2} className="input-field resize-none" value={form.description} onChange={handleChange} required />
           </div>
           <div>
-            <label className="label-field">Full description</label>
-            <textarea name="longDescription" rows={3} className="input-field resize-none" value={form.longDescription} onChange={handleChange} />
+            <label className="label-field" htmlFor="club-longDescription">Full description</label>
+            <textarea id="club-longDescription" name="longDescription" rows={3} className="input-field resize-none" value={form.longDescription} onChange={handleChange} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field">Image URL</label>
-              <input name="image" className="input-field" value={form.image} onChange={handleChange} placeholder="https://..." />
+              <label className="label-field" htmlFor="club-image">Image URL</label>
+              <input id="club-image" name="image" className="input-field" value={form.image} onChange={handleChange} placeholder="https://..." />
             </div>
             <div>
-              <label className="label-field">Icon</label>
-              <select name="icon" className="input-field" value={form.icon} onChange={handleChange}>
+              <label className="label-field" htmlFor="club-icon">Icon</label>
+              <select id="club-icon" name="icon" className="input-field" value={form.icon} onChange={handleChange}>
                 {ICON_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>{opt.replace("Fa", "")}</option>
                 ))}
@@ -334,27 +334,27 @@ export default function AdminClubs() {
             </div>
           </div>
           <div>
-            <label className="label-field">Activities (one per line)</label>
-            <textarea name="activities" rows={3} className="input-field resize-none" value={form.activities} onChange={handleChange} />
+            <label className="label-field" htmlFor="club-activities">Activities (one per line)</label>
+            <textarea id="club-activities" name="activities" rows={3} className="input-field resize-none" value={form.activities} onChange={handleChange} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field">Club lead name</label>
-              <input name="leadName" className="input-field" value={form.leadName} onChange={handleChange} />
+              <label className="label-field" htmlFor="club-leadName">Club lead name</label>
+              <input id="club-leadName" name="leadName" className="input-field" value={form.leadName} onChange={handleChange} />
             </div>
             <div>
-              <label className="label-field">Club lead role</label>
-              <input name="leadRole" className="input-field" value={form.leadRole} onChange={handleChange} placeholder="Club President" />
+              <label className="label-field" htmlFor="club-leadRole">Club lead role</label>
+              <input id="club-leadRole" name="leadRole" className="input-field" value={form.leadRole} onChange={handleChange} placeholder="Club President" />
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field">Contact email</label>
-              <input name="email" type="email" className="input-field" value={form.email} onChange={handleChange} />
+              <label className="label-field" htmlFor="club-email">Contact email</label>
+              <input id="club-email" name="email" type="email" className="input-field" value={form.email} onChange={handleChange} />
             </div>
             <div>
-              <label className="label-field">Founded year</label>
-              <input name="foundedYear" className="input-field" value={form.foundedYear} onChange={handleChange} />
+              <label className="label-field" htmlFor="club-foundedYear">Founded year</label>
+              <input id="club-foundedYear" name="foundedYear" className="input-field" value={form.foundedYear} onChange={handleChange} />
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={saving}>
