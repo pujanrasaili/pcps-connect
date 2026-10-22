@@ -93,7 +93,7 @@ export default function Register() {
                 onChange={handleChange}
               />
             </div>
-            {errors.name && <p className="mt-1 text-xs text-rose-500">{errors.name}</p>}
+            {errors.name && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
           </div>
 
           <div>
@@ -113,7 +113,7 @@ export default function Register() {
               />
             </div>
             {errors.email ? (
-              <p className="mt-1 text-xs text-rose-500">{errors.email}</p>
+              <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>
             ) : (
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Must be a PCPS email address (@patancollege.edu.np)</p>
             )}
@@ -134,19 +134,19 @@ export default function Register() {
                 onChange={handleChange}
               />
             </div>
-            {errors.studentId && <p className="mt-1 text-xs text-rose-500">{errors.studentId}</p>}
+            {errors.studentId && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.studentId}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
               <PasswordInput icon id="reg-password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
-              {errors.password && <p className="mt-1 text-xs text-rose-500">{errors.password}</p>}
+              {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
             </div>
             <div>
               <label htmlFor="reg-confirm" className="label-field">Confirm</label>
               <PasswordInput icon id="reg-confirm" name="confirmPassword" placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
-              {errors.confirmPassword && <p className="mt-1 text-xs text-rose-500">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
             </div>
           </div>
 
@@ -168,7 +168,7 @@ export default function Register() {
             </Link>
             .
           </label>
-          {errors.agree && <p className="text-xs text-rose-500">{errors.agree}</p>}
+          {errors.agree && <p className="text-xs text-rose-600 dark:text-rose-400">{errors.agree}</p>}
 
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? "Creating account..." : "Create account"}

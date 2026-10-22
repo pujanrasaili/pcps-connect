@@ -102,7 +102,7 @@ export default function Contact() {
                     value={form.name}
                     onChange={handleChange}
                   />
-                  {errors.name && <p className="mt-1 text-xs text-rose-500">{errors.name}</p>}
+                  {errors.name && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
                 </div>
                 <div>
                   <label htmlFor="c-email" className="label-field">Email address</label>
@@ -114,7 +114,7 @@ export default function Contact() {
                     value={form.email}
                     onChange={handleChange}
                   />
-                  {errors.email && <p className="mt-1 text-xs text-rose-500">{errors.email}</p>}
+                  {errors.email && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
                 </div>
               </div>
               <div>
@@ -137,7 +137,7 @@ export default function Contact() {
                   value={form.message}
                   onChange={handleChange}
                 />
-                {errors.message && <p className="mt-1 text-xs text-rose-500">{errors.message}</p>}
+                {errors.message && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.message}</p>}
               </div>
               <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
                 {submitting ? "Sending..." : "Send message"}

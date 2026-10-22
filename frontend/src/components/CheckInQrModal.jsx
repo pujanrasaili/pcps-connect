@@ -34,7 +34,7 @@ export default function CheckInQrModal({ registration, onClose }) {
       <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-400">{registration?.event?.title}</p>
         {error ? (
-          <p className="py-8 text-sm text-rose-500">{error}</p>
+          <p className="py-8 text-sm text-rose-600 dark:text-rose-400">{error}</p>
         ) : !code ? (
           <div className="py-12">
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />

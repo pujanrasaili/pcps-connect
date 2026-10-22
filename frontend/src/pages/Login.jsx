@@ -97,7 +97,7 @@ export default function Login() {
                 onChange={handleChange}
               />
             </div>
-            {errors.email && <p className="mt-1 text-xs text-rose-500">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
           </div>
 
           <div>
@@ -129,7 +129,7 @@ export default function Login() {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            {errors.password && <p className="mt-1 text-xs text-rose-500">{errors.password}</p>}
+            {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
           </div>
 
           {showResend && (
