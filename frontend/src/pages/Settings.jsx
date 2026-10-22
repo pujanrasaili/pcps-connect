@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "../components/PasswordInput";
 import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaTrashAlt, FaDownload } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -256,39 +257,15 @@ export default function Settings() {
           )}
           <div>
             <label className="label-field" htmlFor="current-password">Current password</label>
-            <input
-              id="current-password"
-              name="currentPassword"
-              type="password"
-              className="input-field"
-              value={pwForm.currentPassword}
-              onChange={handlePwChange}
-              required
-            />
+            <PasswordInput id="current-password" name="currentPassword" value={pwForm.currentPassword} onChange={handlePwChange} autoComplete="current-password" required />
           </div>
           <div>
             <label className="label-field" htmlFor="new-password">New password</label>
-            <input
-              id="new-password"
-              name="newPassword"
-              type="password"
-              className="input-field"
-              value={pwForm.newPassword}
-              onChange={handlePwChange}
-              required
-            />
+            <PasswordInput id="new-password" name="newPassword" value={pwForm.newPassword} onChange={handlePwChange} autoComplete="new-password" required />
           </div>
           <div>
             <label className="label-field" htmlFor="confirm-new-password">Confirm new password</label>
-            <input
-              id="confirm-new-password"
-              name="confirmPassword"
-              type="password"
-              className="input-field"
-              value={pwForm.confirmPassword}
-              onChange={handlePwChange}
-              required
-            />
+            <PasswordInput id="confirm-new-password" name="confirmPassword" value={pwForm.confirmPassword} onChange={handlePwChange} autoComplete="new-password" required />
           </div>
           <Button type="submit" className="w-full" disabled={pwSaving}>
             {pwSaving ? "Changing..." : "Change password"}
