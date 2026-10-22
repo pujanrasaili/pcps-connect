@@ -13,6 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
+import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
 import { parseSaved, toggleSaved, savedUpcoming } from "../src/utils/savedEvents.js";
 import { optimizeImageUrl } from "../src/utils/imageUrl.js";
@@ -338,4 +339,20 @@ test("sortClubs orders by members or name without touching the original list", (
   assert.equal(sortClubs(clubs, "default"), clubs);
   assert.equal(sortClubs(clubs, "bogus"), clubs);
   assert.deepEqual(clubs.map((c) => c._id), ["a", "b", "c", "d"]);
+});
+
+test("admin event tabs split upcoming, past and awaiting-decision, and counts match", () => {
+  const day = (n) => new Date(Date.now() + n * 86400000).toISOString();
+  const events = [
+    { _id: "a", title: "Hack Night", date: day(3), pendingCount: 2 },
+    { _id: "b", title: "Old Workshop", date: day(-5) },
+    { _id: "c", title: "Hack Day", date: day(-1), pendingCount: 0 },
+  ];
+  assert.deepEqual(filterAdminEvents(events, { tab: "upcoming" }).map((e) => e._id), ["a"]);
+  assert.deepEqual(filterAdminEvents(events, { tab: "past" }).map((e) => e._id), ["b", "c"]);
+  assert.deepEqual(filterAdminEvents(events, { tab: "pending" }).map((e) => e._id), ["a"]);
+  assert.deepEqual(filterAdminEvents(events, { tab: "all", query: "HACK" }).map((e) => e._id), ["a", "c"]);
+  assert.deepEqual(filterAdminEvents(events, { tab: "past", query: "hack" }).map((e) => e._id), ["c"]);
+  assert.deepEqual(countAdminEvents(events), { all: 3, upcoming: 1, past: 2, pending: 1 });
+  assert.deepEqual(ADMIN_EVENT_TABS.map(([v]) => v), ["all", "upcoming", "past", "pending"]);
 });
