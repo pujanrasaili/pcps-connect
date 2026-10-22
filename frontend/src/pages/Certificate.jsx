@@ -29,20 +29,22 @@ export default function Certificate() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="font-medium text-rose-600 dark:text-rose-400">{error}</p>
-        <Link to="/profile" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline">
+      <main className="mx-auto max-w-md px-4 py-20 text-center">
+        <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">Couldn't open this certificate</h1>
+        <p className="mt-2 font-medium text-rose-700 dark:text-rose-400">{error}</p>
+        <Link to="/profile" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
           <FaArrowLeft className="text-xs" /> Back to profile
         </Link>
-      </div>
+      </main>
     );
   }
 
   if (!certificate) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <main className="flex min-h-[60vh] items-center justify-center">
+        <h1 className="sr-only">Loading certificate</h1>
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
-      </div>
+      </main>
     );
   }
 
