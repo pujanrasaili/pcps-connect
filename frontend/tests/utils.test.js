@@ -14,6 +14,7 @@ import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
+import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
@@ -384,4 +385,15 @@ test("getting-started checklist ticks off steps and disappears once joining and 
   assert.equal(pendingGettingStarted({ joinedClubs: 1, favoriteClub: "c1", registrations: 1 }), null);
   // Picking a favourite is optional: it never keeps the card on screen.
   assert.equal(pendingGettingStarted({ joinedClubs: 1, registrations: 1 }), null);
+});
+
+test("help topics are complete, uniquely identified and the page has a title", () => {
+  const ids = HELP_TOPICS.map((t) => t.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const topic of HELP_TOPICS) {
+    assert.match(topic.id, /^[a-z0-9-]+$/);
+    assert.ok(topic.question.trim().endsWith("?") || topic.question.endsWith("."), topic.id);
+    assert.ok(topic.answer.length > 0 && topic.answer.every((p) => p.trim().length > 0), topic.id);
+  }
+  assert.equal(titleForPath("/help"), "Help | PCPS Connect");
 });
