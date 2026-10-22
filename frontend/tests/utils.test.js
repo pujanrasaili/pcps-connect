@@ -13,6 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
+import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
 import { parseSaved, toggleSaved, savedUpcoming } from "../src/utils/savedEvents.js";
@@ -355,4 +356,18 @@ test("admin event tabs split upcoming, past and awaiting-decision, and counts ma
   assert.deepEqual(filterAdminEvents(events, { tab: "past", query: "hack" }).map((e) => e._id), ["c"]);
   assert.deepEqual(countAdminEvents(events), { all: 3, upcoming: 1, past: 2, pending: 1 });
   assert.deepEqual(ADMIN_EVENT_TABS.map(([v]) => v), ["all", "upcoming", "past", "pending"]);
+});
+
+test("noticeId changes when the announcement is edited, so a dismissed one comes back", () => {
+  const a = { tone: "info", message: "Fest closes Friday", updatedAt: "2026-10-22T05:00:00Z" };
+  assert.equal(noticeId(a), noticeId({ ...a }));
+  assert.notEqual(noticeId(a), noticeId({ ...a, message: "Fest closes Saturday" }));
+  assert.notEqual(noticeId(a), noticeId({ ...a, updatedAt: "2026-10-23T05:00:00Z" }));
+  assert.equal(noticeId(null), "");
+});
+
+test("activity log words the announcement actions", () => {
+  assert.equal(actionLabel("notice.set"), "Site announcement published");
+  assert.equal(actionLabel("notice.cleared"), "Site announcement removed");
+  assert.equal(actionTone("notice.set"), "info");
 });
