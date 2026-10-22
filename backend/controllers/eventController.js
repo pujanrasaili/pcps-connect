@@ -12,6 +12,7 @@ const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
+const { hideOrganiserEmail } = require("../utils/organiserPrivacy");
 
 // Attaches a live "registeredCount" to each event, computed from actual
 // Registration documents rather than a stored counter -- a stored counter
@@ -65,7 +66,8 @@ async function resolveClub(value) {
 // GET /api/events  (public)
 async function getEvents(req, res) {
   try {
-    const events = await Event.find().populate("createdBy", "name email").populate("club", "name").sort({ date: 1 });
+    // Only the organiser's name: cards never need their email, and this list is public.
+    const events = await Event.find().populate("createdBy", "name").populate("club", "name").sort({ date: 1 });
     res.status(200).json({ events: await withRegisteredCount(events) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch events") });
@@ -77,7 +79,8 @@ async function getEventById(req, res) {
   try {
     const event = await Event.findById(req.params.id).populate("createdBy", "name email").populate("club", "name");
     if (!event) return res.status(404).json({ message: "Event not found" });
-    res.status(200).json({ event: await withRegisteredCount(event) });
+    // The organiser's email is shown to logged-in students only.
+    res.status(200).json({ event: hideOrganiserEmail(await withRegisteredCount(event), req.user) });
   } catch (err) {
     res.status(404).json({ message: "Event not found" });
   }

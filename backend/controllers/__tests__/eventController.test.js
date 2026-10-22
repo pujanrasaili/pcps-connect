@@ -12,7 +12,7 @@ const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const Registration = require("../../models/Registration");
 const { notifyNewClubEvent } = require("../../utils/notifyClubMembers");
-const { createEvent, updateEvent, getEventById } = require("../eventController");
+const { createEvent, updateEvent, getEventById, getEvents } = require("../eventController");
 
 function mockRes() {
   const res = {};
@@ -187,5 +187,41 @@ describe("requiresApproval flag (multipart checkbox strings)", () => {
 
     await updateEvent({ params: { id: "ev1" }, body: { requiresApproval: "false" }, user: admin }, mockRes());
     expect(ev.requiresApproval).toBe(false);
+  });
+});
+
+describe("organiser privacy", () => {
+  function populated(doc) {
+    const q = { populate: jest.fn(), sort: jest.fn() };
+    q.populate.mockReturnValue(q);
+    q.sort.mockReturnValue(q);
+    q.then = (resolve) => resolve(doc);
+    return q;
+  }
+  const withOrganiser = () => ({
+    _id: "ev1",
+    toObject: () => ({ _id: "ev1", title: "T", createdBy: { _id: "o1", name: "Org", email: "org@patancollege.edu.np" } }),
+  });
+
+  it("the public list asks for the organiser's name only", async () => {
+    const q = populated([]);
+    Event.find.mockReturnValue(q);
+    await getEvents({}, mockRes());
+    expect(q.populate).toHaveBeenCalledWith("createdBy", "name");
+  });
+
+  it("a guest gets the organiser's name but not their email", async () => {
+    Event.findById.mockReturnValue(populated(withOrganiser()));
+    const res = mockRes();
+    await getEventById({ params: { id: "ev1" } }, res);
+    const { event } = res.json.mock.calls[0][0];
+    expect(event.createdBy).toEqual({ _id: "o1", name: "Org" });
+  });
+
+  it("a logged-in student also gets the email", async () => {
+    Event.findById.mockReturnValue(populated(withOrganiser()));
+    const res = mockRes();
+    await getEventById({ params: { id: "ev1" }, user: { _id: "s1" } }, res);
+    expect(res.json.mock.calls[0][0].event.createdBy.email).toBe("org@patancollege.edu.np");
   });
 });

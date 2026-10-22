@@ -6,7 +6,7 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
-const { protect } = require("../middleware/auth");
+const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const upload = require("../middleware/upload");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -18,7 +18,7 @@ router.param("id", validateIdParam);
 
 
 router.get("/", getEvents);
-router.get("/:id", getEventById);
+router.get("/:id", optionalAuth, getEventById);
 // Event management is for admins and club leaders only -- the frontend never
 // exposes event creation to regular students, so without this check anyone
 // calling the API directly could post arbitrary public "events" to the site.
