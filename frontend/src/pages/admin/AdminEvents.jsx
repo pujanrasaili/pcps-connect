@@ -14,6 +14,7 @@ import ConfirmDialog from "../../components/ConfirmDialog";
 import AttendeesModal from "../../components/AttendeesModal";
 import AttendanceReportCard from "../../components/AttendanceReportCard";
 import SearchBar from "../../components/SearchBar";
+import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../../utils/adminEventFilters";
 import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
@@ -52,6 +53,7 @@ export default function AdminEvents() {
   const ledIds = useMemo(() => new Set(ledClubs.map((c) => c._id)), [ledClubs]);
   const clubs = leaderMode ? allClubs.filter((c) => ledIds.has(c._id)) : allClubs;
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState("all");
   const debouncedQuery = useDebounce(query, 250);
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
@@ -79,9 +81,10 @@ export default function AdminEvents() {
   );
 
   const filteredEvents = useMemo(
-    () => visibleEvents.filter((e) => e.title.toLowerCase().includes(debouncedQuery.toLowerCase())),
-    [visibleEvents, debouncedQuery]
+    () => filterAdminEvents(visibleEvents, { tab, query: debouncedQuery }),
+    [visibleEvents, tab, debouncedQuery]
   );
+  const tabCounts = useMemo(() => countAdminEvents(visibleEvents), [visibleEvents]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -193,8 +196,26 @@ export default function AdminEvents() {
 
       {leaderMode && <AttendanceReportCard report={report} />}
 
-      <div className="max-w-sm">
-        <SearchBar value={query} onChange={setQuery} placeholder="Search events..." />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full sm:max-w-sm">
+          <SearchBar value={query} onChange={setQuery} placeholder="Search events..." />
+        </div>
+        <div className="inline-flex flex-wrap gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label="Filter events">
+          {ADMIN_EVENT_TABS.filter(([value]) => value !== "pending" || tabCounts.pending > 0 || tab === "pending").map(([value, label]) => (
+            <button
+              key={value}
+              onClick={() => setTab(value)}
+              aria-pressed={tab === value}
+              className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+                tab === value
+                  ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
+                  : "text-slate-600 dark:text-slate-400"
+              }`}
+            >
+              {label} <span className="font-normal">({tabCounts[value]})</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
@@ -258,7 +279,7 @@ export default function AdminEvents() {
         {!loading && filteredEvents.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaCalendarAlt className="mx-auto mb-2 text-2xl text-slate-300" />
-            {visibleEvents.length === 0 ? 'No events yet. Click "Add Event" to create one.' : "No events match your search."}
+            {visibleEvents.length === 0 ? 'No events yet. Click "Add Event" to create one.' : "No events match your search or filter."}
           </p>
         )}
       </div>
