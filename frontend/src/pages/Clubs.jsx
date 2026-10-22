@@ -176,7 +176,7 @@ export default function Clubs() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
         ) : error ? (
-          <div className="mt-16 text-center text-rose-600 dark:text-rose-400">
+          <div className="mt-16 text-center text-rose-700 dark:text-rose-400">
             <p className="font-medium">Couldn't load clubs.</p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
           </div>
