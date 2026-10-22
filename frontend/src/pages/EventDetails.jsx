@@ -73,6 +73,25 @@ export default function EventDetails() {
     };
   }, [id, getEventById]);
 
+  // The public events list leaves out the organiser's email (it's for logged-in
+  // students only), so fetch the single event to get it.
+  const organiserNeedsEmail = isAuthenticated && !!event?.createdBy && !event.createdBy.email;
+  const eventIdForEmail = event?._id;
+  useEffect(() => {
+    if (!organiserNeedsEmail) return;
+    let cancelled = false;
+    api
+      .get(`/events/${eventIdForEmail}`)
+      .then((res) => {
+        const email = res.data.event?.createdBy?.email;
+        if (!cancelled && email) setEvent((prev) => (prev && prev._id === eventIdForEmail ? { ...prev, createdBy: { ...prev.createdBy, email } } : prev));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [organiserNeedsEmail, eventIdForEmail]);
+
   // A waitlist only matters for a full, upcoming event the student isn't
   // already registered for. `registeredHere` is a plain boolean so the
   // effect below only re-runs when it actually changes.
@@ -202,7 +221,20 @@ export default function EventDetails() {
                 </div>
                 <div>
                   <p className="font-medium text-slate-800 dark:text-slate-100">{event.createdBy.name}</p>
-                  <p className="text-sm text-primary-600 dark:text-primary-300">{event.createdBy.email}</p>
+                  {event.createdBy.email ? (
+                    <a href={`mailto:${event.createdBy.email}`} className="text-sm text-primary-600 hover:underline dark:text-primary-300">
+                      {event.createdBy.email}
+                    </a>
+                  ) : (
+                    !isAuthenticated && (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        <Link to="/login" state={{ from: `/events/${event._id}` }} className="font-semibold text-primary-600 hover:underline dark:text-primary-300">
+                          Log in
+                        </Link>{" "}
+                        to see their contact email
+                      </p>
+                    )
+                  )}
                 </div>
               </div>
             </div>
