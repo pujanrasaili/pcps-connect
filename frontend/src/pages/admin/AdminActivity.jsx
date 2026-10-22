@@ -97,7 +97,7 @@ export default function AdminActivity() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
         ) : error ? (
-          <p className="py-10 text-center text-sm text-rose-500">{error}</p>
+          <p className="py-10 text-center text-sm text-rose-600 dark:text-rose-400">{error}</p>
         ) : entries.length === 0 ? (
           <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaHistory className="mx-auto mb-2 text-2xl text-slate-300" />

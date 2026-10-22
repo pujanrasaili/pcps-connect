@@ -30,7 +30,7 @@ export default function Certificate() {
   if (error) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <p className="font-medium text-rose-500">{error}</p>
+        <p className="font-medium text-rose-600 dark:text-rose-400">{error}</p>
         <Link to="/profile" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline">
           <FaArrowLeft className="text-xs" /> Back to profile
         </Link>
