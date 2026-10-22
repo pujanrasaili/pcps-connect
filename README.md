@@ -84,6 +84,7 @@ pcps-connect/
 - Attendance report: the admin overview shows turnout (registered vs. attended) and average rating for recent past events
 - Student dashboard nudges students to rate events they attended, with a link to their certificate
 - Student dashboard also lists upcoming events from the clubs they joined (that they have not registered for yet)
+- Manage Events (admins and club leaders) can be narrowed to All / Upcoming / Past / "Needs a decision" (events with join requests waiting), with counts, on top of the search box
 - Admins can duplicate an event (pre-filled form, date left blank) for recurring workshops and fests
 - QR check-in: each registered student has a personal QR code; an organiser scans it with a normal phone camera and the student is marked as attended (codes are signed, so they can't be forged)
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
