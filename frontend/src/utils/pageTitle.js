@@ -12,6 +12,7 @@ const TITLES = {
   "/verify-email": "Verify email",
   "/terms": "Terms of Use",
   "/privacy": "Privacy Policy",
+  "/help": "Help",
   "/dashboard": "Dashboard",
   "/profile": "Profile",
   "/settings": "Settings",
