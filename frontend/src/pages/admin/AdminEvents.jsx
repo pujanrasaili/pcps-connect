@@ -294,35 +294,35 @@ export default function AdminEvents() {
             </p>
           )}
           <div>
-            <label className="label-field">Event title</label>
-            <input name="title" className="input-field" value={form.title} onChange={handleChange} required />
+            <label className="label-field" htmlFor="ev-title">Event title</label>
+            <input id="ev-title" name="title" className="input-field" value={form.title} onChange={handleChange} required />
           </div>
           <div>
-            <label className="label-field">Description</label>
-            <textarea name="description" rows={3} className="input-field resize-none" value={form.description} onChange={handleChange} required />
+            <label className="label-field" htmlFor="ev-description">Description</label>
+            <textarea id="ev-description" name="description" rows={3} className="input-field resize-none" value={form.description} onChange={handleChange} required />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field">Date &amp; time</label>
-              <input name="date" type="datetime-local" className="input-field" value={form.date} onChange={handleChange} required />
+              <label className="label-field" htmlFor="ev-date">Date &amp; time</label>
+              <input id="ev-date" name="date" type="datetime-local" className="input-field" value={form.date} onChange={handleChange} required />
             </div>
             <div>
-              <label className="label-field">Location</label>
-              <input name="location" className="input-field" value={form.location} onChange={handleChange} required />
+              <label className="label-field" htmlFor="ev-location">Location</label>
+              <input id="ev-location" name="location" className="input-field" value={form.location} onChange={handleChange} required />
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <label className="label-field">Capacity</label>
-              <input name="capacity" type="number" min="1" className="input-field" value={form.capacity} onChange={handleChange} required />
+              <label className="label-field" htmlFor="ev-capacity">Capacity</label>
+              <input id="ev-capacity" name="capacity" type="number" min="1" className="input-field" value={form.capacity} onChange={handleChange} required />
             </div>
             <div>
-              <label className="label-field">Category</label>
-              <input name="category" className="input-field" value={form.category} onChange={handleChange} placeholder="Technology, Workshop..." />
+              <label className="label-field" htmlFor="ev-category">Category</label>
+              <input id="ev-category" name="category" className="input-field" value={form.category} onChange={handleChange} placeholder="Technology, Workshop..." />
             </div>
             <div>
-              <label className="label-field">Price</label>
-              <input name="price" className="input-field" value={form.price} onChange={handleChange} placeholder="Free or NPR 200" />
+              <label className="label-field" htmlFor="ev-price">Price</label>
+              <input id="ev-price" name="price" className="input-field" value={form.price} onChange={handleChange} placeholder="Free or NPR 200" />
             </div>
           </div>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
@@ -341,8 +341,8 @@ export default function AdminEvents() {
             </span>
           </label>
           <div>
-            <label className="label-field">{leaderMode ? "Hosting club" : "Hosting club (optional)"}</label>
-            <select name="club" className="input-field" value={form.club} onChange={handleChange} required={leaderMode}>
+            <label className="label-field" htmlFor="ev-club">{leaderMode ? "Hosting club" : "Hosting club (optional)"}</label>
+            <select id="ev-club" name="club" className="input-field" value={form.club} onChange={handleChange} required={leaderMode}>
               {!leaderMode && <option value="">No club</option>}
               {clubs.map((c) => (
                 <option key={c._id} value={c._id}>{c.name}</option>
@@ -355,8 +355,9 @@ export default function AdminEvents() {
             )}
           </div>
           <div>
-            <label className="label-field">Event image {editingEvent && "(leave blank to keep current)"}</label>
+            <label className="label-field" htmlFor="ev-image">Event image {editingEvent && "(leave blank to keep current)"}</label>
             <input
+              id="ev-image"
               type="file"
               accept="image/*"
               onChange={(e) => setImageFile(e.target.files?.[0] || null)}
