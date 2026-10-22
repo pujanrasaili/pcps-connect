@@ -40,6 +40,7 @@ pcps-connect/
 - Weekly digest: every Sunday morning each student gets one email listing the next 7 days of events from the clubs they joined (skipping events they already registered for or that are full; nobody gets an empty digest). Runs from a GitHub Actions schedule, can be previewed with a dry run, and the "Club updates" switch in Settings turns it off
 - Events can require organiser approval ("Approve each person who joins" when creating an event): students send a request instead of being confirmed, a seat is held for them, and the organiser approves or declines from the attendee list; the student is emailed either way and only approved students get the QR code, calendar links and reminders
 - Admins can email a message to all members of a club from Admin → Clubs (members who turned off club updates are skipped)
+- Site announcement: admins publish (or remove) a short banner shown at the top of every page from Admin → Overview ("Information" or "Important" style); visitors can close it, and an edited announcement shows again. Changes are written to the activity log
 - Admins can approve every pending sign-up at once ("Approve all" on the Pending filter, respects search) — each person is emailed and it's logged as one activity entry
 - Admin → Users can be filtered by approval status (pending / approved / rejected, with counts) and searched by student ID
 - Admin → Users can export the current (filtered) list of students as an Excel-safe CSV
