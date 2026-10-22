@@ -38,17 +38,17 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", accen
       onMouseMove={tilt.onMouseMove}
       onMouseLeave={tilt.onMouseLeave}
       style={tilt.style}
-      className="card-surface flex items-center gap-3 p-4 animate-slide-up sm:gap-4 sm:p-5"
+      className="card-surface flex flex-col items-start gap-2 p-4 animate-slide-up min-[420px]:flex-row min-[420px]:items-center min-[420px]:gap-3 sm:gap-4 sm:p-5"
     >
       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${accents[accent]}`}>
         <Icon className="text-xl" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 max-w-full">
         <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">
           {isNumeric ? animatedValue : value}
           {suffix}
         </p>
-        <p className="text-sm text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="break-words text-sm text-slate-500 dark:text-slate-400">{label}</p>
       </div>
     </div>
   );
