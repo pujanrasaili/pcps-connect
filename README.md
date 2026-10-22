@@ -58,7 +58,7 @@ pcps-connect/
 - A club's details window lists its next three upcoming events, linking straight to each
 - Shared links show a proper preview in WhatsApp, Messenger, Telegram and similar apps: an event link shows the event's photo, title, date and place; a club link shows the club (a small Vercel function in `frontend/api` answers those apps' link crawlers, while people still get the normal app)
 - Every club has its own shareable link (`/clubs?club=<id>`) with a Share button; the Clubs and Events filters (search, category, Upcoming/Past/Registered, "only events with spots left") are stored in the URL, so a filtered list can be shared and survives a refresh
-- Accessibility: text meets WCAG AA contrast in light and dark mode (checked with an axe-core sweep of every page), long titles never cause sideways scrolling on phones, and ratings are announced to screen readers
+- Accessibility: text meets WCAG AA contrast in light and dark mode (checked with an axe-core sweep of every page, plus dialogs and form error states), long titles never cause sideways scrolling on phones, and ratings are announced to screen readers
 - The student dashboard marks events happening within a week as "Today", "Tomorrow" or "In N days"
 - Every page sets its own browser-tab title (event pages use the event's name), so tabs, history and screen readers say where you are
 - Pagination on all club/event listings and admin tables, so the UI stays fast as data grows
