@@ -78,6 +78,7 @@ export default function Footer() {
               ["Forgot Password", "/forgot-password"],
               ["Profile", "/profile"],
               ["Settings", "/settings"],
+              ["Help & FAQ", "/help"],
               ["Terms of Use", "/terms"],
               ["Privacy Policy", "/privacy"],
             ].map(([label, to]) => (
