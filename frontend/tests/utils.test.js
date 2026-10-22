@@ -13,6 +13,7 @@ import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
+import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
@@ -370,4 +371,17 @@ test("activity log words the announcement actions", () => {
   assert.equal(actionLabel("notice.set"), "Site announcement published");
   assert.equal(actionLabel("notice.cleared"), "Site announcement removed");
   assert.equal(actionTone("notice.set"), "info");
+});
+
+test("getting-started checklist ticks off steps and disappears once joining and registering are done", () => {
+  const fresh = pendingGettingStarted({});
+  assert.equal(fresh.done, 0);
+  assert.equal(fresh.total, 3);
+  assert.deepEqual(gettingStartedSteps({ joinedClubs: 2 }).map((s) => s.done), [true, false, false]);
+  const partial = pendingGettingStarted({ joinedClubs: 1, favoriteClub: "c1" });
+  assert.equal(partial.done, 2);
+  assert.equal(partial.steps.find((s) => !s.done).id, "register");
+  assert.equal(pendingGettingStarted({ joinedClubs: 1, favoriteClub: "c1", registrations: 1 }), null);
+  // Picking a favourite is optional: it never keeps the card on screen.
+  assert.equal(pendingGettingStarted({ joinedClubs: 1, registrations: 1 }), null);
 });
