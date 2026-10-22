@@ -68,4 +68,14 @@ function adminOnly(req, res, next) {
   next();
 }
 
-module.exports = { protect, adminOnly };
+// For public routes that show a little more to someone who is logged in. With
+// a valid login it behaves like protect() (req.user is set); with no cookie, an
+// expired or invalid one, it simply carries on as a guest. It reuses protect so
+// every rule there (revoked accounts, changed passwords) applies here too.
+async function optionalAuth(req, res, next) {
+  if (!req.cookies?.token) return next();
+  const asGuest = { status: () => ({ json: () => next() }) };
+  return protect(req, asGuest, next);
+}
+
+module.exports = { protect, adminOnly, optionalAuth };
