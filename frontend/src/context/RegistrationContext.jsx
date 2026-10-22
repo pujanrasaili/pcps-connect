@@ -10,16 +10,21 @@ export function RegistrationProvider({ children }) {
   const toast = useToast();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(false);
+  // True once the list has actually been fetched (a failed fetch doesn't count),
+  // so screens can avoid showing "you have nothing" while still waiting.
+  const [loaded, setLoaded] = useState(false);
 
   const refreshRegistrations = useCallback(async () => {
     if (!isAuthenticated) {
       setRegistrations([]);
+      setLoaded(false);
       return;
     }
     setLoading(true);
     try {
       const res = await api.get("/registrations/my");
       setRegistrations(res.data.registrations);
+      setLoaded(true);
     } catch {
       setRegistrations([]);
     } finally {
@@ -91,7 +96,7 @@ export function RegistrationProvider({ children }) {
 
   return (
     <RegistrationContext.Provider
-      value={{ registrations, loading, isRegistered, isPending, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
+      value={{ registrations, loading, loaded, isRegistered, isPending, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
     >
       {children}
     </RegistrationContext.Provider>
