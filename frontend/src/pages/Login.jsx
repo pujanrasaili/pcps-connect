@@ -88,6 +88,7 @@ export default function Login() {
               <input
                 id="login-email"
                 name="email"
+                autoComplete="username"
                 type="email"
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
@@ -111,6 +112,7 @@ export default function Login() {
               <input
                 id="login-password"
                 name="password"
+                autoComplete="current-password"
                 type={showPassword ? "text" : "password"}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem", paddingRight: "2.75rem" }}
