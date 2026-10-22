@@ -70,7 +70,7 @@ export default function EventCard({ event }) {
           {isFull ? (
             <span className="font-medium text-rose-600 dark:text-rose-400">Fully booked</span>
           ) : isFillingUp ? (
-            <span className="font-medium text-amber-500">{spotsLeft} spots left</span>
+            <span className="font-medium text-amber-700 dark:text-amber-400">{spotsLeft} spots left</span>
           ) : (
             <span>{registeredCount}/{capacity} registered</span>
           )}
