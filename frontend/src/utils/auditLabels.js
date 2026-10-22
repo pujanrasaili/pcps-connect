@@ -12,6 +12,8 @@ const LABELS = {
   "club.announcement": "Club message sent",
   "event.deleted": "Event deleted",
   "event.announcement": "Event message sent",
+  "notice.set": "Site announcement published",
+  "notice.cleared": "Site announcement removed",
 };
 
 export function actionLabel(action) {

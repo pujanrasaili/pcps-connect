@@ -14,6 +14,7 @@ import { useEvents } from "../../context/EventsContext";
 import { api, getErrorMessage } from "../../services/api";
 import AttendanceReportCard from "../../components/AttendanceReportCard";
 import InsightsCard from "../../components/InsightsCard";
+import SiteNoticeCard from "../../components/SiteNoticeCard";
 import { formatDate, isUpcoming } from "../../utils/formatDate";
 
 export default function AdminOverview() {
@@ -103,6 +104,8 @@ export default function AdminOverview() {
         <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
         <StatsCard icon={FaClipboardList} label="Total Event Registrations" value={totalRegistrations} accent="amber" />
       </div>
+
+      <SiteNoticeCard />
 
       <InsightsCard insights={insights} />
 
