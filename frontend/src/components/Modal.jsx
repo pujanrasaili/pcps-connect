@@ -92,9 +92,9 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
         className={`relative w-full ${sizes[size]} card-surface max-h-[90vh] overflow-y-auto animate-slide-up outline-none`}
       >
         <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-6 py-4 rounded-t-2xl">
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
             {title}
-          </h3>
+          </h2>
           <button
             onClick={onClose}
             aria-label="Close dialog"

@@ -235,9 +235,9 @@ export default function Clubs() {
             </p>
             {selectedClub.activities?.length > 0 && (
               <>
-                <h4 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">
+                <h3 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">
                   Club activities
-                </h4>
+                </h3>
                 <ul className="mt-2 space-y-1.5">
                   {selectedClub.activities.map((activity) => (
                     <li key={activity} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -251,7 +251,7 @@ export default function Clubs() {
 
             {clubEvents.length > 0 && (
               <>
-                <h4 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">Upcoming events</h4>
+                <h3 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">Upcoming events</h3>
                 <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
                   {clubEvents.slice(0, 3).map((e) => (
                     <li key={e._id}>
