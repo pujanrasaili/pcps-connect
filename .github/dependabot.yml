@@ -1,0 +1,29 @@
+# Weekly pull requests that update dependencies, so security fixes (like the
+# ip-address and follow-redirects ones) arrive without anyone having to run
+# `npm audit`. Minor and patch updates are grouped into one PR per app to keep
+# the noise down; major version bumps come as their own PRs to review.
+# CI (.github/workflows/ci.yml) runs the tests on every one of them.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      backend-minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      frontend-minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
