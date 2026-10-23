@@ -412,7 +412,7 @@ export default function AdminClubs() {
                     type="button"
                     onClick={() => setLeaders((prev) => prev.filter((x) => x._id !== l._id))}
                     aria-label={`Remove ${l.name} as leader`}
-                    className="text-xs font-medium text-rose-500 hover:underline"
+                    className="text-xs font-medium text-rose-700 hover:underline dark:text-rose-400"
                   >
                     Remove
                   </button>
