@@ -30,6 +30,7 @@ export default function SearchDialog({ isOpen, onClose }) {
       <div className="relative">
         <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
         <input
+          data-autofocus
           id="site-search"
           type="search"
           autoComplete="off"
