@@ -304,7 +304,7 @@ export default function AdminClubs() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="label-field" htmlFor="club-name">Club name</label>
-              <input id="club-name" name="name" className="input-field" value={form.name} onChange={handleChange} required />
+              <input data-autofocus id="club-name" name="name" className="input-field" value={form.name} onChange={handleChange} required />
             </div>
             <div>
               <label className="label-field" htmlFor="club-category">Category</label>
@@ -366,7 +366,7 @@ export default function AdminClubs() {
       <Modal isOpen={!!messageTarget} onClose={() => setMessageTarget(null)} title={`Message members — ${messageTarget?.name || ""}`} size="md">
         <form onSubmit={sendMessage} className="space-y-3">
           <label className="label-field" htmlFor="club-message">Message to everyone who joined this club</label>
-          <textarea
+          <textarea data-autofocus
             id="club-message"
             rows={5}
             maxLength={1000}

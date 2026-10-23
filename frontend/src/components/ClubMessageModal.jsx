@@ -33,7 +33,7 @@ export default function ClubMessageModal({ club, onClose }) {
     <Modal isOpen={!!club} onClose={onClose} title={`Message members — ${club?.name || ""}`} size="md">
       <form onSubmit={send} className="space-y-3">
         <label className="label-field" htmlFor="club-message">Message to everyone who joined this club</label>
-        <textarea
+        <textarea data-autofocus
           id="club-message"
           rows={5}
           maxLength={1000}

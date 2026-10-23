@@ -295,7 +295,7 @@ export default function AdminEvents() {
           )}
           <div>
             <label className="label-field" htmlFor="ev-title">Event title</label>
-            <input id="ev-title" name="title" className="input-field" value={form.title} onChange={handleChange} required />
+            <input data-autofocus id="ev-title" name="title" className="input-field" value={form.title} onChange={handleChange} required />
           </div>
           <div>
             <label className="label-field" htmlFor="ev-description">Description</label>
