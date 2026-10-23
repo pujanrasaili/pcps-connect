@@ -264,6 +264,7 @@ async function updateEventAdmin(req, res) {
       new: true,
       runValidators: true,
     });
+    await recordAudit(req.user, "event.updated", `Edited event "${event.title}"`);
     await notifyEventRescheduled(event, { oldDate, oldLocation });
     // Raising capacity opens seats for anyone queued.
     try {

@@ -131,6 +131,7 @@ async function createEvent(req, res) {
     });
 
     if (club) await notifyNewClubEvent(event, club);
+    await recordAudit(req.user, "event.created", `Created event "${event.title}"`);
 
     res.status(201).json({ message: "Event created", event: await withRegisteredCount(event) });
   } catch (err) {
@@ -186,6 +187,7 @@ async function updateEvent(req, res) {
     }
 
     await event.save();
+    await recordAudit(req.user, "event.updated", `Edited event "${event.title}"`);
     await notifyEventRescheduled(event, { oldDate, oldLocation });
     // Raising capacity opens seats for anyone queued.
     try {

@@ -323,6 +323,7 @@ describe("updateEventAdmin -- field whitelist and capacity checks", () => {
     );
     const [, updates] = Event.findByIdAndUpdate.mock.calls[0];
     expect(updates).toEqual({ title: "New" });
+    expect(recordAudit).toHaveBeenCalledWith(undefined, "event.updated", 'Edited event "New"');
     expect(res.status).toHaveBeenCalledWith(200);
   });
 

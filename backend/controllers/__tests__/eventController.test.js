@@ -11,6 +11,7 @@ jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn(
 const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const Registration = require("../../models/Registration");
+const { recordAudit } = require("../../utils/audit");
 const { notifyNewClubEvent } = require("../../utils/notifyClubMembers");
 const { createEvent, updateEvent, getEventById, getEvents } = require("../eventController");
 
@@ -38,6 +39,11 @@ describe("createEvent -- club handling", () => {
     expect(Event.create).toHaveBeenCalledWith(expect.objectContaining({ club: null }));
     expect(notifyNewClubEvent).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it("records the creation in the activity log", async () => {
+    await createEvent({ body: baseBody, user: admin }, mockRes());
+    expect(recordAudit).toHaveBeenCalledWith(admin, "event.created", expect.stringContaining("Hack Night"));
   });
 
   it("treats an empty club field (cleared form select) as no club", async () => {
@@ -85,6 +91,13 @@ describe("updateEvent -- club handling", () => {
       save: jest.fn().mockResolvedValue(),
     };
   }
+
+  it("records the edit in the activity log", async () => {
+    const ev = { ...existingEvent(), title: "Hack Night" };
+    Event.findById.mockResolvedValue(ev);
+    await updateEvent({ params: { id: "ev1" }, body: { title: "Hack Night" }, user: admin }, mockRes());
+    expect(recordAudit).toHaveBeenCalledWith(admin, "event.updated", 'Edited event "Hack Night"');
+  });
 
   it("can assign a club to an existing event (without re-emailing members)", async () => {
     const ev = existingEvent();
