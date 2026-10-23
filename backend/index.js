@@ -20,6 +20,7 @@ const noticeRoutes = require("./routes/noticeRoutes");
 const leaderRoutes = require("./routes/leaderRoutes");
 const waitlistRoutes = require("./routes/waitlistRoutes");
 const certificateRoutes = require("./routes/certificateRoutes");
+const healthRoutes = require("./routes/healthRoutes");
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.get("/", (req, res) => {
   res.json({ message: "PCPS Connect API is running" });
 });
 
+app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/registrations", registrationRoutes);
