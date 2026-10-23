@@ -229,6 +229,7 @@ export default function Settings() {
           <div>
             <label className="label-field" htmlFor="delete-password">Enter your password to confirm</label>
             <input
+              data-autofocus
               id="delete-password"
               type="password"
               className="input-field"
@@ -257,7 +258,7 @@ export default function Settings() {
           )}
           <div>
             <label className="label-field" htmlFor="current-password">Current password</label>
-            <PasswordInput id="current-password" name="currentPassword" value={pwForm.currentPassword} onChange={handlePwChange} autoComplete="current-password" required />
+            <PasswordInput data-autofocus id="current-password" name="currentPassword" value={pwForm.currentPassword} onChange={handlePwChange} autoComplete="current-password" required />
           </div>
           <div>
             <label className="label-field" htmlFor="new-password">New password</label>

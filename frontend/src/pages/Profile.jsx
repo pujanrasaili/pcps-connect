@@ -251,7 +251,7 @@ export default function Profile() {
         <form onSubmit={handleSave} className="space-y-4">
           <div>
             <label className="label-field" htmlFor="edit-name">Full name</label>
-            <input id="edit-name" name="name" maxLength={80} className="input-field" value={form.name} onChange={handleChange} />
+            <input data-autofocus id="edit-name" name="name" maxLength={80} className="input-field" value={form.name} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-studentId">Student ID</label>
