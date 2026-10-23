@@ -11,6 +11,19 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Login gets its own counter that only counts FAILED attempts. A college's
+// students often share one public IP (campus Wi-Fi), so counting successful
+// logins too would lock real students out on a busy morning. Password
+// guessing is still capped, since every wrong guess counts.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // failed attempts per IP per window
+  skipSuccessfulRequests: true,
+  message: { message: "Too many attempts. Please try again in a few minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Looser limiter for logged-in actions like event registration -- a student
 // browsing a club fair might legitimately register for several events in a
 // few minutes, so this only needs to stop a script from hammering the
@@ -23,4 +36,4 @@ const actionLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, actionLimiter };
+module.exports = { authLimiter, loginLimiter, actionLimiter };
