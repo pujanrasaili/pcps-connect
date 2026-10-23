@@ -15,7 +15,7 @@ const {
   resendVerification,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
-const { authLimiter, loginLimiter, registerLimiter, actionLimiter } = require("../middleware/rateLimit");
+const { authLimiter, loginLimiter, registerLimiter, guessLimiter, actionLimiter } = require("../middleware/rateLimit");
 
 const router = express.Router();
 
@@ -25,12 +25,12 @@ router.post("/logout", logout);
 router.get("/me", protect, getMe);
 router.put("/profile", protect, updateProfile);
 router.put("/favorite-club", protect, toggleFavoriteClub);
-router.put("/change-password", protect, authLimiter, changePassword);
+router.put("/change-password", protect, guessLimiter, changePassword);
 router.get("/export", protect, actionLimiter, exportMyData);
-router.delete("/account", protect, authLimiter, deleteAccount);
+router.delete("/account", protect, guessLimiter, deleteAccount);
 router.post("/forgot-password", authLimiter, forgotPassword);
-router.post("/reset-password", authLimiter, resetPassword);
-router.post("/verify-email", authLimiter, verifyEmail);
+router.post("/reset-password", guessLimiter, resetPassword);
+router.post("/verify-email", guessLimiter, verifyEmail);
 router.post("/resend-verification", authLimiter, resendVerification);
 
 module.exports = router;

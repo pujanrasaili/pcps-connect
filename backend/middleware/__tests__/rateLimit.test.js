@@ -1,5 +1,5 @@
 const express = require("express");
-const { loginLimiter, registerLimiter } = require("../rateLimit");
+const { loginLimiter, registerLimiter, guessLimiter } = require("../rateLimit");
 
 // A tiny app with the real limiter in front of a fake login: the password
 // "right" succeeds, anything else is a 401.
@@ -103,6 +103,32 @@ describe("registerLimiter", () => {
       const url = `http://127.0.0.1:${server.address().port}/register`;
       for (let i = 0; i < 40; i++) expect((await fetch(url, { method: "POST" })).status).toBe(201);
       expect((await fetch(url, { method: "POST" })).status).toBe(429);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+});
+
+describe("guessLimiter", () => {
+  it("ignores successful checks but stops repeated wrong guesses", async () => {
+    const app = express();
+    app.use(express.json());
+    app.post("/verify", guessLimiter, (req, res) =>
+      req.body.token === "good" ? res.status(200).json({ ok: true }) : res.status(400).json({ message: "bad" })
+    );
+    const server = await new Promise((resolve) => {
+      const s = app.listen(0, () => resolve(s));
+    });
+    const post = (token) =>
+      fetch(`http://127.0.0.1:${server.address().port}/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+    try {
+      for (let i = 0; i < 50; i++) expect((await post("good")).status).toBe(200);
+      for (let i = 0; i < 20; i++) expect((await post("nope")).status).toBe(400);
+      expect((await post("good")).status).toBe(429);
     } finally {
       await new Promise((resolve) => server.close(resolve));
     }

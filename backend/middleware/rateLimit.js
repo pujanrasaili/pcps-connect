@@ -6,7 +6,7 @@ const { ipKeyGenerator } = require("express-rate-limit");
 // any other route -- browsing clubs/events stays unrestricted.
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // 10 attempts per IP per window
+  max: 30, // 30 per IP per window -- campus Wi-Fi shares one IP
   message: { message: "Too many attempts. Please try again in a few minutes." },
   standardHeaders: true,
   legacyHeaders: false,
@@ -36,6 +36,18 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// For routes that check a secret (verification or reset token, current
+// password): only wrong guesses count, so a successful verification during
+// orientation doesn't use up the allowance of the students sharing that IP.
+const guessLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // failed guesses per IP per window
+  skipSuccessfulRequests: true,
+  message: { message: "Too many attempts. Please try again in a few minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Looser limiter for logged-in actions like event registration -- a student
 // browsing a club fair might legitimately register for several events in a
 // few minutes, so this only needs to stop a script from hammering the
@@ -59,4 +71,4 @@ const actionLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, loginLimiter, registerLimiter, actionLimiter, actionKey };
+module.exports = { authLimiter, loginLimiter, registerLimiter, guessLimiter, actionLimiter, actionKey };
