@@ -38,6 +38,7 @@ async function getClubById(req, res) {
 async function createClub(req, res) {
   try {
     const club = await Club.create({ ...pickClubFields(req.body), createdBy: req.user._id });
+    await recordAudit(req.user, "club.created", `Created club "${club.name}"`);
     res.status(201).json({ message: "Club created", club });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to create club") });
@@ -52,6 +53,7 @@ async function updateClub(req, res) {
       runValidators: true,
     });
     if (!club) return res.status(404).json({ message: "Club not found" });
+    await recordAudit(req.user, "club.updated", `Edited club "${club.name}"`);
     res.status(200).json({ message: "Club updated", club });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update club") });
