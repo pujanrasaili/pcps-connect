@@ -7,6 +7,7 @@ import { pluralize } from "../src/utils/plural.js";
 import { buildIcs, buildIcsCalendar, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
+import { shouldAutoplayVideo } from "../src/utils/videoPolicy.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
 import { relatedEvents } from "../src/utils/relatedEvents.js";
@@ -423,4 +424,12 @@ test("site search ranks name matches first, puts upcoming before past, and caps 
   assert.deepEqual(searchSite(events, clubs, "zzzz"), { clubs: [], events: [] });
   assert.equal(searchSite(events, clubs, "photo", 1).events.length, 1);
   assert.deepEqual(searchSite([], [], "x"), { clubs: [], events: [] });
+});
+
+test("shouldAutoplayVideo holds back the reel for data-saver, slow or reduced-motion visitors", () => {
+  assert.equal(shouldAutoplayVideo(), true);
+  assert.equal(shouldAutoplayVideo({ effectiveType: "4g" }), true);
+  assert.equal(shouldAutoplayVideo({ saveData: true }), false);
+  assert.equal(shouldAutoplayVideo({ reducedMotion: true }), false);
+  for (const slow of ["slow-2g", "2g", "3g"]) assert.equal(shouldAutoplayVideo({ effectiveType: slow }), false);
 });
