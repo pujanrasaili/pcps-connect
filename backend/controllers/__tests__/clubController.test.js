@@ -88,6 +88,7 @@ describe("createClub", () => {
     const res = mockRes();
     await createClub({ user: admin, body: { name: "Coding", category: "Tech", description: "d", leaders: ["sneaky"], createdBy: "other" } }, res);
     expect(Club.create).toHaveBeenCalledWith({ name: "Coding", category: "Tech", description: "d", createdBy: "a1" });
+    expect(recordAudit).toHaveBeenCalledWith(admin, "club.created", 'Created club "Coding"');
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
@@ -103,8 +104,9 @@ describe("updateClub", () => {
   it("cannot be used to change leaders or the creator", async () => {
     Club.findByIdAndUpdate = jest.fn().mockResolvedValue({ _id: "c1", name: "New" });
     const res = mockRes();
-    await updateClub({ params: { id: "c1" }, body: { name: "New", leaders: ["sneaky"], createdBy: "x" } }, res);
+    await updateClub({ user: admin, params: { id: "c1" }, body: { name: "New", leaders: ["sneaky"], createdBy: "x" } }, res);
     expect(Club.findByIdAndUpdate).toHaveBeenCalledWith("c1", { name: "New" }, { new: true, runValidators: true });
+    expect(recordAudit).toHaveBeenCalledWith(admin, "club.updated", 'Edited club "New"');
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
