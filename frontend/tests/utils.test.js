@@ -14,6 +14,7 @@ import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
+import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
@@ -396,4 +397,26 @@ test("help topics are complete, uniquely identified and the page has a title", (
     assert.ok(topic.answer.length > 0 && topic.answer.every((p) => p.trim().length > 0), topic.id);
   }
   assert.equal(titleForPath("/help"), "Help | PCPS Connect");
+});
+
+test("site search ranks name matches first, puts upcoming before past, and caps results", () => {
+  const day = (n) => new Date(Date.now() + n * 86400000).toISOString();
+  const clubs = [
+    { _id: "c1", name: "Photography Club", category: "Arts", description: "Weekly photo walks" },
+    { _id: "c2", name: "Robotics", category: "Technology", description: "Build robots, photography of builds" },
+    { _id: "c3", name: "Chess", category: "Games" },
+  ];
+  const events = [
+    { _id: "e-old", title: "Photo Exhibition 2025", date: day(-30), club: { name: "Photography Club" } },
+    { _id: "e-late", title: "Photo Walk", date: day(20), club: { name: "Photography Club" } },
+    { _id: "e-soon", title: "Open Mic", date: day(2), club: { name: "Photography Club" }, location: "Photo Studio" },
+    { _id: "e-none", title: "Chess Night", date: day(1), club: { name: "Chess" } },
+  ];
+  const r = searchSite(events, clubs, "  PHOTO ");
+  assert.deepEqual(r.clubs.map((c) => c._id), ["c1", "c2"]); // name match before description mention
+  assert.deepEqual(r.events.map((e) => e._id), ["e-late", "e-soon", "e-old"]); // upcoming first; name match beats place match
+  assert.deepEqual(searchSite(events, clubs, "   "), { clubs: [], events: [] });
+  assert.deepEqual(searchSite(events, clubs, "zzzz"), { clubs: [], events: [] });
+  assert.equal(searchSite(events, clubs, "photo", 1).events.length, 1);
+  assert.deepEqual(searchSite([], [], "x"), { clubs: [], events: [] });
 });
