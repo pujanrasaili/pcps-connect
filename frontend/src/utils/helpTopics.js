@@ -51,6 +51,13 @@ export const HELP_TOPICS = [
     answer: ["Yes, once you are marked as attended: your Dashboard asks you for 1 to 5 stars and an optional comment."],
   },
   {
+    id: "search",
+    question: "How do I find a club or event quickly?",
+    answer: [
+      'Press the "/" key (or tap the magnifying glass at the top of any page) and type part of a name, place or topic. Matching clubs and events appear as you type; choose one to open it.',
+    ],
+  },
+  {
     id: "save-later",
     question: "What does the bookmark button do?",
     answer: [

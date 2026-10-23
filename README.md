@@ -34,6 +34,7 @@ pcps-connect/
 - Email verification + admin approval required before an account can log in
 - JWT-based authentication with httpOnly cookies (secure against XSS token theft)
 - Real password reset via email, plus in-app change password from Settings; every password box has a show/hide button and the right autocomplete hints so password managers can fill and generate passwords
+- Site-wide search: press "/" or use the magnifying glass in the top bar to find clubs and events by name, topic, place or hosting club from any page; best name matches first, upcoming events before past ones
 - Full club directory: browse, search, filter by category, join/leave, favorite, and an "Only clubs I've joined" filter (shareable as `?mine=1`), plus sorting by most members or name (`?sort=members`)
 - Full event directory: browse, search (by name, place or club), filter, register/unregister, live capacity tracking, and a "View events" link from each club that shows only its events
 - Club events: an event can be hosted by a club, and members of that club are emailed when it is announced (opt out in Settings)
