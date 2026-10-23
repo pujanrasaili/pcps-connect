@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
 const { requireCsrfHeader } = require("./middleware/csrf");
+const { checkEnv } = require("./utils/envCheck");
 
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -21,6 +22,13 @@ const waitlistRoutes = require("./routes/waitlistRoutes");
 const certificateRoutes = require("./routes/certificateRoutes");
 
 const app = express();
+
+const { fatal, warnings } = checkEnv();
+warnings.forEach((w) => console.warn("Config warning:", w));
+if (fatal.length > 0) {
+  fatal.forEach((f) => console.error("Config error:", f));
+  process.exit(1);
+}
 
 connectDB();
 
