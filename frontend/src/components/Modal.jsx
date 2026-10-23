@@ -32,8 +32,11 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
     // trigger button behind the (visually obvious, but not programmatically
     // connected) backdrop.
     const focusFirst = () => {
+      // A control marked data-autofocus (the search box, say) wins, so people
+      // can start typing straight away; otherwise the first focusable one.
+      const preferred = dialogRef.current?.querySelector("[data-autofocus]");
       const focusable = dialogRef.current?.querySelectorAll(FOCUSABLE_SELECTOR);
-      (focusable?.[0] || dialogRef.current)?.focus();
+      (preferred || focusable?.[0] || dialogRef.current)?.focus();
     };
     focusFirst();
 
