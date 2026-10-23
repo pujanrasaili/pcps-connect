@@ -1,5 +1,5 @@
 const express = require("express");
-const { loginLimiter } = require("../rateLimit");
+const { loginLimiter, registerLimiter } = require("../rateLimit");
 
 // A tiny app with the real limiter in front of a fake login: the password
 // "right" succeeds, anything else is a 401.
@@ -86,6 +86,23 @@ describe("actionLimiter", () => {
     try {
       for (let i = 0; i < 30; i++) expect((await act(server)).status).toBe(200);
       expect((await act(server)).status).toBe(429);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+});
+
+describe("registerLimiter", () => {
+  it("allows an orientation-day crowd (40) from one IP, then blocks the 41st", async () => {
+    const app = express();
+    app.post("/register", registerLimiter, (req, res) => res.status(201).json({ ok: true }));
+    const server = await new Promise((resolve) => {
+      const s = app.listen(0, () => resolve(s));
+    });
+    try {
+      const url = `http://127.0.0.1:${server.address().port}/register`;
+      for (let i = 0; i < 40; i++) expect((await fetch(url, { method: "POST" })).status).toBe(201);
+      expect((await fetch(url, { method: "POST" })).status).toBe(429);
     } finally {
       await new Promise((resolve) => server.close(resolve));
     }

@@ -15,11 +15,11 @@ const {
   resendVerification,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
-const { authLimiter, loginLimiter, actionLimiter } = require("../middleware/rateLimit");
+const { authLimiter, loginLimiter, registerLimiter, actionLimiter } = require("../middleware/rateLimit");
 
 const router = express.Router();
 
-router.post("/register", authLimiter, register);
+router.post("/register", registerLimiter, register);
 router.post("/login", loginLimiter, login);
 router.post("/logout", logout);
 router.get("/me", protect, getMe);
