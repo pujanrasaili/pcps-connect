@@ -117,6 +117,10 @@ test("isUpcoming / isPastEvent compare against the exact current time", () => {
 test("audit labels, tones and groups", () => {
   assert.equal(actionLabel("user.selfDeleted"), "Self-deleted account");
   assert.equal(actionLabel("club.leaders"), "Club leaders changed");
+  assert.equal(actionLabel("event.created"), "Event created");
+  assert.equal(actionLabel("event.updated"), "Event edited");
+  assert.equal(actionLabel("club.updated"), "Club edited");
+  assert.equal(actionTone("event.updated"), "info");
   assert.equal(actionLabel("thing.some_action"), "Thing some action"); // unknown -> readable fallback
   assert.equal(actionTone("user.selfDeleted"), "danger");
   assert.equal(actionTone("event.deleted"), "danger");
