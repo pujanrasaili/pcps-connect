@@ -12,6 +12,17 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Sign-up gets its own, roomier counter: at orientation many new students
+// register from the same campus Wi-Fi IP within minutes. Accounts still need
+// a verified email, so this only has to stop a script mass-creating them.
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40, // sign-ups per IP per window
+  message: { message: "Too many sign-ups from this network. Please try again in a few minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Login gets its own counter that only counts FAILED attempts. A college's
 // students often share one public IP (campus Wi-Fi), so counting successful
 // logins too would lock real students out on a busy morning. Password
@@ -48,4 +59,4 @@ const actionLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, loginLimiter, actionLimiter, actionKey };
+module.exports = { authLimiter, loginLimiter, registerLimiter, actionLimiter, actionKey };
