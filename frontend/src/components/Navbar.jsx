@@ -9,10 +9,12 @@ import {
   FaSignOutAlt,
   FaTachometerAlt,
   FaCog,
+  FaSearch,
 } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
+import SearchDialog from "./SearchDialog";
 import logo from "../assets/images/pcps-logo.png";
 
 const BASE_NAV_LINKS = [
@@ -26,6 +28,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const menuRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
@@ -48,6 +51,19 @@ export default function Navbar() {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Pressing "/" (when not typing somewhere) opens the site search.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey) return;
+      const t = e.target;
+      if (t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      e.preventDefault();
+      setSearchOpen(true);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
   }, []);
 
   // Closes the account dropdown on any click outside it -- relying on
@@ -103,6 +119,14 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search clubs and events"
+            title="Search (press /)"
+            className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <FaSearch />
+          </button>
+          <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
             className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -147,7 +171,7 @@ export default function Navbar() {
                   <hr className="my-1 border-slate-100 dark:border-slate-800" />
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/20"
                   >
                     <FaSignOutAlt /> Log out
                   </button>
@@ -167,6 +191,13 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search clubs and events"
+            className="rounded-full p-2 text-slate-500 dark:text-slate-400"
+          >
+            <FaSearch />
+          </button>
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
@@ -237,6 +268,8 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      <SearchDialog isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }
