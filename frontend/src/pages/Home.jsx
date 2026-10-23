@@ -9,6 +9,7 @@ import VideoLightbox from "../components/VideoLightbox";
 import Reveal from "../components/Reveal";
 import { useTilt } from "../hooks/useTilt";
 import { useEffect, useState } from "react";
+import { browserAllowsAutoplay } from "../utils/videoPolicy";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { api, resolveUploadUrl } from "../services/api";
@@ -19,6 +20,8 @@ import reelPoster from "../assets/images/campus-reel-poster.jpg";
 export default function Home() {
   const [selectedClub, setSelectedClub] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  // Fixed at first render: a data-saver or slow-connection visitor sees the poster, not an autoplaying reel.
+  const [reelAutoplay] = useState(browserAllowsAutoplay);
   const { clubs } = useClubs();
   const { events } = useEvents();
   const featuredClubs = clubs.slice(0, 3);
@@ -105,19 +108,19 @@ export default function Home() {
                     src="/media/campus-reel.mp4"
                     poster={reelPoster}
                     muted
-                    loop
-                    autoPlay
+                    loop={reelAutoplay}
+                    autoPlay={reelAutoplay}
                     playsInline
-                    preload="auto"
+                    preload={reelAutoplay ? "metadata" : "none"}
                     className="h-full w-full object-cover object-top opacity-90 transition-opacity group-hover:opacity-100"
                   />
                   <span className="absolute inset-0 flex items-center justify-center bg-slate-950/10 transition-colors group-hover:bg-slate-950/30">
-                    <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-primary-600 opacity-0 shadow-soft transition-all group-hover:scale-105 group-hover:opacity-100">
-                      <FaExpand className="text-lg" />
+                    <span className={`flex h-16 w-16 items-center justify-center rounded-full bg-white/90 text-primary-600 shadow-soft transition-all group-hover:scale-105 group-hover:opacity-100 ${reelAutoplay ? "opacity-0" : "opacity-100"}`}>
+                      {reelAutoplay ? <FaExpand className="text-lg" /> : <FaPlay className="text-lg" />}
                     </span>
                   </span>
                   <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                    <FaPlay className="text-[10px]" /> Playing
+                    <FaPlay className="text-[10px]" /> {reelAutoplay ? "Playing" : "Tap to play"}
                   </span>
                 </button>
                 <div className="flex flex-1 flex-col justify-center p-5">
