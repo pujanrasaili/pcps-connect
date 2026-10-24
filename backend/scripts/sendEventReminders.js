@@ -25,6 +25,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const sendEmail = require("../utils/sendEmail");
+const { unsubscribeHeaders, settingsLink } = require("../utils/unsubscribe");
 const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
 const { formatEventDate } = require("../utils/formatEventDate");
@@ -70,6 +71,7 @@ async function run() {
       try {
         await sendEmail({
           to: registration.user.email,
+          headers: unsubscribeHeaders(),
           subject: `Reminder: ${event.title} is coming up`,
           html: renderEmail({
             heading: "Your event is coming up",
@@ -79,6 +81,7 @@ async function run() {
               <p style="margin: 0 0 4px;"><strong>When:</strong> ${formatEventDate(event.date)}</p>
               <p style="margin: 0;"><strong>Where:</strong> ${escapeHtml(event.location)}</p>
               <p style="margin: 16px 0 0;">See you there!</p>
+              <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">You can turn event reminders off in ${settingsLink()}.</p>
             `,
           }),
         });
