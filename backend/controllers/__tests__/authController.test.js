@@ -58,6 +58,13 @@ describe("register", () => {
     expect(User.create).not.toHaveBeenCalled();
   });
 
+  it("rejects a password longer than bcrypt can use (72 bytes)", async () => {
+    const res = mockRes();
+    await register({ body: { ...body, password: "a".repeat(73) } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
   it("400s (not 500) when a field is not a string", async () => {
     const res = mockRes();
     await register({ body: { ...body, password: ["a", "b", "c", "d", "e", "f"] } }, res);
@@ -173,6 +180,14 @@ describe("changePassword", () => {
     const res = mockRes();
     await changePassword({ ...req, body: { currentPassword: "old-pass", newPassword: "123" } }, res);
     expect(res.status).toHaveBeenCalledWith(400);
+    expect(User.findById).not.toHaveBeenCalled();
+  });
+
+  it("rejects a new password longer than bcrypt can use (72 bytes)", async () => {
+    const res = mockRes();
+    await changePassword({ ...req, body: { currentPassword: "old-pass", newPassword: "a".repeat(73) } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json.mock.calls[0][0].message).toMatch(/72 bytes/);
     expect(User.findById).not.toHaveBeenCalled();
   });
 

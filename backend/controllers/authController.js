@@ -3,6 +3,7 @@ const { isObjectId } = require("../middleware/validateId");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { cleanProfileFields } = require("../utils/profileFields");
+const { passwordProblem } = require("../utils/passwordRules");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
@@ -110,9 +111,8 @@ async function register(req, res) {
       return res.status(400).json({ message: "Invalid form data" });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
-    }
+    const pwProblem = passwordProblem(password);
+    if (pwProblem) return res.status(400).json({ message: `Password ${pwProblem}` });
 
     const { values: profile, error: profileError } = cleanProfileFields({ name, studentId, program, semester, phone });
     if (profileError) return res.status(400).json({ message: profileError });
@@ -289,9 +289,8 @@ async function changePassword(req, res) {
     if (!currentPassword || !newPassword || typeof currentPassword !== "string" || typeof newPassword !== "string") {
       return res.status(400).json({ message: "Current password and new password are required" });
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: "New password must be at least 6 characters" });
-    }
+    const pwProblem = passwordProblem(newPassword);
+    if (pwProblem) return res.status(400).json({ message: `New password ${pwProblem}` });
 
     // req.user comes from the protect middleware, which doesn't select the
     // password field (it's select: false on the schema), so it has to be
@@ -456,9 +455,8 @@ async function resetPassword(req, res) {
     if (!token || !newPassword || typeof newPassword !== "string") {
       return res.status(400).json({ message: "Token and new password are required" });
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
-    }
+    const pwProblem = passwordProblem(newPassword);
+    if (pwProblem) return res.status(400).json({ message: `Password ${pwProblem}` });
 
     let decoded;
     try {
