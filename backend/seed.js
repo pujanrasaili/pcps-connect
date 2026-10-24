@@ -3,8 +3,8 @@
 // hardcoded frontend data files to live API calls.
 //
 // Run once with:  node seed.js
-// Safe to re-run -- it clears existing clubs/events first so you don't get
-// duplicates.
+// It REPLACES all clubs and events, so it refuses to run on a database that
+// already has any unless you add --force:  node seed.js --force
 
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -13,6 +13,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const Club = require("./models/Club");
 const Event = require("./models/Event");
+const { checkSeedAllowed } = require("./utils/seedGuard");
 
 const clubs = [
   {
@@ -117,6 +118,19 @@ const events = [
 
 async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
+
+  // Refuse to wipe a database that already holds clubs or events (like the
+  // live one) unless --force was given.
+  const guard = checkSeedAllowed({
+    clubCount: await Club.countDocuments(),
+    eventCount: await Event.countDocuments(),
+    force: process.argv.includes("--force"),
+  });
+  if (!guard.allowed) {
+    console.error(guard.message);
+    await mongoose.disconnect();
+    process.exit(1);
+  }
   console.log("Connected. Seeding...");
 
   await Club.deleteMany({});

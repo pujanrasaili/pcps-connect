@@ -128,7 +128,7 @@ npm run dev
 
 First-time setup also needs, once:
 ```bash
-npm run seed       # populates sample clubs and events
+npm run seed       # populates sample clubs and events (refuses to run if the database already has clubs or events; add `-- --force` only on a throwaway database)
 npm run backfill   # marks any pre-existing accounts as verified + approved
 ```
 
