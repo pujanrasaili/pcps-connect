@@ -51,6 +51,7 @@ pcps-connect/
 - The Attendees window has a quick search (name, email, student ID) and a "Not yet attended" filter for marking people at the door
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
+- The student Dashboard has an "On the waitlist" card: each full event they are queued for and their place in line ("Next in line", "3rd in line"), linking to the event
 - Keyboard users get a "Skip to main content" link as the first tab stop; `robots.txt` keeps private pages (admin, dashboard, profile) out of search engines and a sitemap lists the public ones
 - Event cards show a "Registered" tag for events you've signed up for, and the Events page has a "Registered" tab listing all of them (upcoming first)
 - Dark mode is applied before first paint (no white flash on load), and the app still works in browsers that block local storage (private windows)
@@ -178,8 +179,8 @@ It can also be triggered manually from the Actions tab, or locally with
 
 ## Documentation
 
-See `backend/README.md` for the full API reference (endpoints, request/response
-shapes, database models) and deeper notes on the auth flow.
+- `docs/API.md` -- every API endpoint, who may call it and what it does. Generated from the route files (`npm run docs:api` in `backend/`), and a test fails if it goes out of date.
+- `backend/README.md` -- request/response shapes, database models and deeper notes on the auth flow (written by hand, so `docs/API.md` is the up-to-date endpoint list).
 
 ## Future Improvements
 

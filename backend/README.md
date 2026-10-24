@@ -1,5 +1,7 @@
 # PCPS Connect — Backend API Reference
 
+> The always-current list of every endpoint is `docs/API.md` (generated from the code). This file adds request/response details and may lag behind it.
+
 Express + MongoDB API for PCPS Connect. All routes are mounted under
 `/api`, and every response is JSON. See the root `README.md` for setup,
 environment variables, and the overall project overview.
