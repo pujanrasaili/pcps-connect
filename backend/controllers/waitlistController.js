@@ -20,6 +20,28 @@ async function getWaitlistStatus(req, res) {
   }
 }
 
+// GET /api/waitlist/my  (requires login)
+// Every upcoming event the current student is queued for, with their place in
+// line, soonest event first -- for the Dashboard's "On the waitlist" card.
+// Events that already happened (or were deleted) are left out.
+async function getMyWaitlist(req, res) {
+  try {
+    const entries = await WaitlistEntry.find({ user: req.user._id }).populate("event", "title date location");
+    const upcoming = entries.filter((e) => e.event && new Date(e.event.date) >= new Date());
+
+    const waitlist = await Promise.all(
+      upcoming.map(async (entry) => ({
+        event: { _id: entry.event._id, title: entry.event.title, date: entry.event.date, location: entry.event.location },
+        position: (await WaitlistEntry.countDocuments({ event: entry.event._id, createdAt: { $lt: entry.createdAt } })) + 1,
+      }))
+    );
+    waitlist.sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
+    res.status(200).json({ waitlist });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to load your waitlist") });
+  }
+}
+
 // POST /api/waitlist/:eventId  (requires login)
 async function joinWaitlist(req, res) {
   try {
@@ -65,4 +87,4 @@ async function leaveWaitlist(req, res) {
   }
 }
 
-module.exports = { getWaitlistStatus, joinWaitlist, leaveWaitlist };
+module.exports = { getWaitlistStatus, getMyWaitlist, joinWaitlist, leaveWaitlist };

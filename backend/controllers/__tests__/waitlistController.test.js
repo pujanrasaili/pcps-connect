@@ -5,7 +5,7 @@ jest.mock("../../models/WaitlistEntry");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const WaitlistEntry = require("../../models/WaitlistEntry");
-const { getWaitlistStatus, joinWaitlist, leaveWaitlist } = require("../waitlistController");
+const { getWaitlistStatus, getMyWaitlist, joinWaitlist, leaveWaitlist } = require("../waitlistController");
 
 function mockRes() {
   const res = {};
@@ -105,5 +105,52 @@ describe("leaveWaitlist", () => {
     await leaveWaitlist(req, res);
     expect(WaitlistEntry.deleteOne).toHaveBeenCalledWith({ user: "u1", event: "ev1" });
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("getMyWaitlist", () => {
+  afterEach(() => jest.resetAllMocks());
+  const soon = new Date(Date.now() + 2 * 86400000);
+  const later = new Date(Date.now() + 9 * 86400000);
+  const entry = (id, date, createdAt = new Date("2026-01-01")) => ({
+    createdAt,
+    event: id ? { _id: id, title: `Event ${id}`, date, location: "Hall" } : null,
+  });
+
+  it("lists upcoming waitlisted events soonest first, with the place in line", async () => {
+    WaitlistEntry.find.mockReturnValue({ populate: jest.fn().mockResolvedValue([entry("late", later), entry("early", soon)]) });
+    WaitlistEntry.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(4);
+    const res = mockRes();
+    await getMyWaitlist({ user: { _id: "u1" } }, res);
+    expect(WaitlistEntry.find).toHaveBeenCalledWith({ user: "u1" });
+    const { waitlist } = res.json.mock.calls[0][0];
+    expect(waitlist.map((w) => w.event._id)).toEqual(["early", "late"]);
+    expect(waitlist.map((w) => w.position).sort()).toEqual([1, 5]);
+  });
+
+  it("leaves out events that already happened or were deleted", async () => {
+    WaitlistEntry.find.mockReturnValue({
+      populate: jest.fn().mockResolvedValue([entry("old", new Date(Date.now() - 86400000)), entry(null), entry("ok", soon)]),
+    });
+    WaitlistEntry.countDocuments.mockResolvedValue(2);
+    const res = mockRes();
+    await getMyWaitlist({ user: { _id: "u1" } }, res);
+    const { waitlist } = res.json.mock.calls[0][0];
+    expect(waitlist).toHaveLength(1);
+    expect(waitlist[0]).toEqual({ event: { _id: "ok", title: "Event ok", date: soon, location: "Hall" }, position: 3 });
+  });
+
+  it("returns an empty list when the student is on no waitlists", async () => {
+    WaitlistEntry.find.mockReturnValue({ populate: jest.fn().mockResolvedValue([]) });
+    const res = mockRes();
+    await getMyWaitlist({ user: { _id: "u1" } }, res);
+    expect(res.json).toHaveBeenCalledWith({ waitlist: [] });
+  });
+
+  it("returns 500 when the database fails", async () => {
+    WaitlistEntry.find.mockReturnValue({ populate: jest.fn().mockRejectedValue(new Error("db down")) });
+    const res = mockRes();
+    await getMyWaitlist({ user: { _id: "u1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
