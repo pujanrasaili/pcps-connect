@@ -30,6 +30,8 @@ import {
   Legend,
 } from "recharts";
 import StatsCard from "../components/StatsCard";
+import WaitlistCard from "../components/WaitlistCard";
+import { useMyWaitlist } from "../hooks/useMyWaitlist";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import { useClubMembership } from "../context/ClubMembershipContext";
@@ -87,6 +89,7 @@ export default function Dashboard() {
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [events, memberships, registeredEvents]);
 
+  const waitlist = useMyWaitlist();
   const { savedIds } = useSavedEvents();
   const savedForLater = useMemo(() => {
     const joined = new Set(registeredEvents.map((r) => r.event._id));
@@ -272,6 +275,8 @@ export default function Dashboard() {
           )}
         </div>
       )}
+
+      <WaitlistCard items={waitlist} />
 
       {savedForLater.length > 0 && (
         <div className="card-surface min-w-0 p-5">

@@ -7,6 +7,7 @@ import { pluralize } from "../src/utils/plural.js";
 import { buildIcs, buildIcsCalendar, googleCalendarUrl } from "../src/utils/calendar.js";
 import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
+import { queueLabel } from "../src/utils/waitlistLabel.js";
 import { shouldAutoplayVideo } from "../src/utils/videoPolicy.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
 import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
@@ -432,4 +433,17 @@ test("shouldAutoplayVideo holds back the reel for data-saver, slow or reduced-mo
   assert.equal(shouldAutoplayVideo({ saveData: true }), false);
   assert.equal(shouldAutoplayVideo({ reducedMotion: true }), false);
   for (const slow of ["slow-2g", "2g", "3g"]) assert.equal(shouldAutoplayVideo({ effectiveType: slow }), false);
+});
+
+test("queueLabel words a waitlist position", () => {
+  assert.equal(queueLabel(1), "Next in line");
+  assert.equal(queueLabel(2), "2nd in line");
+  assert.equal(queueLabel(3), "3rd in line");
+  assert.equal(queueLabel(4), "4th in line");
+  assert.equal(queueLabel(11), "11th in line");
+  assert.equal(queueLabel(12), "12th in line");
+  assert.equal(queueLabel(21), "21st in line");
+  assert.equal(queueLabel(112), "112th in line");
+  assert.equal(queueLabel(undefined), "On the waitlist");
+  assert.equal(queueLabel(0), "On the waitlist");
 });
