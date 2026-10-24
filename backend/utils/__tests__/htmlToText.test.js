@@ -26,6 +26,18 @@ describe("htmlToText", () => {
     expect(htmlToText("<style>p{color:red}</style><p>Tom &amp; Jerry &lt;3 &quot;hi&quot;</p>")).toBe('Tom & Jerry <3 "hi"');
   });
 
+  it("does not show the button link twice (button label plus the 'paste this link' fallback)", () => {
+    const renderEmail = require("../emailTemplate");
+    const url = "https://app.test/reset?token=abc";
+    const text = htmlToText(renderEmail({ heading: "Reset", bodyHtml: "<p>Hi.</p>", ctaText: "Reset password", ctaUrl: url }));
+    expect(text.split(url).length - 1).toBe(1);
+    expect(text).not.toMatch(/paste this link/i);
+  });
+
+  it("keeps a bare link that was not shown before", () => {
+    expect(htmlToText("<p>Visit</p><p>https://a.test/x</p>")).toBe("Visit\nhttps://a.test/x");
+  });
+
   it("works on a real PCPS email shell", () => {
     const renderEmail = require("../emailTemplate");
     const text = htmlToText(renderEmail({ heading: "Reset your password", bodyHtml: "<p>Click below.</p>", ctaText: "Reset password", ctaUrl: "https://app.test/reset?token=abc" }));

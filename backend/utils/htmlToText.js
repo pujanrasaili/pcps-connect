@@ -22,13 +22,26 @@ function htmlToText(html) {
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|h[1-6]|tr|table|ul|ol)>/gi, "\n")
     .replace(/<[^>]*>/g, "");
-  text = decodeEntities(text)
+  const lines = decodeEntities(text)
     .split("\n")
-    .map((line) => line.replace(/[ \t]+/g, " ").trim())
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-  return text;
+    .map((line) => line.replace(/[ \t]+/g, " ").trim());
+  // The button emails repeat their link as "Or paste this link into your
+  // browser: <url>". In plain text the link is already shown once next to the
+  // button label, so a line that is just that same url (and the "or paste"
+  // sentence leading into it) is dropped.
+  const kept = [];
+  for (const line of lines) {
+    const repeatsLink = /^https?:\/\/\S+$/.test(line) && kept.some((k) => k.endsWith(`(${line})`));
+    if (repeatsLink) {
+      while (kept.length && (kept[kept.length - 1] === "" || /^or paste this link/i.test(kept[kept.length - 1]))) {
+        const dropped = kept.pop();
+        if (dropped !== "") break;
+      }
+      continue;
+    }
+    kept.push(line);
+  }
+  return kept.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 module.exports = { htmlToText };
