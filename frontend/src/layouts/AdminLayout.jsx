@@ -13,6 +13,7 @@ const ADMIN_LINKS = [
   { to: "/admin", label: "Overview", icon: FaChartPie, end: true },
   { to: "/admin/clubs", label: "Clubs", icon: FaUsers },
   { to: "/admin/events", label: "Events", icon: FaCalendarAlt },
+  { to: "/admin/check-in", label: "Check-in", icon: FaQrcode },
   { to: "/admin/users", label: "Users", icon: FaUserShield, badgeKey: "pending" },
   { to: "/admin/activity", label: "Activity", icon: FaHistory },
 ];
