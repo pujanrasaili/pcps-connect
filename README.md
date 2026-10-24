@@ -177,6 +177,23 @@ backend's `.env`:
 It can also be triggered manually from the Actions tab, or locally with
 `npm run reminders` from `backend/`.
 
+## Backups
+
+The free MongoDB Atlas plan does not keep backups for you (check the "Backup" tab of your cluster to be sure), so save a copy yourself now and then, and before any risky change. From `backend/`, with your normal `.env` (the live `MONGO_URI`):
+
+```bash
+npm run backup                      # saves to ~/pcps-backups/pcps-backup-<date-time>/
+npm run backup -- --out D:\backups  # or choose the folder
+```
+
+It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, activity log, site notice) plus a `manifest.json` with the counts. To restore a collection, load its file back with MongoDB's `mongoimport`:
+
+```bash
+mongoimport --uri "<MONGO_URI>" --collection users --file users.json --jsonArray
+```
+
+A backup contains students' personal details and password hashes, so keep it private. The script refuses to write inside the project folder, because the GitHub repository is public.
+
 ## Documentation
 
 - `docs/API.md` -- every API endpoint, who may call it and what it does. Generated from the route files (`npm run docs:api` in `backend/`), and a test fails if it goes out of date.
