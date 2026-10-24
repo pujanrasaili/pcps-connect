@@ -6,6 +6,7 @@ import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { getClubIcon } from "../../utils/iconMap";
 import { useDebounce } from "../../hooks/useDebounce";
 import { pluralize } from "../../utils/plural";
+import ClubMessageModal from "../../components/ClubMessageModal";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
@@ -41,8 +42,6 @@ export default function AdminClubs() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [messageTarget, setMessageTarget] = useState(null);
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
 
   // Club leaders: students who can manage this club's events (admin-assigned).
   const [leadersTarget, setLeadersTarget] = useState(null);
@@ -117,24 +116,7 @@ export default function AdminClubs() {
     }
   };
 
-  const openMessage = (club) => {
-    setMessage("");
-    setMessageTarget(club);
-  };
-
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    setSending(true);
-    try {
-      const res = await api.post(`/admin/clubs/${messageTarget._id}/announce`, { message });
-      toast.success(res.data.message);
-      setMessageTarget(null);
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to send message"));
-    } finally {
-      setSending(false);
-    }
-  };
+  const openMessage = (club) => setMessageTarget(club);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -363,29 +345,7 @@ export default function AdminClubs() {
         </form>
       </Modal>
 
-      <Modal isOpen={!!messageTarget} onClose={() => setMessageTarget(null)} title={`Message members — ${messageTarget?.name || ""}`} size="md">
-        <form onSubmit={sendMessage} className="space-y-3">
-          <label className="label-field" htmlFor="club-message">Message to everyone who joined this club</label>
-          <textarea data-autofocus
-            id="club-message"
-            rows={5}
-            maxLength={1000}
-            required
-            className="input-field"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="e.g. This week's meeting is moved to Friday, 3 PM, Room B2."
-          />
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              {message.length}/1000 · sent by email, can't be undone. Members who turned off club updates are skipped.
-            </span>
-            <Button type="submit" disabled={sending || !message.trim()}>
-              {sending ? "Sending..." : "Send"}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+      <ClubMessageModal club={messageTarget} onClose={() => setMessageTarget(null)} />
 
       <Modal isOpen={!!leadersTarget} onClose={() => setLeadersTarget(null)} title={`Club leaders — ${leadersTarget?.name || ""}`} size="md">
         <div className="space-y-4">
