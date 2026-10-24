@@ -5,7 +5,7 @@ const { htmlToText } = require("./htmlToText");
 // Callers should catch failures themselves and decide how to respond --
 // e.g. forgotPassword still returns a generic success message even if the
 // email fails to send, to avoid leaking whether an address is registered.
-async function sendEmail({ to, subject, html, text, replyTo, icalEvent }) {
+async function sendEmail({ to, subject, html, text, replyTo, icalEvent, headers }) {
   return transporter.sendMail({
     from: `"PCPS Connect" <${process.env.EMAIL_USER}>`,
     to,
@@ -14,6 +14,8 @@ async function sendEmail({ to, subject, html, text, replyTo, icalEvent }) {
     // Plain-text alternative (derived from the HTML unless the caller gave one).
     text: text ?? htmlToText(html),
     ...(replyTo && { replyTo }),
+    // e.g. List-Unsubscribe, for emails a student can opt out of.
+    ...(headers && { headers }),
     // Lets mail apps (Gmail, Outlook, Apple Mail) show an "add to calendar" card.
     ...(icalEvent && { icalEvent: { method: "PUBLISH", content: icalEvent } }),
   });

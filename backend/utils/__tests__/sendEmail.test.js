@@ -23,4 +23,14 @@ describe("sendEmail", () => {
     expect(sent.replyTo).toBe("a@x.test");
     expect(sent.icalEvent).toEqual({ method: "PUBLISH", content: "BEGIN:VCALENDAR" });
   });
+
+  it("passes custom headers (like List-Unsubscribe) through", async () => {
+    await sendEmail({ to: "s@x.test", subject: "Hi", html: "<p>Hi</p>", headers: { "List-Unsubscribe": "<https://a.test/settings>" } });
+    expect(transporter.sendMail.mock.calls[0][0].headers).toEqual({ "List-Unsubscribe": "<https://a.test/settings>" });
+  });
+
+  it("sends no headers field when none were given", async () => {
+    await sendEmail({ to: "s@x.test", subject: "Hi", html: "<p>Hi</p>" });
+    expect(transporter.sendMail.mock.calls[0][0]).not.toHaveProperty("headers");
+  });
 });
