@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaEnvelope, FaUsers } from "react-icons/fa";
 import { useLedClubs } from "../../hooks/useLedClubs";
+import { useClubs } from "../../context/ClubsContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
 import Button from "../../components/Button";
 
@@ -8,6 +9,8 @@ import Button from "../../components/Button";
 // emailing the club's members.
 export default function LeaderClubs() {
   const { clubs, loaded } = useLedClubs();
+  // The leader endpoint has no member counts; the public club list does.
+  const { clubs: allClubs } = useClubs();
   const [target, setTarget] = useState(null);
 
   return (
@@ -37,7 +40,11 @@ export default function LeaderClubs() {
           </div>
         ))}
       </div>
-      <ClubMessageModal club={target} onClose={() => setTarget(null)} />
+      <ClubMessageModal
+        club={target}
+        memberCount={target ? allClubs.find((c) => c._id === target._id)?.memberCount : undefined}
+        onClose={() => setTarget(null)}
+      />
     </div>
   );
 }

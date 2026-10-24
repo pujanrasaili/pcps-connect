@@ -3,10 +3,13 @@ import { useToast } from "../context/ToastContext";
 import { api, getErrorMessage } from "../services/api";
 import Modal from "./Modal";
 import Button from "./Button";
+import { pluralize } from "../utils/plural";
 
 // Email everyone who joined a club (admins, and the club's own leaders).
 // Pass the club to open it, null to close.
-export default function ClubMessageModal({ club, onClose }) {
+export default function ClubMessageModal({ club, memberCount: memberCountProp, onClose }) {
+  // Callers that only have a bare club (no count) can pass the count separately.
+  const memberCount = memberCountProp ?? club?.memberCount;
   const toast = useToast();
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -32,7 +35,10 @@ export default function ClubMessageModal({ club, onClose }) {
   return (
     <Modal isOpen={!!club} onClose={onClose} title={`Message members — ${club?.name || ""}`} size="md">
       <form onSubmit={send} className="space-y-3">
-        <label className="label-field" htmlFor="club-message">Message to everyone who joined this club</label>
+        <label className="label-field" htmlFor="club-message">
+          Message to everyone who joined this club
+          {typeof memberCount === "number" && ` (up to ${pluralize(memberCount, "member")})`}
+        </label>
         <textarea data-autofocus
           id="club-message"
           rows={5}
