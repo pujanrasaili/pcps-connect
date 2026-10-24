@@ -140,12 +140,12 @@ export default function Register() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
-              <PasswordInput icon id="reg-password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
+              <PasswordInput icon id="reg-password" name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
               {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
             </div>
             <div>
               <label htmlFor="reg-confirm" className="label-field">Confirm</label>
-              <PasswordInput icon id="reg-confirm" name="confirmPassword" placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
+              <PasswordInput icon id="reg-confirm" name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
               {errors.confirmPassword && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
             </div>
           </div>

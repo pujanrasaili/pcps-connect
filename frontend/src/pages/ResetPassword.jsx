@@ -85,13 +85,13 @@ export default function ResetPassword() {
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div>
                 <label htmlFor="rp-password" className="label-field">New password</label>
-                <PasswordInput icon id="rp-password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
+                <PasswordInput icon id="rp-password" name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
                 {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
               </div>
 
               <div>
                 <label htmlFor="rp-confirm" className="label-field">Confirm new password</label>
-                <PasswordInput icon id="rp-confirm" name="confirmPassword" placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
+                <PasswordInput icon id="rp-confirm" name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
                 {errors.confirmPassword && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
               </div>
 

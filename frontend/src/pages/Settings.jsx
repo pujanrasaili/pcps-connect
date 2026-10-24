@@ -262,11 +262,11 @@ export default function Settings() {
           </div>
           <div>
             <label className="label-field" htmlFor="new-password">New password</label>
-            <PasswordInput id="new-password" name="newPassword" value={pwForm.newPassword} onChange={handlePwChange} autoComplete="new-password" required />
+            <PasswordInput id="new-password" name="newPassword" maxLength={72} value={pwForm.newPassword} onChange={handlePwChange} autoComplete="new-password" required />
           </div>
           <div>
             <label className="label-field" htmlFor="confirm-new-password">Confirm new password</label>
-            <PasswordInput id="confirm-new-password" name="confirmPassword" value={pwForm.confirmPassword} onChange={handlePwChange} autoComplete="new-password" required />
+            <PasswordInput id="confirm-new-password" name="confirmPassword" maxLength={72} value={pwForm.confirmPassword} onChange={handlePwChange} autoComplete="new-password" required />
           </div>
           <Button type="submit" className="w-full" disabled={pwSaving}>
             {pwSaving ? "Changing..." : "Change password"}
