@@ -103,6 +103,7 @@ pcps-connect/
 - Passwords hashed with bcrypt, never stored in plain text
 - Rate limiting on login/register/password-reset routes (brute-force protection)
 - Event fields are validated server-side (valid date, text length limits, sane capacity) and return a clear 400 instead of a server error
+- Club fields are validated server-side too (required name/category/description, text length limits, activities list)
 - `helmet` security headers
 - The Vercel frontend also sends security headers (no content-type sniffing, no framing, strict referrer policy, microphone/location/payment off)
 - Dependabot opens a weekly pull request with dependency updates (security fixes included); CI tests each one
