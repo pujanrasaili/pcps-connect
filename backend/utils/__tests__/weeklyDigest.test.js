@@ -79,6 +79,11 @@ describe("renderDigest", () => {
     expect(html).toContain("...and 3 more");
   });
 
+  it("links the opt-out sentence to the Settings page", () => {
+    const { html } = renderDigest({ user, events: [ev("e1", "c1", 20)], more: 0 }, "https://site.test");
+    expect(html).toContain('href="https://site.test/settings"');
+  });
+
   it("uses the singular subject for one event", () => {
     expect(renderDigest({ user, events: [ev("e1", "c1", 20)], more: 0 }, "https://site.test").subject).toBe("1 event this week from your clubs");
   });

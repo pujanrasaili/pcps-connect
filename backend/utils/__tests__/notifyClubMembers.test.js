@@ -24,6 +24,14 @@ describe("notifyNewClubEvent", () => {
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np" }));
   });
 
+  it("lets members opt out: List-Unsubscribe header and a Settings link in the email", async () => {
+    members([member(1)]);
+    await notifyNewClubEvent(event, club);
+    const sent = sendEmail.mock.calls[0][0];
+    expect(sent.headers["List-Unsubscribe"]).toMatch(/^<https?:\/\/.+\/settings>$/);
+    expect(sent.html).toMatch(/href="https?:\/\/[^"]+\/settings"/);
+  });
+
   it("skips members who turned club updates off, but not those who never set it", async () => {
     members([member(1, { clubUpdates: false }), member(2, { clubUpdates: true }), member(3)]);
     expect(await notifyNewClubEvent(event, club)).toBe(2);

@@ -3,6 +3,7 @@ const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
+const { unsubscribeHeaders, settingsLink } = require("./unsubscribe");
 
 // Tells everyone who has joined `club` (and hasn't turned club updates off in
 // Settings) that it just announced a new event. Same best-effort rules as the
@@ -27,6 +28,7 @@ async function notifyNewClubEvent(event, club) {
     recipients.map((user) =>
       sendEmail({
         to: user.email,
+        headers: unsubscribeHeaders(),
         subject: `${club.name}: ${event.title}`,
         html: renderEmail({
           heading,
@@ -35,7 +37,7 @@ async function notifyNewClubEvent(event, club) {
             <p style="margin: 0 0 16px;"><strong>${escapeHtml(club.name)}</strong> just announced <strong>${escapeHtml(event.title)}</strong>:</p>
             <p style="margin: 0 0 4px;"><strong>When:</strong> ${formatEventDate(event.date)}</p>
             <p style="margin: 0;"><strong>Where:</strong> ${escapeHtml(event.location)}</p>
-            <p style="margin: 16px 0 0;">Log in to PCPS Connect to register. You're getting this because you joined ${escapeHtml(club.name)}; you can turn club updates off in Settings.</p>
+            <p style="margin: 16px 0 0;">Log in to PCPS Connect to register. You're getting this because you joined ${escapeHtml(club.name)}; you can turn club updates off in ${settingsLink()}.</p>
           `,
         }),
       }).catch((err) => console.error(`Failed to email ${user.email} about new club event:`, err.message))
@@ -60,6 +62,7 @@ async function notifyClubAnnouncement(club, message) {
     recipients.map((user) =>
       sendEmail({
         to: user.email,
+        headers: unsubscribeHeaders(),
         subject: `Message from ${club.name}`,
         html: renderEmail({
           heading: `Message from ${club.name}`,
@@ -67,7 +70,7 @@ async function notifyClubAnnouncement(club, message) {
             <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
             <p style="margin: 0 0 16px;">The organisers of <strong>${escapeHtml(club.name)}</strong> sent a message to all members:</p>
             <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${safeMessage}</div>
-            <p style="margin: 16px 0 0;">You're getting this because you joined ${escapeHtml(club.name)}; you can turn club updates off in Settings.</p>
+            <p style="margin: 16px 0 0;">You're getting this because you joined ${escapeHtml(club.name)}; you can turn club updates off in ${settingsLink()}.</p>
           `,
         }),
       }).catch((err) => console.error(`Failed to email ${user.email} a club message:`, err.message))

@@ -1,6 +1,7 @@
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
+const { settingsLink } = require("./unsubscribe");
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_EVENTS = 6; // keep the email short; the rest is "and N more"
@@ -71,7 +72,7 @@ function renderDigest({ user, events, more }, origin) {
         <p style="margin: 0 0 8px;">Here's what your clubs have planned in the next 7 days:</p>
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">${items}</table>
         ${more ? `<p style="margin: 12px 0 0;">...and ${more} more on the Events page.</p>` : ""}
-        <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">You're getting this because you joined these clubs. Turn club updates off in Settings to stop these emails.</p>
+        <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">You're getting this because you joined these clubs. Turn club updates off in ${settingsLink(origin)} to stop these emails.</p>
       `,
       ctaText: "See all events",
       ctaUrl: `${origin}/events`,

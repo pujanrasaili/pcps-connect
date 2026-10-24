@@ -18,6 +18,7 @@ const Event = require("../models/Event");
 const ClubMembership = require("../models/ClubMembership");
 const Registration = require("../models/Registration");
 const sendEmail = require("../utils/sendEmail");
+const { unsubscribeHeaders } = require("../utils/unsubscribe");
 const { digestWindow, buildDigests, renderDigest } = require("../utils/weeklyDigest");
 
 const DRY = process.argv.includes("--dry");
@@ -48,7 +49,7 @@ async function run() {
     }
     try {
       const { subject, html } = renderDigest(digest, ORIGIN);
-      await sendEmail({ to: digest.user.email, subject, html });
+      await sendEmail({ to: digest.user.email, subject, html, headers: unsubscribeHeaders(ORIGIN) });
       sent++;
     } catch (err) {
       console.error(`Failed to send digest to ${digest.user.email}:`, err.message);
