@@ -10,6 +10,7 @@ const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
+const { validateEventFields } = require("../utils/eventInput");
 const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
 const { hideOrganiserEmail } = require("../utils/organiserPrivacy");
@@ -93,6 +94,8 @@ async function createEvent(req, res) {
     if (!title || !description || !date || !location) {
       return res.status(400).json({ message: "title, description, date, and location are required" });
     }
+    const inputError = validateEventFields(req.body);
+    if (inputError) return res.status(400).json({ message: inputError });
 
     let parsedCapacity = 100;
     if (capacity !== undefined && capacity !== null && capacity !== "") {
@@ -148,6 +151,9 @@ async function updateEvent(req, res) {
     if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
     }
+
+    const inputError = validateEventFields(req.body);
+    if (inputError) return res.status(400).json({ message: inputError });
 
     // Captured before any field is changed below, so registrants can be told
     // what the date/location used to be if either one changes.

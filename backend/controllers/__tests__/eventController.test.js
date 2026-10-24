@@ -238,3 +238,29 @@ describe("organiser privacy", () => {
     expect(res.json.mock.calls[0][0].event.createdBy.email).toBe("org@patancollege.edu.np");
   });
 });
+
+describe("event field validation", () => {
+  it("createEvent answers 400 with a clear message for a bad date, instead of a 500", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, date: "banana" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Enter a valid date and time" });
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+
+  it("createEvent rejects an over-long title", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, title: "x".repeat(151) }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+
+  it("updateEvent rejects a bad date without saving anything", async () => {
+    const ev = { _id: "ev1", createdBy: { toString: () => "admin1" }, date: new Date("2027-01-01"), location: "Lab", save: jest.fn() };
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { date: "not a date" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(ev.save).not.toHaveBeenCalled();
+  });
+});

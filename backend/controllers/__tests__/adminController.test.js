@@ -327,6 +327,16 @@ describe("updateEventAdmin -- field whitelist and capacity checks", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
+  it("rejects a bad date or an over-long title with a 400 instead of a 500", async () => {
+    Event.findById.mockResolvedValue(existing);
+    for (const body of [{ date: "banana" }, { title: "x".repeat(151) }, { description: "" }]) {
+      const res = mockRes();
+      await updateEventAdmin({ params: { id: "ev1" }, body }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(Event.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
   it("rejects an invalid capacity", async () => {
     Event.findById.mockResolvedValue(existing);
     const res = mockRes();

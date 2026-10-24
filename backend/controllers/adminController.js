@@ -23,6 +23,7 @@ const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
 const { pickAdminUserFields } = require("../utils/adminUserFields");
+const { validateEventFields } = require("../utils/eventInput");
 const { parseFlag } = require("../utils/eventFlags");
 const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/registrationEmails");
 
@@ -238,6 +239,8 @@ async function updateEventAdmin(req, res) {
     // know whether registrants need telling.
     const existing = await Event.findById(req.params.id);
     if (!existing) return res.status(404).json({ message: "Event not found" });
+    const inputError = validateEventFields(req.body);
+    if (inputError) return res.status(400).json({ message: inputError });
     const oldDate = existing.date;
     const oldLocation = existing.location;
 
