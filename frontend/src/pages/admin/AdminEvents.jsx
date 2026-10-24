@@ -295,11 +295,11 @@ export default function AdminEvents() {
           )}
           <div>
             <label className="label-field" htmlFor="ev-title">Event title</label>
-            <input data-autofocus id="ev-title" name="title" className="input-field" value={form.title} onChange={handleChange} required />
+            <input data-autofocus id="ev-title" name="title" maxLength={150} className="input-field" value={form.title} onChange={handleChange} required />
           </div>
           <div>
             <label className="label-field" htmlFor="ev-description">Description</label>
-            <textarea id="ev-description" name="description" rows={3} className="input-field resize-none" value={form.description} onChange={handleChange} required />
+            <textarea id="ev-description" name="description" rows={3} maxLength={5000} className="input-field resize-none" value={form.description} onChange={handleChange} required />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -308,7 +308,7 @@ export default function AdminEvents() {
             </div>
             <div>
               <label className="label-field" htmlFor="ev-location">Location</label>
-              <input id="ev-location" name="location" className="input-field" value={form.location} onChange={handleChange} required />
+              <input id="ev-location" name="location" maxLength={200} className="input-field" value={form.location} onChange={handleChange} required />
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -318,11 +318,11 @@ export default function AdminEvents() {
             </div>
             <div>
               <label className="label-field" htmlFor="ev-category">Category</label>
-              <input id="ev-category" name="category" className="input-field" value={form.category} onChange={handleChange} placeholder="Technology, Workshop..." />
+              <input id="ev-category" name="category" maxLength={50} className="input-field" value={form.category} onChange={handleChange} placeholder="Technology, Workshop..." />
             </div>
             <div>
               <label className="label-field" htmlFor="ev-price">Price</label>
-              <input id="ev-price" name="price" className="input-field" value={form.price} onChange={handleChange} placeholder="Free or NPR 200" />
+              <input id="ev-price" name="price" maxLength={50} className="input-field" value={form.price} onChange={handleChange} placeholder="Free or NPR 200" />
             </div>
           </div>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
