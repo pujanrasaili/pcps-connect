@@ -3,6 +3,7 @@ const ClubMembership = require("../models/ClubMembership");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
 const { pickClubFields } = require("../utils/clubFields");
+const { validateClubFields } = require("../utils/clubInput");
 const { withMemberCounts } = require("../utils/memberCounts");
 
 // GET /api/clubs  (public)
@@ -37,6 +38,11 @@ async function getClubById(req, res) {
 // POST /api/clubs  (requires login + admin)
 async function createClub(req, res) {
   try {
+    const fields = pickClubFields(req.body);
+    const missing = ["name", "category", "description"].find((f) => fields[f] === undefined);
+    if (missing) return res.status(400).json({ message: "Name, category and description are required" });
+    const inputError = validateClubFields(fields);
+    if (inputError) return res.status(400).json({ message: inputError });
     const club = await Club.create({ ...pickClubFields(req.body), createdBy: req.user._id });
     await recordAudit(req.user, "club.created", `Created club "${club.name}"`);
     res.status(201).json({ message: "Club created", club });
@@ -48,6 +54,8 @@ async function createClub(req, res) {
 // PUT /api/clubs/:id  (requires login + admin)
 async function updateClub(req, res) {
   try {
+    const inputError = validateClubFields(pickClubFields(req.body));
+    if (inputError) return res.status(400).json({ message: inputError });
     const club = await Club.findByIdAndUpdate(req.params.id, pickClubFields(req.body), {
       new: true,
       runValidators: true,

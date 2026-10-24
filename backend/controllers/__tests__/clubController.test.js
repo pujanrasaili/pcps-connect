@@ -92,10 +92,10 @@ describe("createClub", () => {
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
-  it("returns 500 when validation or the database fails", async () => {
+  it("returns 500 when the database fails", async () => {
     Club.create = jest.fn().mockRejectedValue(new Error("db down"));
     const res = mockRes();
-    await createClub({ user: admin, body: {} }, res);
+    await createClub({ user: admin, body: { name: "n", category: "c", description: "d" } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
   });
 });
@@ -140,5 +140,28 @@ describe("deleteClub", () => {
     await deleteClub({ user: admin, params: { id: "nope" } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
     expect(ClubMembership.deleteMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("club field validation", () => {
+  it("createClub answers 400 when required fields are missing", async () => {
+    const res = mockRes();
+    await createClub({ body: { name: "Only a name" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Club.create).not.toHaveBeenCalled();
+  });
+
+  it("createClub rejects an over-long name", async () => {
+    const res = mockRes();
+    await createClub({ body: { name: "x".repeat(101), category: "c", description: "d" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Club.create).not.toHaveBeenCalled();
+  });
+
+  it("updateClub rejects a blank name without touching the database", async () => {
+    const res = mockRes();
+    await updateClub({ params: { id: "c1" }, body: { name: " " }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Club.findByIdAndUpdate).not.toHaveBeenCalled();
   });
 });
