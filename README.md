@@ -59,6 +59,7 @@ pcps-connect/
 - The profile shows six small milestones (first event, 5 and 10 events attended, joining clubs, rating an event), worked out from what the student has done, never stored
 - Event questions: students ask public questions on an upcoming event's page (first name only, max 3 unanswered each), and an admin or the club's leaders answer; the organiser is emailed when a question arrives and the asker when it is answered
 - Walk-ins: on the attendees list an admin or the club's leaders can add a student who turned up without registering, by exact email or student ID; they are registered and checked in at once (capacity still applies)
+- Event report: the attendees window has an "Event report" section with registered, attended, attendance rate, average rating and a rating breakdown, plus a button that copies a plain-text summary for club reports
 - Install as an app: the dashboard offers an "Install" button (Chrome, Edge, Android) or the Share > Add to Home Screen steps (iPhone/iPad); it disappears once the site is opened as an app
 - Club news: an admin or one of a club's leaders can post short updates on the club's page (up to 1000 characters; anyone can read them, only they can write or delete), and each post is recorded in the activity log
 - Offline check-in tickets: while online, the app saves each student's check-in QR for upcoming confirmed events on their own phone, and a "My tickets" page (plus a small service worker) shows them with no internet; they are wiped on logout and after the event
