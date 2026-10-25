@@ -201,6 +201,7 @@ A backup contains students' personal details and password hashes, so keep it pri
 ## Documentation
 
 - `docs/ADMIN_GUIDE.md` -- how to run the site day to day: approving accounts, roles, check-in, scheduled emails, hosting, backups and what to do when something breaks.
+- `docs/HOW_IT_WORKS.md` -- a plain-language tour of how the project works (login, roles, registration, QR check-in, certificates, emails, protections, where to find things in the code).
 - `docs/API.md` -- every API endpoint, who may call it and what it does. Generated from the route files (`npm run docs:api` in `backend/`), and a test fails if it goes out of date.
 - `backend/README.md` -- request/response shapes, database models and deeper notes on the auth flow (written by hand, so `docs/API.md` is the up-to-date endpoint list).
 
