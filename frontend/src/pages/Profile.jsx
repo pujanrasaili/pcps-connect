@@ -11,6 +11,7 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 import StarRating, { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
+import MilestonesCard from "../components/MilestonesCard";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -150,6 +151,8 @@ export default function Profile() {
           </p>
         )}
       </div>
+
+      <MilestonesCard registrations={registrations} clubCount={memberships.length} />
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
