@@ -1,6 +1,7 @@
 import axios from "axios";
 import { optimizeImageUrl } from "../utils/imageUrl";
 import { slowRequests } from "../utils/slowRequests";
+import { errorText } from "../utils/errorText";
 
 // Centralized axios instance. Every request automatically includes the
 // httpOnly auth cookie (withCredentials) -- the backend uses a cookie, not
@@ -53,8 +54,7 @@ export function resolveUploadUrl(path, width) {
   return `${API_ORIGIN}${path}`;
 }
 
-// Normalizes axios errors into a plain message string, since every
-// controller on the backend responds with { message: "..." } on failure.
-export function getErrorMessage(err, fallback = "Something went wrong. Please try again.") {
-  return err?.response?.data?.message || err?.message || fallback;
+// Normalizes axios errors into a plain message string (see utils/errorText.js).
+export function getErrorMessage(err, fallback) {
+  return errorText(err, fallback);
 }
