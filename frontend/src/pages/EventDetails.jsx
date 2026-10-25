@@ -16,6 +16,8 @@ import {
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
+import { useLedClubs } from "../hooks/useLedClubs";
+import EventQuestions from "../components/EventQuestions";
 import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
 import Modal from "../components/Modal";
@@ -35,7 +37,8 @@ import { useSavedEvents } from "../hooks/useSavedEvents";
 export default function EventDetails() {
   const { id } = useParams();
   const { getEventById, events: allEvents } = useEvents();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const { clubs: ledClubs } = useLedClubs();
   const { registrations, isRegistered, isPending, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
 
@@ -99,6 +102,9 @@ export default function EventDetails() {
   const eventKey = event?._id;
   const eventFull = event ? (event.capacity ?? 100) - (event.registeredCount ?? 0) <= 0 : false;
   const eventOver = event ? isPastEvent(event.date) : false;
+  // Admins can answer on any event; a club leader only on their own club's.
+  const eventClubId = event?.club?._id || event?.club || null;
+  const canAnswerQuestions = user?.role === "admin" || (!!eventClubId && ledClubs.some((c) => c._id === eventClubId));
   const waitlistRelevant = isAuthenticated && eventFull && !registeredHere && !eventOver;
 
   useEffect(() => {
@@ -239,6 +245,13 @@ export default function EventDetails() {
               </div>
             </div>
           )}
+
+          <EventQuestions
+            eventId={event._id}
+            eventOver={eventOver}
+            canAnswer={canAnswerQuestions}
+            isAuthenticated={isAuthenticated}
+          />
         </div>
 
         <aside className="h-fit space-y-4 lg:sticky lg:top-24">
