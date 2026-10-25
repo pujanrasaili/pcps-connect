@@ -45,6 +45,7 @@ import { downloadIcsAll } from "../utils/calendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { savedUpcoming } from "../utils/savedEvents";
 import { pendingGettingStarted } from "../utils/gettingStarted";
+import InstallAppCard from "../components/InstallAppCard";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
 
@@ -381,6 +382,8 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
+
+        <InstallAppCard className="mb-4" />
 
         {upcoming.length > 0 ? (
           <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
