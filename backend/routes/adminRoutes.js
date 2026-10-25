@@ -23,6 +23,7 @@ const {
   decideRegistration,
 } = require("../controllers/adminController");
 const { setNotice } = require("../controllers/noticeController");
+const { addWalkIn } = require("../controllers/walkInController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -41,6 +42,7 @@ router.use(protect);
 router.get("/events/:id/registrations", staffOnly, getEventRegistrations);
 router.post("/events/:id/announce", staffOnly, actionLimiter, announceToRegistrants);
 router.post("/clubs/:id/announce", staffOnly, actionLimiter, announceToClubMembers);
+router.post("/events/:id/walk-in", staffOnly, actionLimiter, addWalkIn);
 router.put("/registrations/:id", staffOnly, updateRegistrationAttendance);
 router.put("/registrations/:id/decision", staffOnly, decideRegistration);
 router.get("/attendance-report", staffOnly, getAttendanceReport);
