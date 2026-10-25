@@ -56,6 +56,7 @@ pcps-connect/
 - Event cards show a "Registered" tag for events you've signed up for, and the Events page has a "Registered" tab listing all of them (upcoming first)
 - Dark mode is applied before first paint (no white flash on load), and the app still works in browsers that block local storage (private windows)
 - Students can download all the data the app holds about them (profile, registrations, ratings, memberships) as a JSON file from Settings
+- The profile shows six small milestones (first event, 5 and 10 events attended, joining clubs, rating an event), worked out from what the student has done, never stored
 - Students can delete their own account from Settings (password required): registrations, memberships and club-leader roles go with it, and so do their upcoming events (registered students are emailed the cancellation) while past events stay as history; admins are removed by another admin so there's always one left
 - Event and club photos are requested from Cloudinary at the size they're shown (auto format and quality), so pages load fast on mobile data even when the uploaded photo is several MB
 - A club's details window lists its next three upcoming events, linking straight to each
