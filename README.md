@@ -132,8 +132,10 @@ npm run dev
 First-time setup also needs, once:
 ```bash
 npm run seed       # populates sample clubs and events (refuses to run if the database already has clubs or events; add `-- --force` only on a throwaway database)
-npm run backfill   # marks any pre-existing accounts as verified + approved
+npm run make-admin -- you@patancollege.edu.np   # makes that (already registered) account an admin and lets it log in
 ```
+
+`npm run backfill` is only for databases that existed before email verification and approval were added: it approves *every* account that isn't yet verified, so it just reports how many it would change unless you add `-- --yes`.
 
 ### Frontend
 ```bash

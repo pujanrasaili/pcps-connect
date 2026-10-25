@@ -12,9 +12,14 @@ dashboard to open.
 4. Only then can they log in. Rejected accounts cannot.
 
 There is no way to become an admin by signing up. A new admin is made by an
-existing admin (Users, then edit the role). The very first admin has to be set
-once directly in the database: open MongoDB Atlas, Browse Collections, the
-`users` collection, find the account and change `role` from `user` to `admin`.
+existing admin (Users, then edit the role). The very first admin is made once
+from a computer that has the project and the live `MONGO_URI` in `backend/.env`:
+
+1. Register that person on the site with their `@patancollege.edu.np` address.
+2. In `backend/`, run `npm run make-admin -- their-address@patancollege.edu.np`.
+
+That sets the role to admin and marks the account verified and approved, so
+they can log in straight away.
 
 ## Roles
 
