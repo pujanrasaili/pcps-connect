@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
 import { Stars } from "./StarRating";
 import SearchBar from "./SearchBar";
+import WalkInForm from "./WalkInForm";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 
 function downloadAttendanceCsv(event, registrations) {
@@ -61,9 +62,9 @@ export default function AttendeesModal({ event, onClose }) {
     }
   };
 
-  useEffect(() => {
+  const loadAttendees = (showSpinner = true) => {
     if (!event) return;
-    setLoading(true);
+    if (showSpinner) setLoading(true);
     api
       .get(`/admin/events/${event._id}/registrations`)
       .then((res) => {
@@ -72,6 +73,10 @@ export default function AttendeesModal({ event, onClose }) {
       })
       .catch((err) => toast.error(getErrorMessage(err, "Failed to load attendees")))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadAttendees();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [event]);
 
@@ -130,6 +135,7 @@ export default function AttendeesModal({ event, onClose }) {
 
   return (
     <Modal isOpen={!!event} onClose={onClose} title={`Attendees — ${event?.title || ""}`} size="lg">
+      {event && <WalkInForm eventId={event._id} onAdded={() => loadAttendees(false)} />}
       {loading ? (
         <div className="flex justify-center py-10">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
