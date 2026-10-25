@@ -2,6 +2,7 @@ import axios from "axios";
 import { optimizeImageUrl } from "../utils/imageUrl";
 import { slowRequests } from "../utils/slowRequests";
 import { errorText } from "../utils/errorText";
+import { isSessionExpired, SESSION_EXPIRED_EVENT } from "../utils/sessionExpiry";
 
 // Centralized axios instance. Every request automatically includes the
 // httpOnly auth cookie (withCredentials) -- the backend uses a cookie, not
@@ -38,6 +39,9 @@ api.interceptors.response.use(
   },
   (error) => {
     slowRequests.end(error.config?.slowId);
+    if (isSessionExpired(error) && typeof window !== "undefined") {
+      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+    }
     return Promise.reject(error);
   }
 );

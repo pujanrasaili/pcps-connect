@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { api, getErrorMessage } from "../services/api";
+import { useToast } from "./ToastContext";
+import { SESSION_EXPIRED_EVENT } from "../utils/sessionExpiry";
 
 const AuthContext = createContext(null);
 
@@ -9,6 +11,23 @@ export function AuthProvider({ children }) {
   // "checking" -- true only during the initial page-load auth check, so the
   // rest of the app can avoid flashing a logged-out state before we know.
   const [authChecked, setAuthChecked] = useState(false);
+
+  const toast = useToast();
+
+  // The API says "Not logged in" to a request that needed a login (see
+  // utils/sessionExpiry.js). Clearing the local state sends the person to the
+  // login page through the route guards, with a short explanation, instead of
+  // leaving them clicking at buttons that all fail.
+  useEffect(() => {
+    function onExpired() {
+      if (!isAuthenticated) return;
+      setUser(null);
+      setIsAuthenticated(false);
+      toast.error("Your session has ended. Please log in again.");
+    }
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  }, [isAuthenticated, toast]);
 
   // On first load, ask the backend "am I still logged in?" -- the JWT
   // lives in an httpOnly cookie, so JavaScript can't read it directly;
