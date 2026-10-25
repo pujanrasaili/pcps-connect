@@ -3,6 +3,7 @@ jest.mock("../../models/Registration");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/Club");
+jest.mock("../../models/ClubPost");
 jest.mock("../notifyRegistrants");
 
 const Event = require("../../models/Event");
@@ -10,6 +11,7 @@ const Registration = require("../../models/Registration");
 const WaitlistEntry = require("../../models/WaitlistEntry");
 const ClubMembership = require("../../models/ClubMembership");
 const Club = require("../../models/Club");
+const ClubPost = require("../../models/ClubPost");
 const { notifyEventCancelled } = require("../notifyRegistrants");
 const { removeUserAndData } = require("../deleteAccountData");
 
@@ -25,6 +27,7 @@ describe("removeUserAndData", () => {
     expect(WaitlistEntry.deleteMany).toHaveBeenCalledWith({ user: "u1" });
     expect(ClubMembership.deleteMany).toHaveBeenCalledWith({ user: "u1" });
     expect(Club.updateMany).toHaveBeenCalledWith({ leaders: "u1" }, { $pull: { leaders: "u1" } });
+    expect(ClubPost.updateMany).toHaveBeenCalledWith({ author: "u1" }, { authorName: "Former club leader" });
     expect(user.deleteOne).toHaveBeenCalled();
   });
 

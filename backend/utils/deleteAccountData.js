@@ -3,6 +3,7 @@ const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const ClubMembership = require("../models/ClubMembership");
 const Club = require("../models/Club");
+const ClubPost = require("../models/ClubPost");
 const { notifyEventCancelled } = require("./notifyRegistrants");
 
 // Removes a user and everything that points at them. Shared by the admin
@@ -30,6 +31,8 @@ async function removeUserAndData(user) {
   await WaitlistEntry.deleteMany({ user: user._id });
   await ClubMembership.deleteMany({ user: user._id });
   await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
+  // Club news stays, but without the departed person's name on it.
+  await ClubPost.updateMany({ author: user._id }, { authorName: "Former club leader" });
   await user.deleteOne();
 }
 
