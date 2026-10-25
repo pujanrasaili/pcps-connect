@@ -6,6 +6,7 @@ import Modal from "./Modal";
 import { Stars } from "./StarRating";
 import SearchBar from "./SearchBar";
 import WalkInForm from "./WalkInForm";
+import EventReportCard from "./EventReportCard";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 
 function downloadAttendanceCsv(event, registrations) {
@@ -193,6 +194,7 @@ export default function AttendeesModal({ event, onClose }) {
               </div>
             </form>
           )}
+          <EventReportCard title={event?.title || "Event"} registrations={registrations} waitlistCount={waitlist.length} />
           {averageRating !== null && (
             <p className="mb-3 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <Stars value={Math.round(averageRating)} />
