@@ -17,6 +17,7 @@ import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { installMode, detectIos } from "../src/utils/installApp.js";
+import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
@@ -606,4 +607,33 @@ test("detectIos recognises iPhones and touch iPads but not Macs", () => {
   assert.equal(detectIos("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 5), true);
   assert.equal(detectIos("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 0), false);
   assert.equal(detectIos("Mozilla/5.0 (Linux; Android 14)", 5), false);
+});
+
+test("eventReport counts attendance and ratings, ignoring pending requests", () => {
+  const regs = [
+    { status: "confirmed", attended: true, rating: 5, feedback: "Great" },
+    { status: "confirmed", attended: true, rating: 4, feedback: " " },
+    { status: "confirmed", attended: false },
+    { status: "pending", attended: false, rating: 1 },
+  ];
+  const r = eventReport(regs, 2);
+  assert.equal(r.registered, 3);
+  assert.equal(r.attended, 2);
+  assert.equal(r.noShows, 1);
+  assert.equal(r.attendanceRate, 67);
+  assert.equal(r.averageRating, 4.5);
+  assert.equal(r.ratingCount, 2);
+  assert.equal(r.comments, 1);
+  assert.equal(r.waitlist, 2);
+  assert.deepEqual(r.distribution.find((d) => d.stars === 5), { stars: 5, count: 1 });
+});
+
+test("eventReport handles an empty event and reportText stays readable", () => {
+  const r = eventReport([], 0);
+  assert.equal(r.attendanceRate, null);
+  assert.equal(r.averageRating, null);
+  const text = reportText("Hack Night", eventReport([{ status: "confirmed", attended: true, rating: 5 }]));
+  assert.match(text, /Hack Night -- event summary/);
+  assert.match(text, /Attended: 1 \(100%\)/);
+  assert.match(text, /Rating: 5\/5 from 1 rating$/);
 });
