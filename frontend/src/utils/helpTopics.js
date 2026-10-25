@@ -47,6 +47,29 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "event-question",
+    question: "Can I ask the organiser something before an event?",
+    answer: [
+      'Yes. On an upcoming event\'s page, use the questions section at the bottom. Your question is public and shows only your first name, so other students can see the answer too. You can have up to three unanswered questions at a time.',
+      "The organiser is emailed when you ask, and you are emailed when they answer. You can delete your own question any time.",
+    ],
+  },
+  {
+    id: "club-news",
+    question: "Where do I find news from a club?",
+    answer: [
+      "Open the club from the Clubs page. Its details window shows short updates posted by the club's leaders, newest first, along with the club's next events.",
+    ],
+  },
+  {
+    id: "install-app",
+    question: "Can I put PCPS Connect on my phone's home screen?",
+    answer: [
+      'Yes. On Chrome or Edge, use the "Install" card on your dashboard. On an iPhone or iPad, open the site in Safari, tap the Share button, then "Add to Home Screen".',
+      "It opens like an app, and your saved tickets are one tap away.",
+    ],
+  },
+  {
     id: "certificate",
     question: "How do I get an attendance certificate?",
     answer: [
