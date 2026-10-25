@@ -2,6 +2,7 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const ClubMembership = require("../models/ClubMembership");
+const EventQuestion = require("../models/EventQuestion");
 const Club = require("../models/Club");
 const ClubPost = require("../models/ClubPost");
 const { notifyEventCancelled } = require("./notifyRegistrants");
@@ -25,10 +26,13 @@ async function removeUserAndData(user) {
     const upcomingIds = upcomingEvents.map((e) => e._id);
     await Registration.deleteMany({ event: { $in: upcomingIds } });
     await WaitlistEntry.deleteMany({ event: { $in: upcomingIds } });
+    await EventQuestion.deleteMany({ event: { $in: upcomingIds } });
     await Event.deleteMany({ _id: { $in: upcomingIds } });
   }
   await Registration.deleteMany({ user: user._id });
   await WaitlistEntry.deleteMany({ user: user._id });
+  // Their public questions go too (the answers to them are no use without the question).
+  await EventQuestion.deleteMany({ author: user._id });
   await ClubMembership.deleteMany({ user: user._id });
   await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
   // Club news stays, but without the departed person's name on it.

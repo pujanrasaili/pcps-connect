@@ -1,6 +1,7 @@
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
+const EventQuestion = require("../models/EventQuestion");
 const Club = require("../models/Club");
 const { recordAudit } = require("../utils/audit");
 const { ratingSummary } = require("../utils/ratingSummary");
@@ -226,6 +227,7 @@ async function deleteEvent(req, res) {
     // dangling references pointing at a deleted event.
     await Registration.deleteMany({ event: event._id });
     await WaitlistEntry.deleteMany({ event: event._id });
+    await EventQuestion.deleteMany({ event: event._id });
     await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
 
     res.status(200).json({ message: "Event deleted" });
