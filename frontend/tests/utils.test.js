@@ -16,6 +16,7 @@ import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
+import { installMode, detectIos } from "../src/utils/installApp.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
@@ -590,4 +591,19 @@ test("event question actions have readable labels in the activity log", () => {
 test("walk-in actions have a readable label in the activity log", () => {
   assert.equal(actionLabel("event.walkIn"), "Walk-in added");
   assert.equal(actionTone("event.walkIn"), "info");
+});
+
+test("installMode offers the right install help", () => {
+  assert.equal(installMode({ canPrompt: true, isStandalone: false, isIos: false }), "prompt");
+  assert.equal(installMode({ canPrompt: false, isStandalone: false, isIos: true }), "ios-steps");
+  assert.equal(installMode({ canPrompt: false, isStandalone: false, isIos: false }), "hidden");
+  assert.equal(installMode({ canPrompt: true, isStandalone: true, isIos: false }), "hidden");
+  assert.equal(installMode({ canPrompt: false, isStandalone: true, isIos: true }), "hidden");
+});
+
+test("detectIos recognises iPhones and touch iPads but not Macs", () => {
+  assert.equal(detectIos("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)", 5), true);
+  assert.equal(detectIos("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 5), true);
+  assert.equal(detectIos("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", 0), false);
+  assert.equal(detectIos("Mozilla/5.0 (Linux; Android 14)", 5), false);
 });
