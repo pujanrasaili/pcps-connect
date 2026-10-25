@@ -26,3 +26,9 @@ test("the link-preview and single-page rewrites are still there", () => {
   assert.ok(config.rewrites.some((r) => r.destination === "/index.html"));
   assert.ok(config.rewrites.some((r) => String(r.destination).startsWith("/api/preview")));
 });
+
+test("the service worker file is never cached by the browser, so updates reach everyone", () => {
+  const entry = config.headers.find((h) => h.source === "/sw.js");
+  assert.ok(entry, "sw.js needs its own header block");
+  assert.equal(entry.headers.find((h) => h.key === "Cache-Control")?.value, "no-cache");
+});
