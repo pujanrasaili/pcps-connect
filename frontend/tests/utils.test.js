@@ -18,6 +18,7 @@ import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
+import { errorText } from "../src/utils/errorText.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
@@ -446,4 +447,23 @@ test("queueLabel words a waitlist position", () => {
   assert.equal(queueLabel(112), "112th in line");
   assert.equal(queueLabel(undefined), "On the waitlist");
   assert.equal(queueLabel(0), "On the waitlist");
+});
+
+test("errorText prefers the server's own message", () => {
+  assert.equal(errorText({ response: { status: 400, data: { message: "Title can't be empty" } } }), "Title can't be empty");
+});
+
+test("errorText explains network failures and a sleeping server in plain words", () => {
+  assert.match(errorText({ code: "ERR_NETWORK", message: "Network Error" }), /internet connection/);
+  assert.match(errorText({ code: "ECONNABORTED", message: "timeout of 5000ms exceeded" }), /too long/);
+  for (const status of [502, 503, 504]) {
+    assert.match(errorText({ message: "Request failed", response: { status, data: "<html>" } }), /waking up/);
+  }
+  assert.match(errorText({ response: { status: 429, data: {} } }), /Too many attempts/);
+});
+
+test("errorText never shows raw axios text; it uses the fallback instead", () => {
+  const err = { message: "Request failed with status code 400", response: { status: 400, data: {} } };
+  assert.equal(errorText(err, "Failed to save event"), "Failed to save event");
+  assert.equal(errorText(undefined), "Something went wrong. Please try again.");
 });
