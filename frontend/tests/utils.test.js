@@ -19,6 +19,7 @@ import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/getting
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
+import { isSessionExpired } from "../src/utils/sessionExpiry.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
@@ -466,4 +467,18 @@ test("errorText never shows raw axios text; it uses the fallback instead", () =>
   const err = { message: "Request failed with status code 400", response: { status: 400, data: {} } };
   assert.equal(errorText(err, "Failed to save event"), "Failed to save event");
   assert.equal(errorText(undefined), "Something went wrong. Please try again.");
+});
+
+test("isSessionExpired fires for a 401 on a normal request only", () => {
+  const e = (status, url) => ({ response: { status }, config: { url } });
+  assert.equal(isSessionExpired(e(401, "/registrations/my")), true);
+  assert.equal(isSessionExpired(e(401, "/admin/users")), true);
+  // Expected for a visitor who simply isn't logged in:
+  assert.equal(isSessionExpired(e(401, "/auth/me")), false);
+  assert.equal(isSessionExpired(e(401, "/auth/login")), false);
+  assert.equal(isSessionExpired(e(401, "/auth/logout")), false);
+  // Other failures are not a session problem:
+  assert.equal(isSessionExpired(e(403, "/admin/users")), false);
+  assert.equal(isSessionExpired(e(500, "/events")), false);
+  assert.equal(isSessionExpired(undefined), false);
 });
