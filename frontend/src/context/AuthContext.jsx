@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "./ToastContext";
 import { SESSION_EXPIRED_EVENT } from "../utils/sessionExpiry";
+import { forgetTickets } from "../services/ticketSync";
 
 const AuthContext = createContext(null);
 
@@ -21,6 +22,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     function onExpired() {
       if (!isAuthenticated) return;
+      forgetTickets();
       setUser(null);
       setIsAuthenticated(false);
       toast.error("Your session has ended. Please log in again.");
@@ -59,6 +61,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const res = await api.post("/auth/login", { email, password });
+      forgetTickets(); // never carry over a previous person's tickets
       setUser(res.data.user);
       setIsAuthenticated(true);
       return { ok: true };
@@ -90,6 +93,7 @@ export function AuthProvider({ children }) {
       // Even if the request fails, clear local state so the UI reflects
       // "logged out" -- the cookie will simply expire on its own.
     }
+    forgetTickets();
     setUser(null);
     setIsAuthenticated(false);
   };

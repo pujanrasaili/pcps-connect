@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, getErrorMessage } from "../services/api";
 import Modal from "./Modal";
+import { browserStorage, readTickets, ticketUrl } from "../utils/offlineTickets";
 
 // Shows a student's personal check-in QR. The code is fetched fresh each time
 // (it's just an HMAC of the registration id -- nothing is stored), and the QR
@@ -21,13 +22,19 @@ export default function CheckInQrModal({ registration, onClose }) {
     api
       .get(`/registrations/${registrationId}/check-in-code`)
       .then((res) => !cancelled && setCode(res.data.code))
-      .catch((err) => !cancelled && setError(getErrorMessage(err, "Couldn't create your check-in code")));
+      .catch((err) => {
+        if (cancelled) return;
+        // Offline (no answer from the server at all): use the copy saved on this phone.
+        const saved = !err?.response && readTickets(browserStorage()).find((t) => t.id === registrationId);
+        if (saved) setCode(saved.code);
+        else setError(getErrorMessage(err, "Couldn't create your check-in code"));
+      });
     return () => {
       cancelled = true;
     };
   }, [registrationId]);
 
-  const url = code ? `${window.location.origin}/admin/check-in?code=${encodeURIComponent(code)}` : "";
+  const url = code ? ticketUrl(window.location.origin, code) : "";
 
   return (
     <Modal isOpen={!!registration} onClose={onClose} title="Your check-in code" size="sm">

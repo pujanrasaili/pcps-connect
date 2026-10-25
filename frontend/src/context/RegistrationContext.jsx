@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { api, getErrorMessage } from "../services/api";
 import { useAuth } from "./AuthContext";
 import { useToast } from "./ToastContext";
+import { syncOfflineTickets } from "../services/ticketSync";
 
 const RegistrationContext = createContext(null);
 
@@ -25,6 +26,8 @@ export function RegistrationProvider({ children }) {
       const res = await api.get("/registrations/my");
       setRegistrations(res.data.registrations);
       setLoaded(true);
+      // Save tickets for offline use (best effort, in the background).
+      syncOfflineTickets(res.data.registrations).catch(() => {});
     } catch {
       setRegistrations([]);
     } finally {

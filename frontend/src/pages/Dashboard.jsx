@@ -15,6 +15,7 @@ import {
   FaBookmark,
   FaRegCircle,
   FaCheckCircle,
+  FaQrcode,
 } from "react-icons/fa";
 import {
   ResponsiveContainer,
@@ -369,6 +370,11 @@ export default function Dashboard() {
               >
                 <FaCalendarPlus className="text-xs" /> Add all to calendar
               </button>
+            )}
+            {upcomingConfirmed.length > 0 && (
+              <Link to="/tickets" className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
+                <FaQrcode className="text-xs" /> My tickets (work offline)
+              </Link>
             )}
             <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300">
               Find more events <FaArrowRight className="text-xs" />
