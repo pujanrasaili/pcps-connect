@@ -20,6 +20,7 @@ import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
 import { isSessionExpired } from "../src/utils/sessionExpiry.js";
+import { buildMilestones } from "../src/utils/milestones.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
@@ -481,4 +482,33 @@ test("isSessionExpired fires for a 401 on a normal request only", () => {
   assert.equal(isSessionExpired(e(403, "/admin/users")), false);
   assert.equal(isSessionExpired(e(500, "/events")), false);
   assert.equal(isSessionExpired(undefined), false);
+});
+
+test("buildMilestones starts with nothing earned and shows progress", () => {
+  const list = buildMilestones([], 0);
+  assert.equal(list.length, 6);
+  assert.ok(list.every((m) => !m.earned && m.current === 0));
+});
+
+test("buildMilestones counts attended events, joined clubs and ratings", () => {
+  const regs = [
+    { attended: true, rating: 5 },
+    { attended: true },
+    { attended: false, rating: 4 }, // rating without attending doesn't count
+    null,
+  ];
+  const byId = Object.fromEntries(buildMilestones(regs, 3).map((m) => [m.id, m]));
+  assert.equal(byId["first-event"].earned, true);
+  assert.equal(byId["regular"].earned, false);
+  assert.equal(byId["regular"].current, 2);
+  assert.equal(byId["club-member"].earned, true);
+  assert.equal(byId["connector"].earned, true);
+  assert.equal(byId["critic"].earned, true);
+});
+
+test("buildMilestones never reports progress beyond the target", () => {
+  const regs = Array.from({ length: 12 }, () => ({ attended: true }));
+  const byId = Object.fromEntries(buildMilestones(regs, 0).map((m) => [m.id, m]));
+  assert.equal(byId["campus-star"].current, 10);
+  assert.equal(byId["campus-star"].earned, true);
 });
