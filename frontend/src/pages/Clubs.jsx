@@ -20,6 +20,8 @@ import { useToast } from "../context/ToastContext";
 import { shareClub } from "../utils/share";
 import { CLUB_SORTS, filterClubs, sortClubs } from "../utils/clubFilters";
 import { useAuth } from "../context/AuthContext";
+import { useLedClubs } from "../hooks/useLedClubs";
+import ClubNews from "../components/ClubNews";
 
 const PAGE_SIZE = 9;
 
@@ -82,7 +84,10 @@ export default function Clubs() {
       { replace: true }
     );
   const setCategory = (value) => setFilter("category", value, "All");
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  // Admins can post on any club; a leader only on the clubs they lead.
+  const { clubs: ledClubs } = useLedClubs();
+  const canPostNews = (id) => user?.role === "admin" || ledClubs.some((c) => c._id === id);
   // "Only my clubs" needs a login, so the link is ignored for visitors.
   const mineOnly = isAuthenticated && params.get("mine") === "1";
   const sortParam = params.get("sort");
@@ -267,6 +272,8 @@ export default function Clubs() {
                 </ul>
               </>
             )}
+
+            <ClubNews clubId={selectedClub._id} canPost={canPostNews(selectedClub._id)} />
 
             <Link
               to={`/events?club=${selectedClub._id}`}
