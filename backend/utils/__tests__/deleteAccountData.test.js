@@ -28,7 +28,16 @@ describe("removeUserAndData", () => {
     expect(user.deleteOne).toHaveBeenCalled();
   });
 
-  it("cancels events they created: notifies first, then deletes those events' registrations", async () => {
+  it("only looks at upcoming events, so past events (history) are never touched", async () => {
+    Event.find.mockResolvedValue([]);
+    await removeUserAndData({ _id: "u1", deleteOne: jest.fn().mockResolvedValue() });
+    const filter = Event.find.mock.calls[0][0];
+    expect(filter.createdBy).toBe("u1");
+    expect(filter.date.$gte).toBeInstanceOf(Date);
+    expect(Event.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("cancels upcoming events they created: notifies first, then deletes those events' registrations", async () => {
     const order = [];
     Event.find.mockResolvedValue([{ _id: "e1" }, { _id: "e2" }]);
     notifyEventCancelled.mockImplementation(async () => order.push("notify"));
@@ -38,6 +47,6 @@ describe("removeUserAndData", () => {
     expect(notifyEventCancelled).toHaveBeenCalledTimes(2);
     expect(order.slice(0, 3)).toEqual(["notify", "notify", "deleteRegs"]);
     expect(Registration.deleteMany).toHaveBeenCalledWith({ event: { $in: ["e1", "e2"] } });
-    expect(Event.deleteMany).toHaveBeenCalledWith({ createdBy: "u1" });
+    expect(Event.deleteMany).toHaveBeenCalledWith({ _id: { $in: ["e1", "e2"] } });
   });
 });

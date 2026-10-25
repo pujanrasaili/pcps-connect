@@ -9,21 +9,23 @@ const { notifyEventCancelled } = require("./notifyRegistrants");
 // "delete user" action and a student deleting their own account, so the two
 // can't drift apart and leave dangling references.
 //
-// Events this user created go with them -- but other students are registered
-// for those events. Tell them it's cancelled (this has to happen before their
-// Registrations are deleted, it looks them up) and delete those registrations
-// too, otherwise they're left pointing at events that no longer exist.
+// Only this user's UPCOMING events go with them: other students are registered
+// for those, so they are told it's cancelled (this has to happen before their
+// Registrations are deleted, it looks them up) and those registrations are
+// deleted too. Events that already happened are history -- attendance records,
+// certificates and ratings belong to the OTHER students and to the club -- so
+// they stay, just without a named organiser.
 async function removeUserAndData(user) {
-  const ownedEvents = await Event.find({ createdBy: user._id });
-  for (const ownedEvent of ownedEvents) {
-    await notifyEventCancelled(ownedEvent);
+  const upcomingEvents = await Event.find({ createdBy: user._id, date: { $gte: new Date() } });
+  for (const upcoming of upcomingEvents) {
+    await notifyEventCancelled(upcoming);
   }
-  if (ownedEvents.length > 0) {
-    const ownedIds = ownedEvents.map((e) => e._id);
-    await Registration.deleteMany({ event: { $in: ownedIds } });
-    await WaitlistEntry.deleteMany({ event: { $in: ownedIds } });
+  if (upcomingEvents.length > 0) {
+    const upcomingIds = upcomingEvents.map((e) => e._id);
+    await Registration.deleteMany({ event: { $in: upcomingIds } });
+    await WaitlistEntry.deleteMany({ event: { $in: upcomingIds } });
+    await Event.deleteMany({ _id: { $in: upcomingIds } });
   }
-  await Event.deleteMany({ createdBy: user._id });
   await Registration.deleteMany({ user: user._id });
   await WaitlistEntry.deleteMany({ user: user._id });
   await ClubMembership.deleteMany({ user: user._id });

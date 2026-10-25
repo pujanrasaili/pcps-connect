@@ -267,7 +267,8 @@ describe("deleteUser -- admin safety guards", () => {
     const res = mockRes();
     await deleteUser(req, res);
 
-    expect(Event.deleteMany).toHaveBeenCalledWith({ createdBy: STUDENT_ID });
+    // No upcoming events of their own, so no event is deleted (past events stay as history).
+    expect(Event.deleteMany).not.toHaveBeenCalled();
     expect(Registration.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
     expect(ClubMembership.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
     expect(WaitlistEntry.deleteMany).toHaveBeenCalledWith({ user: STUDENT_ID });
