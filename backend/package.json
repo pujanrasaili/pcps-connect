@@ -9,6 +9,7 @@
     "dev": "nodemon index.js",
     "seed": "node seed.js",
     "backup": "node scripts/backupDatabase.js",
+    "make-admin": "node scripts/makeAdmin.js",
     "docs:api": "node scripts/generateApiDocs.js",
     "backfill": "node scripts/backfillVerification.js",
     "reminders": "node scripts/sendEventReminders.js",
