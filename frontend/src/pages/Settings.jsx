@@ -219,7 +219,7 @@ export default function Settings() {
         <form onSubmit={handleDelete} className="space-y-4">
           <p className="text-sm text-slate-600 dark:text-slate-300">
             This permanently deletes your account, your event registrations (including certificates and ratings) and
-            your club memberships. It can't be undone.
+            your club memberships. Any upcoming events you created are cancelled and the students registered for them are told. It can't be undone.
           </p>
           {delError && (
             <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-400">
