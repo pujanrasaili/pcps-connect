@@ -10,6 +10,9 @@ import TitleManager from "../components/TitleManager";
 
 // Home loads eagerly since it's the page almost everyone lands on first.
 import Home from "../pages/Home";
+// Not lazy-loaded on purpose: it must open offline, and a lazy chunk the phone
+// never downloaded would not be there.
+import OfflineTickets from "../pages/OfflineTickets";
 
 // Everything else loads on demand. This matters a lot here: the admin
 // pages pull in no extra heavy libraries, but Dashboard alone drags in
@@ -74,6 +77,7 @@ export default function AppRoutes() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/tickets" element={<OfflineTickets />} />
         <Route path="/404" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Route>
