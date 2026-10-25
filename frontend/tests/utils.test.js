@@ -21,6 +21,7 @@ import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
 import { isSessionExpired } from "../src/utils/sessionExpiry.js";
 import { buildMilestones } from "../src/utils/milestones.js";
+import { TICKETS_KEY, readTickets, writeTickets, clearTickets, visibleTickets, planTicketSync, toTicket, ticketUrl } from "../src/utils/offlineTickets.js";
 import { noticeId } from "../src/utils/siteNotice.js";
 import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../src/utils/adminEventFilters.js";
 import { filterClubs, sortClubs } from "../src/utils/clubFilters.js";
@@ -511,4 +512,63 @@ test("buildMilestones never reports progress beyond the target", () => {
   const byId = Object.fromEntries(buildMilestones(regs, 0).map((m) => [m.id, m]));
   assert.equal(byId["campus-star"].current, 10);
   assert.equal(byId["campus-star"].earned, true);
+});
+
+function fakeStorage(initial = {}) {
+  const data = { ...initial };
+  return {
+    getItem: (k) => (k in data ? data[k] : null),
+    setItem: (k, v) => { data[k] = String(v); },
+    removeItem: (k) => { delete data[k]; },
+    data,
+  };
+}
+const HOUR = 3600e3;
+const reg = (id, hoursFromNow, extra = {}) => ({
+  _id: id,
+  status: "confirmed",
+  event: { _id: "ev" + id, title: "Event " + id, date: new Date(Date.now() + hoursFromNow * HOUR).toISOString(), location: "Hall" },
+  ...extra,
+});
+
+test("offline tickets round-trip through storage and survive garbage", () => {
+  const s = fakeStorage();
+  assert.deepEqual(readTickets(s), []);
+  const t = toTicket(reg("r1", 5), "abc.def");
+  writeTickets(s, [t]);
+  assert.deepEqual(readTickets(s), [t]);
+  clearTickets(s);
+  assert.deepEqual(readTickets(s), []);
+  assert.deepEqual(readTickets(fakeStorage({ [TICKETS_KEY]: "{not json" })), []);
+  assert.deepEqual(readTickets(fakeStorage({ [TICKETS_KEY]: JSON.stringify([{ id: 1 }, null, t]) })), [t]);
+  assert.deepEqual(readTickets(null), []);
+});
+
+test("visibleTickets hides tickets for events that ended long ago and sorts soonest first", () => {
+  const now = Date.now();
+  const mk = (id, h) => toTicket(reg(id, h), "c" + id);
+  const list = visibleTickets([mk("late", 30), mk("soon", 2), mk("old", -20), mk("justEnded", -3)], now);
+  assert.deepEqual(list.map((t) => t.id), ["justEnded", "soon", "late"]);
+});
+
+test("planTicketSync fetches only what is missing, drops cancelled ones, skips pending requests", () => {
+  const stored = [toTicket(reg("keep", 5), "code-keep"), toTicket(reg("cancelled", 6), "code-x")];
+  const regs = [reg("keep", 5), reg("fresh", 8), reg("pend", 9, { status: "pending" }), reg("past", -40)];
+  const { keep, need } = planTicketSync(regs, stored);
+  assert.deepEqual(keep.map((t) => t.id), ["keep"]);
+  assert.equal(keep[0].code, "code-keep");
+  assert.deepEqual(need.map((r) => r._id), ["fresh"]);
+});
+
+test("planTicketSync refreshes the event details on a ticket it already holds", () => {
+  const stored = [toTicket(reg("r1", 5), "code")];
+  const changed = reg("r1", 5);
+  changed.event.location = "New Lab";
+  const { keep } = planTicketSync([changed], stored);
+  assert.equal(keep[0].location, "New Lab");
+  assert.equal(keep[0].code, "code");
+});
+
+test("ticketUrl builds the same check-in link the QR modal uses", () => {
+  assert.equal(ticketUrl("https://pcps-connect.vercel.app", "a.b"), "https://pcps-connect.vercel.app/admin/check-in?code=a.b");
 });
