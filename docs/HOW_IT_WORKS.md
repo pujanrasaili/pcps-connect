@@ -112,7 +112,7 @@ the student's clubs.
 | Scheduled jobs | `.github/workflows/` and `backend/scripts/` |
 | Tests | `backend/**/__tests__/`, `frontend/tests/` |
 
-## Questions you may be asked
+## Questions may be asked
 
 **Why a cookie instead of storing the token in the browser?** An `httpOnly`
 cookie can't be read by page JavaScript, so a script injected into the page
