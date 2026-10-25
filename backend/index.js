@@ -7,6 +7,7 @@ const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
 const { requireCsrfHeader } = require("./middleware/csrf");
 const { checkEnv } = require("./utils/envCheck");
+const { clientRequestError } = require("./utils/requestErrors");
 
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -74,6 +75,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  const clientError = clientRequestError(err);
+  if (clientError) return res.status(clientError.status).json({ message: clientError.message });
   const isUploadError =
     err.name === "MulterError" ||
     err.message === "Only image files (jpg, png, webp, gif) are allowed";
@@ -84,6 +87,17 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`PCPS Connect API listening on http://localhost:${PORT}`);
+});
+
+// Render stops the old copy with SIGTERM on every deploy. Finish the requests
+// already in flight (a registration, an email being sent) before exiting,
+// rather than cutting them off mid-way; give up after 10 seconds.
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down...");
+  setTimeout(() => process.exit(0), 10000).unref();
+  server.close(() => {
+    require("mongoose").connection.close().finally(() => process.exit(0));
+  });
 });
