@@ -6,6 +6,7 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
+const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
 const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const upload = require("../middleware/upload");
@@ -15,10 +16,17 @@ const { validateIdParam } = require("../middleware/validateId");
 
 const router = express.Router();
 router.param("id", validateIdParam);
+router.param("questionId", validateIdParam);
 
 
 router.get("/", getEvents);
 router.get("/:id", optionalAuth, getEventById);
+// Public questions and answers on an event's page. Asking and deleting your own
+// needs a login; answering is for the event's organisers (checked in the controller).
+router.get("/:id/questions", optionalAuth, getQuestions);
+router.post("/:id/questions", protect, actionLimiter, askQuestion);
+router.put("/:id/questions/:questionId/answer", protect, staffOnly, actionLimiter, answerQuestion);
+router.delete("/:id/questions/:questionId", protect, actionLimiter, deleteQuestion);
 // Event management is for admins and club leaders only -- the frontend never
 // exposes event creation to regular students, so without this check anyone
 // calling the API directly could post arbitrary public "events" to the site.

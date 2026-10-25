@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-67 endpoints.
+71 endpoints.
 
 ## /api/health
 
@@ -37,6 +37,10 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 |---|---|---|---|
 | GET | `/api/events` | Anyone | List all events, with how many are registered. |
 | GET | `/api/events/:id` | Anyone (logged-in users see more) | One event; the organiser's email is shown only to logged-in users. |
+| GET | `/api/events/:id/questions` | Anyone (logged-in users see more) | The public questions and answers on an event (newest first, up to 50). Only first names are shown. |
+| POST | `/api/events/:id/questions` | Logged-in student (rate limited) | Ask a public question on an upcoming event (max 3 unanswered per student); the organiser is emailed. |
+| PUT | `/api/events/:id/questions/:questionId/answer` | Admin or club leader (rate limited) | Answer a question on an event (admins and that event's club leaders only); the asker is emailed the first time. |
+| DELETE | `/api/events/:id/questions/:questionId` | Logged-in student (rate limited) | Delete a question: its asker, or an admin / the event's club leader. |
 | POST | `/api/events/create` | Admin or club leader (rate limited; image upload) | Create an event (admins, or a leader for their own club), with an optional image. |
 | PUT | `/api/events/:id` | Admin or club leader (image upload) | Edit an event; registered students are emailed if the date or place changes. |
 | DELETE | `/api/events/:id` | Admin or club leader | Delete an event; registered students are emailed the cancellation. |
