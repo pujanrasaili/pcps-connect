@@ -37,6 +37,7 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 - **Create a club or event:** Clubs or Events, then the New button. Required fields are marked; text has length limits and the form stops you at them.
 - **Check people in at the door:** Check-in. Scan the student's QR code with the camera, or type the code. The browser asks for camera permission the first time; choose Allow.
 - **Message everyone registered for an event, or everyone in a club:** the announce buttons on Events and Clubs. Students can switch off event reminders and club-update emails in their Settings, and the daily reminders and weekly digest respect that.
+- **Answer event questions:** on an event page, admins and the event's club leaders see "Answer" under each question (the answer is public, and the student is emailed). You also get an email when a question arrives. The bin icon removes a question.
 - **Post club news:** open a club on the Clubs page; admins and that club's leaders see a box under "Club news" to post a short update (up to 1000 characters) and a bin icon to delete one.
 - **Site-wide notice:** the notice card on the Overview page puts a banner on the site (for example for a holiday or downtime).
 - **Who changed what:** the Activity page lists recent admin actions (last 200).

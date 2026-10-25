@@ -579,3 +579,10 @@ test("club news actions have readable labels in the activity log", () => {
   assert.equal(actionTone("club.postDeleted"), "danger");
   assert.equal(actionGroup("club.post"), "club");
 });
+
+test("event question actions have readable labels in the activity log", () => {
+  assert.equal(actionLabel("event.questionAnswered"), "Event question answered");
+  assert.equal(actionLabel("event.questionDeleted"), "Event question deleted");
+  assert.equal(actionTone("event.questionDeleted"), "danger");
+  assert.equal(actionGroup("event.questionAnswered"), "event");
+});

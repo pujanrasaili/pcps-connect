@@ -18,6 +18,8 @@ const LABELS = {
   "event.updated": "Event edited",
   "event.deleted": "Event deleted",
   "event.announcement": "Event message sent",
+  "event.questionAnswered": "Event question answered",
+  "event.questionDeleted": "Event question deleted",
   "notice.set": "Site announcement published",
   "notice.cleared": "Site announcement removed",
 };
