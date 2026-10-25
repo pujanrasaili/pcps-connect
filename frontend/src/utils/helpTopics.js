@@ -39,6 +39,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "offline-ticket",
+    question: "What if there is no internet at the event?",
+    answer: [
+      'While you are online, the site saves your check-in code for each upcoming event on your phone. With no internet, open the site as usual and tap "Open your saved tickets" (or go to My tickets from your Dashboard) to show your QR code.',
+      "For this to work, open the site once while you are online after registering, and use the same phone. Tickets are removed when you log out, so log in again when you are back online.",
+    ],
+  },
+  {
     id: "certificate",
     question: "How do I get an attendance certificate?",
     answer: [
