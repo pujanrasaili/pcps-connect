@@ -586,3 +586,8 @@ test("event question actions have readable labels in the activity log", () => {
   assert.equal(actionTone("event.questionDeleted"), "danger");
   assert.equal(actionGroup("event.questionAnswered"), "event");
 });
+
+test("walk-in actions have a readable label in the activity log", () => {
+  assert.equal(actionLabel("event.walkIn"), "Walk-in added");
+  assert.equal(actionTone("event.walkIn"), "info");
+});

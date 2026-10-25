@@ -18,6 +18,7 @@ const LABELS = {
   "event.updated": "Event edited",
   "event.deleted": "Event deleted",
   "event.announcement": "Event message sent",
+  "event.walkIn": "Walk-in added",
   "event.questionAnswered": "Event question answered",
   "event.questionDeleted": "Event question deleted",
   "notice.set": "Site announcement published",
