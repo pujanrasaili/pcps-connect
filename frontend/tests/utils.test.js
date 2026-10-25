@@ -572,3 +572,10 @@ test("planTicketSync refreshes the event details on a ticket it already holds", 
 test("ticketUrl builds the same check-in link the QR modal uses", () => {
   assert.equal(ticketUrl("https://pcps-connect.vercel.app", "a.b"), "https://pcps-connect.vercel.app/admin/check-in?code=a.b");
 });
+
+test("club news actions have readable labels in the activity log", () => {
+  assert.equal(actionLabel("club.post"), "Club news posted");
+  assert.equal(actionLabel("club.postDeleted"), "Club news deleted");
+  assert.equal(actionTone("club.postDeleted"), "danger");
+  assert.equal(actionGroup("club.post"), "club");
+});
