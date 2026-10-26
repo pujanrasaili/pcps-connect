@@ -1,5 +1,6 @@
 const Registration = require("../models/Registration");
 const { isObjectId } = require("../middleware/validateId");
+const { registrationClosed } = require("../utils/registrationDeadline");
 const Event = require("../models/Event");
 const { safeError } = require("../utils/errorMessage");
 const { promoteFromWaitlist } = require("../utils/waitlist");
@@ -20,6 +21,9 @@ async function registerForEvent(req, res) {
 
     if (new Date(event.date) < new Date()) {
       return res.status(400).json({ message: "Registration is closed -- this event has already taken place" });
+    }
+    if (registrationClosed(event)) {
+      return res.status(400).json({ message: "Registration has closed for this event" });
     }
 
     const existing = await Registration.findOne({ user: req.user._id, event: eventId });

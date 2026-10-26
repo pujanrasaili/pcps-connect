@@ -264,3 +264,55 @@ describe("event field validation", () => {
     expect(ev.save).not.toHaveBeenCalled();
   });
 });
+
+describe("registration deadline", () => {
+  function existing(extra = {}) {
+    return {
+      _id: "ev1",
+      createdBy: { toString: () => "admin1" },
+      date: new Date("2027-01-01T10:00:00Z"),
+      location: "Lab",
+      club: null,
+      registrationDeadline: null,
+      save: jest.fn().mockResolvedValue(),
+      ...extra,
+    };
+  }
+
+  it("stores a deadline given when creating an event", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, registrationDeadline: "2026-12-30T10:00" }, user: admin }, res);
+    expect(Event.create).toHaveBeenCalledWith(expect.objectContaining({ registrationDeadline: new Date("2026-12-30T10:00") }));
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it("creates no deadline by default", async () => {
+    await createEvent({ body: baseBody, user: admin }, mockRes());
+    expect(Event.create).toHaveBeenCalledWith(expect.objectContaining({ registrationDeadline: null }));
+  });
+
+  it("refuses a deadline after the event starts, without creating anything", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, registrationDeadline: "2027-02-01T10:00" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+
+  it("sets and clears the deadline when editing", async () => {
+    const ev = existing();
+    Event.findById.mockResolvedValue(ev);
+    await updateEvent({ params: { id: "ev1" }, body: { registrationDeadline: "2026-12-31T10:00:00Z" }, user: admin }, mockRes());
+    expect(ev.registrationDeadline).toEqual(new Date("2026-12-31T10:00:00Z"));
+    await updateEvent({ params: { id: "ev1" }, body: { registrationDeadline: "" }, user: admin }, mockRes());
+    expect(ev.registrationDeadline).toBeNull();
+  });
+
+  it("refuses to move the event to before its existing deadline", async () => {
+    const ev = existing({ registrationDeadline: new Date("2026-12-31T10:00:00Z") });
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { date: "2026-12-01T10:00:00Z" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(ev.save).not.toHaveBeenCalled();
+  });
+});

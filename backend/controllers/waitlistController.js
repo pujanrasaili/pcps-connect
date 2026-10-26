@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const { registrationClosed } = require("../utils/registrationDeadline");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const { safeError } = require("../utils/errorMessage");
@@ -50,6 +51,9 @@ async function joinWaitlist(req, res) {
 
     if (new Date(event.date) < new Date()) {
       return res.status(400).json({ message: "This event has already taken place" });
+    }
+    if (registrationClosed(event)) {
+      return res.status(400).json({ message: "Registration has closed for this event" });
     }
 
     if (await Registration.findOne({ user: req.user._id, event: event._id })) {

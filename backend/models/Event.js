@@ -8,6 +8,9 @@ const eventSchema = new mongoose.Schema(
     location: { type: String, required: true },
     image: { type: String, default: null },
     capacity: { type: Number, default: 100, min: 1 },
+    // Optional: after this time nobody new can register or join the waitlist
+    // (see utils/registrationDeadline.js).
+    registrationDeadline: { type: Date, default: null },
     category: { type: String, default: "General" },
     price: { type: String, default: "Free" },
     // When true, joining is a request: the registration starts "pending" and an

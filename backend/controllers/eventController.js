@@ -12,6 +12,7 @@ const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 const { validateEventFields } = require("../utils/eventInput");
+const { parseDeadline } = require("../utils/registrationDeadline");
 const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
 const { hideOrganiserEmail } = require("../utils/organiserPrivacy");
@@ -106,6 +107,9 @@ async function createEvent(req, res) {
       }
     }
 
+    const deadline = parseDeadline(req.body.registrationDeadline, date);
+    if (deadline.error) return res.status(400).json({ message: deadline.error });
+
     const { club, error: clubError } = await resolveClub(req.body.club);
     if (clubError) return res.status(400).json({ message: clubError });
 
@@ -126,6 +130,7 @@ async function createEvent(req, res) {
       date,
       location,
       capacity: parsedCapacity,
+      registrationDeadline: deadline.value,
       category: category || "General",
       price: price || "Free",
       requiresApproval: parseFlag(req.body.requiresApproval) === true,
@@ -188,6 +193,16 @@ async function updateEvent(req, res) {
     }
     const requiresApproval = parseFlag(req.body.requiresApproval);
     if (requiresApproval !== undefined) event.requiresApproval = requiresApproval;
+
+    // Checked against the date the event will have after this edit, so moving an
+    // event earlier can't leave a deadline that falls after it.
+    if (req.body.registrationDeadline !== undefined) {
+      const deadline = parseDeadline(req.body.registrationDeadline, event.date);
+      if (deadline.error) return res.status(400).json({ message: deadline.error });
+      event.registrationDeadline = deadline.value;
+    } else if (event.registrationDeadline && new Date(event.registrationDeadline) > new Date(event.date)) {
+      return res.status(400).json({ message: "The registration deadline can't be after the event starts" });
+    }
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
       event.image = uploaded.secure_url;

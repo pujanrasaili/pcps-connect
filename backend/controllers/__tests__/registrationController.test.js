@@ -43,6 +43,15 @@ describe("registerForEvent -- malformed ids", () => {
 describe("registerForEvent", () => {
   afterEach(() => jest.clearAllMocks());
 
+  it("refuses new registrations after the registration deadline", async () => {
+    Event.findById.mockResolvedValue(futureEvent({ registrationDeadline: new Date(Date.now() - 1000) }));
+    const res = mockRes();
+    await registerForEvent({ body: { eventId: EVENT_ID }, user: { _id: USER_ID } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Registration has closed for this event" });
+    expect(Registration.create).not.toHaveBeenCalled();
+  });
+
   it("400s when eventId is missing from the body", async () => {
     const req = { body: {}, user: { _id: USER_ID } };
     const res = mockRes();

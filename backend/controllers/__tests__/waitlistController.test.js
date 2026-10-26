@@ -34,6 +34,15 @@ describe("joinWaitlist", () => {
     expect(WaitlistEntry.create).not.toHaveBeenCalled();
   });
 
+  it("refuses to join the waitlist after the registration deadline", async () => {
+    Event.findById.mockResolvedValue({ _id: "ev1", capacity: 5, date: future, registrationDeadline: new Date(Date.now() - 1000) });
+    const res = mockRes();
+    await joinWaitlist(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Registration has closed for this event" });
+    expect(WaitlistEntry.create).not.toHaveBeenCalled();
+  });
+
   it("refuses when the student is already registered", async () => {
     Event.findById.mockResolvedValue({ _id: "ev1", capacity: 5, date: future });
     Registration.findOne.mockResolvedValue({ _id: "r1" });
