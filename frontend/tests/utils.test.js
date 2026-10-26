@@ -19,7 +19,7 @@ import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/getting
 import { installMode, detectIos } from "../src/utils/installApp.js";
 import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
-import { isRegistrationClosed, hasOpenDeadline } from "../src/utils/registrationDeadline.js";
+import { isRegistrationClosed, hasOpenDeadline, deadlineSoonLabel } from "../src/utils/registrationDeadline.js";
 import { addScan, sessionCounts } from "../src/utils/checkInLog.js";
 import { buildSheetHtml, sheetRows } from "../src/utils/attendanceSheet.js";
 import { searchSite } from "../src/utils/siteSearch.js";
@@ -702,4 +702,16 @@ test("an event past its registration deadline doesn't count as having open spots
   assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 1 }), true);
   assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 1, registrationDeadline: new Date(Date.now() + 86400000).toISOString() }), true);
   assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 1, registrationDeadline: new Date(Date.now() - 1000).toISOString() }), false);
+});
+
+test("deadlineSoonLabel only nudges when the deadline is within three days", () => {
+  const now = new Date("2030-06-01T00:00:00Z");
+  const at = (h) => ({ registrationDeadline: new Date(now.getTime() + h * 3600000).toISOString() });
+  assert.equal(deadlineSoonLabel({}, now), null);
+  assert.equal(deadlineSoonLabel(at(-1), now), null);
+  assert.equal(deadlineSoonLabel(at(100), now), null);
+  assert.equal(deadlineSoonLabel(at(0.5), now), "Registration closes within the hour");
+  assert.equal(deadlineSoonLabel(at(5), now), "Registration closes in 5 hours");
+  assert.equal(deadlineSoonLabel(at(24), now), "Registration closes in 1 day");
+  assert.equal(deadlineSoonLabel(at(49), now), "Registration closes in 3 days");
 });
