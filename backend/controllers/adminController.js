@@ -153,6 +153,32 @@ async function updateUser(req, res) {
   }
 }
 
+// PUT /api/admin/users/:id/verify-email
+// Marks a student's email address as verified by hand, for when the verification
+// email never reached them (mail trouble, a mistyped inbox). Deliberately its
+// own admin-only action, not part of the general user update, and recorded in
+// the activity log -- it skips the proof that the student owns the address.
+// It does not approve the account; that is still a separate decision.
+async function markEmailVerified(req, res) {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.emailVerified) {
+      return res.status(200).json({ message: "This email is already verified", user: publicUserSummary(user) });
+    }
+    user.emailVerified = true;
+    await user.save();
+    await recordAudit(req.user, "user.email_verified", `Marked ${user.name} (${user.email}) as email-verified by hand`);
+    res.status(200).json({ message: `${user.name}'s email is now marked as verified`, user: publicUserSummary(user) });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to verify email") });
+  }
+}
+
+function publicUserSummary(user) {
+  return { _id: user._id, name: user.name, email: user.email, emailVerified: user.emailVerified, approvalStatus: user.approvalStatus };
+}
+
 // PUT /api/admin/users/bulk-approve  { userIds: [...] }
 // Approves many pending accounts at once (start-of-semester sign-up rush).
 // Only accounts that are still "pending" are touched, so ids that were already
@@ -628,6 +654,7 @@ async function getInsights(req, res) {
 }
 
 module.exports = {
+  markEmailVerified,
   decideRegistration,
   getInsights,
   bulkApproveUsers,

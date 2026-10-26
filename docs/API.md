@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-73 endpoints.
+74 endpoints.
 
 ## /api/health
 
@@ -74,6 +74,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/admin/users/:id` | Admin only | One account. |
 | GET | `/api/admin/users/:id/events` | Admin only | The events that one account has created. |
 | PUT | `/api/admin/users/bulk-approve` | Admin only | Approve a chosen batch (up to 200) of pending accounts at once. |
+| PUT | `/api/admin/users/:id/verify-email` | Admin only | Mark a student's email as verified by hand (for when the verification email never arrived); recorded in the activity log. Does not approve the account. |
 | PUT | `/api/admin/users/:id` | Admin only | Change an account's role or approval status. |
 | DELETE | `/api/admin/users/:id` | Admin only | Delete an account and what is attached to it. |
 | GET | `/api/admin/events` | Admin only | All events, for the admin panel. |

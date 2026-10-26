@@ -25,7 +25,7 @@ const { recordAudit } = require("../../utils/audit");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyEventCancelled } = require("../../utils/notifyRegistrants");
 const { notifyNewLeaders } = require("../../utils/notifyNewLeaders");
-const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode, updateRegistrationAttendance, getEventRegistrations, getClubLeaders, setClubLeaders, bulkApproveUsers } = require("../adminController");
+const { updateUser, deleteUser, updateEventAdmin, getAuditLog, announceToRegistrants, checkInByCode, updateRegistrationAttendance, getEventRegistrations, getClubLeaders, setClubLeaders, bulkApproveUsers, markEmailVerified } = require("../adminController");
 const { notifyEventAnnouncement } = require("../../utils/notifyRegistrants");
 const Club = require("../../models/Club");
 const { notifyClubAnnouncement } = require("../../utils/notifyClubMembers");
@@ -905,5 +905,42 @@ describe("getInsights", () => {
     const res = mockRes();
     await getInsights({ user: { _id: "a1", role: "admin" } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("markEmailVerified", () => {
+  afterEach(() => jest.resetAllMocks());
+  const ADMIN = { _id: "a1", name: "Root", role: "admin" };
+  const run = () => {
+    const res = mockRes();
+    return markEmailVerified({ user: ADMIN, params: { id: "u1" } }, res).then(() => res);
+  };
+
+  it("404s for an unknown user", async () => {
+    User.findById.mockResolvedValue(null);
+    const res = await run();
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("marks the email verified, audits it, and does not touch approval", async () => {
+    const user = { _id: "u1", name: "Sita", email: "s@x.np", emailVerified: false, approvalStatus: "pending", save: jest.fn().mockResolvedValue() };
+    User.findById.mockResolvedValue(user);
+    const res = await run();
+    expect(user.emailVerified).toBe(true);
+    expect(user.approvalStatus).toBe("pending");
+    expect(user.save).toHaveBeenCalled();
+    expect(recordAudit).toHaveBeenCalledWith(ADMIN, "user.email_verified", expect.stringContaining("s@x.np"));
+    expect(res.status).toHaveBeenCalledWith(200);
+    const body = res.json.mock.calls[0][0];
+    expect(body.user).not.toHaveProperty("password");
+  });
+
+  it("does nothing (and does not audit) when it is already verified", async () => {
+    const user = { _id: "u1", name: "Sita", email: "s@x.np", emailVerified: true, save: jest.fn() };
+    User.findById.mockResolvedValue(user);
+    const res = await run();
+    expect(user.save).not.toHaveBeenCalled();
+    expect(recordAudit).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });

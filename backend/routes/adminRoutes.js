@@ -19,6 +19,7 @@ const {
   checkInByCode,
   getAttendanceReport,
   bulkApproveUsers,
+  markEmailVerified,
   getInsights,
   decideRegistration,
 } = require("../controllers/adminController");
@@ -60,6 +61,7 @@ router.get("/users", getAllUsers);
 router.get("/users/:id", getUserById);
 router.get("/users/:id/events", getUserEvents);
 router.put("/users/bulk-approve", bulkApproveUsers);
+router.put("/users/:id/verify-email", markEmailVerified);
 router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
 

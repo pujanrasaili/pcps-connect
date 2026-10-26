@@ -98,6 +98,7 @@ const DESCRIPTIONS = {
   getAllUsers: "All accounts.",
   getUserById: "One account.",
   getUserEvents: "The events that one account has created.",
+  markEmailVerified: "Mark a student's email as verified by hand (for when the verification email never arrived); recorded in the activity log. Does not approve the account.",
   bulkApproveUsers: "Approve a chosen batch (up to 200) of pending accounts at once.",
   updateUser: "Change an account's role or approval status.",
   deleteUser: "Delete an account and what is attached to it.",
