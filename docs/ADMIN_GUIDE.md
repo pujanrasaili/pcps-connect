@@ -44,6 +44,7 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 - **Close registration early:** in the event form, "Registration closes (optional)" sets a deadline. After it, students can no longer register or join the waitlist; people already registered keep their place. Clear the field to reopen registration.
 - **Close or reopen registration in one click:** the padlock on an upcoming event's row stops new sign-ups right now (people already registered keep their place); press it again (open padlock) to reopen.
 - **Older events may show the wrong time:** events created before the time-zone fix were saved about 5 hours 45 minutes late. Open each upcoming one with Edit, check the time in the form, and press Save changes to correct it.
+- **Fixing all older event times at once:** from `backend/`, `npm run fix-event-times -- --before 2026-10-26T04:30:00Z` lists what would change (nothing is written). Check the list, then run it again with `--yes` -- only once.
 - **Post club news:** open a club on the Clubs page; admins and that club's leaders see a box under "Club news" to post a short update (up to 1000 characters) and a bin icon to delete one.
 - **Site-wide notice:** the notice card on the Overview page puts a banner on the site (for example for a holiday or downtime).
 - **Who changed what:** the Activity page lists recent admin actions (last 200).

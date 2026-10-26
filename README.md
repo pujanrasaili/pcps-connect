@@ -150,6 +150,8 @@ npm run make-admin -- you@patancollege.edu.np   # makes that (already registered
 
 `npm run backfill` is only for databases that existed before email verification and approval were added: it approves *every* account that isn't yet verified, so it just reports how many it would change unless you add `-- --yes`.
 
+`npm run fix-event-times -- --before 2026-10-26T04:30:00Z` previews (and with `--yes` applies, once) the 5h45m correction for events created before the time-zone fix; the script's header explains it.
+
 ### Frontend
 ```bash
 cd frontend
