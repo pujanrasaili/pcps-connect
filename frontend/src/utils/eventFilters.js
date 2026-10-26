@@ -1,12 +1,16 @@
 // Helpers for the Events page filters, which live in the URL so a filtered
 // list can be shared ("/events?when=past&category=Technology&open=1").
 
+import { isRegistrationClosed } from "./registrationDeadline.js";
+
 export const WHEN_VALUES = ["upcoming", "past", "mine", "saved"];
 
 // Same default the event card uses when an event has no capacity set.
+// An event whose registration deadline has passed is not open to new sign-ups
+// even if seats remain.
 export function hasOpenSpots(event) {
   const capacity = event.capacity ?? 100;
-  return capacity - (event.registeredCount ?? 0) > 0;
+  return capacity - (event.registeredCount ?? 0) > 0 && !isRegistrationClosed(event);
 }
 
 // Reads the filters out of URLSearchParams, falling back to safe defaults for

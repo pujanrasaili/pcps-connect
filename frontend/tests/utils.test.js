@@ -697,3 +697,9 @@ test("sign-in sheet lists confirmed students alphabetically and escapes their te
   assert.match(html, /2 registered/);
   assert.match(html, /Hack &quot;Night&quot; - sign-in sheet/);
 });
+
+test("an event past its registration deadline doesn't count as having open spots", () => {
+  assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 1 }), true);
+  assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 1, registrationDeadline: new Date(Date.now() + 86400000).toISOString() }), true);
+  assert.equal(hasOpenSpots({ capacity: 10, registeredCount: 1, registrationDeadline: new Date(Date.now() - 1000).toISOString() }), false);
+});
