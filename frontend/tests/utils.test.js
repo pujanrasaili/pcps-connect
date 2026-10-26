@@ -21,6 +21,7 @@ import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
 import { isRegistrationClosed, hasOpenDeadline } from "../src/utils/registrationDeadline.js";
 import { addScan, sessionCounts } from "../src/utils/checkInLog.js";
+import { buildSheetHtml, sheetRows } from "../src/utils/attendanceSheet.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
@@ -680,4 +681,19 @@ test("check-in log separates people who were already checked in before this sess
   let many = [];
   for (let i = 0; i < 60; i++) many = addScan(many, { alreadyCheckedIn: false, student: { name: "S" + i }, event: { title: "E" } });
   assert.equal(many.length, 50);
+});
+
+test("sign-in sheet lists confirmed students alphabetically and escapes their text", () => {
+  const regs = [
+    { status: "confirmed", attended: false, user: { name: "Zara", studentId: "P2" } },
+    { status: "pending", user: { name: "Pending Person" } },
+    { status: "confirmed", attended: true, user: { name: "<b>Amit</b> & Co", studentId: "P1" } },
+  ];
+  assert.deepEqual(sheetRows(regs).map((r) => r.name), ["<b>Amit</b> & Co", "Zara"]);
+  const html = buildSheetHtml({ title: 'Hack "Night"' }, regs, "Mon, Jan 1");
+  assert.match(html, /&lt;b&gt;Amit&lt;\/b&gt; &amp; Co/);
+  assert.ok(!html.includes("<b>Amit"));
+  assert.ok(!html.includes("Pending Person"));
+  assert.match(html, /2 registered/);
+  assert.match(html, /Hack &quot;Night&quot; - sign-in sheet/);
 });
