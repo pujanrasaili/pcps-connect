@@ -7,6 +7,7 @@ import { getClubIcon } from "../../utils/iconMap";
 import { useDebounce } from "../../hooks/useDebounce";
 import { pluralize } from "../../utils/plural";
 import ClubMessageModal from "../../components/ClubMessageModal";
+import ClubMembersModal from "../../components/ClubMembersModal";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
@@ -42,6 +43,7 @@ export default function AdminClubs() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [messageTarget, setMessageTarget] = useState(null);
+  const [membersTarget, setMembersTarget] = useState(null);
 
   // Club leaders: students who can manage this club's events (admin-assigned).
   const [leadersTarget, setLeadersTarget] = useState(null);
@@ -237,6 +239,14 @@ export default function AdminClubs() {
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
                   <button
+                    onClick={() => setMembersTarget(club)}
+                    aria-label={`View members of ${club.name}`}
+                    title="View members"
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-900/20"
+                  >
+                    <FaUsers />
+                  </button>
+                  <button
                     onClick={() => openMessage(club)}
                     aria-label={`Message members of ${club.name}`}
                     title="Message members"
@@ -346,6 +356,7 @@ export default function AdminClubs() {
       </Modal>
 
       <ClubMessageModal club={messageTarget} onClose={() => setMessageTarget(null)} />
+      <ClubMembersModal club={membersTarget} onClose={() => setMembersTarget(null)} />
 
       <Modal isOpen={!!leadersTarget} onClose={() => setLeadersTarget(null)} title={`Club leaders — ${leadersTarget?.name || ""}`} size="md">
         <div className="space-y-4">

@@ -3,15 +3,17 @@ import { FaEnvelope, FaUsers } from "react-icons/fa";
 import { useLedClubs } from "../../hooks/useLedClubs";
 import { useClubs } from "../../context/ClubsContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
+import ClubMembersModal from "../../components/ClubMembersModal";
 import Button from "../../components/Button";
 
 // The clubs this person leads, with the one club-wide action a leader has:
-// emailing the club's members.
+// seeing and emailing the club's members.
 export default function LeaderClubs() {
   const { clubs, loaded } = useLedClubs();
   // The leader endpoint has no member counts; the public club list does.
   const { clubs: allClubs } = useClubs();
   const [target, setTarget] = useState(null);
+  const [membersTarget, setMembersTarget] = useState(null);
 
   return (
     <div className="space-y-6">
@@ -34,12 +36,18 @@ export default function LeaderClubs() {
         {clubs.map((club) => (
           <div key={club._id} className="flex items-center justify-between gap-3 p-4">
             <p className="min-w-0 truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
-            <Button icon={FaEnvelope} onClick={() => setTarget(club)}>
-              Message members
-            </Button>
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              <Button icon={FaUsers} onClick={() => setMembersTarget(club)}>
+                View members
+              </Button>
+              <Button icon={FaEnvelope} onClick={() => setTarget(club)}>
+                Message members
+              </Button>
+            </div>
           </div>
         ))}
       </div>
+      <ClubMembersModal club={membersTarget} onClose={() => setMembersTarget(null)} />
       <ClubMessageModal
         club={target}
         memberCount={target ? allClubs.find((c) => c._id === target._id)?.memberCount : undefined}
