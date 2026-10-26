@@ -18,6 +18,7 @@ import { ADMIN_EVENT_TABS, countAdminEvents, filterAdminEvents } from "../../uti
 import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
+import { isoToLocalInput, localInputToIso } from "../../utils/dateTimeInput";
 
 const PAGE_SIZE = 10;
 const EMPTY_FORM = {
@@ -30,16 +31,8 @@ const EMPTY_FORM = {
   price: "Free",
   club: "",
   requiresApproval: false,
+  registrationDeadline: "",
 };
-
-// Converts a stored ISO date into the "YYYY-MM-DDTHH:mm" shape a
-// datetime-local input expects.
-function toDatetimeLocal(isoString) {
-  if (!isoString) return "";
-  const d = new Date(isoString);
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 export default function AdminEvents() {
   const { events, loading, refreshEvents } = useEvents();
@@ -118,6 +111,7 @@ export default function AdminEvents() {
       price: event.price || "Free",
       club: event.club?._id || event.club || "",
       requiresApproval: !!event.requiresApproval,
+      registrationDeadline: "",
     });
     setImageFile(null);
     setFormOpen(true);
@@ -129,13 +123,14 @@ export default function AdminEvents() {
     setForm({
       title: event.title || "",
       description: event.description || "",
-      date: toDatetimeLocal(event.date),
+      date: isoToLocalInput(event.date),
       location: event.location || "",
       capacity: event.capacity ?? 100,
       category: event.category || "",
       price: event.price || "Free",
       club: event.club?._id || event.club || "",
       requiresApproval: !!event.requiresApproval,
+      registrationDeadline: isoToLocalInput(event.registrationDeadline),
     });
     setImageFile(null);
     setFormOpen(true);
@@ -146,7 +141,10 @@ export default function AdminEvents() {
     setSaving(true);
 
     const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+    Object.entries(form).forEach(([key, value]) => {
+      // Times go to the server as exact instants (see utils/dateTimeInput.js).
+      formData.append(key, key === "date" || key === "registrationDeadline" ? localInputToIso(value) : value);
+    });
     if (imageFile) formData.append("image", imageFile);
 
     try {
@@ -310,6 +308,22 @@ export default function AdminEvents() {
               <label className="label-field" htmlFor="ev-location">Location</label>
               <input id="ev-location" name="location" maxLength={200} className="input-field" value={form.location} onChange={handleChange} required />
             </div>
+          </div>
+          <div>
+            <label className="label-field" htmlFor="ev-deadline">Registration closes (optional)</label>
+            <input
+              id="ev-deadline"
+              name="registrationDeadline"
+              type="datetime-local"
+              className="input-field"
+              value={form.registrationDeadline}
+              max={form.date || undefined}
+              onChange={handleChange}
+              aria-describedby="ev-deadline-hint"
+            />
+            <p id="ev-deadline-hint" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              After this time nobody new can register or join the waitlist. Leave blank to keep registration open until the event.
+            </p>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
