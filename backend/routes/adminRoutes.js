@@ -24,6 +24,7 @@ const {
 } = require("../controllers/adminController");
 const { setNotice } = require("../controllers/noticeController");
 const { addWalkIn } = require("../controllers/walkInController");
+const { getClubMembers } = require("../controllers/clubMembersController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -41,6 +42,7 @@ router.use(protect);
 // club (utils/clubAccess.js), so a leader can never touch another club's.
 router.get("/events/:id/registrations", staffOnly, getEventRegistrations);
 router.post("/events/:id/announce", staffOnly, actionLimiter, announceToRegistrants);
+router.get("/clubs/:id/members", staffOnly, getClubMembers);
 router.post("/clubs/:id/announce", staffOnly, actionLimiter, announceToClubMembers);
 router.post("/events/:id/walk-in", staffOnly, actionLimiter, addWalkIn);
 router.put("/registrations/:id", staffOnly, updateRegistrationAttendance);

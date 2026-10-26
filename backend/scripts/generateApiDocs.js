@@ -114,6 +114,7 @@ const DESCRIPTIONS = {
   createClub: "Create a club.",
   updateClub: "Edit a club.",
   deleteClub: "Delete a club along with its memberships and event links.",
+  getClubMembers: "List who joined a club (name, email, student ID, join date), newest first; admins and that club's leaders only.",
   addWalkIn: "Add a student who turned up without registering (by exact email or student ID) as registered and attended; admins and that event's club leaders only.",
   getQuestions: "The public questions and answers on an event (newest first, up to 50). Only first names are shown.",
   askQuestion: "Ask a public question on an upcoming event (max 3 unanswered per student); the organiser is emailed.",
