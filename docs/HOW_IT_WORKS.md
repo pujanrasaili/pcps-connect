@@ -60,6 +60,21 @@ or admin features by editing the page.
   cancels, the next person is promoted and emailed.
 - Events can require **organiser approval**: the registration starts as a
   request and holds a seat until approved.
+- An event can have a **registration deadline**. After it, nobody new can
+  register or join the waiting list (`utils/registrationDeadline.js`); people
+  already registered keep their place.
+- An organiser can add a **walk-in**: a student who turned up without
+  registering is looked up by exact email or student ID and is registered and
+  checked in at once (`controllers/walkInController.js`). Capacity still applies.
+
+## Time zones
+
+The server runs in UTC, so times are handled as exact instants. The admin form
+converts the organiser's local time to UTC before sending it
+(`frontend/src/utils/dateTimeInput.js`), pages show times in each viewer's own
+zone, and emails write them in Nepal time (`backend/utils/formatEventDate.js`;
+`EVENT_TIMEZONE` changes the zone). Calendar files use UTC stamps, which every
+calendar app converts correctly.
 
 ## QR check-in and certificates
 
@@ -109,6 +124,8 @@ the student's clubs.
 | Database shapes | `backend/models/` |
 | Event and club validation | `backend/utils/eventInput.js`, `clubInput.js` |
 | Emails | `backend/utils/sendEmail.js` and the `notify*` files |
+| Event questions, club news, club members | `controllers/eventQuestionController.js`, `clubPostController.js`, `clubMembersController.js` |
+| Offline tickets and install | `frontend/src/services/ticketSync.js`, `public/sw.js`, `utils/installApp.js` |
 | Scheduled jobs | `.github/workflows/` and `backend/scripts/` |
 | Tests | `backend/**/__tests__/`, `frontend/tests/` |
 
