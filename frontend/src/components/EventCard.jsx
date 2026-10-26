@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { formatDay, formatMonth, isPastEvent } from "../utils/formatDate";
-import { isRegistrationClosed } from "../utils/registrationDeadline";
+import { isRegistrationClosed, deadlineSoonLabel } from "../utils/registrationDeadline";
 import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
 import { useRegistrations } from "../context/RegistrationContext";
@@ -78,6 +78,9 @@ export default function EventCard({ event }) {
         </div>
         {isRegistrationClosed(event) && !registered && !isPastEvent(event.date) && (
           <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">Registration closed</p>
+        )}
+        {!registered && deadlineSoonLabel(event) && (
+          <p className="mt-2 text-sm font-medium text-amber-700 dark:text-amber-400">{deadlineSoonLabel(event)}</p>
         )}
         {event.averageRating != null && (
           <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
