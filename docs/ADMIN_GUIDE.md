@@ -39,6 +39,8 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 - **Message everyone registered for an event, or everyone in a club:** the announce buttons on Events and Clubs. Students can switch off event reminders and club-update emails in their Settings, and the daily reminders and weekly digest respect that.
 - **Answer event questions:** on an event page, admins and the event's club leaders see "Answer" under each question (the answer is public, and the student is emailed). You also get an email when a question arrives. The bin icon removes a question.
 - **Add a walk-in:** open an event's attendees list and press "Add a walk-in". Type the student's exact email or student ID; they are registered and marked as attended straight away. Only approved accounts are found, and a full event refuses new walk-ins.
+- **Close registration early:** in the event form, "Registration closes (optional)" sets a deadline. After it, students can no longer register or join the waitlist; people already registered keep their place. Clear the field to reopen registration.
+- **Older events may show the wrong time:** events created before the time-zone fix were saved about 5 hours 45 minutes late. Open each upcoming one with Edit, check the time in the form, and press Save changes to correct it.
 - **Post club news:** open a club on the Clubs page; admins and that club's leaders see a box under "Club news" to post a short update (up to 1000 characters) and a bin icon to delete one.
 - **Site-wide notice:** the notice card on the Overview page puts a banner on the site (for example for a holiday or downtime).
 - **Who changed what:** the Activity page lists recent admin actions (last 200).
