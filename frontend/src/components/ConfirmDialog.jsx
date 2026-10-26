@@ -15,7 +15,7 @@ export default function ConfirmDialog({
   tone = "danger",
 }) {
   const toneClass =
-    tone === "success" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-rose-600 hover:bg-rose-700";
+    tone === "success" ? "bg-emerald-700 hover:bg-emerald-800" : "bg-rose-600 hover:bg-rose-700";
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
       <p className="text-sm text-slate-600 dark:text-slate-300">{message}</p>
