@@ -59,7 +59,13 @@ export default function Register() {
     // Every fresh account needs email verification (and then admin
     // approval) before it can log in -- so registration never lands
     // someone straight in the dashboard anymore.
-    toast.success("Account created! Check your email to verify your account before logging in.");
+    if (result.emailSent) {
+      toast.success("Account created! Check your email to verify your account before logging in.");
+    } else {
+      // The account exists but the email could not be sent -- say so instead of
+      // leaving the student waiting for a message that isn't coming.
+      toast.error(result.message, 10000);
+    }
     navigate("/login", { replace: true });
   };
 

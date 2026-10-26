@@ -100,6 +100,19 @@ describe("register", () => {
     const res = mockRes();
     await register({ body }, res);
     expect(res.status).toHaveBeenCalledWith(201);
+    const sent = res.json.mock.calls[0][0];
+    expect(sent.emailSent).toBe(false);
+    expect(sent.message).toMatch(/couldn't send the verification email/);
+  });
+
+  it("reports emailSent: true when the verification email went out", async () => {
+    User.findOne.mockResolvedValue(null);
+    bcrypt.hash.mockResolvedValue("hashed");
+    User.create.mockResolvedValue(goodUser());
+    sendEmail.mockResolvedValue();
+    const res = mockRes();
+    await register({ body }, res);
+    expect(res.json.mock.calls[0][0]).toEqual(expect.objectContaining({ emailSent: true, message: expect.stringMatching(/Check your email/) }));
   });
 });
 

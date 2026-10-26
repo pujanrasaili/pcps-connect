@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
       // No auto-login here -- every fresh account needs email verification
       // (then admin approval) before it can log in, so attempting to log
       // in immediately after registering would always fail.
-      return { ok: true, user: res.data.user };
+      return { ok: true, user: res.data.user, emailSent: res.data.emailSent !== false, message: res.data.message };
     } catch (err) {
       return { ok: false, message: getErrorMessage(err, "Registration failed") };
     }

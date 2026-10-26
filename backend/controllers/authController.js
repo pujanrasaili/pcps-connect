@@ -157,14 +157,22 @@ async function register(req, res) {
       phone: profile.phone || "",
     });
 
+    // The account exists either way; if the email can't go out the student is
+    // told so (and can use "Resend" later) instead of waiting for a message that
+    // will never come.
+    let emailSent = true;
     try {
       await sendVerificationEmail(user);
     } catch (emailErr) {
+      emailSent = false;
       console.error("Failed to send verification email:", emailErr.message);
     }
 
     res.status(201).json({
-      message: "Account created. Check your email to verify your account before logging in.",
+      message: emailSent
+        ? "Account created. Check your email to verify your account before logging in."
+        : "Account created, but we couldn't send the verification email just now. Try \"Resend verification email\" on the login page in a few minutes, or contact an administrator.",
+      emailSent,
       user: publicUser(user),
     });
   } catch (err) {
