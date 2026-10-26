@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { FaCheckCircle, FaExclamationCircle, FaQrcode } from "react-icons/fa";
 import { api, getErrorMessage } from "../../services/api";
 import { formatDate } from "../../utils/formatDate";
+import { addScan, sessionCounts } from "../../utils/checkInLog";
 
 // Landing page for the QR a student shows at the door. The admin scans it with
 // their phone's camera, which opens /admin/check-in?code=..., and the student
@@ -15,6 +16,7 @@ export default function AdminCheckIn() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [log, setLog] = useState([]);
   const lastSubmitted = useRef(null);
 
   const checkIn = async (code) => {
@@ -24,6 +26,7 @@ export default function AdminCheckIn() {
     try {
       const res = await api.post("/admin/check-in", { code });
       setResult(res.data);
+      setLog((prev) => addScan(prev, res.data));
     } catch (err) {
       setError(getErrorMessage(err, "Check-in failed"));
     } finally {
@@ -97,6 +100,28 @@ export default function AdminCheckIn() {
           <FaExclamationCircle className="mx-auto text-4xl text-rose-500" />
           <p className="mt-3 font-medium text-slate-800 dark:text-slate-100">{error}</p>
         </div>
+      )}
+
+      {log.length > 0 && (
+        <section className="card-surface p-5" aria-labelledby="checkin-session">
+          <h2 id="checkin-session" className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+            Checked in this session: {sessionCounts(log).checkedIn}
+          </h2>
+          <ul className="mt-2 divide-y divide-slate-100 dark:divide-slate-800">
+            {log.slice(0, 8).map((e) => (
+              <li key={e.key} className="flex items-center justify-between gap-3 py-1.5 text-sm">
+                <span className="min-w-0 truncate text-slate-700 dark:text-slate-200">
+                  {e.name}
+                  {e.studentId ? <span className="text-slate-500 dark:text-slate-400"> · {e.studentId}</span> : null}
+                </span>
+                <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">
+                  {new Date(e.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {log.length > 8 && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">and {log.length - 8} more</p>}
+        </section>
       )}
 
       <form onSubmit={handleManual} className="card-surface space-y-3 p-5">
