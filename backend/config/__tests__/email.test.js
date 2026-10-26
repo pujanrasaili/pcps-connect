@@ -13,4 +13,16 @@ describe("email transporter", () => {
     expect(options.rateLimit).toBeGreaterThan(0);
     expect(options.auth).toEqual({ user: "club@example.com", pass: "app-password" });
   });
+
+  it("uses Brevo's HTTPS API instead of SMTP when BREVO_API_KEY is set (Render's free tier blocks SMTP)", () => {
+    nodemailer.createTransport.mockClear();
+    process.env.BREVO_API_KEY = "key";
+    let transporter;
+    jest.isolateModules(() => {
+      transporter = require("../email");
+    });
+    delete process.env.BREVO_API_KEY;
+    expect(nodemailer.createTransport).not.toHaveBeenCalled();
+    expect(typeof transporter.sendMail).toBe("function");
+  });
 });

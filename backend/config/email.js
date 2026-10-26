@@ -1,9 +1,13 @@
 const nodemailer = require("nodemailer");
+const { sendViaBrevo } = require("../utils/brevoMail");
 
-// Uses Gmail SMTP with an "App Password" (not your real Gmail password --
-// see .env.example for how to generate one). Simple to set up with an
-// existing Gmail account; swap this for a dedicated transactional email
-// service (Resend, SendGrid, etc.) before a real production launch.
+// Two ways to send, chosen by what is configured:
+//
+//  1. BREVO_API_KEY set  -> HTTPS API (utils/brevoMail.js). This is what to use
+//     on Render's free tier, which blocks outbound SMTP.
+//  2. Otherwise          -> Gmail SMTP with an "App Password" (not your real
+//     Gmail password -- see .env.example). Fine on your own computer, GitHub
+//     Actions, or a paid host; it does NOT work from Render's free tier.
 //
 // `pool` matters for the bulk sends (announcements, reminders, the weekly
 // digest), which hand dozens or hundreds of messages over at once. Without
@@ -13,14 +17,22 @@ const nodemailer = require("nodemailer");
 // messages per second.
 const POOL_OPTIONS = { pool: true, maxConnections: 3, maxMessages: 100, rateDelta: 1000, rateLimit: 5 };
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  ...POOL_OPTIONS,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD,
-  },
-});
+let transporter;
+if (process.env.BREVO_API_KEY) {
+  transporter = {
+    sendMail: (mail) =>
+      sendViaBrevo(mail, { apiKey: process.env.BREVO_API_KEY, senderEmail: process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_USER }),
+  };
+} else {
+  transporter = nodemailer.createTransport({
+    service: "gmail",
+    ...POOL_OPTIONS,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_APP_PASSWORD,
+    },
+  });
+}
 
 module.exports = transporter;
 module.exports.POOL_OPTIONS = POOL_OPTIONS;
