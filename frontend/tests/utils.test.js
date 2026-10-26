@@ -20,6 +20,7 @@ import { installMode, detectIos } from "../src/utils/installApp.js";
 import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
 import { isRegistrationClosed, hasOpenDeadline } from "../src/utils/registrationDeadline.js";
+import { addScan, sessionCounts } from "../src/utils/checkInLog.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
@@ -659,4 +660,24 @@ test("registration closes only after the optional deadline", () => {
   assert.equal(hasOpenDeadline({ registrationDeadline: "2030-06-02T00:00:00Z" }, now), true);
   assert.equal(hasOpenDeadline({ registrationDeadline: "2030-05-31T00:00:00Z" }, now), false);
   assert.equal(hasOpenDeadline({}, now), false);
+});
+
+test("check-in log lists newest first and counts each student once", () => {
+  const scan = (name, already = false) => ({ alreadyCheckedIn: already, student: { name, studentId: "" }, event: { title: "Hack Night" } });
+  let log = addScan([], scan("Sita"), new Date("2030-01-01T10:00:00Z"));
+  log = addScan(log, scan("Hari"), new Date("2030-01-01T10:01:00Z"));
+  assert.deepEqual(log.map((e) => e.name), ["Hari", "Sita"]);
+  // Sita's code scanned again: moves to the top, still one entry, still counted as checked in.
+  log = addScan(log, scan("Sita", true), new Date("2030-01-01T10:02:00Z"));
+  assert.deepEqual(log.map((e) => e.name), ["Sita", "Hari"]);
+  assert.deepEqual(sessionCounts(log), { checkedIn: 2, repeats: 0 });
+});
+
+test("check-in log separates people who were already checked in before this session", () => {
+  const log = addScan([], { alreadyCheckedIn: true, student: { name: "Ram", studentId: "P9" }, event: { title: "E" } });
+  assert.deepEqual(sessionCounts(log), { checkedIn: 0, repeats: 1 });
+  assert.deepEqual(addScan(log, null), log);
+  let many = [];
+  for (let i = 0; i < 60; i++) many = addScan(many, { alreadyCheckedIn: false, student: { name: "S" + i }, event: { title: "E" } });
+  assert.equal(many.length, 50);
 });
