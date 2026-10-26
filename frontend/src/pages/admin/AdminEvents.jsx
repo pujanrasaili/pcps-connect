@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy, FaLock, FaLockOpen } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import { useLedClubs } from "../../hooks/useLedClubs";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, isUpcoming } from "../../utils/formatDate";
 import { useDebounce } from "../../hooks/useDebounce";
 import { pluralize } from "../../utils/plural";
 import Modal from "../../components/Modal";
@@ -19,6 +19,7 @@ import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 import { isoToLocalInput, localInputToIso } from "../../utils/dateTimeInput";
+import { isRegistrationClosed } from "../../utils/registrationDeadline";
 
 const PAGE_SIZE = 10;
 const EMPTY_FORM = {
@@ -164,6 +165,22 @@ export default function AdminEvents() {
     }
   };
 
+  // One-click "stop taking sign-ups now" / "open it again" for an upcoming event.
+  const [togglingId, setTogglingId] = useState(null);
+  const toggleRegistration = async (event) => {
+    const closing = !isRegistrationClosed(event);
+    setTogglingId(event._id);
+    try {
+      await api.put(`/events/${event._id}`, { registrationDeadline: closing ? new Date().toISOString() : "" });
+      toast.success(closing ? "Registration closed. People already registered keep their place." : "Registration is open again.");
+      await refreshEvents();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Couldn't change registration"));
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -237,6 +254,9 @@ export default function AdminEvents() {
                     <span className="font-semibold text-amber-700 dark:text-amber-400"> · {event.pendingCount} awaiting your decision</span>
                   )}
                   {event.averageRating != null && ` · ★ ${event.averageRating.toFixed(1)} (${event.ratingCount})`}
+                  {isUpcoming(event.date) && isRegistrationClosed(event) && (
+                    <span className="font-semibold text-slate-700 dark:text-slate-200"> · registration closed</span>
+                  )}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
@@ -248,6 +268,17 @@ export default function AdminEvents() {
                 >
                   <FaUserFriends />
                 </button>
+                {isUpcoming(event.date) && (
+                  <button
+                    onClick={() => toggleRegistration(event)}
+                    disabled={togglingId === event._id}
+                    aria-label={isRegistrationClosed(event) ? `Reopen registration for ${event.title}` : `Close registration for ${event.title}`}
+                    title={isRegistrationClosed(event) ? "Reopen registration" : "Close registration now"}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-amber-50 hover:text-amber-600 disabled:opacity-50 dark:hover:bg-amber-900/20"
+                  >
+                    {isRegistrationClosed(event) ? <FaLockOpen /> : <FaLock />}
+                  </button>
+                )}
                 <button
                   onClick={() => openDuplicate(event)}
                   aria-label={`Duplicate ${event.title}`}
