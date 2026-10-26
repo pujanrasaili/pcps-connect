@@ -59,6 +59,7 @@ pcps-connect/
 - The profile shows six small milestones (first event, 5 and 10 events attended, joining clubs, rating an event), worked out from what the student has done, never stored
 - Event questions: students ask public questions on an upcoming event's page (first name only, max 3 unanswered each), and an admin or the club's leaders answer; the organiser is emailed when a question arrives and the asker when it is answered
 - Walk-ins: on the attendees list an admin or the club's leaders can add a student who turned up without registering, by exact email or student ID; they are registered and checked in at once (capacity still applies)
+- Club members list: admins (Admin → Clubs) and a club's leaders (Leader → My clubs) can see who joined a club, newest first, search it and export it as CSV
 - Registration deadline: an event can have an optional "Registration closes" time; after it nobody new can register or join the waitlist (existing registrations are kept, and organisers can still add walk-ins)
 - Event times typed in the admin form are sent as exact instants, so an event entered for 10:00 in Nepal shows as 10:00 for everyone (earlier events saved before this fix may show about 5h45m late and can be corrected with Edit)
 - Event report: the attendees window has an "Event report" section with registered, attended, attendance rate, average rating and a rating breakdown, plus a button that copies a plain-text summary for club reports
