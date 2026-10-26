@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaEnvelope, FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaPrint, FaEnvelope, FaCheck, FaTimes } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Modal from "./Modal";
@@ -8,6 +8,8 @@ import SearchBar from "./SearchBar";
 import WalkInForm from "./WalkInForm";
 import EventReportCard from "./EventReportCard";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
+import { buildSheetHtml } from "../utils/attendanceSheet";
+import { formatDateTime } from "../utils/formatDate";
 
 function downloadAttendanceCsv(event, registrations) {
   const header = ["Name", "Email", "Student ID", "Registered On", "Status", "Attended", "Rating", "Feedback"];
@@ -22,6 +24,16 @@ function downloadAttendanceCsv(event, registrations) {
     r.feedback || "",
   ]);
   downloadCsv(`${slugify(event?.title, "event")}-attendance.csv`, buildCsv(header, rows));
+}
+
+// Opens a printable sign-in sheet in a new tab and starts the print dialog.
+function printSignInSheet(event, registrations, onBlocked) {
+  const win = window.open("", "_blank");
+  if (!win) return onBlocked();
+  win.document.write(buildSheetHtml(event, registrations, event?.date ? formatDateTime(event.date) : ""));
+  win.document.close();
+  win.focus();
+  win.print();
 }
 
 // Lists everyone registered for a given event, with a tap-to-toggle
@@ -158,6 +170,12 @@ export default function AttendeesModal({ event, onClose }) {
               className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50"
             >
               <FaEnvelope /> Message everyone
+            </button>
+            <button
+              onClick={() => printSignInSheet(event, registrations, () => toast.error("Allow pop-ups for this site to print the sheet."))}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <FaPrint aria-hidden="true" /> Print sheet
             </button>
             <button
               onClick={() => downloadAttendanceCsv(event, registrations)}
