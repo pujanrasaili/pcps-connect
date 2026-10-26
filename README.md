@@ -45,6 +45,7 @@ pcps-connect/
 - Site announcement: admins publish (or remove) a short banner shown at the top of every page from Admin → Overview ("Information" or "Important" style); visitors can close it, and an edited announcement shows again. Changes are written to the activity log
 - Admins can approve every pending sign-up at once ("Approve all" on the Pending filter, respects search) — each person is emailed and it's logged as one activity entry
 - Admin → Users can be filtered by approval status (pending / approved / rejected, with counts) and searched by student ID
+- Admins can mark a student's email as verified by hand ("Mark verified" on an Unverified row, after a confirmation, recorded in the activity log) when the verification email never arrived; it does not approve the account
 - Admin → Users can export the current (filtered) list of students as an Excel-safe CSV
 - "Share this event" button on every event page (phone share sheet, or copies the link on desktop)
 - Installable on phones: "Add to home screen" gives a PCPS Connect app icon that opens full-screen (no offline caching, so data is never stale)
