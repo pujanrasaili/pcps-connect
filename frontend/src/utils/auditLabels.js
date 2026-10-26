@@ -4,6 +4,7 @@ const LABELS = {
   "user.approved": "User approved",
   "user.rejected": "User rejected",
   "user.approved_bulk": "Bulk approval",
+  "user.email_verified": "Email marked verified",
   "user.role_changed": "Role changed",
   "user.deleted": "User deleted",
   "user.selfDeleted": "Self-deleted account",

@@ -78,6 +78,24 @@ export default function AdminUsers() {
     }
   };
 
+  // For students whose verification email never arrived. Confirmed first because
+  // it skips the proof that they own the address.
+  const [verifyTarget, setVerifyTarget] = useState(null);
+  const [verifying, setVerifying] = useState(false);
+  const handleMarkVerified = async () => {
+    setVerifying(true);
+    try {
+      await api.put(`/admin/users/${verifyTarget._id}/verify-email`);
+      toast.success(`${verifyTarget.name}'s email is marked as verified.`);
+      setVerifyTarget(null);
+      loadUsers();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to mark the email as verified"));
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   // Approves every pending account currently shown (respects the search box), in
   // batches of 200 to stay inside the server's per-request limit.
   const handleBulkApprove = async () => {
@@ -246,6 +264,15 @@ export default function AdminUsers() {
                       <FaEnvelope className="mr-1 text-[10px]" /> Unverified
                     </span>
                   )}
+                  {!u.emailVerified && (
+                    <button
+                      onClick={() => setVerifyTarget(u)}
+                      aria-label={`Mark ${u.name}'s email as verified`}
+                      className="rounded-full px-2 py-0.5 text-xs font-semibold text-primary-600 underline underline-offset-2 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/30"
+                    >
+                      Mark verified
+                    </button>
+                  )}
                   <span className={`badge ${STATUS_STYLES[u.approvalStatus]}`}>{u.approvalStatus}</span>
                   <span
                     className={`badge ${
@@ -314,6 +341,18 @@ export default function AdminUsers() {
         confirmingLabel="Approving..."
         title="Approve all pending accounts?"
         message={`This approves the ${pluralize(filteredUsers.filter((u) => u.approvalStatus === "pending").length, "pending account")} shown here and emails each person that they can log in.`}
+      />
+
+      <ConfirmDialog
+        isOpen={!!verifyTarget}
+        onClose={() => setVerifyTarget(null)}
+        onConfirm={handleMarkVerified}
+        confirming={verifying}
+        tone="success"
+        confirmLabel="Mark verified"
+        confirmingLabel="Saving..."
+        title="Mark this email as verified?"
+        message={`Only do this if you know ${verifyTarget?.email} really belongs to ${verifyTarget?.name} (for example, they told you the verification email never arrived). It does not approve the account -- that is a separate step.`}
       />
 
       <ConfirmDialog
