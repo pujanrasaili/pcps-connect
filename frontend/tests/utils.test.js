@@ -18,6 +18,8 @@ import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { installMode, detectIos } from "../src/utils/installApp.js";
 import { eventReport, reportText } from "../src/utils/eventReport.js";
+import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
+import { isRegistrationClosed, hasOpenDeadline } from "../src/utils/registrationDeadline.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
@@ -636,4 +638,25 @@ test("eventReport handles an empty event and reportText stays readable", () => {
   assert.match(text, /Hack Night -- event summary/);
   assert.match(text, /Attended: 1 \(100%\)/);
   assert.match(text, /Rating: 5\/5 from 1 rating$/);
+});
+
+test("form times are sent as exact instants and read back unchanged", () => {
+  assert.equal(localInputToIso(""), "");
+  const iso = localInputToIso("2026-12-30T10:00");
+  assert.match(iso, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00\.000Z$/);
+  assert.equal(new Date(iso).getHours(), 10); // the organiser's own 10:00, whatever zone this runs in
+  assert.equal(isoToLocalInput(iso), "2026-12-30T10:00");
+  assert.equal(isoToLocalInput(null), "");
+  assert.equal(isoToLocalInput("nonsense"), "");
+});
+
+test("registration closes only after the optional deadline", () => {
+  const now = new Date("2030-06-01T00:00:00Z");
+  assert.equal(isRegistrationClosed({}, now), false);
+  assert.equal(isRegistrationClosed({ registrationDeadline: null }, now), false);
+  assert.equal(isRegistrationClosed({ registrationDeadline: "2030-06-02T00:00:00Z" }, now), false);
+  assert.equal(isRegistrationClosed({ registrationDeadline: "2030-05-31T00:00:00Z" }, now), true);
+  assert.equal(hasOpenDeadline({ registrationDeadline: "2030-06-02T00:00:00Z" }, now), true);
+  assert.equal(hasOpenDeadline({ registrationDeadline: "2030-05-31T00:00:00Z" }, now), false);
+  assert.equal(hasOpenDeadline({}, now), false);
 });

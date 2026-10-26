@@ -22,7 +22,8 @@ import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
-import { formatDate, isPastEvent } from "../utils/formatDate";
+import { formatDate, formatDateTime, isPastEvent } from "../utils/formatDate";
+import { isRegistrationClosed, hasOpenDeadline } from "../utils/registrationDeadline";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
@@ -134,6 +135,7 @@ export default function EventDetails() {
   const spotsLeft = capacity - registeredCount;
   const isFull = spotsLeft <= 0;
   const isPast = isPastEvent(event.date);
+  const registrationClosed = isRegistrationClosed(event);
   const registered = isRegistered(event._id);
   const myRegistration = registrations.find((r) => r.event?._id === event._id);
   // "Registered" in the UI means confirmed: a request still waiting for the
@@ -367,6 +369,10 @@ export default function EventDetails() {
               <Button className="mt-5 w-full" disabled variant="outline">
                 Event has ended
               </Button>
+            ) : registrationClosed && !(isFull && isAuthenticated && waitlist?.onWaitlist) ? (
+              <Button className="mt-5 w-full" disabled variant="outline">
+                Registration has closed
+              </Button>
             ) : isFull && isAuthenticated && waitlist?.onWaitlist ? (
               <div className="mt-5 space-y-2">
                 <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
@@ -392,9 +398,16 @@ export default function EventDetails() {
                 Registration full
               </Button>
             ) : isAuthenticated ? (
+              <>
+              {hasOpenDeadline(event) && (
+                <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
+                  Registration closes {formatDateTime(event.registrationDeadline)}
+                </p>
+              )}
               <Button className="mt-5 w-full" onClick={handleRegisterClick}>
                 {event.requiresApproval ? "Request to join" : "Register now"}
               </Button>
+              </>
             ) : (
               <Link to="/login" state={{ from: `/events/${event._id}` }} className="btn-primary mt-5 w-full">
                 Log in to register

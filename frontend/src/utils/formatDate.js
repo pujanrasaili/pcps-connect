@@ -40,3 +40,15 @@ export function relativeDay(dateStr, now = new Date()) {
   if (days === 1) return "Tomorrow";
   return `In ${days} days`;
 }
+
+// "Tue, Dec 30, 2026, 10:00 AM" in the viewer's own time zone.
+export function formatDateTime(dateStr) {
+  return new Date(dateStr).toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
