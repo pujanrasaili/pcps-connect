@@ -179,6 +179,19 @@ shared helpers: CSV export safety, calendar files, page titles and date logic.
 GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests and the
 frontend lint, tests and production build on every push and pull request.
 
+## Sending email from Render's free tier
+
+Render's free web services block outbound SMTP (ports 25, 465 and 587), so the
+Gmail App Password setup cannot send from there: sign-up works but the
+verification email never leaves. Use Brevo's HTTPS API instead (free, 300 emails
+a day, no domain needed). The steps are in `backend/.env.example`; in short,
+verify a sender address in Brevo, create an API key, and add `BREVO_API_KEY`
+(and `BREVO_SENDER_EMAIL` if the sender differs from `EMAIL_USER`) on Render.
+When `BREVO_API_KEY` is set it replaces Gmail SMTP. `npm run test-email -- you@gmail.com`
+(from `backend/`) sends one test message and prints the real error if it fails.
+The GitHub Actions jobs (reminders, weekly digest) keep using Gmail SMTP, which
+Actions does not block.
+
 ## Scheduled event reminders
 
 `backend/scripts/sendEventReminders.js` emails every registered student whose
