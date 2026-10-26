@@ -75,7 +75,7 @@ The settings for each live in that service's dashboard (Render: Environment; Ver
 
 ## Keeping it healthy
 
-- **Know when it is down:** point a free uptime monitor (for example UptimeRobot, every 5 minutes) at `https://pcps-connect-backend.onrender.com/api/health`. It answers `{"status":"ok","database":"connected"}` when all is well, and also keeps the free Render tier awake.
+- **Know when it is down:** point a free uptime monitor (for example UptimeRobot, every 5 minutes) at `https://pcps-connect-backend.onrender.com/api/health`. It answers `{"status":"ok","database":"connected","email":"brevo"}` when all is well (`email` names the mail method that is set up: `brevo`, `gmail-smtp` or `not-configured`), and also keeps the free Render tier awake.
 - **Back up the database:** from `backend/`, run `npm run backup`. Do it before anything risky and now and then. The backup holds students' personal details, so keep it private (see the Backups section of the README for restoring).
 - **Dependabot** opens pull requests for package updates. Merge them when the checks (CI) are green.
 
@@ -85,7 +85,7 @@ The settings for each live in that service's dashboard (Render: Environment; Ver
 | --- | --- |
 | Site loads but data does not, or login spins | The API is waking up (wait a minute) or is down: open the health link above, then check the Render dashboard logs |
 | Health link says `database: disconnected` | Atlas: check the cluster is running and the network access list allows Render |
-| Students say they get no emails | Check `EMAIL_USER` / `EMAIL_APP_PASSWORD` on Render and in GitHub secrets; look in spam; check Gmail's daily sending limit |
+| Students say they get no emails | Open the health link: if `email` is `gmail-smtp`, Render's free tier blocks that, so set `BREVO_API_KEY` (see README, "Sending email from Render's free tier"). Otherwise look in the Render logs for "Failed to send", check spam, and the Brevo or Gmail sending limit. Meanwhile use "Mark verified" in Admin → Users |
 | Check-in camera is black or blocked | Allow the camera for the site in the browser's address-bar settings; use HTTPS (the live site is) |
 | Someone cannot log in | Their email may be unverified or the account still pending: Users, then check status. Passwords can be reset by the student from the login page |
 | Locked out after many wrong attempts | The limit clears by itself after 15 minutes |
