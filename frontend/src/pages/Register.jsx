@@ -1,16 +1,16 @@
 import PasswordInput from "../components/PasswordInput";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaUser, FaEnvelope, FaIdCard } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
+import RegistrationDone from "../components/RegistrationDone";
 import logo from "../assets/images/pcps-shield.png";
 
 export default function Register() {
   const { register } = useAuth();
   const toast = useToast();
-  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -21,6 +21,8 @@ export default function Register() {
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(null);
+  const [submitError, setSubmitError] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -48,26 +50,26 @@ export default function Register() {
     if (!validate()) return;
 
     setSubmitting(true);
+    setSubmitError("");
     const result = await register(form);
     setSubmitting(false);
 
     if (!result.ok) {
+      // Also shown on the page: a pop-up alone is easy to miss.
+      setSubmitError(result.message);
       toast.error(result.message);
       return;
     }
 
     // Every fresh account needs email verification (and then admin
-    // approval) before it can log in -- so registration never lands
-    // someone straight in the dashboard anymore.
-    if (result.emailSent) {
-      toast.success("Account created! Check your email to verify your account before logging in.");
-    } else {
-      // The account exists but the email could not be sent -- say so instead of
-      // leaving the student waiting for a message that isn't coming.
-      toast.error(result.message, 10000);
-    }
-    navigate("/login", { replace: true });
+    // approval) before it can log in -- so registration never lands someone
+    // straight in the dashboard. A full-page confirmation (not just a pop-up)
+    // makes it unmistakable that the account now exists.
+    setDone({ email: form.email.trim(), emailSent: result.emailSent });
+    window.scrollTo?.({ top: 0 });
   };
+
+  if (done) return <RegistrationDone email={done.email} emailSent={done.emailSent} />;
 
   return (
     <div className="section-y flex items-center justify-center px-4">
@@ -175,6 +177,12 @@ export default function Register() {
             .
           </label>
           {errors.agree && <p className="text-xs text-rose-600 dark:text-rose-400">{errors.agree}</p>}
+
+          {submitError && (
+            <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
+              {submitError}
+            </p>
+          )}
 
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? "Creating account..." : "Create account"}

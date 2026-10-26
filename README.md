@@ -31,6 +31,7 @@ pcps-connect/
 
 ### For students
 - Account registration restricted to real PCPS email addresses (@patancollege.edu.np)
+- After signing up, a full-page confirmation says the account was created, names the address the verification link went to, lists the next steps and offers "send again"; if the email could not be sent it says so
 - Email verification + admin approval required before an account can log in
 - JWT-based authentication with httpOnly cookies (secure against XSS token theft)
 - Real password reset via email, plus in-app change password from Settings; every password box has a show/hide button and the right autocomplete hints so password managers can fill and generate passwords
