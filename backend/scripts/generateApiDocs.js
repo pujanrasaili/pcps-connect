@@ -62,7 +62,7 @@ function readRoutes(source) {
 // One plain sentence per handler. Every route must have one: the test suite
 // fails for a route missing here, so new endpoints get documented.
 const DESCRIPTIONS = {
-  getHealth: "Uptime check: 200 when the database is connected, 503 otherwise.",
+  getHealth: "Uptime check: 200 when the database is connected, 503 otherwise; also names the email method set up (brevo, gmail-smtp or not-configured).",
   register: "Create a student account (PCPS email addresses only); sends a verification email.",
   login: "Log in; sets the session cookie.",
   logout: "Log out; clears the session cookie.",

@@ -11,7 +11,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 
 | Method | Path | Who | What it does |
 |---|---|---|---|
-| GET | `/api/health` | Anyone | Uptime check: 200 when the database is connected, 503 otherwise. |
+| GET | `/api/health` | Anyone | Uptime check: 200 when the database is connected, 503 otherwise; also names the email method set up (brevo, gmail-smtp or not-configured). |
 
 ## /api/auth
 
