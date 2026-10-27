@@ -7,10 +7,18 @@ const cloudinary = require("../config/cloudinary");
 // file is then streamed straight to Cloudinary -- see uploadBufferToCloudinary().
 const storage = multer.memoryStorage();
 
+// Both the file name and the type the browser reports must say "image". The
+// name alone can be anything (a script renamed to .png), so the type is checked
+// too; Cloudinary then verifies the actual bytes are an image.
+const ALLOWED_EXTENSIONS = /^\.(jpe?g|png|webp|gif)$/;
+const ALLOWED_TYPES = /^image\/(jpeg|png|webp|gif)$/;
+
+function isAllowedImage(file) {
+  return ALLOWED_EXTENSIONS.test(path.extname(file.originalname || "").toLowerCase()) && ALLOWED_TYPES.test(file.mimetype || "");
+}
+
 function fileFilter(req, file, cb) {
-  const allowed = /jpeg|jpg|png|webp|gif/;
-  const isAllowed = allowed.test(path.extname(file.originalname).toLowerCase());
-  if (isAllowed) return cb(null, true);
+  if (isAllowedImage(file)) return cb(null, true);
   cb(new Error("Only image files (jpg, png, webp, gif) are allowed"));
 }
 
@@ -37,4 +45,5 @@ function uploadBufferToCloudinary(buffer, folder = "pcps-connect") {
 }
 
 module.exports = upload;
+module.exports.isAllowedImage = isAllowedImage;
 module.exports.uploadBufferToCloudinary = uploadBufferToCloudinary;
