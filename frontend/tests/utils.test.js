@@ -22,6 +22,7 @@ import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js"
 import { isRegistrationClosed, hasOpenDeadline, deadlineSoonLabel } from "../src/utils/registrationDeadline.js";
 import { addScan, sessionCounts } from "../src/utils/checkInLog.js";
 import { buildSheetHtml, sheetRows } from "../src/utils/attendanceSheet.js";
+import { feedUrl, webcalUrl, googleSubscribeUrl, isPublicUrl } from "../src/utils/calendarFeed.js";
 import { searchSite } from "../src/utils/siteSearch.js";
 import { HELP_TOPICS } from "../src/utils/helpTopics.js";
 import { errorText } from "../src/utils/errorText.js";
@@ -714,4 +715,20 @@ test("deadlineSoonLabel only nudges when the deadline is within three days", () 
   assert.equal(deadlineSoonLabel(at(5), now), "Registration closes in 5 hours");
   assert.equal(deadlineSoonLabel(at(24), now), "Registration closes in 1 day");
   assert.equal(deadlineSoonLabel(at(49), now), "Registration closes in 3 days");
+});
+
+test("calendar feed links point at the API feed, for everyone or one club", () => {
+  assert.equal(feedUrl("https://api.test/api/"), "https://api.test/api/events/calendar.ics");
+  assert.equal(feedUrl("https://api.test/api", "abc123"), "https://api.test/api/events/calendar.ics?club=abc123");
+  assert.equal(webcalUrl("https://api.test/api/events/calendar.ics"), "webcal://api.test/api/events/calendar.ics");
+  assert.equal(
+    googleSubscribeUrl("https://api.test/api/events/calendar.ics"),
+    "https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fapi.test%2Fapi%2Fevents%2Fcalendar.ics"
+  );
+});
+
+test("only a public address can be subscribed to from Google", () => {
+  assert.equal(isPublicUrl("https://pcps-connect-backend.onrender.com/api/events/calendar.ics"), true);
+  assert.equal(isPublicUrl("http://localhost:5000/api/events/calendar.ics"), false);
+  assert.equal(isPublicUrl("not a url"), false);
 });

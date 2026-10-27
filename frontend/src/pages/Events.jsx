@@ -1,3 +1,4 @@
+import CalendarSubscribe from "../components/CalendarSubscribe";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FaTimes, FaList, FaRegCalendarAlt } from "react-icons/fa";
@@ -120,6 +121,8 @@ export default function Events() {
             in a couple of clicks.
           </p>
         </div>
+
+        <CalendarSubscribe clubId={clubFilter || ""} clubName={clubFilterName || ""} />
 
         <div className="mx-auto mt-8 flex max-w-4xl flex-wrap items-center justify-center gap-3">
           {view === "list" && (
