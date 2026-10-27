@@ -17,6 +17,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showResend, setShowResend] = useState(false);
+  // Shown on the page itself (not only as a short pop-up) so a failed login or a
+  // resend result can't be missed. tone: "error" | "warn" | "ok".
+  const [notice, setNotice] = useState(null);
   const [resending, setResending] = useState(false);
 
   // Single generic change handler -- works for every field because each
@@ -37,6 +40,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setShowResend(false);
+    setNotice(null);
     if (!validate()) return;
 
     setSubmitting(true);
@@ -45,6 +49,10 @@ export default function Login() {
 
     if (!result.ok) {
       toast.error(result.message);
+      // Waiting for approval or an unverified email is not a typo to fix, so it
+      // is shown as a notice rather than a red error.
+      const waiting = result.code === "EMAIL_NOT_VERIFIED" || result.code === "APPROVAL_PENDING";
+      setNotice({ tone: waiting ? "warn" : "error", text: result.message });
       if (result.code === "EMAIL_NOT_VERIFIED") setShowResend(true);
       return;
     }
@@ -59,9 +67,12 @@ export default function Login() {
     try {
       const res = await api.post("/auth/resend-verification", { email: form.email });
       toast.success(res.data.message);
+      setNotice({ tone: "ok", text: "Sent. Open the newest email from PCPS Connect (check spam too) and press the link. It can take a few minutes." });
       setShowResend(false);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to resend verification email."));
+      const text = getErrorMessage(err, "Failed to resend verification email.");
+      toast.error(text);
+      setNotice({ tone: "error", text });
     } finally {
       setResending(false);
     }
@@ -131,6 +142,21 @@ export default function Login() {
             </div>
             {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
           </div>
+
+          {notice && (
+            <p
+              role="alert"
+              className={`rounded-lg px-3 py-2.5 text-sm ${
+                notice.tone === "ok"
+                  ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300"
+                  : notice.tone === "warn"
+                    ? "bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
+                    : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300"
+              }`}
+            >
+              {notice.text}
+            </p>
+          )}
 
           {showResend && (
             <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
