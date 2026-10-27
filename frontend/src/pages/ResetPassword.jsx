@@ -17,6 +17,7 @@ export default function ResetPassword() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,13 +37,16 @@ export default function ResetPassword() {
     if (!validate()) return;
 
     setSubmitting(true);
+    setServerError("");
     try {
       await api.post("/auth/reset-password", { token, newPassword: form.password });
       setDone(true);
       toast.success("Password reset! You can now log in.");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      toast.error(getErrorMessage(err, "This reset link is invalid or has expired."));
+      const text = getErrorMessage(err, "This reset link is invalid or has expired.");
+      setServerError(text); // also on the page: a pop-up alone is easy to miss
+      toast.error(text);
     } finally {
       setSubmitting(false);
     }
@@ -94,6 +98,15 @@ export default function ResetPassword() {
                 <PasswordInput icon id="rp-confirm" name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
                 {errors.confirmPassword && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
               </div>
+
+              {serverError && (
+                <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
+                  {serverError}{" "}
+                  <Link to="/forgot-password" className="font-semibold underline underline-offset-2">
+                    Request a new link
+                  </Link>
+                </p>
+              )}
 
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? "Resetting..." : "Reset password"}
