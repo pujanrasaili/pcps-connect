@@ -70,6 +70,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "calendar-subscribe",
+    question: "Can I get all PCPS events in my own calendar?",
+    answer: [
+      'Yes. On the Events page, press "Subscribe in your calendar" and choose Google Calendar, Apple / Outlook, or copy the link into your calendar app. New and changed events then appear there by themselves, with no need to add each one.',
+      "To follow just one club, open the Events page for that club (from the club's details) and use the same button there. Registered an event? Its confirmation email also has a calendar invite for that single event.",
+    ],
+  },
+  {
     id: "certificate",
     question: "How do I get an attendance certificate?",
     answer: [
