@@ -18,7 +18,7 @@ export default function RegistrationDone({ email, emailSent }) {
     try {
       await api.post("/auth/resend-verification", { email });
       setResentOnce(true);
-      toast.success("If the email can be sent, it is on its way. Check your inbox and spam folder.");
+      toast.success("Sent again. Check your inbox and your spam folder.");
     } catch (err) {
       toast.error(getErrorMessage(err, "Couldn't resend the email. Try again in a few minutes."));
     } finally {
