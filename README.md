@@ -61,6 +61,7 @@ pcps-connect/
 - The profile shows six small milestones (first event, 5 and 10 events attended, joining clubs, rating an event), worked out from what the student has done, never stored
 - Event questions: students ask public questions on an upcoming event's page (first name only, max 3 unanswered each), and an admin or the club's leaders answer; the organiser is emailed when a question arrives and the asker when it is answered
 - Walk-ins: on the attendees list an admin or the club's leaders can add a student who turned up without registering, by exact email or student ID; they are registered and checked in at once (capacity still applies)
+- Calendar subscription: "Subscribe in your calendar" on the Events page (or on one club's events) gives a link students add once to Google, Apple or Outlook Calendar; new and changed events then show up by themselves (`GET /api/events/calendar.ics`, optionally `?club=<id>`). Calendar files now also escape semicolons correctly
 - "Print sheet" in the attendees window prints a paper sign-in sheet (alphabetical, with a Here box and a signature column) as a backup for the door
 - The Check-in page keeps a running tally for the session ("Checked in this session: N" and the latest names), counting each student once even if their QR is scanned twice
 - Club members list: admins (Admin → Clubs) and a club's leaders (Leader → My clubs) can see who joined a club, newest first, search it and export it as CSV
