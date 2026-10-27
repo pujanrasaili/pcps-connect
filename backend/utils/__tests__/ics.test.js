@@ -1,4 +1,4 @@
-const { buildIcs } = require("../ics");
+const { buildIcs, buildIcsCalendar } = require("../ics");
 
 const event = {
   _id: "e1",
@@ -22,7 +22,7 @@ describe("buildIcs", () => {
   it("escapes commas, semicolons and newlines in text fields", () => {
     const ics = buildIcs(event);
     expect(ics).toContain("LOCATION:Lab 2\\, Block A");
-    expect(ics).toContain("DESCRIPTION:Bring a laptop\;\\nsnacks\\, too");
+    expect(ics).toContain("DESCRIPTION:Bring a laptop\\;\\nsnacks\\, too");
   });
 
   it("adds a day-before and an hour-before reminder inside the event", () => {
@@ -36,5 +36,30 @@ describe("buildIcs", () => {
   it("folds lines longer than 75 characters", () => {
     const ics = buildIcs({ ...event, description: "x".repeat(200) });
     for (const line of ics.split("\r\n")) expect(line.length).toBeLessThanOrEqual(75);
+  });
+});
+
+describe("buildIcsCalendar", () => {
+  const other = { ...event, _id: "e2", title: "Chess Day", date: "2027-02-01T05:00:00Z" };
+  const cal = buildIcsCalendar([event, other], { name: "Coding, Club", now: new Date("2026-10-01T00:00:00Z"), urlFor: (e) => `https://site.test/events/${e._id}` });
+
+  it("holds every event in one calendar and names it", () => {
+    expect(cal.startsWith("BEGIN:VCALENDAR\r\n")).toBe(true);
+    expect(cal.endsWith("END:VCALENDAR\r\n")).toBe(true);
+    expect(cal.match(/BEGIN:VEVENT/g)).toHaveLength(2);
+    expect(cal.match(/BEGIN:VCALENDAR/g)).toHaveLength(1);
+    expect(cal).toContain("X-WR-CALNAME:Coding\\, Club");
+    expect(cal).toContain("SUMMARY:Chess Day");
+  });
+
+  it("asks calendar apps to refresh and links each event to its page", () => {
+    expect(cal).toContain("REFRESH-INTERVAL;VALUE=DURATION:PT1H");
+    expect(cal).toContain("URL:https://site.test/events/e2");
+  });
+
+  it("is a valid empty calendar when there are no events", () => {
+    const empty = buildIcsCalendar([]);
+    expect(empty).toContain("BEGIN:VCALENDAR");
+    expect(empty).not.toContain("BEGIN:VEVENT");
   });
 });
