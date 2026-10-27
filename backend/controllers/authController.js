@@ -585,6 +585,10 @@ async function resendVerification(req, res) {
       await sendVerificationEmail(user);
     } catch (emailErr) {
       console.error("Failed to resend verification email:", emailErr.message);
+      // Only reached for a real, unverified account (everything else got the
+      // generic answer above). Saying "sent" here would be a lie that leaves the
+      // student waiting for a message that is not coming.
+      return res.status(503).json({ message: "We couldn't send the email right now. Please try again in a few minutes." });
     }
 
     res.status(200).json(genericResponse);

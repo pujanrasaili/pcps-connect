@@ -401,6 +401,40 @@ describe("forgotPassword / resendVerification -- email must be text", () => {
   });
 });
 
+describe("resendVerification -- outcomes", () => {
+  afterEach(() => jest.resetAllMocks());
+  const body = { email: "Sita@patancollege.edu.np" };
+
+  it("sends a new link to an unverified account and says so", async () => {
+    User.findOne.mockResolvedValue(goodUser({ emailVerified: false }));
+    sendEmail.mockResolvedValue();
+    const res = mockRes();
+    await resendVerification({ body }, res);
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("gives the same generic answer, without sending, for unknown or already-verified accounts", async () => {
+    for (const found of [null, goodUser({ emailVerified: true })]) {
+      User.findOne.mockResolvedValue(found);
+      const res = mockRes();
+      await resendVerification({ body }, res);
+      expect(res.status).toHaveBeenCalledWith(200);
+    }
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it("says so (503) instead of claiming success when the email can't be sent", async () => {
+    User.findOne.mockResolvedValue(goodUser({ emailVerified: false }));
+    sendEmail.mockRejectedValue(new Error("smtp down"));
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    const res = mockRes();
+    await resendVerification({ body }, res);
+    expect(res.status).toHaveBeenCalledWith(503);
+    expect(res.json.mock.calls[0][0].message).toMatch(/couldn't send/);
+  });
+});
+
 describe("password fields must be text", () => {
   afterEach(() => jest.resetAllMocks());
 
