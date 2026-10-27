@@ -3,9 +3,15 @@ const Club = require("../models/Club");
 const { isObjectId } = require("../middleware/validateId");
 const { buildIcsCalendar } = require("../utils/ics");
 const { safeError } = require("../utils/errorMessage");
+const { createTtlCache } = require("../utils/ttlCache");
 
 const PAST_DAYS = 30;
 const MAX_EVENTS = 500;
+
+// Calendar apps re-fetch the feed on a timer, and Google polls from shared
+// addresses, so it can't be rate limited per IP. Instead each version of the
+// feed (all events, or one club) is built at most once every 5 minutes.
+const feedCache = createTtlCache({ ttlMs: 5 * 60 * 1000, max: 200 });
 
 // GET /api/events/calendar.ics            every upcoming (and last 30 days') event
 // GET /api/events/calendar.ics?club=<id>  only that club's events
@@ -14,6 +20,16 @@ const MAX_EVENTS = 500;
 // place, description, time) -- no organiser or registration details.
 async function getCalendarFeed(req, res) {
   try {
+    // Only successful builds are stored (below), so junk club values can't fill it.
+    const clubParam = req.query.club;
+    const cacheKey = clubParam === undefined ? "all" : typeof clubParam === "string" ? `club:${clubParam}` : null;
+    const cached = cacheKey ? feedCache.get(cacheKey) : undefined;
+    if (cached) {
+      res.set("Content-Type", "text/calendar; charset=utf-8");
+      res.set("Cache-Control", "public, max-age=900");
+      return res.status(200).send(cached);
+    }
+
     const filter = { date: { $gte: new Date(Date.now() - PAST_DAYS * 24 * 60 * 60 * 1000) } };
     let name = "PCPS Connect events";
 
@@ -29,6 +45,7 @@ async function getCalendarFeed(req, res) {
     const origin = (process.env.CLIENT_ORIGIN || "").replace(/\/$/, "");
     const body = buildIcsCalendar(events, { name, urlFor: origin ? (e) => `${origin}/events/${e._id}` : undefined });
 
+    feedCache.set(cacheKey, body);
     res.set("Content-Type", "text/calendar; charset=utf-8");
     res.set("Cache-Control", "public, max-age=900");
     res.status(200).send(body);
@@ -37,4 +54,4 @@ async function getCalendarFeed(req, res) {
   }
 }
 
-module.exports = { getCalendarFeed };
+module.exports = { getCalendarFeed, clearFeedCache: () => feedCache.clear() };

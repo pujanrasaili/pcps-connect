@@ -2,7 +2,7 @@ jest.mock("../../models/Event");
 jest.mock("../../models/Club");
 const Event = require("../../models/Event");
 const Club = require("../../models/Club");
-const { getCalendarFeed } = require("../calendarFeedController");
+const { getCalendarFeed, clearFeedCache } = require("../calendarFeedController");
 
 function mockRes() {
   const res = {};
@@ -17,7 +17,10 @@ const query = (events) => ({ select: jest.fn().mockReturnThis(), sort: jest.fn()
 const sample = [{ _id: "e1", title: "Hack Night", description: "d", location: "Lab", date: new Date("2030-01-01T10:00:00Z") }];
 
 describe("getCalendarFeed", () => {
-  afterEach(() => jest.resetAllMocks());
+  afterEach(() => {
+    jest.resetAllMocks();
+    clearFeedCache();
+  });
 
   it("returns every recent and upcoming event as a calendar file", async () => {
     Event.find.mockReturnValue(query(sample));
@@ -59,5 +62,23 @@ describe("getCalendarFeed", () => {
     Event.find.mockReturnValue(query(sample));
     await getCalendarFeed({ query: {} }, mockRes());
     expect(Event.find.mock.results[0].value.select).toHaveBeenCalledWith("title description location date");
+  });
+
+  it("answers repeat requests from memory instead of querying the database again", async () => {
+    Event.find.mockReturnValue(query(sample));
+    const first = mockRes();
+    await getCalendarFeed({ query: {} }, first);
+    const second = mockRes();
+    await getCalendarFeed({ query: {} }, second);
+    expect(Event.find).toHaveBeenCalledTimes(1);
+    expect(second.send.mock.calls[0][0]).toBe(first.send.mock.calls[0][0]);
+  });
+
+  it("keeps each club's feed separate", async () => {
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ _id: CLUB_ID, name: "Coding Club" }) });
+    Event.find.mockReturnValue(query(sample));
+    await getCalendarFeed({ query: {} }, mockRes());
+    await getCalendarFeed({ query: { club: CLUB_ID } }, mockRes());
+    expect(Event.find).toHaveBeenCalledTimes(2);
   });
 });
