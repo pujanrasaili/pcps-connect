@@ -6,6 +6,7 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
+const { getCalendarFeed } = require("../controllers/calendarFeedController");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
 const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
@@ -20,6 +21,8 @@ router.param("questionId", validateIdParam);
 
 
 router.get("/", getEvents);
+// Must stay above "/:id" or "calendar.ics" would be read as an event id.
+router.get("/calendar.ics", getCalendarFeed);
 router.get("/:id", optionalAuth, getEventById);
 // Public questions and answers on an event's page. Asking and deleting your own
 // needs a login; answering is for the event's organisers (checked in the controller).

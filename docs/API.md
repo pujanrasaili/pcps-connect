@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-74 endpoints.
+75 endpoints.
 
 ## /api/health
 
@@ -36,6 +36,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | Method | Path | Who | What it does |
 |---|---|---|---|
 | GET | `/api/events` | Anyone | List all events, with how many are registered. |
+| GET | `/api/events/calendar.ics` | Anyone | Public calendar feed (.ics) of upcoming events, optionally ?club=<id>, for subscribing in Google, Apple or Outlook Calendar. |
 | GET | `/api/events/:id` | Anyone (logged-in users see more) | One event; the organiser's email is shown only to logged-in users. |
 | GET | `/api/events/:id/questions` | Anyone (logged-in users see more) | The public questions and answers on an event (newest first, up to 50). Only first names are shown. |
 | POST | `/api/events/:id/questions` | Logged-in student (rate limited) | Ask a public question on an upcoming event (max 3 unanswered per student); the organiser is emailed. |
