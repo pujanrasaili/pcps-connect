@@ -12,21 +12,27 @@ export function useLedClubs() {
   const { user, isAuthenticated } = useAuth();
   // The API's public user object exposes the id as `id` (not `_id`).
   const userId = isAuthenticated ? user?.id ?? user?._id ?? null : null;
-  const [state, setState] = useState({ forUser: null, clubs: [] });
+  const [state, setState] = useState({ forUser: null, clubs: [], failed: false });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!userId) return undefined;
     let cancelled = false;
     api
       .get("/leader/clubs")
-      .then((res) => !cancelled && setState({ forUser: userId, clubs: res.data.clubs || [] }))
-      .catch(() => !cancelled && setState({ forUser: userId, clubs: [] }));
+      .then((res) => !cancelled && setState({ forUser: userId, clubs: res.data.clubs || [], failed: false }))
+      .catch(() => !cancelled && setState({ forUser: userId, clubs: [], failed: true }));
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, attempt]);
 
-  if (!userId) return { clubs: [], loaded: true };
+  if (!userId) return { clubs: [], loaded: true, failed: false, retry: () => {} };
   const current = state.forUser === userId;
-  return { clubs: current ? state.clubs : [], loaded: current };
+  return {
+    clubs: current ? state.clubs : [],
+    loaded: current,
+    failed: current && state.failed,
+    retry: () => setAttempt((n) => n + 1),
+  };
 }
