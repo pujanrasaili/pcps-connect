@@ -1,3 +1,4 @@
+import LoadFailedBanner from "../components/LoadFailedBanner";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -55,7 +56,7 @@ export default function Dashboard() {
   const { clubs } = useClubs();
   const { clubs: ledClubs } = useLedClubs();
   const { events } = useEvents();
-  const { registrations, cancelRegistration, loaded: registrationsLoaded } = useRegistrations();
+  const { registrations, cancelRegistration, loaded: registrationsLoaded, loadFailed, refreshRegistrations } = useRegistrations();
 
   // Only registrations whose event is still populated (guards against a
   // deleted event leaving a dangling reference).
@@ -143,6 +144,8 @@ export default function Dashboard() {
           Here's a snapshot of your involvement at PCPS.
         </p>
       </div>
+
+      {loadFailed && <LoadFailedBanner what="your registrations" onRetry={refreshRegistrations} />}
 
       <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 lg:grid-cols-4">
         <StatsCard icon={FaCalendarCheck} label="Registered Events" value={registeredEvents.length} accent="primary" />
