@@ -732,3 +732,12 @@ test("only a public address can be subscribed to from Google", () => {
   assert.equal(isPublicUrl("http://localhost:5000/api/events/calendar.ics"), false);
   assert.equal(isPublicUrl("not a url"), false);
 });
+
+import { formatTime, formatDateAndTime } from "../src/utils/formatDate.js";
+
+test("formatTime and formatDateAndTime show the start time", () => {
+  const d = new Date(2026, 11, 5, 10, 0); // local 10:00, whatever the machine's zone
+  assert.equal(formatTime(d), "10:00 AM");
+  assert.equal(formatDateAndTime(d), "Sat, Dec 5, 2026 · 10:00 AM");
+  assert.equal(formatTime(new Date(2026, 11, 5, 15, 45)), "3:45 PM");
+});

@@ -52,3 +52,13 @@ export function formatDateTime(dateStr) {
     minute: "2-digit",
   });
 }
+
+// "10:00 AM" in the viewer's own time zone.
+export function formatTime(dateStr) {
+  return new Date(dateStr).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
+// "Sat, Dec 5, 2026 · 10:00 AM": the compact date-and-time line for upcoming events.
+export function formatDateAndTime(dateStr) {
+  return `${formatDate(dateStr)} \u00b7 ${formatTime(dateStr)}`;
+}
