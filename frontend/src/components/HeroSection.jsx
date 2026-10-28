@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { FaArrowRight, FaCalendarCheck } from "react-icons/fa";
-import campusBuilding from "../assets/images/campus-building.jpg";
+import campusBuilding from "../assets/images/campus-building.webp";
 import { api } from "../services/api";
 
 export default function HeroSection() {

@@ -14,7 +14,7 @@ import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { api, resolveUploadUrl } from "../services/api";
 import { isUpcoming } from "../utils/formatDate";
-import campusEvent from "../assets/images/campus-event.jpg";
+import campusEvent from "../assets/images/campus-event.webp";
 import reelPoster from "../assets/images/campus-reel-poster.jpg";
 
 export default function Home() {
@@ -77,6 +77,8 @@ export default function Home() {
                 <img
                   src={campusEvent}
                   alt="Students at a PCPS college event on campus"
+                  loading="lazy"
+                  decoding="async"
                   className="h-72 w-full shrink-0 object-cover"
                 />
                 <div className="flex flex-1 flex-col justify-center p-5">
