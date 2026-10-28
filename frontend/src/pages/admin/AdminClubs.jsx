@@ -32,7 +32,7 @@ const EMPTY_FORM = {
 };
 
 export default function AdminClubs() {
-  const { clubs, loading, refreshClubs } = useClubs();
+  const { clubs, loading, error, refreshClubs } = useClubs();
   const toast = useToast();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 250);
@@ -281,7 +281,14 @@ export default function AdminClubs() {
             );
           })
         )}
-        {!loading && filteredClubs.length === 0 && (
+        {!loading && error && filteredClubs.length === 0 && (
+          <div className="p-6 text-center" role="alert">
+            <p className="font-medium text-rose-700 dark:text-rose-400">Couldn't load clubs.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
+            <button type="button" onClick={() => refreshClubs()} className="btn-outline mt-3">Try again</button>
+          </div>
+        )}
+        {!loading && !error && filteredClubs.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaUsers className="mx-auto mb-2 text-2xl text-slate-300" />
             {clubs.length === 0 ? 'No clubs yet. Click "Add Club" to create one.' : "No clubs match your search."}
