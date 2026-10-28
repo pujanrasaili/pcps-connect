@@ -192,8 +192,10 @@ verify a sender address in Brevo, create an API key, and add `BREVO_API_KEY`
 (and `BREVO_SENDER_EMAIL` if the sender differs from `EMAIL_USER`) on Render.
 When `BREVO_API_KEY` is set it replaces Gmail SMTP. `npm run test-email -- you@gmail.com`
 (from `backend/`) sends one test message and prints the real error if it fails.
-The GitHub Actions jobs (reminders, weekly digest) keep using Gmail SMTP, which
-Actions does not block.
+The GitHub Actions jobs (reminders, weekly digest) keep using Gmail SMTP by
+default, which Actions does not block. To make them send from the same Brevo
+sender as the live site instead, also add the repository secrets `BREVO_API_KEY`
+and `BREVO_SENDER_EMAIL` (optional; left unset, Gmail is used).
 
 ## Scheduled event reminders
 
