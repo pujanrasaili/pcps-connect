@@ -18,19 +18,6 @@ import {
   FaCheckCircle,
   FaQrcode,
 } from "react-icons/fa";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
 import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
 import { useMyWaitlist } from "../hooks/useMyWaitlist";
@@ -47,8 +34,7 @@ import { useSavedEvents } from "../hooks/useSavedEvents";
 import { savedUpcoming } from "../utils/savedEvents";
 import { pendingGettingStarted } from "../utils/gettingStarted";
 import InstallAppCard from "../components/InstallAppCard";
-
-const COLORS = ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B", "#10B981"];
+import { MonthBars, CategoryBars } from "../components/DashboardCharts";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -320,17 +306,7 @@ export default function Dashboard() {
           </h2>
           <div className="mt-4 h-64">
             {monthlyData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-100 dark:text-slate-800" />
-                  <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                  <YAxis allowDecimals={false} stroke="#94a3b8" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}
-                  />
-                  <Bar dataKey="count" fill="#4F46E5" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <MonthBars data={monthlyData} />
             ) : (
               <EmptyChart />
             )}
@@ -343,17 +319,7 @@ export default function Dashboard() {
           </h2>
           <div className="mt-4 h-64">
             {categoryData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={categoryData} dataKey="value" nameKey="name" innerRadius={55} outerRadius={85} paddingAngle={3}>
-                    {categoryData.map((_, i) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Legend verticalAlign="bottom" height={30} iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-                  <Tooltip contentStyle={{ borderRadius: 12, border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }} />
-                </PieChart>
-              </ResponsiveContainer>
+              <CategoryBars data={categoryData} />
             ) : (
               <EmptyChart />
             )}
