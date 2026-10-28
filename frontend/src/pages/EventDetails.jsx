@@ -261,7 +261,7 @@ export default function EventDetails() {
             <ul className="space-y-4 text-sm">
               <li className="flex items-center gap-3">
                 <FaCalendarAlt className="text-primary-500" />
-                <span className="text-slate-600 dark:text-slate-300">{formatDate(event.date)}</span>
+                <span className="text-slate-600 dark:text-slate-300">{formatDateTime(event.date)}</span>
               </li>
               <li className="flex items-center gap-3">
                 <FaMapMarkerAlt className="text-primary-500" />
