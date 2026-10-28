@@ -15,6 +15,11 @@ const { sendViaBrevo } = require("../utils/brevoMail");
 // them when too many are open together, so students silently miss the email.
 // With it, a few reusable connections work through the queue, at most 5
 // messages per second.
+// Without limits, an unreachable mail server (Render's free tier silently drops
+// SMTP connections) makes nodemailer wait about two minutes, and the request that
+// asked for the email -- a sign-up, a registration -- hangs the whole time.
+const TIMEOUT_OPTIONS = { connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 20000 };
+
 const POOL_OPTIONS = { pool: true, maxConnections: 3, maxMessages: 100, rateDelta: 1000, rateLimit: 5 };
 
 let transporter;
@@ -27,6 +32,7 @@ if (process.env.BREVO_API_KEY) {
   transporter = nodemailer.createTransport({
     service: "gmail",
     ...POOL_OPTIONS,
+    ...TIMEOUT_OPTIONS,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_APP_PASSWORD,
@@ -36,3 +42,4 @@ if (process.env.BREVO_API_KEY) {
 
 module.exports = transporter;
 module.exports.POOL_OPTIONS = POOL_OPTIONS;
+module.exports.TIMEOUT_OPTIONS = TIMEOUT_OPTIONS;

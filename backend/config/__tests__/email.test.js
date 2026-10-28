@@ -11,6 +11,9 @@ describe("email transporter", () => {
     expect(options.pool).toBe(true);
     expect(options.maxConnections).toBeLessThanOrEqual(5);
     expect(options.rateLimit).toBeGreaterThan(0);
+    expect(options.connectionTimeout).toBeLessThanOrEqual(15000);
+    expect(options.greetingTimeout).toBeLessThanOrEqual(15000);
+    expect(options.socketTimeout).toBeLessThanOrEqual(30000);
     expect(options.auth).toEqual({ user: "club@example.com", pass: "app-password" });
   });
 

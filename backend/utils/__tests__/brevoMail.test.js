@@ -65,4 +65,16 @@ describe("sendViaBrevo", () => {
   it("refuses to try without an API key", async () => {
     await expect(sendViaBrevo(mail, { fetchImpl: jest.fn() })).rejects.toThrow("BREVO_API_KEY");
   });
+
+  it("gives up with a clear message instead of waiting forever", async () => {
+    const err = Object.assign(new Error("timed out"), { name: "TimeoutError" });
+    const fetchImpl = jest.fn().mockRejectedValue(err);
+    await expect(sendViaBrevo(mail, { apiKey: "k", fetchImpl, timeoutMs: 5000 })).rejects.toThrow("Brevo did not answer within 5 seconds");
+  });
+
+  it("sends a timeout signal with the request", async () => {
+    const fetchImpl = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    await sendViaBrevo(mail, { apiKey: "k", fetchImpl });
+    expect(fetchImpl.mock.calls[0][1].signal).toBeDefined();
+  });
 });

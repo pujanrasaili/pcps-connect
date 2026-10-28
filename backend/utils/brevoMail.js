@@ -7,6 +7,7 @@
 // an API key in BREVO_API_KEY.
 
 const API_URL = "https://api.brevo.com/v3/smtp/email";
+const TIMEOUT_MS = 10000; // never let a slow API hold up the request that asked for the email
 
 // '"PCPS Connect" <me@gmail.com>' -> { name, email }; a bare address works too.
 function parseAddress(value = "") {
@@ -40,13 +41,20 @@ function buildBrevoPayload(mail, { senderEmail } = {}) {
 
 // Posts one message. Throws an Error whose message says what Brevo answered, so
 // the server log shows the real reason (unverified sender, bad key, ...).
-async function sendViaBrevo(mail, { apiKey, senderEmail, fetchImpl = fetch } = {}) {
+async function sendViaBrevo(mail, { apiKey, senderEmail, fetchImpl = fetch, timeoutMs = TIMEOUT_MS } = {}) {
   if (!apiKey) throw new Error("BREVO_API_KEY is not set");
-  const res = await fetchImpl(API_URL, {
-    method: "POST",
-    headers: { "api-key": apiKey, "content-type": "application/json", accept: "application/json" },
-    body: JSON.stringify(buildBrevoPayload(mail, { senderEmail })),
-  });
+  let res;
+  try {
+    res = await fetchImpl(API_URL, {
+      method: "POST",
+      headers: { "api-key": apiKey, "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(buildBrevoPayload(mail, { senderEmail })),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+  } catch (err) {
+    if (err?.name === "TimeoutError" || err?.name === "AbortError") throw new Error(`Brevo did not answer within ${timeoutMs / 1000} seconds`);
+    throw err;
+  }
   if (!res.ok) {
     let detail = "";
     try {
