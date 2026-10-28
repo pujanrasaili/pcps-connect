@@ -49,7 +49,7 @@ const goodUser = (overrides = {}) => ({
 describe("register", () => {
   afterEach(() => jest.resetAllMocks());
 
-  const body = { name: "Sita", email: "sita@patancollege.edu.np", password: "secret1" };
+  const body = { name: "Sita", email: "sita@patancollege.edu.np", password: "secret12" };
 
   it("rejects non-PCP email domains", async () => {
     const res = mockRes();
@@ -235,7 +235,7 @@ describe("changePassword", () => {
 
 describe("register -- profile field limits", () => {
   afterEach(() => jest.resetAllMocks());
-  const base = { name: "Sita", email: "sita@patancollege.edu.np", password: "secret1" };
+  const base = { name: "Sita", email: "sita@patancollege.edu.np", password: "secret12" };
 
   it("400s on an over-long name without touching the database", async () => {
     const res = mockRes();
