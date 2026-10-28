@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { FaCalendarAlt, FaMapMarkerAlt, FaWifi } from "react-icons/fa";
 import { browserStorage, readTickets, ticketUrl, visibleTickets } from "../utils/offlineTickets";
-import { formatDate } from "../utils/formatDate";
+import { formatDateAndTime } from "../utils/formatDate";
 
 // "My tickets": the check-in QR codes saved on this phone (see
 // utils/offlineTickets.js). Everything here is read from the phone itself, so
@@ -52,7 +52,7 @@ export default function OfflineTickets() {
             <li key={t.id} className="card-surface flex flex-col items-center gap-3 p-5 text-center">
               <h2 className="font-display text-base font-semibold text-slate-800 dark:text-slate-100">{t.title}</h2>
               <p className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                <FaCalendarAlt aria-hidden="true" /> {formatDate(t.date)}
+                <FaCalendarAlt aria-hidden="true" /> {formatDateAndTime(t.date)}
               </p>
               {t.location && (
                 <p className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
