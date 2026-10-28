@@ -1,3 +1,4 @@
+import LoadFailedBanner from "../components/LoadFailedBanner";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode, FaCertificate } from "react-icons/fa";
@@ -15,7 +16,7 @@ import MilestonesCard from "../components/MilestonesCard";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
-  const { registrations, cancelRegistration, submitFeedback } = useRegistrations();
+  const { registrations, cancelRegistration, submitFeedback, loadFailed, refreshRegistrations } = useRegistrations();
   const { memberships, favoriteClubId, leaveClub } = useClubMembership();
   const toast = useToast();
   const [editOpen, setEditOpen] = useState(false);
@@ -90,6 +91,7 @@ export default function Profile() {
 
   return (
     <div className="space-y-6">
+      {loadFailed && <LoadFailedBanner what="your event history" onRetry={refreshRegistrations} />}
       <div className="card-surface p-6">
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col items-center gap-4 sm:flex-row">
