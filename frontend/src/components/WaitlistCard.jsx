@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaHourglassHalf } from "react-icons/fa";
-import { formatDate } from "../utils/formatDate";
+import { formatDateAndTime } from "../utils/formatDate";
 import { queueLabel } from "../utils/waitlistLabel";
 
 // Dashboard card: the full events the student is queued for, and where they
@@ -26,7 +26,7 @@ export default function WaitlistCard({ items }) {
             >
               <span className="min-w-0">
                 <span className="block truncate text-slate-700 dark:text-slate-200">{event.title}</span>
-                <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{formatDate(event.date)}</span>
+                <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{formatDateAndTime(event.date)}</span>
               </span>
               <span className="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
                 {queueLabel(position)}

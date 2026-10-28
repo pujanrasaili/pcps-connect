@@ -5,7 +5,7 @@ import Modal from "./Modal";
 import { useEvents } from "../context/EventsContext";
 import { useClubs } from "../context/ClubsContext";
 import { searchSite } from "../utils/siteSearch";
-import { formatDate } from "../utils/formatDate";
+import { formatDateAndTime } from "../utils/formatDate";
 
 // One search box for the whole site: clubs and events that match what you type.
 export default function SearchDialog({ isOpen, onClose }) {
@@ -76,7 +76,7 @@ export default function SearchDialog({ isOpen, onClose }) {
                     <span className="min-w-0">
                       <span className="block truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</span>
                       <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
-                        {formatDate(event.date)}
+                        {formatDateAndTime(event.date)}
                         {event.club?.name ? ` · ${event.club.name}` : ""}
                       </span>
                     </span>
