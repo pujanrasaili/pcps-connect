@@ -14,6 +14,7 @@ export function RegistrationProvider({ children }) {
   // True once the list has actually been fetched (a failed fetch doesn't count),
   // so screens can avoid showing "you have nothing" while still waiting.
   const [loaded, setLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const refreshRegistrations = useCallback(async () => {
     if (!isAuthenticated) {
@@ -22,6 +23,7 @@ export function RegistrationProvider({ children }) {
       return;
     }
     setLoading(true);
+    setLoadFailed(false);
     try {
       const res = await api.get("/registrations/my");
       setRegistrations(res.data.registrations);
@@ -30,6 +32,7 @@ export function RegistrationProvider({ children }) {
       syncOfflineTickets(res.data.registrations).catch(() => {});
     } catch {
       setRegistrations([]);
+      setLoadFailed(true);
     } finally {
       setLoading(false);
     }
@@ -99,7 +102,7 @@ export function RegistrationProvider({ children }) {
 
   return (
     <RegistrationContext.Provider
-      value={{ registrations, loading, loaded, isRegistered, isPending, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
+      value={{ registrations, loading, loaded, loadFailed, isRegistered, isPending, registerForEvent, cancelRegistration, submitFeedback, refreshRegistrations }}
     >
       {children}
     </RegistrationContext.Provider>
