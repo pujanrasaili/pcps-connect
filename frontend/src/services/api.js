@@ -13,6 +13,9 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:50
 export const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  // Without a limit a request can spin forever. 60 s covers a sleeping free-tier
+  // server waking up; uploads get longer (see the interceptor below).
+  timeout: 60000,
   // Paired with backend/middleware/csrf.js. A plain HTML form (the classic
   // no-JavaScript CSRF vector) can never set a custom header, so this marks
   // every request from this app as genuinely coming from our own frontend
@@ -26,6 +29,7 @@ export const api = axios.create({
 // legitimately slow and must not be blamed on the server.
 let nextRequestId = 0;
 api.interceptors.request.use((config) => {
+  if (typeof FormData !== "undefined" && config.data instanceof FormData) config.timeout = 180000;
   if (!(typeof FormData !== "undefined" && config.data instanceof FormData)) {
     config.slowId = ++nextRequestId;
     slowRequests.start(config.slowId);
