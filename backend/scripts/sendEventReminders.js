@@ -22,6 +22,9 @@ const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
+// populate() needs every referenced model registered, even ones this script
+// never uses directly (User); without it the run fails once there is an event.
+require("../models/User");
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const sendEmail = require("../utils/sendEmail");
