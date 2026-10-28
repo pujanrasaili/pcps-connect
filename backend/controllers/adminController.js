@@ -23,6 +23,7 @@ const { escapeHtml } = require("../utils/escapeHtml");
 const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
+const { weekWindows, trend } = require("../utils/weekSummary");
 const { pickAdminUserFields } = require("../utils/adminUserFields");
 const { validateEventFields } = require("../utils/eventInput");
 const { parseFlag } = require("../utils/eventFlags");
@@ -613,6 +614,30 @@ async function getAttendanceReport(req, res) {
   }
 }
 
+// GET /api/admin/week  (admin only)
+// "Last 7 days" card: new students and new registrations against the week
+// before, plus how many events are coming up in the next 7 days.
+async function getWeekSummary(req, res) {
+  try {
+    const { thisStart, prevStart, now, nextWeekEnd } = weekWindows(new Date());
+    const live = { status: { $nin: ["cancelled", "pending"] } };
+    const [students, prevStudents, regs, prevRegs, upcoming] = await Promise.all([
+      User.countDocuments({ createdAt: { $gte: thisStart, $lte: now } }),
+      User.countDocuments({ createdAt: { $gte: prevStart, $lt: thisStart } }),
+      Registration.countDocuments({ ...live, createdAt: { $gte: thisStart, $lte: now } }),
+      Registration.countDocuments({ ...live, createdAt: { $gte: prevStart, $lt: thisStart } }),
+      Event.countDocuments({ date: { $gte: now, $lte: nextWeekEnd } }),
+    ]);
+    res.status(200).json({
+      newStudents: trend(students, prevStudents),
+      registrations: trend(regs, prevRegs),
+      upcomingEvents: upcoming,
+    });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to build the weekly summary") });
+  }
+}
+
 // GET /api/admin/insights  (admin only)
 // Three small trends for the overview: registrations per month (last 6),
 // the most popular clubs by members, and overall turnout at past events.
@@ -657,6 +682,7 @@ module.exports = {
   markEmailVerified,
   decideRegistration,
   getInsights,
+  getWeekSummary,
   bulkApproveUsers,
   getAttendanceReport,
   checkInByCode,

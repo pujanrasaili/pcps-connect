@@ -21,6 +21,7 @@ const {
   bulkApproveUsers,
   markEmailVerified,
   getInsights,
+  getWeekSummary,
   decideRegistration,
 } = require("../controllers/adminController");
 const { setNotice } = require("../controllers/noticeController");
@@ -57,6 +58,7 @@ router.post("/check-in", staffOnly, checkInByCode);
 router.use(adminOnly);
 
 router.get("/insights", getInsights);
+router.get("/week", getWeekSummary);
 router.get("/users", getAllUsers);
 router.get("/users/:id", getUserById);
 router.get("/users/:id/events", getUserEvents);

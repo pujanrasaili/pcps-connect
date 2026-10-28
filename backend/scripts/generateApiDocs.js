@@ -96,6 +96,7 @@ const DESCRIPTIONS = {
   getAttendanceReport: "Turnout and ratings for recent past events.",
   checkInByCode: "Check a student in by scanning or typing their registration code.",
   getInsights: "Registrations per month, most popular clubs and overall turnout.",
+  getWeekSummary: "New students and registrations in the last 7 days versus the week before, plus events in the next 7 days.",
   getAllUsers: "All accounts.",
   getUserById: "One account.",
   getUserEvents: "The events that one account has created.",

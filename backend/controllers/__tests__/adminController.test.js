@@ -908,6 +908,38 @@ describe("getInsights", () => {
   });
 });
 
+describe("getWeekSummary", () => {
+  const { getWeekSummary } = require("../adminController");
+  afterEach(() => jest.clearAllMocks());
+
+  it("compares this week with last week and counts upcoming events", async () => {
+    User.countDocuments = jest.fn().mockResolvedValueOnce(6).mockResolvedValueOnce(4);
+    Registration.countDocuments = jest.fn().mockResolvedValueOnce(9).mockResolvedValueOnce(0);
+    Event.countDocuments = jest.fn().mockResolvedValue(3);
+    const res = mockRes();
+
+    await getWeekSummary({ user: { _id: "a1", role: "admin" } }, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      newStudents: { current: 6, previous: 4, change: 50 },
+      registrations: { current: 9, previous: 0, change: null },
+      upcomingEvents: 3,
+    });
+    // cancelled and pending requests never count as registrations
+    expect(Registration.countDocuments.mock.calls[0][0].status).toEqual({ $nin: ["cancelled", "pending"] });
+  });
+
+  it("returns 500 when the database fails", async () => {
+    User.countDocuments = jest.fn().mockRejectedValue(new Error("db down"));
+    Registration.countDocuments = jest.fn().mockResolvedValue(0);
+    Event.countDocuments = jest.fn().mockResolvedValue(0);
+    const res = mockRes();
+    await getWeekSummary({ user: { _id: "a1", role: "admin" } }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
 describe("markEmailVerified", () => {
   afterEach(() => jest.resetAllMocks());
   const ADMIN = { _id: "a1", name: "Root", role: "admin" };
