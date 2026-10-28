@@ -32,7 +32,7 @@ export default function Login() {
   const validate = () => {
     const next = {};
     if (!/^\S+@\S+\.\S+$/.test(form.email)) next.email = "Enter a valid email address.";
-    if (form.password.length < 6) next.password = "Password must be at least 6 characters.";
+    if (!form.password) next.password = "Enter your password.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
