@@ -9,7 +9,7 @@ import Button from "../../components/Button";
 // The clubs this person leads, with the one club-wide action a leader has:
 // seeing and emailing the club's members.
 export default function LeaderClubs() {
-  const { clubs, loaded } = useLedClubs();
+  const { clubs, loaded, failed, retry } = useLedClubs();
   // The leader endpoint has no member counts; the public club list does.
   const { clubs: allClubs } = useClubs();
   const [target, setTarget] = useState(null);
@@ -27,7 +27,13 @@ export default function LeaderClubs() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
         )}
-        {loaded && clubs.length === 0 && (
+        {loaded && failed && (
+          <div className="p-6 text-center" role="alert">
+            <p className="font-medium text-rose-700 dark:text-rose-400">Couldn't load your clubs.</p>
+            <button type="button" onClick={retry} className="btn-outline mt-3">Try again</button>
+          </div>
+        )}
+        {loaded && !failed && clubs.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaUsers className="mx-auto mb-2 text-2xl text-slate-300" />
             You don't lead any clubs.
