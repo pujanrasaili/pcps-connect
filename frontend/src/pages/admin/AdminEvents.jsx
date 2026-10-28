@@ -6,7 +6,7 @@ import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 import { useLedClubs } from "../../hooks/useLedClubs";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
-import { formatDate, isUpcoming } from "../../utils/formatDate";
+import { formatDateAndTime, isUpcoming } from "../../utils/formatDate";
 import { useDebounce } from "../../hooks/useDebounce";
 import { pluralize } from "../../utils/plural";
 import Modal from "../../components/Modal";
@@ -249,7 +249,7 @@ export default function AdminEvents() {
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {formatDate(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered{event.requiresApproval ? " · approval needed" : ""}
+                  {formatDateAndTime(event.date)} · {event.registeredCount ?? 0}/{event.capacity ?? 100} registered{event.requiresApproval ? " · approval needed" : ""}
                   {event.pendingCount > 0 && (
                     <span className="font-semibold text-amber-700 dark:text-amber-400"> · {event.pendingCount} awaiting your decision</span>
                   )}
