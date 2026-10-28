@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { formatDay, formatMonth, isPastEvent } from "../utils/formatDate";
+import { FaClock, FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { formatDay, formatMonth, formatTime, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, deadlineSoonLabel } from "../utils/registrationDeadline";
 import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
@@ -63,6 +63,10 @@ export default function EventCard({ event }) {
       </div>
       <div className="p-5">
         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <FaClock className="text-primary-500 shrink-0" />
+          <span>{formatTime(event.date)}</span>
+        </div>
+        <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <FaMapMarkerAlt className="text-primary-500 shrink-0" />
           <span className="truncate">{event.location}</span>
         </div>
