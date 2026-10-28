@@ -13,6 +13,7 @@ export function errorText(err, fallback = "Something went wrong. Please try agai
   if (!err?.response && (err?.code === "ERR_NETWORK" || err?.message === "Network Error")) {
     return "Can't reach the server. Check your internet connection and try again.";
   }
+  if (err?.code === "ERR_BAD_RESPONSE_FORMAT") return "The server sent an unexpected reply. Please try again in a minute.";
   if (err?.code === "ECONNABORTED") return "The server took too long to answer. Please try again.";
   if (status === 502 || status === 503 || status === 504) {
     return "The server is waking up or busy. Please try again in a minute.";

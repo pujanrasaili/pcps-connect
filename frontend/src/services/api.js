@@ -2,6 +2,7 @@ import axios from "axios";
 import { optimizeImageUrl } from "../utils/imageUrl";
 import { slowRequests } from "../utils/slowRequests";
 import { errorText } from "../utils/errorText";
+import { isUnexpectedReply, BAD_REPLY_CODE } from "../utils/apiReply";
 import { isSessionExpired, SESSION_EXPIRED_EVENT } from "../utils/sessionExpiry";
 
 // Centralized axios instance. Every request automatically includes the
@@ -39,6 +40,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => {
     slowRequests.end(response.config.slowId);
+    if (isUnexpectedReply(response)) {
+      const err = new Error("The server sent an unexpected reply");
+      err.code = BAD_REPLY_CODE;
+      err.config = response.config;
+      return Promise.reject(err);
+    }
     return response;
   },
   (error) => {
