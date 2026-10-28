@@ -43,7 +43,7 @@ export default function AdminActivity() {
   useEffect(() => {
     api
       .get("/admin/audit")
-      .then((res) => setEntries(res.data.entries))
+      .then((res) => setEntries(res.data.entries || []))
       .catch((err) => setError(getErrorMessage(err, "Failed to load activity")))
       .finally(() => setLoading(false));
   }, []);

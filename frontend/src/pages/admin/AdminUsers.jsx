@@ -38,7 +38,7 @@ export default function AdminUsers() {
     setLoading(true);
     api
       .get("/admin/users")
-      .then((res) => setUsers(res.data.users))
+      .then((res) => setUsers(res.data.users || []))
       .catch((err) => setError(getErrorMessage(err, "Failed to load users")))
       .finally(() => setLoading(false));
   };

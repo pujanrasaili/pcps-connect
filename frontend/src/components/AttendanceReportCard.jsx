@@ -4,7 +4,7 @@ import { Stars } from "./StarRating";
 // club leaders: only their own clubs -- the server decides). `report` is the
 // /admin/attendance-report payload; renders nothing until there's data.
 export default function AttendanceReportCard({ report }) {
-  if (!report || report.events.length === 0) return null;
+  if (!report?.events?.length) return null;
   return (
   <div className="card-surface p-5">
             <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">

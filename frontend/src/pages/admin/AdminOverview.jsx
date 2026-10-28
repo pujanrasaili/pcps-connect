@@ -30,7 +30,7 @@ export default function AdminOverview() {
   useEffect(() => {
     api
       .get("/admin/users")
-      .then((res) => setUsers(res.data.users))
+      .then((res) => setUsers(res.data.users || []))
       .catch((err) => setError(getErrorMessage(err, "Failed to load users")));
     // The report is a nice-to-have; if it fails the rest of the page still works.
     api
