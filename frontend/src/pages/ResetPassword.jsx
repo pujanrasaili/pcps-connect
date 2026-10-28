@@ -26,7 +26,7 @@ export default function ResetPassword() {
 
   const validate = () => {
     const next = {};
-    if (form.password.length < 6) next.password = "Password must be at least 6 characters.";
+    if (form.password.length < 8) next.password = "Password must be at least 8 characters.";
     if (form.password !== form.confirmPassword) next.confirmPassword = "Passwords do not match.";
     setErrors(next);
     return Object.keys(next).length === 0;

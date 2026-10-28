@@ -38,7 +38,7 @@ export default function Register() {
       next.email = "Registration is limited to PCPS email addresses (@patancollege.edu.np).";
     }
     if (!form.studentId.trim()) next.studentId = "Student ID is required.";
-    if (form.password.length < 6) next.password = "Password must be at least 6 characters.";
+    if (form.password.length < 8) next.password = "Password must be at least 8 characters.";
     if (form.password !== form.confirmPassword) next.confirmPassword = "Passwords do not match.";
     if (!form.agree) next.agree = "You must accept the terms to continue.";
     setErrors(next);
@@ -149,7 +149,11 @@ export default function Register() {
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
               <PasswordInput icon id="reg-password" name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
-              {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
+              {errors.password ? (
+                <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>
+              ) : (
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">At least 8 characters.</p>
+              )}
             </div>
             <div>
               <label htmlFor="reg-confirm" className="label-field">Confirm</label>

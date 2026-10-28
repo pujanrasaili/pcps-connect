@@ -95,8 +95,8 @@ export default function Settings() {
     e.preventDefault();
     setPwError("");
 
-    if (pwForm.newPassword.length < 6) {
-      setPwError("New password must be at least 6 characters.");
+    if (pwForm.newPassword.length < 8) {
+      setPwError("New password must be at least 8 characters.");
       return;
     }
     if (pwForm.newPassword !== pwForm.confirmPassword) {
