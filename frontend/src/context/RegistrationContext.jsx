@@ -26,10 +26,10 @@ export function RegistrationProvider({ children }) {
     setLoadFailed(false);
     try {
       const res = await api.get("/registrations/my");
-      setRegistrations(res.data.registrations);
+      setRegistrations(res.data.registrations || []);
       setLoaded(true);
       // Save tickets for offline use (best effort, in the background).
-      syncOfflineTickets(res.data.registrations).catch(() => {});
+      syncOfflineTickets(res.data.registrations || []).catch(() => {});
     } catch {
       setRegistrations([]);
       setLoadFailed(true);

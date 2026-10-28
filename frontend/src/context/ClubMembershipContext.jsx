@@ -24,7 +24,7 @@ export function ClubMembershipProvider({ children }) {
     setLoading(true);
     try {
       const res = await api.get("/club-memberships/my");
-      setMemberships(res.data.memberships);
+      setMemberships(res.data.memberships || []);
       setLoaded(true);
     } catch {
       setMemberships([]);

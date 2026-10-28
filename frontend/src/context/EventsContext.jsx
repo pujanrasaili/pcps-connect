@@ -13,7 +13,7 @@ export function EventsProvider({ children }) {
     setError("");
     try {
       const res = await api.get("/events");
-      setEvents(res.data.events);
+      setEvents(res.data.events || []);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load events"));
     } finally {

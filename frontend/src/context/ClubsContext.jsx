@@ -13,7 +13,7 @@ export function ClubsProvider({ children }) {
     setError("");
     try {
       const res = await api.get("/clubs");
-      setClubs(res.data.clubs);
+      setClubs(res.data.clubs || []);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load clubs"));
     } finally {
