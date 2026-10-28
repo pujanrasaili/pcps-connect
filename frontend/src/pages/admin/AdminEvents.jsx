@@ -36,7 +36,7 @@ const EMPTY_FORM = {
 };
 
 export default function AdminEvents() {
-  const { events, loading, refreshEvents } = useEvents();
+  const { events, loading, error, refreshEvents } = useEvents();
   const { clubs: allClubs } = useClubs();
   const { user } = useAuth();
   const { clubs: ledClubs } = useLedClubs();
@@ -305,7 +305,14 @@ export default function AdminEvents() {
             </div>
           ))
         )}
-        {!loading && filteredEvents.length === 0 && (
+        {!loading && error && filteredEvents.length === 0 && (
+          <div className="p-6 text-center" role="alert">
+            <p className="font-medium text-rose-700 dark:text-rose-400">Couldn't load events.</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
+            <button type="button" onClick={() => refreshEvents()} className="btn-outline mt-3">Try again</button>
+          </div>
+        )}
+        {!loading && !error && filteredEvents.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaCalendarAlt className="mx-auto mb-2 text-2xl text-slate-300" />
             {visibleEvents.length === 0 ? 'No events yet. Click "Add Event" to create one.' : "No events match your search or filter."}
