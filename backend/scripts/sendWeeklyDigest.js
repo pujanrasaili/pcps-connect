@@ -14,6 +14,10 @@ const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
+// populate() needs every referenced model registered (Club and User are only
+// referenced, never used directly here); without them the run fails.
+require("../models/Club");
+require("../models/User");
 const Event = require("../models/Event");
 const ClubMembership = require("../models/ClubMembership");
 const Registration = require("../models/Registration");
