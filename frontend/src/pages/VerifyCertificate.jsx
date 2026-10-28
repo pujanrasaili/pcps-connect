@@ -14,7 +14,7 @@ export default function VerifyCertificate() {
     let cancelled = false;
     api
       .get(`/certificates/verify/${encodeURIComponent(code)}`)
-      .then((res) => !cancelled && setState({ status: "valid", data: res.data }))
+      .then((res) => !cancelled && setState(res.data?.student && res.data?.event ? { status: "valid", data: res.data } : { status: "error" }))
       .catch((err) => {
         if (cancelled) return;
         // The API answers 404 {valid:false} for anything it can't vouch for.
