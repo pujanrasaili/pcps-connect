@@ -42,3 +42,7 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
           CLIENT_ORIGIN: ${{ secrets.CLIENT_ORIGIN }}
+          # Optional: add these two secrets to send through Brevo instead of Gmail
+          # (the same sender the live site uses). Left empty, Gmail is used.
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_SENDER_EMAIL: ${{ secrets.BREVO_SENDER_EMAIL }}
