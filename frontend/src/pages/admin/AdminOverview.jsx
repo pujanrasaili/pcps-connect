@@ -14,6 +14,7 @@ import { useEvents } from "../../context/EventsContext";
 import { api, getErrorMessage } from "../../services/api";
 import AttendanceReportCard from "../../components/AttendanceReportCard";
 import InsightsCard from "../../components/InsightsCard";
+import WeekSummaryCard from "../../components/WeekSummaryCard";
 import SiteNoticeCard from "../../components/SiteNoticeCard";
 import { formatDate, isUpcoming } from "../../utils/formatDate";
 
@@ -24,6 +25,7 @@ export default function AdminOverview() {
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
   const [insights, setInsights] = useState(null);
+  const [week, setWeek] = useState(null);
 
   useEffect(() => {
     api
@@ -39,6 +41,10 @@ export default function AdminOverview() {
       .get("/admin/insights")
       .then((res) => setInsights(res.data))
       .catch(() => setInsights(null));
+    api
+      .get("/admin/week")
+      .then((res) => setWeek(res.data))
+      .catch(() => setWeek(null));
   }, []);
 
   const totalRegistrations = events.reduce((sum, e) => sum + (e.registeredCount || 0), 0);
@@ -104,6 +110,8 @@ export default function AdminOverview() {
         <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
         <StatsCard icon={FaClipboardList} label="Total Event Registrations" value={totalRegistrations} accent="amber" />
       </div>
+
+      <WeekSummaryCard week={week} />
 
       <SiteNoticeCard />
 
