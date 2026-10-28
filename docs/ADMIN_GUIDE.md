@@ -84,6 +84,7 @@ The settings for each live in that service's dashboard (Render: Environment; Ver
 | Symptom | Likely cause and fix |
 | --- | --- |
 | Site loads but data does not, or login spins | The API is waking up (wait a minute) or is down: open the health link above, then check the Render dashboard logs |
+| A page says "Couldn't load…" with a Try again button | The server could not be reached, so nothing is lost: wait a minute (Render wakes up) and press Try again. An empty list with no message means the list really is empty |
 | Health link says `database: disconnected` | Atlas: check the cluster is running and the network access list allows Render |
 | Students say they get no emails | Open the health link: if `email` is `gmail-smtp`, Render's free tier blocks that, so set `BREVO_API_KEY` (see README, "Sending email from Render's free tier"). Otherwise look in the Render logs for "Failed to send", check spam, and the Brevo or Gmail sending limit. Meanwhile use "Mark verified" in Admin → Users |
 | Check-in camera is black or blocked | Allow the camera for the site in the browser's address-bar settings; use HTTPS (the live site is) |
