@@ -1,4 +1,4 @@
-import { formatDate } from "./formatDate.js";
+import { formatDateAndTime } from "./formatDate.js";
 
 // Shares an event link: the phone's share sheet (WhatsApp, Messenger...) where
 // the browser has one, otherwise copies the link to the clipboard.
@@ -6,7 +6,7 @@ import { formatDate } from "./formatDate.js";
 // sheet -- not an error); rejects if neither route works.
 export function shareEvent(event, url = window.location.href) {
   return shareLink(
-    { title: event.title, text: `${event.title} -- ${formatDate(event.date)}, ${event.location}` },
+    { title: event.title, text: `${event.title} -- ${formatDateAndTime(event.date)}, ${event.location}` },
     url
   );
 }
