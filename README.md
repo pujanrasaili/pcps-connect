@@ -15,7 +15,7 @@ accounts.
 
 ## Tech Stack
 
-**Frontend:** React 18, React Router, Tailwind CSS, Axios, Recharts, React Icons
+**Frontend:** React 19, Vite, React Router, Tailwind CSS, Axios, Recharts, React Icons
 **Backend:** Node.js, Express, MongoDB (Mongoose), JWT authentication (httpOnly cookies), bcrypt
 **Infrastructure:** MongoDB Atlas (database), Cloudinary (image storage), Gmail SMTP via Nodemailer (transactional email), Vercel (frontend hosting), Render (backend hosting)
 
@@ -249,6 +249,7 @@ A backup contains students' personal details and password hashes, so keep it pri
 
 - `docs/ADMIN_GUIDE.md` -- how to run the site day to day: approving accounts, roles, check-in, scheduled emails, hosting, backups and what to do when something breaks.
 - `docs/HOW_IT_WORKS.md` -- a plain-language tour of how the project works (login, roles, registration, QR check-in, certificates, emails, protections, where to find things in the code).
+- `docs/DEMO_GUIDE.md` -- an 8-minute demo script, likely viva questions with honest answers, and what to do if something breaks live.
 - `docs/API.md` -- every API endpoint, who may call it and what it does. Generated from the route files (`npm run docs:api` in `backend/`), and a test fails if it goes out of date.
 - `backend/README.md` -- request/response shapes, database models and deeper notes on the auth flow (written by hand, so `docs/API.md` is the up-to-date endpoint list).
 
