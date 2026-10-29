@@ -1,4 +1,4 @@
-const { pickAdminUserFields } = require("../adminUserFields");
+const { pickAdminUserFields, adminUserFieldsProblem } = require("../adminUserFields");
 
 describe("pickAdminUserFields", () => {
   it("keeps role, approval status and profile fields", () => {
@@ -13,5 +13,18 @@ describe("pickAdminUserFields", () => {
 
   it("copes with a missing body", () => {
     expect(pickAdminUserFields()).toEqual({});
+  });
+});
+
+describe("adminUserFieldsProblem", () => {
+  it("accepts plain text values", () => {
+    expect(adminUserFieldsProblem({ name: "Sita", role: "user", approvalStatus: "approved" })).toBeNull();
+    expect(adminUserFieldsProblem({})).toBeNull();
+  });
+
+  it("rejects objects, lists and numbers with the field named", () => {
+    expect(adminUserFieldsProblem({ name: { $gt: "" } })).toBe("name must be text");
+    expect(adminUserFieldsProblem({ program: ["BIT"] })).toBe("program must be text");
+    expect(adminUserFieldsProblem({ semester: 3 })).toBe("semester must be text");
   });
 });

@@ -14,4 +14,14 @@ function pickAdminUserFields(body = {}) {
   return picked;
 }
 
-module.exports = { ADMIN_USER_FIELDS, pickAdminUserFields };
+// Every one of these fields is plain text. Anything else (an object, a list, a
+// number) used to reach the database and come back as a 500 "Cast to string
+// failed"; it is a bad request instead. Returns a message or null.
+function adminUserFieldsProblem(picked) {
+  for (const [field, value] of Object.entries(picked)) {
+    if (typeof value !== "string") return `${field} must be text`;
+  }
+  return null;
+}
+
+module.exports = { ADMIN_USER_FIELDS, pickAdminUserFields, adminUserFieldsProblem };
