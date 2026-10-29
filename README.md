@@ -113,10 +113,13 @@ pcps-connect/
 - Activity log of admin actions (role changes, approvals/rejections, event and club creates, edits and deletions) with who did them, kept for a year; filter it by people / events / clubs or search by name
 - "Add all to calendar" on the student dashboard downloads every confirmed upcoming registration as one .ics file
 - Insights card on the admin overview: registrations per month (last 6 months), the most popular clubs by members, and overall turnout at past events
+- "Last 7 days" card on the admin overview: new students and new registrations compared with the week before, and how many events are coming up in the next 7 days
+- The admin overview also warns when email is not set up, or still goes through Gmail (which free hosting such as Render blocks)
 - Live platform stats (total clubs, events, students, registrations)
 
 ### Security
 - Passwords hashed with bcrypt, never stored in plain text
+- New passwords need at least 8 characters (older, shorter ones still work until changed)
 - Rate limiting on login/register/password-reset routes (brute-force protection)
 - Event fields are validated server-side (valid date, text length limits, sane capacity) and return a clear 400 instead of a server error
 - Club fields are validated server-side too (required name/category/description, text length limits, activities list)
