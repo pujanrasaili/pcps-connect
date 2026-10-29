@@ -15,6 +15,7 @@ import { api, getErrorMessage } from "../../services/api";
 import AttendanceReportCard from "../../components/AttendanceReportCard";
 import InsightsCard from "../../components/InsightsCard";
 import WeekSummaryCard from "../../components/WeekSummaryCard";
+import EmailStatusCard from "../../components/EmailStatusCard";
 import SiteNoticeCard from "../../components/SiteNoticeCard";
 import { formatDate, isUpcoming } from "../../utils/formatDate";
 
@@ -26,6 +27,7 @@ export default function AdminOverview() {
   const [report, setReport] = useState(null);
   const [insights, setInsights] = useState(null);
   const [week, setWeek] = useState(null);
+  const [emailProvider, setEmailProvider] = useState(null);
 
   useEffect(() => {
     api
@@ -41,6 +43,11 @@ export default function AdminOverview() {
       .get("/admin/insights")
       .then((res) => setInsights(res.data))
       .catch(() => setInsights(null));
+    // Only a hint about the email setup; a failed check just hides it.
+    api
+      .get("/health")
+      .then((res) => setEmailProvider(res.data.email || null))
+      .catch(() => setEmailProvider(null));
     api
       .get("/admin/week")
       .then((res) => setWeek(res.data))
@@ -110,6 +117,8 @@ export default function AdminOverview() {
         <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
         <StatsCard icon={FaClipboardList} label="Total Event Registrations" value={totalRegistrations} accent="amber" />
       </div>
+
+      <EmailStatusCard provider={emailProvider} />
 
       <WeekSummaryCard week={week} />
 
