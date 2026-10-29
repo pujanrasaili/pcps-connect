@@ -8,6 +8,10 @@ const { sendRegistrationConfirmation, sendRequestReceived } = require("../utils/
 const { createCheckInCode } = require("../utils/checkInCode");
 const { createCertificateCode } = require("../utils/certificateCode");
 
+const MAX_SEAT_ATTEMPTS = 3;
+// A short random pause, so people who collided on the last seats don't collide again.
+const pause = () => new Promise((resolve) => setTimeout(resolve, 20 + Math.random() * 100));
+
 // POST /api/registrations/register  (requires login)
 async function registerForEvent(req, res) {
   try {
@@ -31,40 +35,47 @@ async function registerForEvent(req, res) {
       return res.status(400).json({ message: "You are already registered for this event" });
     }
 
-    const registeredCount = await Registration.countDocuments({ event: eventId });
-    if (registeredCount >= event.capacity) {
-      return res.status(400).json({ message: "This event is full" });
-    }
-
-    let registration;
-    try {
-      registration = await Registration.create({
-        user: req.user._id,
-        event: eventId,
-        // Events that need organiser approval start as a request ("pending").
-        // It still holds a seat, so approving never hits a full event.
-        status: event.requiresApproval ? "pending" : "confirmed",
-      });
-    } catch (err) {
-      // Unique index on (user, event) -- two simultaneous clicks from the
-      // same account land here instead of creating a duplicate.
-      if (err.code === 11000) {
-        return res.status(400).json({ message: "You are already registered for this event" });
+    // The count check and the insert aren't one atomic operation, so students
+    // registering for the last spots at the same instant can all pass the check.
+    // Re-count after inserting (an operation MongoDB does serialize) and roll
+    // back if this registration pushed the event over capacity -- it fails
+    // closed rather than overbooking. When several people collide, they all roll
+    // back, so each waits a short random time and tries again: one of them gets
+    // the seat instead of everyone being told "full" while it is still free.
+    let registration = null;
+    for (let attempt = 1; attempt <= MAX_SEAT_ATTEMPTS && !registration; attempt += 1) {
+      const registeredCount = await Registration.countDocuments({ event: eventId });
+      if (registeredCount >= event.capacity) {
+        return res.status(400).json({ message: "This event is full" });
       }
-      throw err;
-    }
 
-    // The count check above and the create above aren't one atomic
-    // operation, so two different students registering for the last spot
-    // at the same instant can both pass the check. Re-count after insert
-    // (an operation MongoDB does serialize) and roll back if this
-    // registration pushed the event over capacity -- fails closed rather
-    // than silently overbooking a real event.
-    const countAfterInsert = await Registration.countDocuments({ event: eventId });
-    if (countAfterInsert > event.capacity) {
-      await registration.deleteOne();
-      return res.status(400).json({ message: "This event is full" });
+      let created;
+      try {
+        created = await Registration.create({
+          user: req.user._id,
+          event: eventId,
+          // Events that need organiser approval start as a request ("pending").
+          // It still holds a seat, so approving never hits a full event.
+          status: event.requiresApproval ? "pending" : "confirmed",
+        });
+      } catch (err) {
+        // Unique index on (user, event) -- two simultaneous clicks from the
+        // same account land here instead of creating a duplicate.
+        if (err.code === 11000) {
+          return res.status(400).json({ message: "You are already registered for this event" });
+        }
+        throw err;
+      }
+
+      const countAfterInsert = await Registration.countDocuments({ event: eventId });
+      if (countAfterInsert <= event.capacity) {
+        registration = created;
+      } else {
+        await created.deleteOne();
+        if (attempt < MAX_SEAT_ATTEMPTS) await pause();
+      }
     }
+    if (!registration) return res.status(400).json({ message: "This event is full" });
 
     if (registration.status === "pending") {
       await sendRequestReceived(req.user, event);

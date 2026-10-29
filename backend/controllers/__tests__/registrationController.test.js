@@ -168,7 +168,8 @@ describe("registerForEvent", () => {
     Registration.findOne.mockResolvedValue(null);
     Registration.countDocuments
       .mockResolvedValueOnce(1) // pre-insert count looked fine (1 of 2)
-      .mockResolvedValueOnce(3); // but a concurrent request also squeezed in -- now 3 of 2
+      .mockResolvedValueOnce(3) // but a concurrent request also squeezed in -- now 3 of 2
+      .mockResolvedValueOnce(2); // on the retry the event really is full
     const deleteOne = jest.fn().mockResolvedValue();
     Registration.create.mockResolvedValue({ _id: "new-reg", deleteOne });
 
@@ -179,6 +180,27 @@ describe("registerForEvent", () => {
     expect(deleteOne).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: "This event is full" }));
+  });
+
+  it("retries after a collision and gets the seat once the others have settled", async () => {
+    Event.findById.mockResolvedValue(futureEvent({ capacity: 2 }));
+    Registration.findOne.mockResolvedValue(null);
+    Registration.countDocuments
+      .mockResolvedValueOnce(1) // first attempt: looks fine
+      .mockResolvedValueOnce(3) // collision: over capacity, so roll back
+      .mockResolvedValueOnce(1) // retry: a seat is free again
+      .mockResolvedValueOnce(2); // and after inserting we fit
+    const deleteOne = jest.fn().mockResolvedValue();
+    Registration.create
+      .mockResolvedValueOnce({ _id: "first", deleteOne, status: "confirmed" })
+      .mockResolvedValueOnce({ _id: "second", deleteOne: jest.fn(), status: "confirmed" });
+
+    const res = mockRes();
+    await registerForEvent({ body: { eventId: EVENT_ID }, user: { _id: USER_ID } }, res);
+
+    expect(deleteOne).toHaveBeenCalledTimes(1); // the first attempt was rolled back
+    expect(Registration.create).toHaveBeenCalledTimes(2);
+    expect(res.status).toHaveBeenCalledWith(201);
   });
 
   it("treats a duplicate-key error from a simultaneous double-click as 'already registered', not a 500", async () => {
