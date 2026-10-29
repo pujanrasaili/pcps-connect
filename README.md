@@ -179,6 +179,16 @@ cd ../frontend
 npm test
 ```
 
+Integration tests run the real server against a real MongoDB (registering,
+events, check-in, walk-ins, simultaneous sign-ups, club-leader limits and the
+scheduled email jobs). GitHub runs them on every push; to run them yourself
+point them at a throwaway database (they create their own data):
+
+```bash
+cd backend
+MONGO_URI=mongodb://127.0.0.1:27017/pcps_test npm run test:integration
+```
+
 Jest unit tests cover the auth flow, registration and capacity rules, admin
 safety guards, email notifications, the CSRF middleware and shared utilities.
 The frontend has zero-dependency unit tests (Node's built-in runner) for its
