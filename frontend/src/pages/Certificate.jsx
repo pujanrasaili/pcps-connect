@@ -4,7 +4,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { FaPrint, FaArrowLeft } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { formatDate } from "../utils/formatDate";
-import logo from "../assets/images/pcps-shield.png";
+import logo from "../assets/images/pcps-shield.webp";
 
 // A printable certificate of attendance. Deliberately its own full-page route
 // (no site navbar/footer) so "Print" gives just the certificate, and always

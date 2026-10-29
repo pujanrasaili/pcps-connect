@@ -15,7 +15,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import SearchDialog from "./SearchDialog";
-import logo from "../assets/images/pcps-logo.png";
+import logo from "../assets/images/pcps-logo.webp";
 
 const BASE_NAV_LINKS = [
   { to: "/", label: "Home" },

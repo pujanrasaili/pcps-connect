@@ -5,7 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
-import logo from "../assets/images/pcps-shield.png";
+import logo from "../assets/images/pcps-shield.webp";
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();

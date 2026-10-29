@@ -8,7 +8,7 @@ import {
   FaPhoneAlt,
 } from "react-icons/fa";
 import { FaTiktok } from "react-icons/fa6";
-import logo from "../assets/images/pcps-logo.png";
+import logo from "../assets/images/pcps-logo.webp";
 
 const SOCIAL_LINKS = [
   { Icon: FaFacebook, href: "https://www.facebook.com/patancollege", label: "Facebook" },

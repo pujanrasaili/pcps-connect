@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { FaExclamationTriangle, FaHome, FaRedo } from "react-icons/fa";
-import shield from "../assets/images/pcps-shield.png";
+import shield from "../assets/images/pcps-shield.webp";
 
 // Catches render-time errors anywhere below it in the tree so a bug in one
 // page shows a friendly fallback instead of a blank white screen. Must be a

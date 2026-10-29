@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
-import logo from "../assets/images/pcps-shield.png";
+import logo from "../assets/images/pcps-shield.webp";
 
 export default function Login() {
   const { login } = useAuth();

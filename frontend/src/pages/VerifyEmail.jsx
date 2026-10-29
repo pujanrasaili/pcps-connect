@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
-import logo from "../assets/images/pcps-shield.png";
+import logo from "../assets/images/pcps-shield.webp";
 
 export default function VerifyEmail() {
   const [searchParams] = useSearchParams();

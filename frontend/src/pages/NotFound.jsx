@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaHome, FaCompass } from "react-icons/fa";
-import shield from "../assets/images/pcps-shield.png";
+import shield from "../assets/images/pcps-shield.webp";
 
 export default function NotFound() {
   return (

@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
 import RegistrationDone from "../components/RegistrationDone";
-import logo from "../assets/images/pcps-shield.png";
+import logo from "../assets/images/pcps-shield.webp";
 
 export default function Register() {
   const { register } = useAuth();

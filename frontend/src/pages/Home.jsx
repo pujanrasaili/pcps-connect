@@ -15,7 +15,7 @@ import { useEvents } from "../context/EventsContext";
 import { api, resolveUploadUrl } from "../services/api";
 import { isUpcoming } from "../utils/formatDate";
 import campusEvent from "../assets/images/campus-event.webp";
-import reelPoster from "../assets/images/campus-reel-poster.jpg";
+import reelPoster from "../assets/images/campus-reel-poster.webp";
 
 export default function Home() {
   const [selectedClub, setSelectedClub] = useState(null);

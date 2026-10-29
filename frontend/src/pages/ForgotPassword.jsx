@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaEnvelope, FaCheckCircle, FaArrowLeft } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
-import logo from "../assets/images/pcps-shield.png";
+import logo from "../assets/images/pcps-shield.webp";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
