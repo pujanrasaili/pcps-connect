@@ -23,6 +23,34 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  backend-integration:
+    name: Backend integration (real MongoDB)
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1})'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run test:integration
+        env:
+          MONGO_URI: mongodb://127.0.0.1:27017/pcps_ci
+
   frontend-build:
     name: Frontend lint + build
     runs-on: ubuntu-latest
