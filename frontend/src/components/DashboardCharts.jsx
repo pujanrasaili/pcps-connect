@@ -16,7 +16,7 @@ export function MonthBars({ data }) {
           <li key={d.month} className="flex h-full min-w-0 flex-1 flex-col justify-end text-center">
             <span className="mb-1 text-xs font-semibold text-slate-700 dark:text-slate-200">{d.count}</span>
             <span
-              className="w-full rounded-t-md bg-primary-500 dark:bg-primary-400"
+              className="w-full max-w-[4.5rem] self-center rounded-t-md bg-primary-500 dark:bg-primary-400"
               style={{ height: `${Math.max(4, (d.count / max) * 80)}%` }}
             />
             <span className="mt-1.5 truncate text-xs text-slate-500 dark:text-slate-400">{d.month}</span>
