@@ -44,9 +44,11 @@ export default function EventCard({ event }) {
             {formatDay(event.date)}
           </span>
         </div>
-        <span className="badge absolute right-3 top-3 bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200">
-          {event.category}
-        </span>
+        {event.category && (
+          <span className="badge absolute right-3 top-3 bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200">
+            {event.category}
+          </span>
+        )}
         {isPast && (
           <span className="badge absolute right-3 top-11 bg-slate-800/90 text-white">
             Past event

@@ -376,9 +376,11 @@ export default function Dashboard() {
                     </p>
                   </div>
                 </Link>
-                <span className="badge shrink-0 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
-                  {r.event.category}
-                </span>
+                {r.event.category && (
+                  <span className="badge shrink-0 bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
+                    {r.event.category}
+                  </span>
+                )}
                 <button
                   onClick={() => handleUnregister(r.event._id)}
                   aria-label={`Unregister from ${r.event.title}`}

@@ -198,7 +198,7 @@ export default function EventDetails() {
           <Link to="/events" className="mb-3 inline-flex items-center gap-1.5 text-sm text-white hover:underline">
             <FaArrowLeft className="text-xs" /> Back to events
           </Link>
-          <span className="badge bg-white/20 backdrop-blur">{event.category}</span>
+          {event.category && <span className="badge bg-white/20 backdrop-blur">{event.category}</span>}
           {event.club?.name && (
             <span className="badge ml-2 bg-white/20 backdrop-blur">Hosted by {event.club.name}</span>
           )}
