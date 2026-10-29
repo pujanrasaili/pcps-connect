@@ -741,3 +741,18 @@ test("formatTime and formatDateAndTime show the start time", () => {
   assert.equal(formatDateAndTime(d), "Sat, Dec 5, 2026 · 10:00 AM");
   assert.equal(formatTime(new Date(2026, 11, 5, 15, 45)), "3:45 PM");
 });
+
+test("attendanceCsv lists one row per past event and protects formulas", async () => {
+  const { attendanceCsv } = await import("../src/utils/attendanceCsv.js");
+  const csv = attendanceCsv({
+    events: [
+      { title: "=SUM(1)", club: "Tech", date: "2026-10-01T00:00:00Z", registered: 4, attended: 3, noShows: 1, attendanceRate: 75, averageRating: 4.5, ratingCount: 2 },
+      { title: "Quiet", club: "", date: "2026-09-01T00:00:00Z", registered: 0, attended: 0, noShows: 0, attendanceRate: null, averageRating: null, ratingCount: 0 },
+    ],
+  });
+  const lines = csv.split("\r\n");
+  assert.equal(lines.length, 3);
+  assert.match(lines[1], /^"'=SUM\(1\)","Tech","2026-10-01","4","3","1","75","4.5","2"$/);
+  assert.match(lines[2], /"Quiet","","2026-09-01","0","0","0","","",/);
+  assert.equal(attendanceCsv(null).split("\r\n").length, 1);
+});

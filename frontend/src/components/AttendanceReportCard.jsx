@@ -1,10 +1,29 @@
+import { useState } from "react";
 import { Stars } from "./StarRating";
+import { api, getErrorMessage } from "../services/api";
+import { useToast } from "../context/ToastContext";
+import { downloadCsv } from "../utils/csv";
+import { attendanceCsv } from "../utils/attendanceCsv";
 
 // Turnout and ratings for the most recent past events (admins: everything;
 // club leaders: only their own clubs -- the server decides). `report` is the
 // /admin/attendance-report payload; renders nothing until there's data.
 export default function AttendanceReportCard({ report }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
   if (!report?.events?.length) return null;
+
+  const download = async () => {
+    setBusy(true);
+    try {
+      const { data } = await api.get("/admin/attendance-report", { params: { all: 1 } });
+      downloadCsv(`attendance-report-${new Date().toISOString().slice(0, 10)}.csv`, attendanceCsv(data));
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Couldn't download the report. Please try again."));
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
   <div className="card-surface p-5">
             <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
@@ -44,6 +63,9 @@ export default function AttendanceReportCard({ report }) {
                 </li>
               ))}
             </ul>
+            <button type="button" onClick={download} disabled={busy} className="btn-secondary mt-4 text-sm">
+              {busy ? "Preparing…" : "Download full report (CSV)"}
+            </button>
           </div>
   );
 }
