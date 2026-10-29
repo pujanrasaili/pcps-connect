@@ -46,6 +46,15 @@ const STUDENT_ID = "student1";
 describe("updateUser -- admin safety guards", () => {
   afterEach(() => jest.clearAllMocks());
 
+  it("answers 400, not 500, when a text field is sent as an object", async () => {
+    const req = { params: { id: "u2" }, user: { _id: { toString: () => ADMIN_ID } }, body: { name: { $gt: "" } } };
+    const res = mockRes();
+    await updateUser(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "name must be text" });
+    expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
   it("blocks an admin from changing their own role", async () => {
     const req = {
       params: { id: ADMIN_ID },

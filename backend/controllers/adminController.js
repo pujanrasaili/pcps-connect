@@ -24,7 +24,7 @@ const FORBIDDEN = { message: "Access denied: insufficient permissions" };
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
 const { weekWindows, trend } = require("../utils/weekSummary");
-const { pickAdminUserFields } = require("../utils/adminUserFields");
+const { pickAdminUserFields, adminUserFieldsProblem } = require("../utils/adminUserFields");
 const { validateEventFields } = require("../utils/eventInput");
 const { parseFlag } = require("../utils/eventFlags");
 const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/registrationEmails");
@@ -103,6 +103,8 @@ async function getUserEvents(req, res) {
 async function updateUser(req, res) {
   try {
     const safeUpdates = pickAdminUserFields(req.body);
+    const fieldsProblem = adminUserFieldsProblem(safeUpdates);
+    if (fieldsProblem) return res.status(400).json({ message: fieldsProblem });
     const targetId = req.params.id;
 
     if (targetId === req.user._id.toString() && ("role" in safeUpdates || "approvalStatus" in safeUpdates)) {
