@@ -519,7 +519,7 @@ describe("getAttendanceReport", () => {
   afterEach(() => jest.clearAllMocks());
 
   it("aggregates the most recent past events into a report", async () => {
-    const limit = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: "e1", title: "Talk", date: "2026-10-01" }]) });
+    const limit = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue([{ _id: "e1", title: "Talk", date: "2026-10-01", club: { name: "Tech Club" } }]) }) });
     Event.find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit }) });
     Registration.aggregate = jest.fn().mockResolvedValue([{ _id: "e1", registered: 4, attended: 3, ratingSum: 0, ratingCount: 0 }]);
     const res = mockRes();
@@ -528,7 +528,17 @@ describe("getAttendanceReport", () => {
 
     expect(limit).toHaveBeenCalledWith(8);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json.mock.calls[0][0].events[0]).toMatchObject({ attendanceRate: 75, noShows: 1 });
+    expect(res.json.mock.calls[0][0].events[0]).toMatchObject({ attendanceRate: 75, noShows: 1, club: "Tech Club" });
+  });
+
+  it("returns every past event (up to 500) when asked with ?all=1", async () => {
+    const limit = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue([]) }) });
+    Event.find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit }) });
+    Registration.aggregate = jest.fn().mockResolvedValue([]);
+    const res = mockRes();
+    await getAttendanceReport({ user: { _id: "a1", role: "admin" }, query: { all: "1" } }, res);
+    expect(limit).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
   it("returns 500 when the database fails", async () => {
@@ -540,7 +550,7 @@ describe("getAttendanceReport", () => {
 
   it("limits a club leader's report to the clubs they lead", async () => {
     Club.find = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ sort: jest.fn().mockResolvedValue([{ _id: "cA" }]) }) });
-    const select = jest.fn().mockResolvedValue([]);
+    const select = jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue([]) });
     Event.find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit: jest.fn().mockReturnValue({ select }) }) });
     Registration.aggregate = jest.fn().mockResolvedValue([]);
     const res = mockRes();

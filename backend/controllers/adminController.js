@@ -592,10 +592,14 @@ async function getAttendanceReport(req, res) {
       filter.club = { $in: led.map((c) => c._id) };
     }
 
+    // The overview card shows the latest 8; "?all=1" returns every past event
+    // (capped) so staff can download a full report for the college.
+    const everything = req.query?.all === "1";
     const events = await Event.find(filter)
       .sort({ date: -1 })
-      .limit(8)
-      .select("title date");
+      .limit(everything ? 500 : 8)
+      .select("title date club")
+      .populate("club", "name");
 
     const stats = await Registration.aggregate([
       { $match: { event: { $in: events.map((e) => e._id) }, status: { $ne: "pending" } } },

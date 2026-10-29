@@ -93,7 +93,7 @@ const DESCRIPTIONS = {
   announceToClubMembers: "Email everyone who joined a club (members who opted out are skipped).",
   updateRegistrationAttendance: "Mark a registration as attended or not.",
   decideRegistration: "Approve or decline a join request for an approval-only event.",
-  getAttendanceReport: "Turnout and ratings for recent past events.",
+  getAttendanceReport: "Turnout and ratings for recent past events (add ?all=1 for every past event, up to 500).",
   checkInByCode: "Check a student in by scanning or typing their registration code.",
   getInsights: "Registrations per month, most popular clubs and overall turnout.",
   getWeekSummary: "New students and registrations in the last 7 days versus the week before, plus events in the next 7 days.",

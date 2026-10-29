@@ -29,6 +29,7 @@ function buildAttendanceReport(events, stats) {
       _id: event._id,
       title: event.title,
       date: event.date,
+      club: event.club?.name || "",
       registered: reg,
       attended: att,
       noShows: reg - att,
