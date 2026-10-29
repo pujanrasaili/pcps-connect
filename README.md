@@ -119,6 +119,7 @@ pcps-connect/
 
 ### Security
 - Passwords hashed with bcrypt, never stored in plain text
+- The website is sent with a Content-Security-Policy (`frontend/vercel.json`): only its own scripts run, other sites can't frame it, and plugins are off. If you ever edit the small inline theme script in `frontend/index.html`, a test fails until you put its new hash into that policy
 - New passwords need at least 8 characters (older, shorter ones still work until changed)
 - Rate limiting on login/register/password-reset routes (brute-force protection)
 - Event fields are validated server-side (valid date, text length limits, sane capacity) and return a clear 400 instead of a server error
