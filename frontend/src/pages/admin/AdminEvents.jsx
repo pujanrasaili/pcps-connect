@@ -33,6 +33,8 @@ const EMPTY_FORM = {
   club: "",
   requiresApproval: false,
   registrationDeadline: "",
+  repeat: "none",
+  repeatCount: 4,
 };
 
 export default function AdminEvents() {
@@ -113,6 +115,8 @@ export default function AdminEvents() {
       club: event.club?._id || event.club || "",
       requiresApproval: !!event.requiresApproval,
       registrationDeadline: "",
+      repeat: "none",
+      repeatCount: 4,
     });
     setImageFile(null);
     setFormOpen(true);
@@ -132,6 +136,8 @@ export default function AdminEvents() {
       club: event.club?._id || event.club || "",
       requiresApproval: !!event.requiresApproval,
       registrationDeadline: isoToLocalInput(event.registrationDeadline),
+      repeat: "none",
+      repeatCount: 4,
     });
     setImageFile(null);
     setFormOpen(true);
@@ -143,6 +149,8 @@ export default function AdminEvents() {
 
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
+      // Repeating only applies to creating; an edit changes this one event.
+      if ((key === "repeat" || key === "repeatCount") && (editingEvent || form.repeat === "none")) return;
       // Times go to the server as exact instants (see utils/dateTimeInput.js).
       formData.append(key, key === "date" || key === "registrationDeadline" ? localInputToIso(value) : value);
     });
@@ -153,8 +161,8 @@ export default function AdminEvents() {
         await api.put(`/events/${editingEvent._id}`, formData);
         toast.success("Event updated.");
       } else {
-        await api.post("/events/create", formData);
-        toast.success("Event created.");
+        const { data } = await api.post("/events/create", formData);
+        toast.success(data?.createdCount > 1 ? `${data.createdCount} events created.` : "Event created.");
       }
       await refreshEvents();
       setFormOpen(false);
@@ -363,6 +371,41 @@ export default function AdminEvents() {
               After this time nobody new can register or join the waitlist. Leave blank to keep registration open until the event.
             </p>
           </div>
+          {!editingEvent && (
+            <div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="label-field" htmlFor="ev-repeat">Repeat</label>
+                  <select id="ev-repeat" name="repeat" className="input-field" value={form.repeat} onChange={handleChange} aria-describedby="ev-repeat-hint">
+                    <option value="none">Does not repeat</option>
+                    <option value="weekly">Every week</option>
+                    <option value="biweekly">Every two weeks</option>
+                  </select>
+                </div>
+                {form.repeat !== "none" && (
+                  <div>
+                    <label className="label-field" htmlFor="ev-repeat-count">Number of events (2-12)</label>
+                    <input
+                      id="ev-repeat-count"
+                      name="repeatCount"
+                      type="number"
+                      min="2"
+                      max="12"
+                      className="input-field"
+                      value={form.repeatCount}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+              <p id="ev-repeat-hint" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {form.repeat === "none"
+                  ? "For a regular meetup, choose how often it repeats and you get all the dates in one go."
+                  : `Creates ${Number(form.repeatCount) || "that many"} separate events at the same time, starting on the date above. Each has its own seats and sign-ups, and you can edit or delete them one by one. Club members are emailed about the first one only.`}
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="label-field" htmlFor="ev-capacity">Capacity</label>
