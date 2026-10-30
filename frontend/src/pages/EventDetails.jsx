@@ -195,16 +195,16 @@ export default function EventDetails() {
         <img src={resolveUploadUrl(event.image, 1600)} alt={event.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/55 to-slate-900/15" />
         <div className="container-page absolute inset-x-0 bottom-6 text-white">
-          <Link to="/events" className="mb-3 inline-flex items-center gap-1.5 text-sm text-white hover:underline">
+          <Link to="/events" className="mb-3 flex w-fit items-center gap-1.5 text-sm text-white hover:underline">
             <FaArrowLeft className="text-xs" /> Back to events
           </Link>
-          {event.category && <span className="badge bg-white/20 backdrop-blur">{event.category}</span>}
-          {event.club?.name && (
-            <span className="badge ml-2 bg-white/20 backdrop-blur">Hosted by {event.club.name}</span>
-          )}
-          {isPast && (
-            <span className="badge ml-2 bg-slate-700/60 backdrop-blur">Past event</span>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {event.category && <span className="badge bg-white/20 backdrop-blur">{event.category}</span>}
+            {event.club?.name && (
+              <span className="badge max-w-full bg-white/20 backdrop-blur">Hosted by {event.club.name}</span>
+            )}
+            {isPast && <span className="badge bg-slate-700/60 backdrop-blur">Past event</span>}
+          </div>
           <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{event.title}</h1>
         </div>
       </div>
