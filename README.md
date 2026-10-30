@@ -108,6 +108,7 @@ pcps-connect/
 - Student dashboard also lists upcoming events from the clubs they joined (that they have not registered for yet)
 - Manage Events (admins and club leaders) can be narrowed to All / Upcoming / Past / "Needs a decision" (events with join requests waiting), with counts, on top of the search box
 - Admins can duplicate an event (pre-filled form, date left blank) for recurring workshops and fests
+- Repeating events: when creating an event, "Repeat" (every week or every two weeks, 2 to 12 events) creates the whole series at once at the same time of day; each one is a normal event with its own seats, sign-ups and ratings that can be edited or deleted separately, and a registration deadline keeps the same distance before every date. Club members are emailed about the first one only
 - QR check-in: each registered student has a personal QR code; an organiser scans it with a normal phone camera and the student is marked as attended (codes are signed, so they can't be forged)
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
 - Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR, message their registrants and club members, and see turnout and ratings for their clubs' past events — nothing else (no users, other clubs or activity log); enforced on the server

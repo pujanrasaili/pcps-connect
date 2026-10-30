@@ -35,6 +35,7 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 
 - **Approve new accounts:** Users. Approve or reject; students are emailed.
 - **Create a club or event:** Clubs or Events, then the New button. Required fields are marked; text has length limits and the form stops you at them.
+- **Create a weekly meetup in one go:** in the new-event form, set "Repeat" to every week (or every two weeks) and the number of events. You get all the dates at once; each is its own event, so you can edit, cancel or delete any one later. Club members are emailed about the first date only.
 - **Check people in at the door:** Check-in. Scan the student's QR code with the camera, or type the code. The browser asks for camera permission the first time; choose Allow.
 - **Message everyone registered for an event, or everyone in a club:** the announce buttons on Events and Clubs. Students can switch off event reminders and club-update emails in their Settings, and the daily reminders and weekly digest respect that.
 - **Answer event questions:** on an event page, admins and the event's club leaders see "Answer" under each question (the answer is public, and the student is emailed). You also get an email when a question arrives. The bin icon removes a question.
