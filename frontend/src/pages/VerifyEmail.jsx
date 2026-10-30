@@ -40,7 +40,7 @@ export default function VerifyEmail() {
   return (
     <div className="section-y flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
+        <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto rounded-xl animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
 
         <div className="card-surface mt-6 p-8">
           {status === "verifying" && (
