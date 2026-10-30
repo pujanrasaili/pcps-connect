@@ -49,3 +49,14 @@ describe("validateEventFields", () => {
     expect(validateEventFields({ capacity: "" })).toBeNull();
   });
 });
+
+describe("cleanCategory", () => {
+  const { cleanCategory } = require("../eventInput");
+  it("trims a category and falls back to General when it is blank or missing", () => {
+    expect(cleanCategory("  Workshop ")).toBe("Workshop");
+    expect(cleanCategory("")).toBe("General");
+    expect(cleanCategory("   ")).toBe("General");
+    expect(cleanCategory(undefined)).toBe("General");
+    expect(cleanCategory(null)).toBe("General");
+  });
+});

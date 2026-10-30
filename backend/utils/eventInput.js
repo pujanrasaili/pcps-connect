@@ -37,4 +37,12 @@ function validateEventFields(body = {}) {
   return null;
 }
 
-module.exports = { validateEventFields, LIMITS, MAX_CAPACITY };
+// A blank category (an edit that cleared the box, or only spaces) would show as
+// an empty label on cards and the dashboard, so it falls back to "General" --
+// the same default a new event gets.
+function cleanCategory(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return text || "General";
+}
+
+module.exports = { validateEventFields, cleanCategory, LIMITS, MAX_CAPACITY };
