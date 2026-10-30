@@ -304,7 +304,7 @@ export default function Dashboard() {
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
             Participation by Month
           </h2>
-          <div className="mt-4 h-64">
+          <div className={`mt-4 ${monthlyData.length > 0 ? "h-64" : ""}`}>
             {monthlyData.length > 0 ? (
               <MonthBars data={monthlyData} />
             ) : (
@@ -317,7 +317,7 @@ export default function Dashboard() {
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
             Events by Category
           </h2>
-          <div className="mt-4 h-64">
+          <div className={`mt-4 ${categoryData.length > 0 ? "h-64" : ""}`}>
             {categoryData.length > 0 ? (
               <CategoryBars data={categoryData} />
             ) : (
@@ -404,7 +404,7 @@ export default function Dashboard() {
 
 function EmptyChart() {
   return (
-    <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+    <div className="flex items-center justify-center py-6 text-center text-sm text-slate-500 dark:text-slate-400">
       No data yet — register for an event to see your stats.
     </div>
   );
