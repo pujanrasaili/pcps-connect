@@ -11,7 +11,7 @@ const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
-const { validateEventFields } = require("../utils/eventInput");
+const { validateEventFields, cleanCategory } = require("../utils/eventInput");
 const { parseDeadline } = require("../utils/registrationDeadline");
 const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
@@ -131,7 +131,7 @@ async function createEvent(req, res) {
       location,
       capacity: parsedCapacity,
       registrationDeadline: deadline.value,
-      category: category || "General",
+      category: cleanCategory(category),
       price: price || "Free",
       requiresApproval: parseFlag(req.body.requiresApproval) === true,
       image,
@@ -189,7 +189,7 @@ async function updateEvent(req, res) {
 
     const allowedFields = ["title", "description", "date", "location", "category", "price"];
     for (const field of allowedFields) {
-      if (req.body[field] !== undefined) event[field] = req.body[field];
+      if (req.body[field] !== undefined) event[field] = field === "category" ? cleanCategory(req.body[field]) : req.body[field];
     }
     const requiresApproval = parseFlag(req.body.requiresApproval);
     if (requiresApproval !== undefined) event.requiresApproval = requiresApproval;

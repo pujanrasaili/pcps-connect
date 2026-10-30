@@ -339,6 +339,16 @@ describe("updateEventAdmin -- field whitelist and capacity checks", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
+  it("stores General when the category box is cleared, instead of a blank label", async () => {
+    Event.findById.mockResolvedValue(existing);
+    Event.findByIdAndUpdate.mockResolvedValue({ ...existing, title: "T" });
+    for (const [sent, stored] of [["", "General"], ["   ", "General"], [" Workshop ", "Workshop"]]) {
+      Event.findByIdAndUpdate.mockClear();
+      await updateEventAdmin({ params: { id: "ev1" }, body: { category: sent } }, mockRes());
+      expect(Event.findByIdAndUpdate.mock.calls[0][1]).toEqual({ category: stored });
+    }
+  });
+
   it("rejects a bad date or an over-long title with a 400 instead of a 500", async () => {
     Event.findById.mockResolvedValue(existing);
     for (const body of [{ date: "banana" }, { title: "x".repeat(151) }, { description: "" }]) {

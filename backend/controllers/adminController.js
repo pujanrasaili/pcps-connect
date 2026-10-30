@@ -25,7 +25,7 @@ const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
 const { weekWindows, trend } = require("../utils/weekSummary");
 const { pickAdminUserFields, adminUserFieldsProblem } = require("../utils/adminUserFields");
-const { validateEventFields } = require("../utils/eventInput");
+const { validateEventFields, cleanCategory } = require("../utils/eventInput");
 const { parseFlag } = require("../utils/eventFlags");
 const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/registrationEmails");
 
@@ -279,7 +279,7 @@ async function updateEventAdmin(req, res) {
     // capacity value skipped the validation the creator-facing route does.
     const updates = {};
     for (const field of ["title", "description", "date", "location", "category", "price", "image"]) {
-      if (req.body[field] !== undefined) updates[field] = req.body[field];
+      if (req.body[field] !== undefined) updates[field] = field === "category" ? cleanCategory(req.body[field]) : req.body[field];
     }
     const requiresApproval = parseFlag(req.body.requiresApproval);
     if (requiresApproval !== undefined) updates.requiresApproval = requiresApproval;
