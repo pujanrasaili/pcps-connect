@@ -79,7 +79,7 @@ const DESCRIPTIONS = {
   resendVerification: "Send the verification email again.",
   getEvents: "List all events, with how many are registered.",
   getEventById: "One event; the organiser's email is shown only to logged-in users.",
-  createEvent: "Create an event (admins, or a leader for their own club), with an optional image.",
+  createEvent: "Create an event (admins, or a leader for their own club), with an optional image. Send repeat (weekly or biweekly) and repeatCount (2 to 12) to create a series of separate events.",
   updateEvent: "Edit an event; registered students are emailed if the date or place changes.",
   deleteEvent: "Delete an event; registered students are emailed the cancellation.",
   registerForEvent: "Register for an event (or request to join, if the event needs approval).",

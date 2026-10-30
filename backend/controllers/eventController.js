@@ -12,6 +12,7 @@ const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 const { validateEventFields, cleanCategory } = require("../utils/eventInput");
+const { planOccurrences } = require("../utils/recurrence");
 const { parseDeadline } = require("../utils/registrationDeadline");
 const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
@@ -118,31 +119,64 @@ async function createEvent(req, res) {
       return res.status(403).json({ message: "You can only create events for a club you lead" });
     }
 
+    // A repeating series ("every Thursday for 8 weeks") is several ordinary
+    // events, one per date. Checked before the image upload so a bad request
+    // doesn't leave a stray file behind.
+    const plan = planOccurrences(date, req.body.repeat, req.body.repeatCount);
+    if (plan.error) return res.status(400).json({ message: plan.error });
+
     let image = null;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
       image = uploaded.secure_url;
     }
 
-    const event = await Event.create({
+    const fields = {
       title,
       description,
-      date,
       location,
       capacity: parsedCapacity,
-      registrationDeadline: deadline.value,
       category: cleanCategory(category),
       price: price || "Free",
       requiresApproval: parseFlag(req.body.requiresApproval) === true,
       image,
       club: club ? club._id : null,
       createdBy: req.user._id,
-    });
+    };
 
+    let event;
+    let createdCount = 1;
+    if (plan.dates.length === 1) {
+      event = await Event.create({ ...fields, date, registrationDeadline: deadline.value });
+    } else {
+      // The registration deadline keeps the same distance before each start.
+      const lead = deadline.value ? plan.dates[0].getTime() - deadline.value.getTime() : null;
+      const docs = plan.dates.map((when) => ({
+        ...fields,
+        date: when,
+        registrationDeadline: lead === null ? null : new Date(when.getTime() - lead),
+      }));
+      const created = await Event.insertMany(docs);
+      event = created[0];
+      createdCount = created.length;
+    }
+
+    // Members hear about the first date only, so a club with a weekly series
+    // doesn't get a dozen emails at once.
     if (club) await notifyNewClubEvent(event, club);
-    await recordAudit(req.user, "event.created", `Created event "${event.title}"`);
+    await recordAudit(
+      req.user,
+      "event.created",
+      createdCount > 1
+        ? `Created ${createdCount} repeating events "${event.title}" (${req.body.repeat === "biweekly" ? "every two weeks" : "weekly"})`
+        : `Created event "${event.title}"`
+    );
 
-    res.status(201).json({ message: "Event created", event: await withRegisteredCount(event) });
+    res.status(201).json({
+      message: createdCount > 1 ? `${createdCount} events created` : "Event created",
+      createdCount,
+      event: await withRegisteredCount(event),
+    });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to create event") });
   }

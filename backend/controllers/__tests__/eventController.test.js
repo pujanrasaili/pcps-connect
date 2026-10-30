@@ -32,6 +32,74 @@ beforeEach(() => {
 });
 afterEach(() => jest.resetAllMocks());
 
+describe("createEvent -- repeating series", () => {
+  beforeEach(() => {
+    Event.insertMany.mockImplementation(async (docs) => docs.map((d, i) => ({ _id: `ev${i}`, ...d })));
+  });
+
+  it("creates one event per week at the same time and tells the admin how many", async () => {
+    const res = mockRes();
+    await createEvent(
+      { body: { ...baseBody, date: "2027-01-07T04:15:00.000Z", repeat: "weekly", repeatCount: "3" }, user: admin },
+      res
+    );
+    const docs = Event.insertMany.mock.calls[0][0];
+    expect(docs.map((d) => d.date.toISOString())).toEqual([
+      "2027-01-07T04:15:00.000Z",
+      "2027-01-14T04:15:00.000Z",
+      "2027-01-21T04:15:00.000Z",
+    ]);
+    expect(Event.create).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ createdCount: 3, message: "3 events created" }));
+    expect(recordAudit).toHaveBeenCalledWith(admin, "event.created", expect.stringContaining("3 repeating events"));
+  });
+
+  it("keeps the registration deadline the same distance before every date", async () => {
+    await createEvent(
+      {
+        body: {
+          ...baseBody,
+          date: "2027-01-07T04:15:00.000Z",
+          registrationDeadline: "2027-01-06T04:15:00.000Z",
+          repeat: "biweekly",
+          repeatCount: 2,
+        },
+        user: admin,
+      },
+      mockRes()
+    );
+    const docs = Event.insertMany.mock.calls[0][0];
+    expect(docs[1].date.toISOString()).toBe("2027-01-21T04:15:00.000Z");
+    expect(docs[1].registrationDeadline.toISOString()).toBe("2027-01-20T04:15:00.000Z");
+  });
+
+  it("emails club members about the first date only", async () => {
+    const club = { _id: CLUB_ID, name: "Tech Club" };
+    Club.findById.mockResolvedValue(club);
+    await createEvent({ body: { ...baseBody, club: CLUB_ID, repeat: "weekly", repeatCount: 4 }, user: admin }, mockRes());
+    expect(notifyNewClubEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects a bad repeat or count with a 400 and creates nothing", async () => {
+    for (const extra of [{ repeat: "daily", repeatCount: 4 }, { repeat: "weekly", repeatCount: 1 }, { repeat: "weekly", repeatCount: 99 }]) {
+      const res = mockRes();
+      await createEvent({ body: { ...baseBody, ...extra }, user: admin }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(Event.insertMany).not.toHaveBeenCalled();
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+
+  it("still creates a single event when no repeat is asked for", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, repeat: "none" }, user: admin }, res);
+    expect(Event.create).toHaveBeenCalledTimes(1);
+    expect(Event.insertMany).not.toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ createdCount: 1 }));
+  });
+});
+
 describe("createEvent -- club handling", () => {
   it("creates a club-less event without notifying anyone", async () => {
     const res = mockRes();
