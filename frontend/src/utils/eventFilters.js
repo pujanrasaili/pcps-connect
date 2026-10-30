@@ -3,7 +3,16 @@
 
 import { isRegistrationClosed } from "./registrationDeadline.js";
 
-export const WHEN_VALUES = ["upcoming", "past", "mine", "saved"];
+export const WHEN_VALUES = ["upcoming", "week", "past", "mine", "saved"];
+
+// "This week": not started yet and starting before midnight seven days from
+// today, in the viewer's own time zone (so today counts as the first day).
+export function isThisWeek(dateStr, now = new Date()) {
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime()) || date < now) return false;
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
+  return date < end;
+}
 
 // Same default the event card uses when an event has no capacity set.
 // An event whose registration deadline has passed is not open to new sign-ups

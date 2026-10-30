@@ -756,3 +756,14 @@ test("attendanceCsv lists one row per past event and protects formulas", async (
   assert.match(lines[2], /"Quiet","","2026-09-01","0","0","0","","",/);
   assert.equal(attendanceCsv(null).split("\r\n").length, 1);
 });
+
+test("isThisWeek covers today through six days ahead, never the past", async () => {
+  const { isThisWeek, readEventFilters } = await import("../src/utils/eventFilters.js");
+  const now = new Date(2026, 9, 30, 10, 0); // Fri 30 Oct, 10:00 local
+  assert.equal(isThisWeek(new Date(2026, 9, 30, 18, 0), now), true); // later today
+  assert.equal(isThisWeek(new Date(2026, 10, 5, 23, 59), now), true); // 6 days ahead, last minute
+  assert.equal(isThisWeek(new Date(2026, 10, 6, 0, 0), now), false); // 7 days ahead
+  assert.equal(isThisWeek(new Date(2026, 9, 30, 9, 0), now), false); // already started
+  assert.equal(isThisWeek("banana", now), false);
+  assert.equal(readEventFilters(new URLSearchParams("when=week")).when, "week");
+});
