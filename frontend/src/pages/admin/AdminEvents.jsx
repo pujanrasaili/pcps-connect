@@ -259,7 +259,7 @@ export default function AdminEvents() {
                   )}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-1">
+              <div className="flex w-full shrink-0 items-center justify-end gap-1 sm:w-auto">
                 <button
                   onClick={() => setAttendeesEvent(event)}
                   aria-label={`View attendees for ${event.title}`}

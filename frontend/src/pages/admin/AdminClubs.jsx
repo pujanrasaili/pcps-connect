@@ -237,7 +237,7 @@ export default function AdminClubs() {
                     <p className="text-xs text-slate-500 dark:text-slate-400">{club.category}</p>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="flex w-full shrink-0 items-center justify-end gap-1 sm:w-auto">
                   <button
                     onClick={() => setMembersTarget(club)}
                     aria-label={`View members of ${club.name}`}

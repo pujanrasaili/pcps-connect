@@ -285,7 +285,7 @@ export default function AdminUsers() {
                   </span>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-1">
+                <div className="flex w-full shrink-0 items-center justify-end gap-1 sm:w-auto">
                   {isPending && (
                     <>
                       <button
