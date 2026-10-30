@@ -15,7 +15,7 @@ import Pagination from "../components/Pagination";
 import EventCalendar from "../components/EventCalendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { isPastEvent } from "../utils/formatDate";
-import { hasOpenSpots, readEventFilters, withEventFilters } from "../utils/eventFilters";
+import { hasOpenSpots, isThisWeek, readEventFilters, withEventFilters } from "../utils/eventFilters";
 
 const PAGE_SIZE = 9;
 
@@ -68,7 +68,9 @@ export default function Events() {
               ? savedIds.includes(event._id)
               : when === "upcoming"
                 ? !isPast
-                : isPast;
+                : when === "week"
+                  ? isThisWeek(event.date)
+                  : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesClub = !clubFilter || event.club?._id === clubFilter;
         const matchesSpots = !openOnly || hasOpenSpots(event);
@@ -126,9 +128,10 @@ export default function Events() {
 
         <div className="mx-auto mt-8 flex max-w-4xl flex-wrap items-center justify-center gap-3">
           {view === "list" && (
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+          <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
             {[
               ["upcoming", "Upcoming"],
+              ["week", "This week"],
               ["past", "Past"],
               ...(isAuthenticated ? [["mine", "Registered"]] : []),
               ["saved", "Saved"],
@@ -136,7 +139,7 @@ export default function Events() {
               <button
                 key={value}
                 onClick={() => setWhen(value)}
-                className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${
+                className={`whitespace-nowrap rounded-lg px-2 py-1.5 text-[13px] font-semibold transition-colors sm:px-4 sm:text-sm ${
                   when === value
                     ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
                     : "text-slate-600 dark:text-slate-400"
@@ -234,7 +237,9 @@ export default function Events() {
                     : "None of your saved events match."
                   : when === "upcoming"
                   ? "No upcoming events match your search."
-                  : "No past events match your search."}
+                  : when === "week"
+                    ? "Nothing is happening in the next 7 days."
+                    : "No past events match your search."}
             </p>
             <p className="mt-1 text-sm">
               {when === "saved" && savedIds.length === 0
