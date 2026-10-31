@@ -21,5 +21,7 @@ const registrationSchema = new mongoose.Schema(
 
 // A student can only register for the same event once.
 registrationSchema.index({ user: 1, event: 1 }, { unique: true });
+// Seat counts and attendee lists look up by event alone; the index above starts with user.
+registrationSchema.index({ event: 1 });
 
 module.exports = mongoose.model("Registration", registrationSchema);

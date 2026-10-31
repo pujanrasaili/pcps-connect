@@ -10,5 +10,7 @@ const clubMembershipSchema = new mongoose.Schema(
 
 // A student can only have one membership row per club.
 clubMembershipSchema.index({ user: 1, club: 1 }, { unique: true });
+// Member lists, counts and "tell the club" emails look up by club alone.
+clubMembershipSchema.index({ club: 1 });
 
 module.exports = mongoose.model("ClubMembership", clubMembershipSchema);
