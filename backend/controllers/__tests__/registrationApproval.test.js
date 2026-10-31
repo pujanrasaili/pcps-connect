@@ -21,7 +21,7 @@ const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const sendEmail = require("../../utils/sendEmail");
-const { pushNotifications } = require("../../utils/inApp");
+const { pushNotifications, notifyAdmins } = require("../../utils/inApp");
 const { promoteFromWaitlist } = require("../../utils/waitlist");
 const { createCheckInCode } = require("../../utils/checkInCode");
 const { decideRegistration, updateRegistrationAttendance, checkInByCode } = require("../adminController");
@@ -66,6 +66,7 @@ describe("registerForEvent on an approval event", () => {
     const res = mockRes();
     await registerForEvent({ body: { eventId: "64b7f0c2a1b2c3d4e5f60002" }, user: STUDENT }, res);
     expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "pending" });
+    expect(notifyAdmins).toHaveBeenCalledWith(expect.objectContaining({ type: "join_request", title: "Asha asked to join Hack Night" }));
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json.mock.calls[0][0].message).toMatch(/request sent/i);
     expect(sendEmail).toHaveBeenCalledTimes(1);

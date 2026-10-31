@@ -5,6 +5,7 @@ const Event = require("../models/Event");
 const { safeError } = require("../utils/errorMessage");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const { sendRegistrationConfirmation, sendRequestReceived } = require("../utils/registrationEmails");
+const { notifyAdmins } = require("../utils/inApp");
 const { createCheckInCode } = require("../utils/checkInCode");
 const { createCertificateCode } = require("../utils/certificateCode");
 
@@ -78,6 +79,11 @@ async function registerForEvent(req, res) {
     if (!registration) return res.status(400).json({ message: "This event is full" });
 
     if (registration.status === "pending") {
+      await notifyAdmins({
+        type: "join_request",
+        title: `${req.user.name} asked to join ${event.title}`,
+        link: "/admin/events",
+      });
       await sendRequestReceived(req.user, event);
       return res.status(201).json({ message: "Request sent -- the organisers will review it", registration });
     }

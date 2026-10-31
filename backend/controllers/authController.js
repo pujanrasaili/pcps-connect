@@ -16,6 +16,7 @@ const ClubMembership = require("../models/ClubMembership");
 const Club = require("../models/Club");
 const Notification = require("../models/Notification");
 const { recordAudit } = require("../utils/audit");
+const { notifyAdmins } = require("../utils/inApp");
 
 function signToken(userId) {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -538,6 +539,12 @@ async function verifyEmail(req, res) {
 
     user.emailVerified = true;
     await user.save();
+
+    await notifyAdmins({
+      type: "account_pending",
+      title: `${user.name} verified their email and is waiting for approval`,
+      link: "/admin/users",
+    });
 
     // Let an admin know a verified student is now waiting for approval.
     // Best-effort -- a failed notification shouldn't fail the verification.
