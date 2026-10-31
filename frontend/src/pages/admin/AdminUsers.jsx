@@ -255,7 +255,7 @@ export default function AdminUsers() {
                   <p className="truncate text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
                 </div>
 
-                <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+                <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1.5 sm:shrink-0">
                   {!u.emailVerified && (
                     <span
                       className="badge bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
