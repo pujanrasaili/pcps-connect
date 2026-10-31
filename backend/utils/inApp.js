@@ -1,4 +1,5 @@
 const Notification = require("../models/Notification");
+const User = require("../models/User");
 
 // Adds the same short in-app message for each of the given users. Always
 // best-effort: a problem here is logged and swallowed, because it must never
@@ -18,4 +19,16 @@ async function pushNotifications(userIds, { type, title, link = "" }) {
   }
 }
 
-module.exports = { pushNotifications };
+// Tells every admin. Also best-effort: it never throws, so the student's own
+// action (verifying an email, requesting a seat) can't fail because of it.
+async function notifyAdmins(message) {
+  try {
+    const admins = await User.find({ role: "admin" }).select("_id");
+    return await pushNotifications(admins.map((a) => a._id), message);
+  } catch (err) {
+    console.error("Failed to notify admins:", err.message);
+    return 0;
+  }
+}
+
+module.exports = { pushNotifications, notifyAdmins };

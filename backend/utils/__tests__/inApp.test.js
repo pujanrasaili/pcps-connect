@@ -1,7 +1,9 @@
 jest.mock("../../models/Notification");
+jest.mock("../../models/User");
 
 const Notification = require("../../models/Notification");
-const { pushNotifications } = require("../inApp");
+const User = require("../../models/User");
+const { pushNotifications, notifyAdmins } = require("../inApp");
 
 afterEach(() => jest.resetAllMocks());
 
@@ -42,5 +44,20 @@ describe("pushNotifications", () => {
     Notification.insertMany.mockRejectedValue(new Error("db down"));
     await expect(pushNotifications(["u1"], { type: "t", title: "x" })).resolves.toBe(0);
     spy.mockRestore();
+  });
+});
+
+describe("notifyAdmins", () => {
+  it("posts the message for every admin account", async () => {
+    User.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: "a1" }, { _id: "a2" }]) });
+    Notification.insertMany.mockResolvedValue([]);
+    expect(await notifyAdmins({ type: "t", title: "Hi", link: "/admin/users" })).toBe(2);
+    expect(User.find).toHaveBeenCalledWith({ role: "admin" });
+  });
+
+  it("never throws if the lookup fails", async () => {
+    User.find.mockImplementation(() => { throw new Error("db"); });
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    await expect(notifyAdmins({ type: "t", title: "Hi" })).resolves.toBe(0);
   });
 });
