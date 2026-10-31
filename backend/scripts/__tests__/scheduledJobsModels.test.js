@@ -20,3 +20,11 @@ describe("scheduled email jobs register the models they populate", () => {
     }
   }
 });
+
+describe("event reminders also reach the notification bell", () => {
+  it("sendEventReminders.js pushes an event_reminder notification", () => {
+    const source = fs.readFileSync(path.join(__dirname, "..", "sendEventReminders.js"), "utf8");
+    expect(source).toMatch(/require\("\.\.\/utils\/inApp"\)/);
+    expect(source).toMatch(/type: "event_reminder"/);
+  });
+});

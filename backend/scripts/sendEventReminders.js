@@ -33,6 +33,7 @@ const renderEmail = require("../utils/emailTemplate");
 const { escapeHtml } = require("../utils/escapeHtml");
 const { formatEventDate } = require("../utils/formatEventDate");
 const { getReminderWindow } = require("../utils/reminderWindow");
+const { pushNotifications } = require("../utils/inApp");
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
@@ -70,6 +71,13 @@ async function run() {
         await registration.save();
         continue;
       }
+
+      // The bell gets the reminder too, even if the email below bounces.
+      await pushNotifications([registration.user._id], {
+        type: "event_reminder",
+        title: `Coming up: ${event.title} on ${formatEventDate(event.date)}`,
+        link: `/events/${event._id}`,
+      });
 
       try {
         await sendEmail({
