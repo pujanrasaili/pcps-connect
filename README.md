@@ -17,7 +17,7 @@ accounts.
 
 **Frontend:** React 19, Vite, React Router, Tailwind CSS, Axios, Recharts, React Icons
 **Backend:** Node.js, Express, MongoDB (Mongoose), JWT authentication (httpOnly cookies), bcrypt
-**Infrastructure:** MongoDB Atlas (database), Cloudinary (image storage), Gmail SMTP via Nodemailer (transactional email), Vercel (frontend hosting), Render (backend hosting)
+**Infrastructure:** MongoDB Atlas (database), Cloudinary (image storage), Brevo (transactional email; Gmail SMTP via Nodemailer as a fallback), Vercel (frontend hosting), Render (backend hosting)
 
 ## Project Structure
 

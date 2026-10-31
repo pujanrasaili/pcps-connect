@@ -9,7 +9,7 @@ see `ADMIN_GUIDE.md`.
 ```
 Student's browser  ->  Frontend (React, on Vercel)  ->  API (Node + Express, on Render)  ->  MongoDB Atlas
                                                               |-> Cloudinary (images)
-                                                              |-> Gmail SMTP (emails)
+                                                              |-> Brevo (emails; Gmail SMTP as fallback)
 GitHub Actions (on a timer) -> runs the reminder and digest scripts against the same database
 ```
 
@@ -90,7 +90,7 @@ calendar app converts correctly.
 
 ## Emails
 
-Sent through Gmail with Nodemailer: verification, password reset,
+Sent through Brevo (or Gmail SMTP with Nodemailer as a fallback): verification, password reset,
 registration confirmations, event changes and cancellations, announcements.
 Each has a plain-text version, and messages students can opt out of carry an
 Unsubscribe link to Settings. Two GitHub Actions workflows run on a timer:
