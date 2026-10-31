@@ -789,3 +789,16 @@ test("calendar links use the event's end time, else two hours", async () => {
   assert.equal(dates({ ...event, endDate: "2027-01-15T09:00:00.000Z" }), "20270115T093000Z/20270115T113000Z");
   assert.match(buildIcs({ ...event, endDate: "2027-01-15T10:00:00.000Z" }), /DTEND:20270115T100000Z/);
 });
+
+test("timeAgo gives short relative times, then a date", async () => {
+  const { timeAgo } = await import("../src/utils/timeAgo.js");
+  const now = new Date("2026-10-31T12:00:00Z");
+  const ago = (ms) => new Date(now.getTime() - ms).toISOString();
+  assert.equal(timeAgo(ago(20 * 1000), now), "just now");
+  assert.equal(timeAgo(ago(5 * 60 * 1000), now), "5 min ago");
+  assert.equal(timeAgo(ago(3 * 3600 * 1000), now), "3 h ago");
+  assert.equal(timeAgo(ago(2 * 86400 * 1000), now), "2 d ago");
+  assert.match(timeAgo(ago(30 * 86400 * 1000), now), /Oct 1/);
+  assert.equal(timeAgo("banana", now), "");
+  assert.equal(timeAgo(new Date(now.getTime() + 60000).toISOString(), now), "just now"); // clock skew
+});

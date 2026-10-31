@@ -15,6 +15,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import SearchDialog from "./SearchDialog";
+import NotificationBell from "./NotificationBell";
 import logo from "../assets/images/pcps-logo.webp";
 
 const BASE_NAV_LINKS = [
@@ -126,6 +127,7 @@ export default function Navbar() {
           >
             <FaSearch />
           </button>
+          {isAuthenticated && <NotificationBell />}
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
@@ -198,6 +200,7 @@ export default function Navbar() {
           >
             <FaSearch />
           </button>
+          {isAuthenticated && <NotificationBell />}
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"

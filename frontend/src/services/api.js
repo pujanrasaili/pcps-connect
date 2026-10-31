@@ -31,7 +31,9 @@ export const api = axios.create({
 let nextRequestId = 0;
 api.interceptors.request.use((config) => {
   if (typeof FormData !== "undefined" && config.data instanceof FormData) config.timeout = 180000;
-  if (!(typeof FormData !== "undefined" && config.data instanceof FormData)) {
+  // `quiet` requests (the bell's background refresh) never trigger the
+  // "server is waking up" notice.
+  if (!config.quiet && !(typeof FormData !== "undefined" && config.data instanceof FormData)) {
     config.slowId = ++nextRequestId;
     slowRequests.start(config.slowId);
   }
