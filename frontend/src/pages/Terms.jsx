@@ -7,7 +7,7 @@ export default function Terms() {
         <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
           Terms of Use
         </h1>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Last updated: September 2026</p>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Last updated: October 2026</p>
 
         <div className="card-surface mt-8 space-y-6 p-6 sm:p-8">
           <Section title="1. Who this is for">
@@ -36,7 +36,11 @@ export default function Terms() {
             Registering for an event reserves you a spot, subject to
             capacity. Event details (dates, locations, capacity) are
             managed by club organizers and PCPS staff and may change --
-            check the event page for the latest information.
+            check the event page for the latest information. Some events
+            need an organiser's approval: your request holds a seat until
+            it is approved or declined. If an event is full you can join
+            its waitlist, and you are given a seat automatically if one
+            opens.
           </Section>
 
           <Section title="5. Content and accounts">
