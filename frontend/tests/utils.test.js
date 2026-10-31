@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { csvField, buildCsv, slugify } from "../src/utils/csv.js";
 import { pluralize } from "../src/utils/plural.js";
 import { buildIcs, buildIcsCalendar, googleCalendarUrl } from "../src/utils/calendar.js";
-import { titleForPath, eventTitle, DEFAULT_TITLE } from "../src/utils/pageTitle.js";
+import { titleForPath, eventTitle, DEFAULT_TITLE, canonicalForPath } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { queueLabel } from "../src/utils/waitlistLabel.js";
 import { shouldAutoplayVideo } from "../src/utils/videoPolicy.js";
@@ -824,4 +824,12 @@ test("sharedRequest: callers at the same moment share one request, later ones as
   await assert.rejects(sharedRequest("bad", bad, 3000, now));
   assert.equal(fails, 2);
   clearSharedRequests();
+});
+
+test("canonicalForPath: each page names itself, without trailing slash or query", () => {
+  assert.equal(canonicalForPath("/"), "https://pcps-connect.vercel.app/");
+  assert.equal(canonicalForPath(""), "https://pcps-connect.vercel.app/");
+  assert.equal(canonicalForPath("/events"), "https://pcps-connect.vercel.app/events");
+  assert.equal(canonicalForPath("/events/"), "https://pcps-connect.vercel.app/events");
+  assert.equal(canonicalForPath("/events/abc123?utm=x#top"), "https://pcps-connect.vercel.app/events/abc123");
 });

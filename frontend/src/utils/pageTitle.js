@@ -42,3 +42,13 @@ export function titleForPath(pathname) {
 export function eventTitle(name) {
   return name ? `${name} | ${SITE}` : `Event | ${SITE}`;
 }
+
+export const SITE_ORIGIN = "https://pcps-connect.vercel.app";
+
+// The address search engines should treat as "this page" -- the path without a
+// trailing slash, query string or fragment. Without this every page would
+// claim the home page as its canonical address (the static tag in index.html).
+export function canonicalForPath(pathname) {
+  const path = String(pathname || "/").split(/[?#]/)[0].replace(/\/+$/, "");
+  return `${SITE_ORIGIN}${path || "/"}`;
+}
