@@ -15,7 +15,7 @@ import Pagination from "../components/Pagination";
 import EventCalendar from "../components/EventCalendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { isPastEvent } from "../utils/formatDate";
-import { hasOpenSpots, isThisWeek, readEventFilters, withEventFilters } from "../utils/eventFilters";
+import { hasOpenSpots, isFreeEvent, isThisWeek, readEventFilters, withEventFilters } from "../utils/eventFilters";
 
 const PAGE_SIZE = 9;
 
@@ -27,10 +27,10 @@ export default function Events() {
     () => new Set(isAuthenticated ? registrations.map((r) => r.event?._id).filter(Boolean) : []),
     [registrations, isAuthenticated]
   );
-  // Every filter lives in the URL (?when=&category=&q=&open=&club=) so a
+  // Every filter lives in the URL (?when=&category=&q=&open=&free=&club=) so a
   // filtered list can be shared and the back button behaves.
   const [searchParams, setSearchParams] = useSearchParams();
-  const { when, category, openOnly, club: clubFilter, query: urlQuery, view } = readEventFilters(searchParams, { isAuthenticated });
+  const { when, category, openOnly, freeOnly, club: clubFilter, query: urlQuery, view } = readEventFilters(searchParams, { isAuthenticated });
   const update = (patch) => setSearchParams((prev) => withEventFilters(prev, patch), { replace: true });
   const setWhen = (value) => update({ when: value });
   const setCategory = (value) => update({ category: value });
@@ -73,7 +73,7 @@ export default function Events() {
                   : isPast;
         const matchesCategory = category === "All" || event.category === category;
         const matchesClub = !clubFilter || event.club?._id === clubFilter;
-        const matchesSpots = !openOnly || hasOpenSpots(event);
+        const matchesSpots = (!openOnly || hasOpenSpots(event)) && (!freeOnly || isFreeEvent(event));
         // Search the fields students actually think in: the event name, where
         // it is, and which club is hosting it.
         const needle = debouncedQuery.toLowerCase();
@@ -91,7 +91,7 @@ export default function Events() {
         const newestFirst = when === "past" || (mixed && pastA);
         return newestFirst ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
       });
-  }, [events, debouncedQuery, category, when, clubFilter, registeredIds, savedIds, openOnly]);
+  }, [events, debouncedQuery, category, when, clubFilter, registeredIds, savedIds, openOnly, freeOnly]);
 
   // The calendar shows every month, so it ignores the Upcoming/Past/Registered
   // tabs but keeps the category, search, club and spots-left filters.
@@ -102,9 +102,10 @@ export default function Events() {
         (category === "All" || event.category === category) &&
         (!clubFilter || event.club?._id === clubFilter) &&
         (!openOnly || hasOpenSpots(event)) &&
+        (!freeOnly || isFreeEvent(event)) &&
         [event.title, event.location, event.club?.name].filter(Boolean).some((field) => field.toLowerCase().includes(needle))
     );
-  }, [events, debouncedQuery, category, clubFilter, openOnly]);
+  }, [events, debouncedQuery, category, clubFilter, openOnly, freeOnly]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -178,7 +179,7 @@ export default function Events() {
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
 
-        <div className="mx-auto mt-4 flex max-w-4xl">
+        <div className="mx-auto mt-4 flex max-w-4xl flex-wrap gap-x-6 gap-y-2">
           <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
             <input
               type="checkbox"
@@ -187,6 +188,15 @@ export default function Events() {
               className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
             />
             Only events with spots left
+          </label>
+          <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+            <input
+              type="checkbox"
+              checked={freeOnly}
+              onChange={(e) => update({ free: e.target.checked })}
+              className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+            />
+            Free events only
           </label>
         </div>
 
@@ -246,11 +256,11 @@ export default function Events() {
                 ? "Tap the bookmark on an event to keep it here for later."
                 : "Try a different name or category."}
             </p>
-            {(query || category !== "All" || openOnly) && (
+            {(query || category !== "All" || openOnly || freeOnly) && (
               <button
                 onClick={() => {
                   setQuery("");
-                  update({ q: "", category: "All", open: false });
+                  update({ q: "", category: "All", open: false, free: false });
                 }}
                 className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
               >
