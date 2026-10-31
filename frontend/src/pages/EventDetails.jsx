@@ -49,6 +49,8 @@ export default function EventDetails() {
   }, [event?.title]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [unregistering, setUnregistering] = useState(false);
   const toast = useToast();
@@ -63,20 +65,27 @@ export default function EventDetails() {
     let cancelled = false;
     setLoading(true);
     setNotFound(false);
+    setLoadFailed(false);
     setWaitlist(null);
-    getEventById(id).then((result) => {
-      if (cancelled) return;
-      if (!result) {
-        setNotFound(true);
-      } else {
-        setEvent(result);
-      }
-      setLoading(false);
-    });
+    getEventById(id)
+      .then((result) => {
+        if (cancelled) return;
+        if (!result) {
+          setNotFound(true);
+        } else {
+          setEvent(result);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setLoadFailed(true);
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [id, getEventById]);
+  }, [id, getEventById, loadAttempt]);
 
   // The public events list leaves out the organiser's email (it's for logged-in
   // students only), so fetch the single event to get it.
@@ -125,6 +134,20 @@ export default function EventDetails() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (loadFailed && !event) {
+    return (
+      <div className="container-page flex min-h-[60vh] flex-col items-center justify-center text-center" role="alert">
+        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">Couldn't load this event</h1>
+        <p className="mt-2 max-w-md text-slate-500 dark:text-slate-400">
+          The server may be waking up or your connection dropped. The event is still there; give it a moment and try again.
+        </p>
+        <button type="button" onClick={() => setLoadAttempt((n) => n + 1)} className="btn-primary mt-5">
+          Try again
+        </button>
       </div>
     );
   }

@@ -36,8 +36,12 @@ export function EventsProvider({ children }) {
       try {
         const res = await api.get(`/events/${id}`);
         return res.data.event;
-      } catch {
-        return null;
+      } catch (err) {
+        // "No such event" (404, or an id that isn't valid) is an answer; a
+        // dead connection or a broken server is not, and must not look like one.
+        const status = err?.response?.status;
+        if (status === 404 || status === 400) return null;
+        throw err;
       }
     },
     [events]
