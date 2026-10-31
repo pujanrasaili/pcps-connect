@@ -850,3 +850,14 @@ test("readEventFilters / withEventFilters: the free-only filter lives in the URL
   assert.equal(withEventFilters(new URLSearchParams(""), { free: true }).get("free"), "1");
   assert.equal(withEventFilters(new URLSearchParams("free=1"), { free: false }).has("free"), false);
 });
+
+import { initialsOf } from "../src/utils/initials.js";
+
+test("initialsOf: first and last name letters, one for a single name, ? for nothing", () => {
+  assert.equal(initialsOf("Asha Rai"), "AR");
+  assert.equal(initialsOf("  asha   maya  rai "), "AR");
+  assert.equal(initialsOf("Madonna"), "M");
+  assert.equal(initialsOf(""), "?");
+  assert.equal(initialsOf(undefined), "?");
+  assert.equal(initialsOf("   "), "?");
+});
