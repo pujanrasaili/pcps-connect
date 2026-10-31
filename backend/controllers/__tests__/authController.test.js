@@ -7,12 +7,14 @@ jest.mock("../../models/Registration");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/Club");
+jest.mock("../../models/Notification");
 
 process.env.JWT_SECRET = "test-secret";
 process.env.CLIENT_ORIGIN = "http://localhost:5173";
 
 const bcrypt = require("bcryptjs");
 const User = require("../../models/User");
+const Notification = require("../../models/Notification");
 const sendEmail = require("../../utils/sendEmail");
 const { register, login, forgotPassword, resendVerification, resetPassword, changePassword, updateProfile, deleteAccount, exportMyData } = require("../authController");
 const Registration = require("../../models/Registration");
@@ -358,8 +360,11 @@ describe("exportMyData", () => {
     WaitlistEntry.find.mockReturnValue(chain([]));
     ClubMembership.find.mockReturnValue(chain([]));
     Club.find.mockReturnValue(chain([]));
+    Notification.find.mockReturnValue(chain([{ title: "Hack Night was updated", read: false, createdAt: "2026-10-01T00:00:00Z" }]));
     const res = mockRes();
     await exportMyData({ user: { _id: "s1" } }, res);
+    expect(Notification.find).toHaveBeenCalledWith({ user: "s1" });
+    expect(res.json.mock.calls[0][0].notifications).toEqual([{ message: "Hack Night was updated", read: false, receivedAt: "2026-10-01T00:00:00.000Z" }]);
     expect(Registration.find).toHaveBeenCalledWith({ user: "s1" });
     expect(ClubMembership.find).toHaveBeenCalledWith({ user: "s1" });
     expect(res.status).toHaveBeenCalledWith(200);
