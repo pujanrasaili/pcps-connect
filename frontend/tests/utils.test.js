@@ -802,3 +802,26 @@ test("timeAgo gives short relative times, then a date", async () => {
   assert.equal(timeAgo("banana", now), "");
   assert.equal(timeAgo(new Date(now.getTime() + 60000).toISOString(), now), "just now"); // clock skew
 });
+
+import { sharedRequest, clearSharedRequests } from "../src/utils/sharedRequest.js";
+
+test("sharedRequest: callers at the same moment share one request, later ones ask again, failures are not kept", async () => {
+  clearSharedRequests();
+  let calls = 0;
+  const load = async () => { calls += 1; return calls; };
+  let t = 1000;
+  const now = () => t;
+  const [a, b] = await Promise.all([sharedRequest("k", load, 3000, now), sharedRequest("k", load, 3000, now)]);
+  assert.equal(calls, 1);
+  assert.equal(a, b);
+  t += 5000; // after the window
+  assert.equal(await sharedRequest("k", load, 3000, now), 2);
+  assert.equal(await sharedRequest("other", load, 3000, now), 3); // different key
+
+  let fails = 0;
+  const bad = async () => { fails += 1; throw new Error("down"); };
+  await assert.rejects(sharedRequest("bad", bad, 3000, now));
+  await assert.rejects(sharedRequest("bad", bad, 3000, now));
+  assert.equal(fails, 2);
+  clearSharedRequests();
+});
