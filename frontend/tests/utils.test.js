@@ -767,3 +767,25 @@ test("isThisWeek covers today through six days ahead, never the past", async () 
   assert.equal(isThisWeek("banana", now), false);
   assert.equal(readEventFilters(new URLSearchParams("when=week")).when, "week");
 });
+
+test("time ranges: same day, later day, and an end that doesn't count", async () => {
+  const { formatTimeRange, formatDateTimeRange } = await import("../src/utils/formatDate.js");
+  const start = new Date(2026, 11, 5, 10, 0);
+  assert.match(formatTimeRange(start, new Date(2026, 11, 5, 12, 0)), /^10:00\s?AM\s–\s12:00\s?PM$/);
+  assert.match(formatTimeRange(start, new Date(2026, 11, 6, 12, 0)), /^10:00\s?AM\s–\sSun, Dec 6, 12:00\s?PM$/);
+  for (const end of [undefined, null, "", "banana", start, new Date(2026, 11, 5, 9, 0)]) {
+    assert.match(formatTimeRange(start, end), /^10:00\s?AM$/);
+  }
+  assert.match(formatDateTimeRange(start, new Date(2026, 11, 5, 12, 0)), /Sat, Dec 5, 2026, 10:00\s?AM – 12:00\s?PM$/);
+  assert.equal(formatDateTimeRange(start, null), formatDateTimeRange(start));
+});
+
+test("calendar links use the event's end time, else two hours", async () => {
+  const { googleCalendarUrl, buildIcs } = await import("../src/utils/calendar.js");
+  const event = { _id: "e1", title: "T", location: "L", description: "D", date: "2027-01-15T09:30:00.000Z" };
+  const dates = (e) => new URL(googleCalendarUrl(e)).searchParams.get("dates");
+  assert.equal(dates(event), "20270115T093000Z/20270115T113000Z");
+  assert.equal(dates({ ...event, endDate: "2027-01-15T10:00:00.000Z" }), "20270115T093000Z/20270115T100000Z");
+  assert.equal(dates({ ...event, endDate: "2027-01-15T09:00:00.000Z" }), "20270115T093000Z/20270115T113000Z");
+  assert.match(buildIcs({ ...event, endDate: "2027-01-15T10:00:00.000Z" }), /DTEND:20270115T100000Z/);
+});

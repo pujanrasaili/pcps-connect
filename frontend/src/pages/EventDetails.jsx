@@ -22,7 +22,7 @@ import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
-import { formatDate, formatDateTime, isPastEvent } from "../utils/formatDate";
+import { formatDate, formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, hasOpenDeadline } from "../utils/registrationDeadline";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
@@ -261,7 +261,7 @@ export default function EventDetails() {
             <ul className="space-y-4 text-sm">
               <li className="flex items-center gap-3">
                 <FaCalendarAlt className="text-primary-500" />
-                <span className="text-slate-600 dark:text-slate-300">{formatDateTime(event.date)}</span>
+                <span className="text-slate-600 dark:text-slate-300">{formatDateTimeRange(event.date, event.endDate)}</span>
               </li>
               <li className="flex items-center gap-3">
                 <FaMapMarkerAlt className="text-primary-500" />

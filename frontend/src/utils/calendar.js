@@ -1,4 +1,4 @@
-// "Add to calendar" helpers. Events only store a start time, so every
+// "Add to calendar" helpers. An event may have an end time; without one every
 // calendar entry gets a fixed default length.
 const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000;
 
@@ -33,9 +33,16 @@ const ALARM_LINES = [
   ["-PT1H", "Starting in 1 hour"],
 ].flatMap(([trigger, text]) => ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${text}`, `TRIGGER:${trigger}`, "END:VALARM"]);
 
+// The organiser's end time when it is a real moment after the start, else the
+// default length.
+function eventEnd(event, start) {
+  const end = event.endDate ? new Date(event.endDate) : null;
+  return end && end.getTime() > start.getTime() ? end : new Date(start.getTime() + DEFAULT_DURATION_MS);
+}
+
 function eventLines(event, now) {
   const start = new Date(event.date);
-  const end = new Date(start.getTime() + DEFAULT_DURATION_MS);
+  const end = eventEnd(event, start);
   return [
     "BEGIN:VEVENT",
     `UID:${event._id}@pcps-connect`,
@@ -70,7 +77,7 @@ export function buildIcs(event, now = new Date()) {
 
 export function googleCalendarUrl(event) {
   const start = new Date(event.date);
-  const end = new Date(start.getTime() + DEFAULT_DURATION_MS);
+  const end = eventEnd(event, start);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: event.title,

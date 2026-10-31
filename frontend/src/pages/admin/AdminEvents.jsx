@@ -26,6 +26,7 @@ const EMPTY_FORM = {
   title: "",
   description: "",
   date: "",
+  endDate: "",
   location: "",
   capacity: 100,
   category: "",
@@ -86,7 +87,15 @@ export default function AdminEvents() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => {
+      const next = { ...prev, [name]: type === "checkbox" ? checked : value };
+      // Moving the start moves the end with it, so the length stays the same.
+      if (name === "date" && prev.date && prev.endDate && value) {
+        const delta = new Date(value).getTime() - new Date(prev.date).getTime();
+        if (!Number.isNaN(delta)) next.endDate = isoToLocalInput(new Date(new Date(prev.endDate).getTime() + delta).toISOString());
+      }
+      return next;
+    });
   };
 
   const openCreate = () => {
@@ -108,6 +117,7 @@ export default function AdminEvents() {
       title: event.title || "",
       description: event.description || "",
       date: "",
+      endDate: "",
       location: event.location || "",
       capacity: event.capacity ?? 100,
       category: event.category || "",
@@ -129,6 +139,7 @@ export default function AdminEvents() {
       title: event.title || "",
       description: event.description || "",
       date: isoToLocalInput(event.date),
+      endDate: isoToLocalInput(event.endDate),
       location: event.location || "",
       capacity: event.capacity ?? 100,
       category: event.category || "",
@@ -152,7 +163,7 @@ export default function AdminEvents() {
       // Repeating only applies to creating; an edit changes this one event.
       if ((key === "repeat" || key === "repeatCount") && (editingEvent || form.repeat === "none")) return;
       // Times go to the server as exact instants (see utils/dateTimeInput.js).
-      formData.append(key, key === "date" || key === "registrationDeadline" ? localInputToIso(value) : value);
+      formData.append(key, key === "date" || key === "endDate" || key === "registrationDeadline" ? localInputToIso(value) : value);
     });
     if (imageFile) formData.append("image", imageFile);
 
@@ -354,6 +365,22 @@ export default function AdminEvents() {
               <label className="label-field" htmlFor="ev-location">Location</label>
               <input id="ev-location" name="location" maxLength={200} className="input-field" value={form.location} onChange={handleChange} required />
             </div>
+          </div>
+          <div>
+            <label className="label-field" htmlFor="ev-end">Ends at (optional)</label>
+            <input
+              id="ev-end"
+              name="endDate"
+              type="datetime-local"
+              className="input-field"
+              value={form.endDate}
+              min={form.date || undefined}
+              onChange={handleChange}
+              aria-describedby="ev-end-hint"
+            />
+            <p id="ev-end-hint" className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Shown as "10:00 AM &ndash; 12:00 PM" and used as the length in calendar invites. Leave blank and calendars assume 2 hours.
+            </p>
           </div>
           <div>
             <label className="label-field" htmlFor="ev-deadline">Registration closes (optional)</label>
