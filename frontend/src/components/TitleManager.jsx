@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { titleForPath } from "../utils/pageTitle";
+import { titleForPath, canonicalForPath } from "../utils/pageTitle";
 
 // Keeps the browser tab / history / screen-reader page title in step with the
 // route. Pages with data-driven titles (an event's name) set their own.
@@ -9,6 +9,8 @@ export default function TitleManager() {
   useEffect(() => {
     const title = titleForPath(pathname);
     if (title) document.title = title;
+    const link = document.querySelector('link[rel="canonical"]');
+    if (link) link.setAttribute("href", canonicalForPath(pathname));
   }, [pathname]);
   return null;
 }
