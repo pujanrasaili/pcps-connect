@@ -20,8 +20,8 @@ GitHub Actions (on a timer) -> runs the reminder and digest scripts against the 
   what, is the event full, is this input valid) happens here, because anything
   in the browser can be bypassed.
 - **Database**: MongoDB, with these collections: users, clubs, events,
-  registrations, club memberships, waiting-list entries, the admin audit log
-  and the site notice.
+  registrations, club memberships, waiting-list entries, in-app notifications
+  (the bell), the admin audit log and the site notice.
 
 ## Logging in
 
