@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { sharedRequest } from "../utils/sharedRequest";
 
 // The clubs this person has been named a leader of (empty for most students,
 // and for admins who aren't also leaders). `loaded` lets route guards wait
@@ -18,8 +19,9 @@ export function useLedClubs() {
   useEffect(() => {
     if (!userId) return undefined;
     let cancelled = false;
-    api
-      .get("/leader/clubs")
+    // The navbar and the page both ask: share one request. "Try again" (attempt > 0) always asks fresh.
+    const request = attempt > 0 ? api.get("/leader/clubs") : sharedRequest(`leader-clubs:${userId}`, () => api.get("/leader/clubs"));
+    request
       .then((res) => !cancelled && setState({ forUser: userId, clubs: res.data.clubs || [], failed: false }))
       .catch(() => !cancelled && setState({ forUser: userId, clubs: [], failed: true }));
     return () => {

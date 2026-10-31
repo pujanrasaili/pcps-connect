@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaArrowRight, FaCalendarCheck } from "react-icons/fa";
 import campusBuilding from "../assets/images/campus-building.webp";
 import { api } from "../services/api";
+import { sharedRequest } from "../utils/sharedRequest";
 
 export default function HeroSection() {
   const imgRef = useRef(null);
@@ -14,8 +15,7 @@ export default function HeroSection() {
   const [stats, setStats] = useState({ totalClubs: 0, totalStudents: 0, totalEvents: 0 });
 
   useEffect(() => {
-    api
-      .get("/stats")
+    sharedRequest("stats", () => api.get("/stats"))
       .then((res) => setStats(res.data))
       .catch(() => {});
   }, []);

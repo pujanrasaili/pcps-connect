@@ -13,6 +13,7 @@ import { browserAllowsAutoplay } from "../utils/videoPolicy";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { api, resolveUploadUrl } from "../services/api";
+import { sharedRequest } from "../utils/sharedRequest";
 import { isUpcoming } from "../utils/formatDate";
 import campusEvent from "../assets/images/campus-event.webp";
 import reelPoster from "../assets/images/campus-reel-poster.webp";
@@ -43,8 +44,7 @@ export default function Home() {
   });
 
   useEffect(() => {
-    api
-      .get("/stats")
+    sharedRequest("stats", () => api.get("/stats"))
       .then((res) => setStats(res.data))
       .catch(() => {});
   }, []);
