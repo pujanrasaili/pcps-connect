@@ -10,7 +10,7 @@ import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js
 import { queueLabel } from "../src/utils/waitlistLabel.js";
 import { shouldAutoplayVideo } from "../src/utils/videoPolicy.js";
 import { actionLabel, actionTone, actionGroup } from "../src/utils/auditLabels.js";
-import { hasOpenSpots, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
+import { hasOpenSpots, isFreeEvent, readEventFilters, withEventFilters } from "../src/utils/eventFilters.js";
 import { relatedEvents } from "../src/utils/relatedEvents.js";
 import { createSlowTracker } from "../src/utils/slowRequests.js";
 import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
@@ -183,7 +183,7 @@ test("clubLink builds a deep link that opens the club's details", () => {
 
 test("event filters: defaults, hand-edited values and the logged-out 'mine' fallback", () => {
   const p = (q) => new URLSearchParams(q);
-  assert.deepEqual(readEventFilters(p("")), { when: "upcoming", category: "All", query: "", openOnly: false, club: "", view: "list" });
+  assert.deepEqual(readEventFilters(p("")), { when: "upcoming", category: "All", query: "", openOnly: false, freeOnly: false, club: "", view: "list" });
   assert.equal(readEventFilters(p("when=past")).when, "past");
   assert.equal(readEventFilters(p("when=bogus")).when, "upcoming");
   assert.equal(readEventFilters(p("when=mine")).when, "upcoming"); // needs login
@@ -832,4 +832,21 @@ test("canonicalForPath: each page names itself, without trailing slash or query"
   assert.equal(canonicalForPath("/events"), "https://pcps-connect.vercel.app/events");
   assert.equal(canonicalForPath("/events/"), "https://pcps-connect.vercel.app/events");
   assert.equal(canonicalForPath("/events/abc123?utm=x#top"), "https://pcps-connect.vercel.app/events/abc123");
+});
+
+test("isFreeEvent: blank, Free and zero prices are free, anything else is paid", () => {
+  for (const price of [undefined, null, "", "  ", "Free", "free", "FREE ", "0", "Rs. 0", "Rs 0", "NPR 0", "No charge"]) {
+    assert.equal(isFreeEvent({ price }), true, `"${price}"`);
+  }
+  for (const price of ["Rs. 200", "500", "NPR 150", "Rs. 0.5", "Free for members, Rs. 100 otherwise"]) {
+    assert.equal(isFreeEvent({ price }), false, `"${price}"`);
+  }
+  assert.equal(isFreeEvent({}), true);
+});
+
+test("readEventFilters / withEventFilters: the free-only filter lives in the URL", () => {
+  assert.equal(readEventFilters(new URLSearchParams("free=1")).freeOnly, true);
+  assert.equal(readEventFilters(new URLSearchParams("")).freeOnly, false);
+  assert.equal(withEventFilters(new URLSearchParams(""), { free: true }).get("free"), "1");
+  assert.equal(withEventFilters(new URLSearchParams("free=1"), { free: false }).has("free"), false);
 });

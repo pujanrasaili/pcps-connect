@@ -22,6 +22,14 @@ export function hasOpenSpots(event) {
   return capacity - (event.registeredCount ?? 0) > 0 && !isRegistrationClosed(event);
 }
 
+// An event is free when its price is blank or says so ("Free", "0", "Rs. 0",
+// "No charge"...). Anything else ("Rs. 200") is paid.
+export function isFreeEvent(event) {
+  const price = String(event?.price ?? "").trim().toLowerCase();
+  if (!price) return true;
+  return /^(free|no charge|nil|(rs\.?|npr)?\s*0+(\.0+)?)$/.test(price);
+}
+
 // Reads the filters out of URLSearchParams, falling back to safe defaults for
 // anything missing or hand-edited. "mine" needs a logged-in student.
 export function readEventFilters(params, { isAuthenticated = false } = {}) {
@@ -31,6 +39,7 @@ export function readEventFilters(params, { isAuthenticated = false } = {}) {
     category: params.get("category") || "All",
     query: params.get("q") || "",
     openOnly: params.get("open") === "1",
+    freeOnly: params.get("free") === "1",
     club: params.get("club") || "",
     view: params.get("view") === "calendar" ? "calendar" : "list",
   };
@@ -40,7 +49,7 @@ export function readEventFilters(params, { isAuthenticated = false } = {}) {
 // so the plain /events URL stays clean.
 export function withEventFilters(params, patch) {
   const next = new URLSearchParams(params);
-  const defaults = { when: "upcoming", category: "All", q: "", open: "", view: "list" };
+  const defaults = { when: "upcoming", category: "All", q: "", open: "", free: "", view: "list" };
   for (const [key, value] of Object.entries(patch)) {
     if (value === undefined || value === null || value === false || value === defaults[key]) next.delete(key);
     else next.set(key, value === true ? "1" : String(value));
