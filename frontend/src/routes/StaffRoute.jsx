@@ -1,12 +1,13 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AuthUnreachable from "../components/AuthUnreachable";
 import { useLedClubs } from "../hooks/useLedClubs";
 
 // Admins, plus students an admin has made a club leader. Leaders only reach
 // the event and check-in pages; everything else stays behind AdminRoute. The
 // server enforces the same rule, this just keeps people off dead-end pages.
 export default function StaffRoute({ children }) {
-  const { isAuthenticated, authChecked, user } = useAuth();
+  const { isAuthenticated, authChecked, authUnreachable, user } = useAuth();
   const { clubs, loaded } = useLedClubs();
   const location = useLocation();
 
@@ -17,6 +18,8 @@ export default function StaffRoute({ children }) {
       </div>
     );
   }
+  if (!isAuthenticated && authUnreachable) return <AuthUnreachable />;
+
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }

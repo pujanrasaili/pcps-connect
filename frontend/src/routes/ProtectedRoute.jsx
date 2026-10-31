@@ -1,8 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AuthUnreachable from "../components/AuthUnreachable";
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, authChecked } = useAuth();
+  const { isAuthenticated, authChecked, authUnreachable } = useAuth();
   const location = useLocation();
 
   // Wait for the initial "am I logged in?" check to finish before deciding
@@ -16,6 +17,8 @@ export default function ProtectedRoute({ children }) {
       </div>
     );
   }
+
+  if (!isAuthenticated && authUnreachable) return <AuthUnreachable />;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;

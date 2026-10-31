@@ -1,11 +1,12 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AuthUnreachable from "../components/AuthUnreachable";
 
 // Same wait-for-auth-check pattern as ProtectedRoute, plus a role check.
 // A logged-in student who isn't an admin gets sent home rather than to
 // /login (they ARE logged in, they're just not allowed here).
 export default function AdminRoute({ children }) {
-  const { isAuthenticated, authChecked, user } = useAuth();
+  const { isAuthenticated, authChecked, authUnreachable, user } = useAuth();
   const location = useLocation();
 
   if (!authChecked) {
@@ -15,6 +16,8 @@ export default function AdminRoute({ children }) {
       </div>
     );
   }
+
+  if (!isAuthenticated && authUnreachable) return <AuthUnreachable />;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;

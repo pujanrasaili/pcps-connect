@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "./ToastContext";
-import { SESSION_EXPIRED_EVENT } from "../utils/sessionExpiry";
+import { SESSION_EXPIRED_EVENT, isAuthCheckUnreachable } from "../utils/sessionExpiry";
 import { forgetTickets } from "../services/ticketSync";
 
 const AuthContext = createContext(null);
@@ -31,6 +31,12 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, [isAuthenticated, toast]);
 
+  // True when the very first "am I logged in?" check could not be answered at
+  // all (server asleep or down, no connection). The route guards then show a
+  // "try again" screen instead of sending the person to the login page.
+  const [authUnreachable, setAuthUnreachable] = useState(false);
+  const [authAttempt, setAuthAttempt] = useState(0);
+
   // On first load, ask the backend "am I still logged in?" -- the JWT
   // lives in an httpOnly cookie, so JavaScript can't read it directly;
   // this is the only way to know.
@@ -42,11 +48,13 @@ export function AuthProvider({ children }) {
         if (!cancelled) {
           setUser(res.data.user);
           setIsAuthenticated(true);
+          setAuthUnreachable(false);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
           setUser(null);
           setIsAuthenticated(false);
+          setAuthUnreachable(isAuthCheckUnreachable(err));
         }
       } finally {
         if (!cancelled) setAuthChecked(true);
@@ -56,6 +64,12 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true;
     };
+  }, [authAttempt]);
+
+  // "Try again" on the unreachable screen: check once more, showing the spinner.
+  const retryAuth = useCallback(() => {
+    setAuthChecked(false);
+    setAuthAttempt((n) => n + 1);
   }, []);
 
   const login = async (email, password) => {
@@ -64,6 +78,7 @@ export function AuthProvider({ children }) {
       forgetTickets(); // never carry over a previous person's tickets
       setUser(res.data.user);
       setIsAuthenticated(true);
+      setAuthUnreachable(false);
       return { ok: true };
     } catch (err) {
       return {
@@ -96,6 +111,7 @@ export function AuthProvider({ children }) {
     forgetTickets();
     setUser(null);
     setIsAuthenticated(false);
+    setAuthUnreachable(false);
   };
 
   const updateUser = async (updates) => {
@@ -132,7 +148,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, authChecked, login, register, logout, updateUser, changePassword, refreshUser }}
+      value={{ user, isAuthenticated, authChecked, authUnreachable, retryAuth, login, register, logout, updateUser, changePassword, refreshUser }}
     >
       {children}
     </AuthContext.Provider>
