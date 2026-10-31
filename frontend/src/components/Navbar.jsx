@@ -16,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import SearchDialog from "./SearchDialog";
 import NotificationBell from "./NotificationBell";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import logo from "../assets/images/pcps-logo.webp";
 
 const BASE_NAV_LINKS = [
@@ -33,6 +34,7 @@ export default function Navbar() {
   const menuRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user, logout } = useAuth();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const { clubs: ledClubs } = useLedClubs();
   const navigate = useNavigate();
 
@@ -127,7 +129,7 @@ export default function Navbar() {
           >
             <FaSearch />
           </button>
-          {isAuthenticated && <NotificationBell />}
+          {isAuthenticated && isDesktop && <NotificationBell />}
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
@@ -200,7 +202,7 @@ export default function Navbar() {
           >
             <FaSearch />
           </button>
-          {isAuthenticated && <NotificationBell />}
+          {isAuthenticated && !isDesktop && <NotificationBell />}
           <button
             onClick={toggleTheme}
             aria-label="Toggle dark mode"
