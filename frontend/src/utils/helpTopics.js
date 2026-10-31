@@ -104,6 +104,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "bell",
+    question: "What is the bell in the top bar?",
+    answer: [
+      "The bell collects short messages for you in one place: a seat opened up from a waitlist, your join request was approved or declined, an event you registered for changed or is coming up, a club you joined announced something, or your question was answered.",
+      "A number on the bell means messages you have not opened yet. Opening the bell marks them as read. Messages disappear after 60 days. They are extra to the emails, so you can still turn reminder and club emails off in Settings.",
+    ],
+  },
+  {
     id: "emails",
     question: "How do I stop reminder emails?",
     answer: [
