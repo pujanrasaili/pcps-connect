@@ -14,3 +14,12 @@ export function isSessionExpired(error) {
   const url = String(error.config?.url || "");
   return !EXPECTED_401.some((path) => url.endsWith(path));
 }
+
+// The "am I logged in?" check failed, but NOT because the server said "no":
+// there was no answer at all (offline, a sleeping free-tier server that timed
+// out) or the server itself broke (5xx) or throttled us (429). That says
+// nothing about the person's login, so they must not be treated as logged out.
+export function isAuthCheckUnreachable(error) {
+  const status = error?.response?.status;
+  return !status || status >= 500 || status === 429;
+}

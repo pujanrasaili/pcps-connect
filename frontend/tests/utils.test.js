@@ -861,3 +861,15 @@ test("initialsOf: first and last name letters, one for a single name, ? for noth
   assert.equal(initialsOf(undefined), "?");
   assert.equal(initialsOf("   "), "?");
 });
+
+import { isAuthCheckUnreachable } from "../src/utils/sessionExpiry.js";
+
+test("isAuthCheckUnreachable: only 'no answer' or a broken server counts, never a plain 'not logged in'", () => {
+  assert.equal(isAuthCheckUnreachable(new Error("Network Error")), true); // no response at all
+  assert.equal(isAuthCheckUnreachable({ code: "ECONNABORTED", message: "timeout" }), true);
+  assert.equal(isAuthCheckUnreachable({ response: { status: 500 } }), true);
+  assert.equal(isAuthCheckUnreachable({ response: { status: 503 } }), true);
+  assert.equal(isAuthCheckUnreachable({ response: { status: 429 } }), true);
+  assert.equal(isAuthCheckUnreachable({ response: { status: 401 } }), false);
+  assert.equal(isAuthCheckUnreachable({ response: { status: 403 } }), false);
+});
