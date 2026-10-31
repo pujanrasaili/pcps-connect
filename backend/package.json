@@ -19,6 +19,7 @@
     "test-email": "node scripts/testEmail.js",
     "reminders": "node scripts/sendEventReminders.js",
     "digest": "node scripts/sendWeeklyDigest.js",
+    "smoke": "node scripts/smokeTest.js",
     "test": "jest",
     "test:integration": "node --test integration/api.integration.js"
   },
