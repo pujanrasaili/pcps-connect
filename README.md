@@ -138,6 +138,7 @@ pcps-connect/
 - User-supplied input (names, contact form) is HTML-escaped before being placed in outgoing emails
 - Backend trusts exactly one reverse-proxy hop (Render's) so rate limiting keys on the real visitor IP, not the proxy's
 - Health check: `GET /api/health` returns 200 when the database is connected and 503 otherwise. Point a free uptime monitor (e.g. UptimeRobot, every 5 minutes) at it to know when the site is down and to stop the free Render tier from sleeping
+- Deployment smoke test: after a deploy, run `npm run smoke` in `backend/` from your own computer. It loads the live API and website and prints PASS/FAIL for: database connected, email set up (Brevo), events and clubs load, private pages refuse visitors, security headers, and direct page links. It is read-only and can take a minute if the server was asleep
 - Login sessions and single-purpose email links (verify/reset) use distinct token shapes, so a verify/reset link can never be reused as a login session
 - Attendee CSV export is sanitized against spreadsheet formula injection
 - Changing or resetting a password invalidates every older login session, and a password-reset link can't be replayed after use

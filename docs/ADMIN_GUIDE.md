@@ -80,6 +80,7 @@ The settings for each live in that service's dashboard (Render: Environment; Ver
 ## Keeping it healthy
 
 - **Know when it is down:** point a free uptime monitor (for example UptimeRobot, every 5 minutes) at `https://pcps-connect-backend.onrender.com/api/health`. It answers `{"status":"ok","database":"connected","email":"brevo"}` when all is well (`email` names the mail method that is set up: `brevo`, `gmail-smtp` or `not-configured`), and also keeps the free Render tier awake.
+- **Check a new deploy:** from `backend/`, run `npm run smoke`. It prints PASS or FAIL for the main things (database, email, events, clubs, login protection, security headers). It only reads, so it is safe to run any time.
 - **Back up the database:** from `backend/`, run `npm run backup`. Do it before anything risky and now and then. The backup holds students' personal details, so keep it private (see the Backups section of the README for restoring).
 - **Dependabot** opens pull requests for package updates. Merge them when the checks (CI) are green.
 
