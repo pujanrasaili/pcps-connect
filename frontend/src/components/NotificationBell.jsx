@@ -13,11 +13,17 @@ export default function NotificationBell({ className = "" }) {
   const [open, setOpen] = useState(false);
   const [newIds, setNewIds] = useState(() => new Set());
   const boxRef = useRef(null);
+  const buttonRef = useRef(null);
 
   useEffect(() => {
     if (!open) return undefined;
     const onDown = (e) => boxRef.current && !boxRef.current.contains(e.target) && setOpen(false);
-    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      // Keyboard users were inside the panel, which is about to disappear: put them back on the bell.
+      buttonRef.current?.focus();
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -42,6 +48,7 @@ export default function NotificationBell({ className = "" }) {
     <div className={`relative ${className}`} ref={boxRef}>
       <button
         type="button"
+        ref={buttonRef}
         onClick={toggle}
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
         aria-expanded={open}
