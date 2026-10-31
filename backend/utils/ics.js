@@ -1,8 +1,15 @@
 // Builds a single-event iCalendar (RFC 5545) string, used to attach an
 // "add to calendar" invite to registration emails. Events only store a start
-// time, so every entry gets a fixed two-hour length (same as the website's
-// calendar buttons).
+// time unless the organiser also set an end time; without one every entry gets
+// a fixed two-hour length (same as the website's calendar buttons).
 const DEFAULT_DURATION_MS = 2 * 60 * 60 * 1000;
+
+// The organiser's end time when it is a valid moment after the start, else the
+// default length.
+function eventEnd(event, start) {
+  const end = event.endDate ? new Date(event.endDate) : null;
+  return end && end.getTime() > start.getTime() ? end : new Date(start.getTime() + DEFAULT_DURATION_MS);
+}
 
 const stamp = (date) => new Date(date).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
@@ -31,7 +38,7 @@ const ALARM_LINES = [
 // The lines of one VEVENT. `url` (optional) links back to the event's page.
 function eventLines(event, now, url) {
   const start = new Date(event.date);
-  const end = new Date(start.getTime() + DEFAULT_DURATION_MS);
+  const end = eventEnd(event, start);
   return [
     "BEGIN:VEVENT",
     `UID:${event._id}@pcps-connect`,

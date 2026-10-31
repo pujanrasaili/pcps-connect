@@ -41,7 +41,7 @@ async function getCalendarFeed(req, res) {
       name = `${club.name} events`;
     }
 
-    const events = await Event.find(filter).select("title description location date").sort({ date: 1 }).limit(MAX_EVENTS);
+    const events = await Event.find(filter).select("title description location date endDate").sort({ date: 1 }).limit(MAX_EVENTS);
     const origin = (process.env.CLIENT_ORIGIN || "").replace(/\/$/, "");
     const body = buildIcsCalendar(events, { name, urlFor: origin ? (e) => `${origin}/events/${e._id}` : undefined });
 

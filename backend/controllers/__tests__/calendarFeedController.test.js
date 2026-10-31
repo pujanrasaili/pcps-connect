@@ -61,7 +61,7 @@ describe("getCalendarFeed", () => {
   it("never exposes organiser or registration details", async () => {
     Event.find.mockReturnValue(query(sample));
     await getCalendarFeed({ query: {} }, mockRes());
-    expect(Event.find.mock.results[0].value.select).toHaveBeenCalledWith("title description location date");
+    expect(Event.find.mock.results[0].value.select).toHaveBeenCalledWith("title description location date endDate");
   });
 
   it("answers repeat requests from memory instead of querying the database again", async () => {

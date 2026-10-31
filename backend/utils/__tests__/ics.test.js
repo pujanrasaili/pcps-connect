@@ -39,6 +39,18 @@ describe("buildIcs", () => {
   });
 });
 
+describe("end time in the calendar file", () => {
+  const base = { _id: "e1", title: "T", location: "L", description: "D", date: "2027-01-15T09:30:00.000Z" };
+  it("uses the organiser's end time when there is one", () => {
+    expect(buildIcs({ ...base, endDate: "2027-01-15T10:00:00.000Z" })).toContain("DTEND:20270115T100000Z");
+  });
+  it("falls back to two hours when there is none, or it is not after the start", () => {
+    for (const endDate of [undefined, null, "2027-01-15T09:30:00.000Z", "2027-01-15T08:00:00.000Z"]) {
+      expect(buildIcs({ ...base, endDate })).toContain("DTEND:20270115T113000Z");
+    }
+  });
+});
+
 describe("buildIcsCalendar", () => {
   const other = { ...event, _id: "e2", title: "Chess Day", date: "2027-02-01T05:00:00Z" };
   const cal = buildIcsCalendar([event, other], { name: "Coding, Club", now: new Date("2026-10-01T00:00:00Z"), urlFor: (e) => `https://site.test/events/${e._id}` });
