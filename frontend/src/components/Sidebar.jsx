@@ -7,6 +7,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import Avatar from "./Avatar";
 
 const LINKS = [
   { to: "/dashboard", label: "Dashboard", icon: FaTachometerAlt },
@@ -22,7 +23,7 @@ export default function Sidebar({ className = "" }) {
   return (
     <aside className={`card-surface flex flex-col gap-6 p-5 ${className}`}>
       <div className="flex items-center gap-3">
-        <img src={user?.avatar} alt="" className="h-11 w-11 rounded-full" />
+        <Avatar user={user} className="h-11 w-11" />
         <div className="min-w-0">
           <p className="truncate font-semibold text-slate-800 dark:text-slate-100">
             {user?.name}

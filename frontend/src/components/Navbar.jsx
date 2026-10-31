@@ -16,6 +16,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import SearchDialog from "./SearchDialog";
 import NotificationBell from "./NotificationBell";
+import Avatar from "./Avatar";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import logo from "../assets/images/pcps-logo.webp";
 
@@ -144,7 +145,7 @@ export default function Navbar() {
                 onClick={() => setMenuOpen((o) => !o)}
                 className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 py-1 pl-1 pr-3 hover:border-primary-300 transition-colors"
               >
-                <img src={user?.avatar} alt="" className="h-7 w-7 rounded-full" />
+                <Avatar user={user} className="h-7 w-7" />
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                   {user?.name?.split(" ")[0]}
                 </span>

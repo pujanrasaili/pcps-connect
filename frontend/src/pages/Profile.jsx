@@ -13,6 +13,7 @@ import Button from "../components/Button";
 import StarRating, { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
 import MilestonesCard from "../components/MilestonesCard";
+import Avatar from "../components/Avatar";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
@@ -95,7 +96,7 @@ export default function Profile() {
       <div className="card-surface p-6">
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col items-center gap-4 sm:flex-row">
-            <img src={user?.avatar} alt="" className="h-20 w-20 rounded-full ring-4 ring-primary-100 dark:ring-primary-900" />
+            <Avatar user={user} className="h-20 w-20 ring-4 ring-primary-100 dark:ring-primary-900" />
             <div className="text-center sm:text-left">
               <h1 className="font-display text-xl font-bold text-slate-800 dark:text-slate-100">
                 {user?.name}
