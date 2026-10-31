@@ -18,6 +18,7 @@ describe("buildPersonalData", () => {
       waitlist: [{ event: { title: "Fest", date: "2027-01-01T10:00:00Z" }, createdAt: "2026-10-01T00:00:00Z" }],
       memberships: [{ club: { name: "Tech Club" }, createdAt: "2026-02-01T00:00:00Z" }, { club: null }],
       ledClubs: [{ name: "Tech Club" }],
+      notifications: [{ title: "Seat opened", read: true, createdAt: "2026-10-02T00:00:00Z", user: "u1" }],
     },
     NOW
   );
@@ -32,6 +33,7 @@ describe("buildPersonalData", () => {
     expect(data.waitlist).toHaveLength(1);
     expect(data.clubMemberships).toEqual([{ club: "Tech Club", joinedAt: "2026-02-01T00:00:00.000Z" }]);
     expect(data.clubsYouLead).toEqual(["Tech Club"]);
+    expect(data.notifications).toEqual([{ message: "Seat opened", read: true, receivedAt: "2026-10-02T00:00:00.000Z" }]);
   });
 
   it("never leaks credentials or internal tokens", () => {

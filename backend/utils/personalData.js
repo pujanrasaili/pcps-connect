@@ -3,7 +3,7 @@
 // free of database calls so it's easy to test.
 const iso = (d) => (d ? new Date(d).toISOString() : null);
 
-function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [] }, now = new Date()) {
+function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [] }, now = new Date()) {
   return {
     exportedAt: now.toISOString(),
     profile: {
@@ -40,6 +40,7 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
       .filter((m) => m.club)
       .map((m) => ({ club: m.club.name, joinedAt: iso(m.createdAt) })),
     clubsYouLead: ledClubs.map((c) => c.name),
+    notifications: notifications.map((n) => ({ message: n.title, read: !!n.read, receivedAt: iso(n.createdAt) })),
   };
 }
 
