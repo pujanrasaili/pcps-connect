@@ -6,6 +6,7 @@ import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useSavedEvents } from "../hooks/useSavedEvents";
+import SafeImage from "./SafeImage";
 
 export default function EventCard({ event }) {
   const capacity = event.capacity ?? 100;
@@ -29,7 +30,7 @@ export default function EventCard({ event }) {
       className={`group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft ${isPast ? "opacity-70" : ""}`}
     >
       <div className="relative h-44 overflow-hidden">
-        <img
+        <SafeImage
           src={resolveUploadUrl(event.image, 800)}
           alt={event.title}
           loading="lazy"

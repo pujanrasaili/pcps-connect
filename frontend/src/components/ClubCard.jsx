@@ -5,6 +5,7 @@ import { useRequireAuth } from "../hooks/useRequireAuth";
 import { getClubIcon } from "../utils/iconMap";
 import { resolveUploadUrl } from "../services/api";
 import { pluralize } from "../utils/plural";
+import SafeImage from "./SafeImage";
 
 export default function ClubCard({ club, onView }) {
   const Icon = getClubIcon(club.icon);
@@ -23,7 +24,7 @@ export default function ClubCard({ club, onView }) {
       className="group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft"
     >
       <div className="relative h-40 overflow-hidden bg-slate-100 dark:bg-slate-800">
-        <img
+        <SafeImage
           src={resolveUploadUrl(club.image, 800)}
           alt={`${club.name} banner`}
           loading="lazy"
