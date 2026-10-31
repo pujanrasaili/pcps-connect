@@ -137,6 +137,8 @@ const DESCRIPTIONS = {
   getMyWaitlist: "The upcoming events you are waitlisted for, with your place in line.",
   joinWaitlist: "Join the waitlist of a full event.",
   leaveWaitlist: "Leave an event's waitlist.",
+  getMyNotifications: "Your latest in-app notifications (newest first) and how many are unread.",
+  markAllRead: "Mark all of your notifications as read.",
   verifyCertificate: "Check that a certificate code is genuine (public, no login).",
 };
 

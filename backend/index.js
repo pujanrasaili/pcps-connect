@@ -20,6 +20,7 @@ const statsRoutes = require("./routes/statsRoutes");
 const noticeRoutes = require("./routes/noticeRoutes");
 const leaderRoutes = require("./routes/leaderRoutes");
 const waitlistRoutes = require("./routes/waitlistRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 const certificateRoutes = require("./routes/certificateRoutes");
 const healthRoutes = require("./routes/healthRoutes");
 
@@ -68,6 +69,7 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/notice", noticeRoutes);
 app.use("/api/leader", leaderRoutes);
 app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/certificates", certificateRoutes);
 
 app.use((req, res) => {
