@@ -4,6 +4,7 @@ const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
 const { unsubscribeHeaders, settingsLink } = require("./unsubscribe");
+const { pushNotifications } = require("./inApp");
 
 // Tells everyone who has joined `club` (and hasn't turned club updates off in
 // Settings) that it just announced a new event. Same best-effort rules as the
@@ -22,6 +23,15 @@ async function notifyNewClubEvent(event, club) {
   const recipients = memberships
     .map((m) => m.user)
     .filter((u) => u?.email && u.clubUpdates !== false);
+
+  await pushNotifications(
+    recipients.map((u) => u._id).filter(Boolean),
+    {
+      type: "club_event",
+      title: `${club.name} announced ${event.title}`,
+      link: event._id ? `/events/${event._id}` : "/events",
+    }
+  );
 
   const heading = `New event from ${club.name}`;
   await Promise.allSettled(
@@ -56,6 +66,11 @@ async function notifyClubAnnouncement(club, message) {
   const recipients = memberships
     .map((m) => m.user)
     .filter((u) => u?.email && u.clubUpdates !== false);
+
+  await pushNotifications(
+    recipients.map((u) => u._id).filter(Boolean),
+    { type: "club_message", title: `${club.name}: ${String(message).slice(0, 120)}`, link: "/dashboard" }
+  );
 
   const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
   await Promise.allSettled(

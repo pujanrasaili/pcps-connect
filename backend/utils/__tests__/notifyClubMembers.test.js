@@ -1,9 +1,11 @@
 jest.mock("../../models/ClubMembership");
 jest.mock("../sendEmail");
+jest.mock("../inApp");
 
 const ClubMembership = require("../../models/ClubMembership");
 const sendEmail = require("../sendEmail");
-const { notifyNewClubEvent } = require("../notifyClubMembers");
+const { pushNotifications } = require("../inApp");
+const { notifyNewClubEvent, notifyClubAnnouncement } = require("../notifyClubMembers");
 
 const club = { _id: "c1", name: "PCPS Tech Club" };
 const event = { title: "Hack Night", date: new Date("2027-01-01T10:00:00Z"), location: "Lab 3" };
@@ -37,6 +39,18 @@ describe("notifyNewClubEvent", () => {
     expect(await notifyNewClubEvent(event, club)).toBe(2);
     const recipients = sendEmail.mock.calls.map((c) => c[0].to);
     expect(recipients).not.toContain("s1@patancollege.edu.np");
+  });
+
+  it("also posts a bell notification linking to the event, for opted-in members only", async () => {
+    members([member(1, { _id: "u1" }), member(2, { _id: "u2", clubUpdates: false })]);
+    await notifyNewClubEvent({ ...event, _id: "e9" }, club);
+    expect(pushNotifications).toHaveBeenCalledWith(["u1"], expect.objectContaining({ type: "club_event", link: "/events/e9" }));
+  });
+
+  it("announcements also reach the bell", async () => {
+    members([member(1, { _id: "u1" })]);
+    await notifyClubAnnouncement(club, "Meeting moved");
+    expect(pushNotifications).toHaveBeenCalledWith(["u1"], expect.objectContaining({ type: "club_message" }));
   });
 
   it("skips memberships whose account no longer exists", async () => {
