@@ -35,6 +35,7 @@ import { savedUpcoming } from "../utils/savedEvents";
 import { pendingGettingStarted } from "../utils/gettingStarted";
 import InstallAppCard from "../components/InstallAppCard";
 import { MonthBars, CategoryBars } from "../components/DashboardCharts";
+import SafeImage from "../components/SafeImage";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -362,7 +363,7 @@ export default function Dashboard() {
                   to={`/events/${r.event._id}`}
                   className="flex min-w-0 flex-1 items-center gap-3 rounded-lg -mx-2 px-2 py-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <img src={resolveUploadUrl(r.event.image, 120)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  <SafeImage src={resolveUploadUrl(r.event.image, 120)} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                     {r.status === "pending" && (

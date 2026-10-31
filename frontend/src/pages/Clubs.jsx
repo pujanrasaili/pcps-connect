@@ -22,6 +22,7 @@ import { CLUB_SORTS, filterClubs, sortClubs } from "../utils/clubFilters";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
+import SafeImage from "../components/SafeImage";
 
 const PAGE_SIZE = 9;
 
@@ -217,7 +218,7 @@ export default function Clubs() {
       <Modal isOpen={!!selectedClub} onClose={() => setSelectedClub(null)} title={selectedClub?.name} size="lg">
         {selectedClub && (
           <div>
-            <img src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-48 w-full rounded-xl object-cover" />
+            <SafeImage src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-48 w-full rounded-xl object-cover" />
             <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
               {typeof selectedClub.memberCount === "number" && (
                 <span className="flex items-center gap-1.5">

@@ -17,6 +17,7 @@ import { sharedRequest } from "../utils/sharedRequest";
 import { isUpcoming } from "../utils/formatDate";
 import campusEvent from "../assets/images/campus-event.webp";
 import reelPoster from "../assets/images/campus-reel-poster.webp";
+import SafeImage from "../components/SafeImage";
 
 export default function Home() {
   const [selectedClub, setSelectedClub] = useState(null);
@@ -259,7 +260,7 @@ export default function Home() {
       <Modal isOpen={!!selectedClub} onClose={() => setSelectedClub(null)} title={selectedClub?.name}>
         {selectedClub && (
           <div>
-            <img src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-40 w-full rounded-xl object-cover" />
+            <SafeImage src={resolveUploadUrl(selectedClub.image, 900)} alt="" className="mb-4 h-40 w-full rounded-xl object-cover" />
             <p className="text-sm text-slate-600 dark:text-slate-300">{selectedClub.longDescription || selectedClub.description}</p>
             <Link
               to="/clubs"
