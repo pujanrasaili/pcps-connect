@@ -4,6 +4,8 @@
 // fields, passwordChangedAt, notification settings, the password hash -- is
 // ignored, so a crafted request can't mark an address verified or invalidate
 // someone's sessions behind the app's back.
+const ROLES = ["user", "admin"];
+const APPROVAL_STATUSES = ["pending", "approved", "rejected"];
 const ADMIN_USER_FIELDS = ["role", "approvalStatus", "name", "studentId", "program", "semester", "phone"];
 
 function pickAdminUserFields(body = {}) {
@@ -20,6 +22,12 @@ function pickAdminUserFields(body = {}) {
 function adminUserFieldsProblem(picked) {
   for (const [field, value] of Object.entries(picked)) {
     if (typeof value !== "string") return `${field} must be text`;
+  }
+  // Text, but not one of the allowed words, is also a bad request (it used to
+  // reach the database and come back as a 500 "not a valid enum value").
+  if ("role" in picked && !ROLES.includes(picked.role)) return `role must be one of: ${ROLES.join(", ")}`;
+  if ("approvalStatus" in picked && !APPROVAL_STATUSES.includes(picked.approvalStatus)) {
+    return `approvalStatus must be one of: ${APPROVAL_STATUSES.join(", ")}`;
   }
   return null;
 }

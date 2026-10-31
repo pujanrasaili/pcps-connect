@@ -27,4 +27,10 @@ describe("adminUserFieldsProblem", () => {
     expect(adminUserFieldsProblem({ program: ["BIT"] })).toBe("program must be text");
     expect(adminUserFieldsProblem({ semester: 3 })).toBe("semester must be text");
   });
+
+  it("rejects a role or approval status that is not one of the allowed words", () => {
+    expect(adminUserFieldsProblem({ role: "superuser" })).toBe("role must be one of: user, admin");
+    expect(adminUserFieldsProblem({ approvalStatus: "__proto__" })).toBe("approvalStatus must be one of: pending, approved, rejected");
+    expect(adminUserFieldsProblem({ role: "admin", approvalStatus: "rejected" })).toBeNull();
+  });
 });
