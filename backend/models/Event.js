@@ -5,6 +5,8 @@ const eventSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     date: { type: Date, required: true },
+    // Optional: when the event ends (calendars and the event page show the length).
+    endDate: { type: Date, default: null },
     location: { type: String, required: true },
     image: { type: String, default: null },
     capacity: { type: Number, default: 100, min: 1 },

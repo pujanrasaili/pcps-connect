@@ -42,7 +42,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | POST | `/api/events/:id/questions` | Logged-in student (rate limited) | Ask a public question on an upcoming event (max 3 unanswered per student); the organiser is emailed. |
 | PUT | `/api/events/:id/questions/:questionId/answer` | Admin or club leader (rate limited) | Answer a question on an event (admins and that event's club leaders only); the asker is emailed the first time. |
 | DELETE | `/api/events/:id/questions/:questionId` | Logged-in student (rate limited) | Delete a question: its asker, or an admin / the event's club leader. |
-| POST | `/api/events/create` | Admin or club leader (rate limited; image upload) | Create an event (admins, or a leader for their own club), with an optional image. Send repeat (weekly or biweekly) and repeatCount (2 to 12) to create a series of separate events. |
+| POST | `/api/events/create` | Admin or club leader (rate limited; image upload) | Create an event (admins, or a leader for their own club), with an optional image. Send repeat (weekly or biweekly) and repeatCount (2 to 12) to create a series of separate events. An optional endDate (after the start, at most 7 days long) sets when it ends. |
 | PUT | `/api/events/:id` | Admin or club leader (image upload) | Edit an event; registered students are emailed if the date or place changes. |
 | DELETE | `/api/events/:id` | Admin or club leader | Delete an event; registered students are emailed the cancellation. |
 

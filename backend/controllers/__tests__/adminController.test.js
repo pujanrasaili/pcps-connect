@@ -349,6 +349,28 @@ describe("updateEventAdmin -- field whitelist and capacity checks", () => {
     }
   });
 
+  it("stores, moves and validates the end time", async () => {
+    const withEnd = { ...existing, date: new Date("2027-01-01T10:00:00.000Z"), endDate: new Date("2027-01-01T12:00:00.000Z") };
+    Event.findById.mockResolvedValue(withEnd);
+    Event.findByIdAndUpdate.mockResolvedValue({ ...withEnd, title: "T" });
+    // moving only the start keeps the length
+    await updateEventAdmin({ params: { id: "ev1" }, body: { date: "2027-01-02T10:00:00.000Z" } }, mockRes());
+    expect(Event.findByIdAndUpdate.mock.calls[0][1].endDate.toISOString()).toBe("2027-01-02T12:00:00.000Z");
+    // setting it directly, and clearing it
+    Event.findByIdAndUpdate.mockClear();
+    await updateEventAdmin({ params: { id: "ev1" }, body: { endDate: "2027-01-01T13:00:00.000Z" } }, mockRes());
+    expect(Event.findByIdAndUpdate.mock.calls[0][1].endDate.toISOString()).toBe("2027-01-01T13:00:00.000Z");
+    Event.findByIdAndUpdate.mockClear();
+    await updateEventAdmin({ params: { id: "ev1" }, body: { endDate: "" } }, mockRes());
+    expect(Event.findByIdAndUpdate.mock.calls[0][1].endDate).toBeNull();
+    // an end before the start is refused
+    Event.findByIdAndUpdate.mockClear();
+    const res = mockRes();
+    await updateEventAdmin({ params: { id: "ev1" }, body: { endDate: "2027-01-01T09:00:00.000Z" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
   it("rejects a bad date or an over-long title with a 400 instead of a 500", async () => {
     Event.findById.mockResolvedValue(existing);
     for (const body of [{ date: "banana" }, { title: "x".repeat(151) }, { description: "" }]) {

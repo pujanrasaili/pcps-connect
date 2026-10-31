@@ -13,6 +13,7 @@ const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 const { validateEventFields, cleanCategory } = require("../utils/eventInput");
 const { planOccurrences } = require("../utils/recurrence");
+const { parseEndDate, shiftedEnd } = require("../utils/eventEnd");
 const { parseDeadline } = require("../utils/registrationDeadline");
 const { parseFlag } = require("../utils/eventFlags");
 const { isAdmin, leadsClub, canManageEvent } = require("../utils/clubAccess");
@@ -111,6 +112,9 @@ async function createEvent(req, res) {
     const deadline = parseDeadline(req.body.registrationDeadline, date);
     if (deadline.error) return res.status(400).json({ message: deadline.error });
 
+    const end = parseEndDate(req.body.endDate, date);
+    if (end.error) return res.status(400).json({ message: end.error });
+
     const { club, error: clubError } = await resolveClub(req.body.club);
     if (clubError) return res.status(400).json({ message: clubError });
 
@@ -147,13 +151,15 @@ async function createEvent(req, res) {
     let event;
     let createdCount = 1;
     if (plan.dates.length === 1) {
-      event = await Event.create({ ...fields, date, registrationDeadline: deadline.value });
+      event = await Event.create({ ...fields, date, endDate: end.value, registrationDeadline: deadline.value });
     } else {
       // The registration deadline keeps the same distance before each start.
       const lead = deadline.value ? plan.dates[0].getTime() - deadline.value.getTime() : null;
+      const length = end.value ? end.value.getTime() - plan.dates[0].getTime() : null;
       const docs = plan.dates.map((when) => ({
         ...fields,
         date: when,
+        endDate: length === null ? null : new Date(when.getTime() + length),
         registrationDeadline: lead === null ? null : new Date(when.getTime() - lead),
       }));
       const created = await Event.insertMany(docs);
@@ -227,6 +233,16 @@ async function updateEvent(req, res) {
     }
     const requiresApproval = parseFlag(req.body.requiresApproval);
     if (requiresApproval !== undefined) event.requiresApproval = requiresApproval;
+
+    // The end time is checked against the start the event will have after this
+    // edit; if only the start moved, the end moves with it (same length).
+    if (req.body.endDate !== undefined) {
+      const end = parseEndDate(req.body.endDate, event.date);
+      if (end.error) return res.status(400).json({ message: end.error });
+      event.endDate = end.value;
+    } else if (event.endDate && new Date(event.date).getTime() !== new Date(oldDate).getTime()) {
+      event.endDate = shiftedEnd(oldDate, event.endDate, event.date);
+    }
 
     // Checked against the date the event will have after this edit, so moving an
     // event earlier can't leave a deadline that falls after it.

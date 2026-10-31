@@ -148,6 +148,79 @@ describe("createEvent -- club handling", () => {
   });
 });
 
+describe("event end time", () => {
+  const start = "2027-01-07T04:15:00.000Z";
+
+  it("stores a valid end time on a new event", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, date: start, endDate: "2027-01-07T06:15:00.000Z" }, user: admin }, res);
+    expect(Event.create).toHaveBeenCalledWith(expect.objectContaining({ endDate: new Date("2027-01-07T06:15:00.000Z") }));
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it("stores no end time when the box is left empty", async () => {
+    await createEvent({ body: { ...baseBody, date: start, endDate: "" }, user: admin }, mockRes());
+    expect(Event.create).toHaveBeenCalledWith(expect.objectContaining({ endDate: null }));
+  });
+
+  it("rejects an end that is not after the start, and creates nothing", async () => {
+    for (const endDate of ["2027-01-07T04:15:00.000Z", "2027-01-06T04:15:00.000Z", "banana", "2027-02-20T04:15:00.000Z"]) {
+      const res = mockRes();
+      await createEvent({ body: { ...baseBody, date: start, endDate }, user: admin }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+
+  it("gives every event in a repeating series the same length", async () => {
+    Event.insertMany.mockImplementation(async (docs) => docs.map((d, i) => ({ _id: `ev${i}`, ...d })));
+    await createEvent(
+      { body: { ...baseBody, date: start, endDate: "2027-01-07T06:15:00.000Z", repeat: "weekly", repeatCount: 2 }, user: admin },
+      mockRes()
+    );
+    const docs = Event.insertMany.mock.calls[0][0];
+    expect(docs[1].endDate.toISOString()).toBe("2027-01-14T06:15:00.000Z");
+  });
+
+  function existing(extra = {}) {
+    return {
+      _id: "ev1",
+      createdBy: { toString: () => "admin1" },
+      date: new Date(start),
+      endDate: new Date("2027-01-07T06:15:00.000Z"),
+      location: "Lab",
+      club: null,
+      save: jest.fn().mockResolvedValue(),
+      ...extra,
+    };
+  }
+
+  it("moves the end with the start so the length stays the same", async () => {
+    const ev = existing();
+    Event.findById.mockResolvedValue(ev);
+    await updateEvent({ params: { id: "ev1" }, body: { date: "2027-01-08T04:15:00.000Z" }, user: admin }, mockRes());
+    expect(ev.endDate.toISOString()).toBe("2027-01-08T06:15:00.000Z");
+  });
+
+  it("changes or clears the end time when asked", async () => {
+    const ev = existing();
+    Event.findById.mockResolvedValue(ev);
+    await updateEvent({ params: { id: "ev1" }, body: { endDate: "2027-01-07T07:15:00.000Z" }, user: admin }, mockRes());
+    expect(ev.endDate.toISOString()).toBe("2027-01-07T07:15:00.000Z");
+    await updateEvent({ params: { id: "ev1" }, body: { endDate: "" }, user: admin }, mockRes());
+    expect(ev.endDate).toBeNull();
+  });
+
+  it("rejects an end before the start on edit and saves nothing", async () => {
+    const ev = existing();
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { endDate: "2027-01-07T03:00:00.000Z" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(ev.save).not.toHaveBeenCalled();
+  });
+});
+
 describe("updateEvent -- club handling", () => {
   function existingEvent() {
     return {

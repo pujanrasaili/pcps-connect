@@ -26,6 +26,7 @@ const { fillMonthly, rankClubs } = require("../utils/insights");
 const { weekWindows, trend } = require("../utils/weekSummary");
 const { pickAdminUserFields, adminUserFieldsProblem } = require("../utils/adminUserFields");
 const { validateEventFields, cleanCategory } = require("../utils/eventInput");
+const { parseEndDate, shiftedEnd } = require("../utils/eventEnd");
 const { parseFlag } = require("../utils/eventFlags");
 const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/registrationEmails");
 
@@ -283,6 +284,16 @@ async function updateEventAdmin(req, res) {
     }
     const requiresApproval = parseFlag(req.body.requiresApproval);
     if (requiresApproval !== undefined) updates.requiresApproval = requiresApproval;
+    // End time: checked against the start after this edit; if only the start
+    // moved, the end moves with it so the length stays the same.
+    const newStart = updates.date !== undefined ? updates.date : existing.date;
+    if (req.body.endDate !== undefined) {
+      const end = parseEndDate(req.body.endDate, newStart);
+      if (end.error) return res.status(400).json({ message: end.error });
+      updates.endDate = end.value;
+    } else if (existing.endDate && updates.date !== undefined && new Date(updates.date).getTime() !== new Date(oldDate).getTime()) {
+      updates.endDate = shiftedEnd(oldDate, existing.endDate, updates.date);
+    }
     if (req.body.capacity !== undefined) {
       const parsedCapacity = parseCapacity(req.body.capacity);
       if (parsedCapacity === null) {
