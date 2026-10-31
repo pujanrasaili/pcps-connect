@@ -27,6 +27,7 @@ const { weekWindows, trend } = require("../utils/weekSummary");
 const { pickAdminUserFields, adminUserFieldsProblem } = require("../utils/adminUserFields");
 const { validateEventFields, cleanCategory } = require("../utils/eventInput");
 const { parseEndDate, shiftedEnd } = require("../utils/eventEnd");
+const { pushNotifications } = require("../utils/inApp");
 const { parseFlag } = require("../utils/eventFlags");
 const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/registrationEmails");
 
@@ -420,11 +421,21 @@ async function decideRegistration(req, res) {
     if (decision === "approve") {
       registration.status = "confirmed";
       await registration.save();
+      await pushNotifications([registration.user?._id], {
+        type: "join_approved",
+        title: `You're in: your request to join ${event.title} was approved`,
+        link: `/events/${event._id}`,
+      });
       if (registration.user?.email) await sendRegistrationConfirmation(registration.user, event);
       return res.status(200).json({ message: "Request approved", registration });
     }
 
     await registration.deleteOne();
+    await pushNotifications([registration.user?._id], {
+      type: "join_declined",
+      title: `Your request to join ${event.title} was declined`,
+      link: `/events/${event._id}`,
+    });
     if (registration.user?.email) await sendRequestDeclined(registration.user, event);
     // The declined request's seat can go to whoever is next in line.
     try {

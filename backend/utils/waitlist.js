@@ -5,6 +5,7 @@ const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
 const { buildIcs } = require("./ics");
+const { pushNotifications } = require("./inApp");
 
 async function sendSpotOpenedEmail(user, event, needsApproval = false) {
   try {
@@ -64,6 +65,13 @@ async function promoteFromWaitlist(event) {
     }
 
     promoted++;
+    await pushNotifications([entry.user._id], {
+      type: "waitlist_promoted",
+      title: event.requiresApproval
+        ? `A seat opened for ${event.title} - your request is waiting for approval`
+        : `You got a seat: ${event.title}`,
+      link: `/events/${event._id}`,
+    });
     await sendSpotOpenedEmail(entry.user, event, !!event.requiresApproval);
   }
 

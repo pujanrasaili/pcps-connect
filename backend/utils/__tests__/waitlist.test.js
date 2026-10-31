@@ -1,10 +1,12 @@
 jest.mock("../../models/Registration");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../sendEmail");
+jest.mock("../inApp");
 
 const Registration = require("../../models/Registration");
 const WaitlistEntry = require("../../models/WaitlistEntry");
 const sendEmail = require("../sendEmail");
+const { pushNotifications } = require("../inApp");
 const { promoteFromWaitlist } = require("../waitlist");
 
 const event = { _id: "ev1", title: "Hack Night", capacity: 10, date: new Date("2027-01-01"), location: "Lab" };
@@ -48,6 +50,13 @@ describe("promoteFromWaitlist", () => {
     expect(Registration.create).toHaveBeenCalledTimes(1);
     expect(Registration.create).toHaveBeenCalledWith(expect.objectContaining({ user: "u1", event: "ev1" }));
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np", icalEvent: expect.stringContaining("BEGIN:VEVENT") }));
+  });
+
+  it("also tells the promoted student under the bell in the app", async () => {
+    Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
+    WaitlistEntry.findOneAndDelete.mockReturnValueOnce({ populate: jest.fn().mockResolvedValue(entry(1)) });
+    await promoteFromWaitlist(event);
+    expect(pushNotifications).toHaveBeenCalledWith(["u1"], expect.objectContaining({ type: "waitlist_promoted", link: "/events/ev1", title: expect.stringContaining("You got a seat") }));
   });
 
   it("on an approval event, the promoted student becomes a pending request and is told so", async () => {

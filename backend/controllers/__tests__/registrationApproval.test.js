@@ -10,6 +10,7 @@ jest.mock("../../models/ClubMembership");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../models/AuditLog");
 jest.mock("../../utils/waitlist");
+jest.mock("../../utils/inApp");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/notifyRegistrants");
@@ -20,6 +21,7 @@ const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const sendEmail = require("../../utils/sendEmail");
+const { pushNotifications } = require("../../utils/inApp");
 const { promoteFromWaitlist } = require("../../utils/waitlist");
 const { createCheckInCode } = require("../../utils/checkInCode");
 const { decideRegistration, updateRegistrationAttendance, checkInByCode } = require("../adminController");
@@ -129,6 +131,13 @@ describe("decideRegistration", () => {
     expect(sendEmail.mock.calls[0][0].subject).toMatch(/Update on your request/);
     expect(promoteFromWaitlist).toHaveBeenCalledWith(ev);
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("approving or declining also posts a message under the student's bell", async () => {
+    await run({ decision: "approve" });
+    expect(pushNotifications).toHaveBeenLastCalledWith([expect.anything()], expect.objectContaining({ type: "join_approved" }));
+    await run({ decision: "reject" });
+    expect(pushNotifications).toHaveBeenLastCalledWith([expect.anything()], expect.objectContaining({ type: "join_declined" }));
   });
 
   it("a decided request can't be decided again (no duplicate emails)", async () => {

@@ -5,6 +5,7 @@ jest.mock("../../models/EventQuestion");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
+jest.mock("../../models/Notification");
 jest.mock("../notifyRegistrants");
 
 const Event = require("../../models/Event");

@@ -3,6 +3,7 @@ const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
+const { pushNotifications } = require("./inApp");
 
 // Shared by both the owner/admin event routes (eventController) and the
 // admin-override routes (adminController) -- registered students have no
@@ -14,7 +15,7 @@ const { formatEventDate } = require("./formatEventDate");
 // student's full mailbox or bounced address shouldn't slow down or break
 // notifying everyone else, and this must never be allowed to turn a
 // successful admin action into a 500.
-async function notifyRegistrants(eventId, { heading, bodyHtml }) {
+async function notifyRegistrants(eventId, { heading, bodyHtml, app }) {
   let registrants;
   try {
     registrants = await Registration.find({ event: eventId }).populate("user", "name email");
@@ -36,6 +37,8 @@ async function notifyRegistrants(eventId, { heading, bodyHtml }) {
     );
 
   await Promise.allSettled(sends);
+  // The same news under the bell in the app, for students who don't read email.
+  if (app) await pushNotifications(registrants.map((r) => r.user?._id), app);
   return sends.length;
 }
 
@@ -58,6 +61,7 @@ async function notifyEventRescheduled(event, { oldDate, oldLocation }) {
 
   await notifyRegistrants(event._id, {
     heading: `Event updated: ${event.title}`,
+    app: { type: "event_changed", title: `${event.title} was updated (new time or place)`, link: `/events/${event._id}` },
     bodyHtml: (user) => `
       <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
       <p style="margin: 0 0 16px;">An event you're registered for -- <strong>${escapeHtml(event.title)}</strong> -- has changed:</p>
@@ -70,6 +74,7 @@ async function notifyEventRescheduled(event, { oldDate, oldLocation }) {
 async function notifyEventCancelled(event) {
   await notifyRegistrants(event._id, {
     heading: `Event cancelled: ${event.title}`,
+    app: { type: "event_cancelled", title: `${event.title} was cancelled`, link: "/events" },
     bodyHtml: (user) => `
       <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
       <p style="margin: 0;"><strong>${escapeHtml(event.title)}</strong>, scheduled for ${formatEventDate(event.date)}, has been cancelled. You don't need to do anything -- your registration has been removed automatically.</p>
@@ -85,6 +90,7 @@ async function notifyEventAnnouncement(event, message) {
   const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br>");
   return notifyRegistrants(event._id, {
     heading: `Message about ${event.title}`,
+    app: { type: "event_message", title: `New message about ${event.title}`, link: `/events/${event._id}` },
     bodyHtml: (user) => `
       <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
       <p style="margin: 0 0 16px;">The organisers of <strong>${escapeHtml(event.title)}</strong> (${formatEventDate(event.date)}, ${escapeHtml(event.location)}) have sent a message to everyone registered:</p>

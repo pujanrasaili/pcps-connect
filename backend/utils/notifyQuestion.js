@@ -2,6 +2,7 @@ const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { appOrigin } = require("./unsubscribe");
+const { pushNotifications } = require("./inApp");
 
 // Two best-effort emails (a failed send never fails the request):
 //  * the organiser hears that someone asked, so questions don't sit unseen
@@ -26,6 +27,11 @@ async function notifyOrganiserOfQuestion(organiser, event, question, askerFirstN
 }
 
 async function notifyAskerOfAnswer(asker, event, question, answer) {
+  await pushNotifications([asker?._id], {
+    type: "question_answered",
+    title: `Your question about ${event.title} was answered`,
+    link: `/events/${event._id}`,
+  });
   if (!asker?.email) return;
   const url = `${appOrigin()}/events/${event._id}`;
   await sendEmail({

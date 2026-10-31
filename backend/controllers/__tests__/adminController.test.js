@@ -13,6 +13,8 @@ jest.mock("../../models/AuditLog");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/notifyRegistrants");
+jest.mock("../../models/Notification");
+jest.mock("../../utils/inApp");
 process.env.JWT_SECRET = "test-secret";
 
 const User = require("../../models/User");

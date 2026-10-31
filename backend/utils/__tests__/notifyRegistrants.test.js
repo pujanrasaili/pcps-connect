@@ -1,8 +1,10 @@
 jest.mock("../../models/Registration");
 jest.mock("../sendEmail");
+jest.mock("../inApp");
 
 const Registration = require("../../models/Registration");
 const sendEmail = require("../sendEmail");
+const { pushNotifications } = require("../inApp");
 const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } = require("../notifyRegistrants");
 
 // Registration.find(...).populate(...) -- mongoose's Query object is
@@ -149,5 +151,34 @@ describe("notifyEventAnnouncement", () => {
     mockRegistrants([]);
     expect(await notifyEventAnnouncement(fakeEvent(), "hi")).toBe(0);
     expect(sendEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe("in-app notifications alongside the emails", () => {
+  afterEach(() => jest.clearAllMocks());
+  const regs = [{ user: { _id: "u1", name: "A", email: "a@x.np" } }, { user: { _id: "u2", name: "B", email: "b@x.np" } }];
+
+  it("tells every registrant under the bell when an event changes", async () => {
+    mockRegistrants(regs);
+    await notifyEventRescheduled(fakeEvent({ location: "Hall" }), { oldDate: fakeEvent().date, oldLocation: "Lab 3" });
+    expect(pushNotifications).toHaveBeenCalledWith(["u1", "u2"], expect.objectContaining({ type: "event_changed", link: "/events/event1" }));
+  });
+
+  it("links a cancelled event to the events list, since its own page is gone", async () => {
+    mockRegistrants(regs);
+    await notifyEventCancelled(fakeEvent());
+    expect(pushNotifications).toHaveBeenCalledWith(["u1", "u2"], expect.objectContaining({ type: "event_cancelled", link: "/events" }));
+  });
+
+  it("tells registrants about an organiser's message", async () => {
+    mockRegistrants(regs);
+    await notifyEventAnnouncement(fakeEvent(), "Bring a laptop");
+    expect(pushNotifications).toHaveBeenCalledWith(["u1", "u2"], expect.objectContaining({ type: "event_message" }));
+  });
+
+  it("does not notify anyone when an edit changed nothing that matters", async () => {
+    mockRegistrants(regs);
+    await notifyEventRescheduled(fakeEvent(), { oldDate: fakeEvent().date, oldLocation: "Lab 3" });
+    expect(pushNotifications).not.toHaveBeenCalled();
   });
 });
