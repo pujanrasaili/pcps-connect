@@ -18,10 +18,12 @@ import WeekSummaryCard from "../../components/WeekSummaryCard";
 import EmailStatusCard from "../../components/EmailStatusCard";
 import SiteNoticeCard from "../../components/SiteNoticeCard";
 import { formatDate, isUpcoming } from "../../utils/formatDate";
+import { useRequestCounts } from "../../hooks/useRequestCounts";
 
 export default function AdminOverview() {
   const { clubs } = useClubs();
   const { events } = useEvents();
+  const { counts: clubRequestCounts } = useRequestCounts();
   const [users, setUsers] = useState(null);
   const [error, setError] = useState("");
   const [report, setReport] = useState(null);
@@ -58,6 +60,8 @@ export default function AdminOverview() {
   const pendingUsers = users?.filter((u) => u.approvalStatus === "pending") ?? [];
   // Join requests waiting on an organiser, across upcoming events that need approval.
   const pendingRequests = events.filter((e) => isUpcoming(e.date)).reduce((sum, e) => sum + (e.pendingCount || 0), 0);
+  // Students waiting to join clubs that approve their members.
+  const pendingClubRequests = Object.values(clubRequestCounts).reduce((sum, n) => sum + n, 0);
   const nextEvents = events
     .filter((e) => isUpcoming(e.date))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
@@ -106,6 +110,19 @@ export default function AdminOverview() {
           <FaExclamationCircle className="shrink-0 text-lg text-primary-500" />
           <p className="flex-1 text-sm font-medium text-primary-800 dark:text-primary-200">
             {pendingRequests} {pendingRequests === 1 ? "request to join an event is" : "requests to join events are"} waiting for a decision
+          </p>
+          <FaArrowRight className="shrink-0 text-xs text-primary-700 dark:text-primary-300" />
+        </Link>
+      )}
+
+      {pendingClubRequests > 0 && (
+        <Link
+          to="/admin/clubs"
+          className="flex items-center gap-3 rounded-xl border border-primary-200 bg-primary-50 p-4 transition-colors hover:bg-primary-100 dark:border-primary-900/50 dark:bg-primary-900/20 dark:hover:bg-primary-900/30"
+        >
+          <FaExclamationCircle className="shrink-0 text-lg text-primary-500" />
+          <p className="flex-1 text-sm font-medium text-primary-800 dark:text-primary-200">
+            {pendingClubRequests} {pendingClubRequests === 1 ? "student is" : "students are"} waiting to join clubs that approve their members
           </p>
           <FaArrowRight className="shrink-0 text-xs text-primary-700 dark:text-primary-300" />
         </Link>
