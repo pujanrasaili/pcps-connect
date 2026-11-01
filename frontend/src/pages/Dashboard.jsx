@@ -40,9 +40,10 @@ import SafeImage from "../components/SafeImage";
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { favoriteClubId, memberships, loaded: membershipsLoaded } = useClubMembership();
+  const { favoriteClubId, memberships, pendingClubIds, loaded: membershipsLoaded } = useClubMembership();
   const { clubs } = useClubs();
   const { clubs: ledClubs } = useLedClubs();
+  const waitingClubs = clubs.filter((c) => pendingClubIds.includes(c._id));
   const { counts: clubRequestCounts } = useRequestCounts(ledClubs.length > 0 && user?.role !== "admin");
   const waitingOnMyClubs = ledClubs.reduce((sum, c) => sum + (clubRequestCounts[c._id] || 0), 0);
   const { events } = useEvents();
@@ -177,6 +178,20 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {waitingClubs.length > 0 && (
+        <div className="card-surface flex min-w-0 flex-wrap items-center justify-between gap-3 p-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <FaClock className="shrink-0 text-amber-500" />
+            <p className="min-w-0 text-sm text-slate-700 dark:text-slate-200">
+              Waiting for approval: <strong>{waitingClubs.map((c) => c.name).join(", ")}</strong>. You will get a message when the club decides.
+            </p>
+          </div>
+          <Link to="/clubs" className="shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-300">
+            View clubs <FaArrowRight className="inline text-xs" />
+          </Link>
         </div>
       )}
 
