@@ -1,5 +1,6 @@
 const Club = require("../models/Club");
 const ClubMembership = require("../models/ClubMembership");
+const ClubJoinRequest = require("../models/ClubJoinRequest");
 const ClubPost = require("../models/ClubPost");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
@@ -77,6 +78,7 @@ async function deleteClub(req, res) {
 
     // Clean up so deleting a club doesn't leave dangling references.
     await ClubMembership.deleteMany({ club: club._id });
+    await ClubJoinRequest.deleteMany({ club: club._id });
     await ClubPost.deleteMany({ club: club._id });
     const User = require("../models/User");
     await User.updateMany({ favoriteClub: club._id }, { favoriteClub: null });

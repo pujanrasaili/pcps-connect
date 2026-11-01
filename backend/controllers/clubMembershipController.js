@@ -1,4 +1,6 @@
 const ClubMembership = require("../models/ClubMembership");
+const ClubJoinRequest = require("../models/ClubJoinRequest");
+const { notifyClubStaffOfRequest } = require("../utils/clubJoinNotices");
 const { isObjectId } = require("../middleware/validateId");
 const Club = require("../models/Club");
 const { safeError } = require("../utils/errorMessage");
@@ -28,6 +30,18 @@ async function joinClub(req, res) {
     const existing = await ClubMembership.findOne({ user: req.user._id, club: clubId });
     if (existing) return res.status(400).json({ message: "Already joined this club" });
 
+    // Clubs that approve members: this is a request, not a membership.
+    if (club.requiresApproval) {
+      try {
+        await ClubJoinRequest.create({ user: req.user._id, club: clubId });
+      } catch (err) {
+        if (err.code === 11000) return res.status(400).json({ message: "You already asked to join this club" });
+        throw err;
+      }
+      await notifyClubStaffOfRequest(club, req.user);
+      return res.status(202).json({ message: "Request sent -- the club's leaders will review it", pending: true });
+    }
+
     const membership = await ClubMembership.create({ user: req.user._id, club: clubId });
     res.status(201).json({ message: "Joined club", membership });
   } catch (err) {
@@ -35,18 +49,34 @@ async function joinClub(req, res) {
   }
 }
 
-// DELETE /api/club-memberships/:clubId  (requires login) -- leave a club
+// GET /api/club-memberships/requests/my  (requires login)
+// The clubs this student has asked to join and is still waiting on.
+async function getMyJoinRequests(req, res) {
+  try {
+    const requests = await ClubJoinRequest.find({ user: req.user._id }).select("club createdAt");
+    res.status(200).json({ requests });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch your requests") });
+  }
+}
+
+// DELETE /api/club-memberships/:clubId  (requires login)
+// Leaves a club, or withdraws a request that is still waiting.
 async function leaveClub(req, res) {
   try {
     const membership = await ClubMembership.findOneAndDelete({
       user: req.user._id,
       club: req.params.clubId,
     });
-    if (!membership) return res.status(404).json({ message: "Membership not found" });
+    if (!membership) {
+      const request = await ClubJoinRequest.findOneAndDelete({ user: req.user._id, club: req.params.clubId });
+      if (!request) return res.status(404).json({ message: "Membership not found" });
+      return res.status(200).json({ message: "Request withdrawn" });
+    }
     res.status(200).json({ message: "Left club" });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to leave club") });
   }
 }
 
-module.exports = { getMyMemberships, joinClub, leaveClub };
+module.exports = { getMyMemberships, getMyJoinRequests, joinClub, leaveClub };

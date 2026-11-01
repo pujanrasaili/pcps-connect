@@ -2,6 +2,7 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const ClubMembership = require("../models/ClubMembership");
+const ClubJoinRequest = require("../models/ClubJoinRequest");
 const EventQuestion = require("../models/EventQuestion");
 const Club = require("../models/Club");
 const ClubPost = require("../models/ClubPost");
@@ -36,6 +37,7 @@ async function removeUserAndData(user) {
   // Their public questions go too (the answers to them are no use without the question).
   await EventQuestion.deleteMany({ author: user._id });
   await ClubMembership.deleteMany({ user: user._id });
+  await ClubJoinRequest.deleteMany({ user: user._id });
   await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
   // Club news stays, but without the departed person's name on it.
   await ClubPost.updateMany({ author: user._id }, { authorName: "Former club leader" });
