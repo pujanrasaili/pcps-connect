@@ -60,7 +60,7 @@ export default function ClubCard({ club, onView }) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <FaUsers className="text-primary-500" /> {typeof club.memberCount === "number" ? pluralize(club.memberCount, "member") : club.category}
+            <FaUsers className="shrink-0 text-primary-500" /> {typeof club.memberCount === "number" ? pluralize(club.memberCount, "member") : club.category}
           </span>
           <button
             onClick={() => onView?.(club)}

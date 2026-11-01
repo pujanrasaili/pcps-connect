@@ -44,10 +44,10 @@ export default function RegistrationForm({ event, onSuccess }) {
 
       <div className="space-y-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4">
         <p className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-          <FaUser className="text-primary-500" /> {user?.name}
+          <FaUser className="shrink-0 text-primary-500" /> {user?.name}
         </p>
         <p className="flex items-center gap-2.5 text-sm text-slate-700 dark:text-slate-200">
-          <FaEnvelope className="text-primary-500" /> {user?.email}
+          <FaEnvelope className="shrink-0 text-primary-500" /> {user?.email}
         </p>
       </div>
 

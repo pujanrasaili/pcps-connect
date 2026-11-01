@@ -219,7 +219,7 @@ export default function Dashboard() {
       {needsRating.length > 0 && (
         <div className="card-surface min-w-0 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <FaStar className="text-amber-400" />
+            <FaStar className="shrink-0 text-amber-400" />
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">
               How were the events you attended?
             </h2>
@@ -258,7 +258,7 @@ export default function Dashboard() {
       {fromMyClubs.length > 0 && (
         <div className="card-surface min-w-0 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <FaUsers className="text-primary-500" />
+            <FaUsers className="shrink-0 text-primary-500" />
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">From your clubs</h2>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -298,7 +298,7 @@ export default function Dashboard() {
       {savedForLater.length > 0 && (
         <div className="card-surface min-w-0 p-5">
           <div className="mb-3 flex items-center gap-2">
-            <FaBookmark className="text-primary-500" />
+            <FaBookmark className="shrink-0 text-primary-500" />
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">Saved for later</h2>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">

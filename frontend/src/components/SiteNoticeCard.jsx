@@ -45,7 +45,7 @@ export default function SiteNoticeCard() {
   return (
     <div className="card-surface p-5">
       <div className="mb-3 flex items-center gap-2">
-        <FaBullhorn className="text-primary-500" />
+        <FaBullhorn className="shrink-0 text-primary-500" />
         <h2 className="font-semibold text-slate-800 dark:text-slate-100">Site announcement</h2>
       </div>
       <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">

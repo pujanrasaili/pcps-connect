@@ -223,17 +223,17 @@ export default function Clubs() {
             <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
               {typeof selectedClub.memberCount === "number" && (
                 <span className="flex items-center gap-1.5">
-                  <FaUsers className="text-primary-500" /> {pluralize(selectedClub.memberCount, "member")}
+                  <FaUsers className="shrink-0 text-primary-500" /> {pluralize(selectedClub.memberCount, "member")}
                 </span>
               )}
               {selectedClub.foundedYear && (
                 <span className="flex items-center gap-1.5">
-                  <FaCalendarAlt className="text-primary-500" /> Founded {selectedClub.foundedYear}
+                  <FaCalendarAlt className="shrink-0 text-primary-500" /> Founded {selectedClub.foundedYear}
                 </span>
               )}
               {selectedClub.email && (
                 <span className="flex items-center gap-1.5">
-                  <FaEnvelope className="text-primary-500" /> {selectedClub.email}
+                  <FaEnvelope className="shrink-0 text-primary-500" /> {selectedClub.email}
                 </span>
               )}
             </div>

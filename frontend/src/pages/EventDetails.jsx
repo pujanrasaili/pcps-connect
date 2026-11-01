@@ -284,15 +284,15 @@ export default function EventDetails() {
           <div className="card-surface p-6">
             <ul className="space-y-4 text-sm">
               <li className="flex items-center gap-3">
-                <FaCalendarAlt className="text-primary-500" />
+                <FaCalendarAlt className="shrink-0 text-primary-500" />
                 <span className="text-slate-600 dark:text-slate-300">{formatDateTimeRange(event.date, event.endDate)}</span>
               </li>
               <li className="flex items-center gap-3">
-                <FaMapMarkerAlt className="text-primary-500" />
+                <FaMapMarkerAlt className="shrink-0 text-primary-500" />
                 <span className="text-slate-600 dark:text-slate-300">{event.location}</span>
               </li>
               <li className="flex items-center gap-3">
-                <FaUsers className="text-primary-500" />
+                <FaUsers className="shrink-0 text-primary-500" />
                 <span className="text-slate-600 dark:text-slate-300">
                   {registeredCount}/{capacity} registered
                 </span>
@@ -306,7 +306,7 @@ export default function EventDetails() {
                 </li>
               )}
               <li className="flex items-center gap-3">
-                <FaTag className="text-primary-500" />
+                <FaTag className="shrink-0 text-primary-500" />
                 <span className="text-slate-600 dark:text-slate-300">{event.price || "Free"}</span>
               </li>
             </ul>
