@@ -40,6 +40,7 @@ pcps-connect/
 - Full event directory: browse, search (by name, place or club), filter, register/unregister, live capacity tracking, and a "View events" link from each club that shows only its events
 - "This week" tab on the Events page: only events starting in the next 7 days (today counts as day one); shareable as `?when=week`
 - Club events: an event can be hosted by a club, and members of that club are emailed when it is announced (opt out in Settings)
+- Join request reminders: twice a week, leaders of a club that approves its members (admins, if it has no leaders) get one email when students have waited more than 5 days for a decision; nothing is sent when nobody is overdue. Same GitHub Actions setup and dry run as the digest
 - Weekly digest: every Sunday morning each student gets one email listing the next 7 days of events from the clubs they joined (skipping events they already registered for or that are full; nobody gets an empty digest). Runs from a GitHub Actions schedule, can be previewed with a dry run, and the "Club updates" switch in Settings turns it off
 - Events can require organiser approval ("Approve each person who joins" when creating an event): students send a request instead of being confirmed, a seat is held for them, and the organiser approves or declines from the attendee list; the student is emailed either way and only approved students get the QR code, calendar links and reminders
 - Admins can email a message to all members of a club from Admin → Clubs (members who turned off club updates are skipped)
