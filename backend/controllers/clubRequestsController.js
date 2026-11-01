@@ -3,6 +3,7 @@ const ClubMembership = require("../models/ClubMembership");
 const ClubJoinRequest = require("../models/ClubJoinRequest");
 const { canManageClub } = require("../utils/clubAccess");
 const { notifyStudentOfDecision } = require("../utils/clubJoinNotices");
+const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
 
 // GET /api/admin/clubs/:id/requests
@@ -59,6 +60,11 @@ async function decideClubJoinRequest(req, res) {
       }
     }
     if (request.user) await notifyStudentOfDecision(request.user, club, approved);
+    await recordAudit(
+      req.user,
+      approved ? "club.join_approved" : "club.join_declined",
+      `${approved ? "Approved" : "Declined"} ${request.user?.name || "a student"} joining "${club.name}"`
+    );
 
     res.status(200).json({ message: approved ? "Request approved" : "Request declined" });
   } catch (err) {

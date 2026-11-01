@@ -3,12 +3,14 @@ jest.mock("../../models/ClubMembership");
 jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../utils/clubAccess");
 jest.mock("../../utils/clubJoinNotices");
+jest.mock("../../utils/audit");
 
 const Club = require("../../models/Club");
 const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const { canManageClub } = require("../../utils/clubAccess");
 const { notifyStudentOfDecision } = require("../../utils/clubJoinNotices");
+const { recordAudit } = require("../../utils/audit");
 const { getClubJoinRequests, decideClubJoinRequest, getRequestCounts } = require("../clubRequestsController");
 
 function mockRes() {
@@ -69,6 +71,7 @@ describe("decideClubJoinRequest", () => {
     expect(ClubMembership.create).toHaveBeenCalledWith({ user: "s1", club: "c1" });
     expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, true);
     expect(res.json).toHaveBeenCalledWith({ message: "Request approved" });
+    expect(recordAudit).toHaveBeenCalledWith(baseReq().user, "club.join_approved", 'Approved Asha joining "Chess"');
   });
 
   it("declining drops the request without creating a membership", async () => {
@@ -78,6 +81,7 @@ describe("decideClubJoinRequest", () => {
     expect(ClubMembership.create).not.toHaveBeenCalled();
     expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, false);
     expect(res.json).toHaveBeenCalledWith({ message: "Request declined" });
+    expect(recordAudit).toHaveBeenCalledWith(baseReq().user, "club.join_declined", 'Declined Asha joining "Chess"');
   });
 
   it("a request someone else already handled is a 404, and nobody is notified twice", async () => {
