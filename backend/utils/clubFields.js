@@ -14,6 +14,7 @@ const CLUB_FIELDS = [
   "leadRole",
   "email",
   "foundedYear",
+  "requiresApproval",
 ];
 
 function pickClubFields(body = {}) {

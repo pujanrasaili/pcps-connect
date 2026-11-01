@@ -14,6 +14,9 @@ const clubSchema = new mongoose.Schema(
     email: { type: String, default: "" },
     foundedYear: { type: String, default: "" },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    // When true, "Join" is a request that the club's leaders (or an admin)
+    // approve; the student is not a member until then. Off by default.
+    requiresApproval: { type: Boolean, default: false },
     // Students who run this club's events (see utils/clubAccess.js). Never
     // sent by the public club endpoints -- select:false keeps their identities
     // out of every normal query; only the admin leaders endpoints opt in.

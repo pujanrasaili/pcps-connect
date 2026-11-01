@@ -42,6 +42,10 @@ function validateClubFields(body = {}) {
     if (value.length > max) return `${LABELS[field]} must be ${max} characters or fewer`;
   }
 
+  if (body.requiresApproval !== undefined && typeof body.requiresApproval !== "boolean") {
+    return "Members need approval must be true or false";
+  }
+
   if (body.activities !== undefined) {
     if (!Array.isArray(body.activities) || body.activities.some((a) => typeof a !== "string")) {
       return "Activities must be a list of text lines";
