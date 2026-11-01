@@ -23,6 +23,7 @@ import WaitlistCard from "../components/WaitlistCard";
 import { useMyWaitlist } from "../hooks/useMyWaitlist";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
+import { useRequestCounts } from "../hooks/useRequestCounts";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
@@ -42,6 +43,8 @@ export default function Dashboard() {
   const { favoriteClubId, memberships, loaded: membershipsLoaded } = useClubMembership();
   const { clubs } = useClubs();
   const { clubs: ledClubs } = useLedClubs();
+  const { counts: clubRequestCounts } = useRequestCounts(ledClubs.length > 0 && user?.role !== "admin");
+  const waitingOnMyClubs = ledClubs.reduce((sum, c) => sum + (clubRequestCounts[c._id] || 0), 0);
   const { events } = useEvents();
   const { registrations, cancelRegistration, loaded: registrationsLoaded, loadFailed, refreshRegistrations } = useRegistrations();
 
@@ -185,9 +188,16 @@ export default function Dashboard() {
               You lead <strong>{ledClubs.map((c) => c.name).join(", ")}</strong>. Create events, see registrations and check students in.
             </p>
           </div>
-          <Link to="/admin/events" className="shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-300">
-            Manage events <FaArrowRight className="inline text-xs" />
-          </Link>
+          <div className="flex shrink-0 flex-wrap gap-x-4 gap-y-1">
+            {waitingOnMyClubs > 0 && (
+              <Link to="/admin/my-clubs" className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                {waitingOnMyClubs} waiting to join <FaArrowRight className="inline text-xs" />
+              </Link>
+            )}
+            <Link to="/admin/events" className="text-sm font-semibold text-primary-600 dark:text-primary-300">
+              Manage events <FaArrowRight className="inline text-xs" />
+            </Link>
+          </div>
         </div>
       )}
 
