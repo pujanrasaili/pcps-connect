@@ -369,7 +369,7 @@ export default function AdminClubs() {
             <input type="checkbox" name="requiresApproval" checked={!!form.requiresApproval} onChange={handleChange} className="mt-0.5 h-4 w-4 rounded border-slate-300" />
             <span>
               Approve each person who joins
-              <span className="block text-xs text-slate-500 dark:text-slate-400">Students send a request; the club's leaders or an admin accept or decline it.</span>
+              <span className="block text-xs text-slate-500 dark:text-slate-400">Students send a request; the club's leaders or an admin accept or decline it. Unticking later lets everyone waiting in.</span>
             </span>
           </label>
           <Button type="submit" className="w-full" disabled={saving}>
