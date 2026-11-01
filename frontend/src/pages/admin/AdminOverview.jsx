@@ -132,7 +132,7 @@ export default function AdminOverview() {
         <StatsCard icon={FaUsers} label="Total Clubs" value={clubs.length} accent="primary" />
         <StatsCard icon={FaCalendarAlt} label="Total Events" value={events.length} accent="accent" />
         <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
-        <StatsCard icon={FaClipboardList} label="Total Event Registrations" value={totalRegistrations} accent="amber" />
+        <StatsCard icon={FaClipboardList} label="Registrations" value={totalRegistrations} accent="amber" />
       </div>
 
       <EmailStatusCard provider={emailProvider} />
