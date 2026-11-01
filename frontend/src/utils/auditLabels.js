@@ -11,6 +11,8 @@ const LABELS = {
   "club.created": "Club created",
   "club.updated": "Club edited",
   "club.deleted": "Club deleted",
+  "club.join_approved": "Join request approved",
+  "club.join_declined": "Join request declined",
   "club.leaders": "Club leaders changed",
   "club.announcement": "Club message sent",
   "club.post": "Club news posted",
