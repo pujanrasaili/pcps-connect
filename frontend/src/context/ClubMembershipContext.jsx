@@ -14,10 +14,13 @@ export function ClubMembershipProvider({ children }) {
   const [loading, setLoading] = useState(false);
   // True once memberships have actually been fetched (a failed fetch doesn't count).
   const [loaded, setLoaded] = useState(false);
+  // Clubs this student asked to join and is still waiting on.
+  const [pendingClubIds, setPendingClubIds] = useState([]);
 
   const refreshMemberships = useCallback(async () => {
     if (!isAuthenticated) {
       setMemberships([]);
+      setPendingClubIds([]);
       setLoaded(false);
       return;
     }
@@ -26,6 +29,12 @@ export function ClubMembershipProvider({ children }) {
       const res = await api.get("/club-memberships/my");
       setMemberships(res.data.memberships || []);
       setLoaded(true);
+      try {
+        const reqs = await api.get("/club-memberships/requests/my", { quiet: true });
+        setPendingClubIds((reqs.data.requests || []).map((r) => String(r.club)));
+      } catch {
+        setPendingClubIds([]);
+      }
     } catch {
       setMemberships([]);
     } finally {
@@ -40,6 +49,8 @@ export function ClubMembershipProvider({ children }) {
   const isJoined = (clubId) =>
     isAuthenticated && memberships.some((m) => m.club?._id === clubId);
 
+  const isPending = (clubId) => isAuthenticated && pendingClubIds.includes(clubId);
+
   // Favorite lives on the user's own account (User.favoriteClub), fully
   // independent of ClubMembership -- favoriting a club never implies
   // joining it, and vice versa.
@@ -49,8 +60,12 @@ export function ClubMembershipProvider({ children }) {
   const joinClub = async (clubId) => {
     if (!isAuthenticated) return;
     try {
-      await api.post("/club-memberships/join", { clubId });
+      const res = await api.post("/club-memberships/join", { clubId });
       await refreshMemberships();
+      if (res.data?.pending) {
+        toast.success("Request sent. The club's leaders will review it.");
+        return;
+      }
       adjustMemberCount(clubId, 1);
       toast.success("Joined club!");
     } catch (err) {
@@ -61,8 +76,13 @@ export function ClubMembershipProvider({ children }) {
   const leaveClub = async (clubId) => {
     if (!isAuthenticated) return;
     try {
+      const wasPending = !isJoined(clubId) && isPending(clubId);
       await api.delete(`/club-memberships/${clubId}`);
       await refreshMemberships();
+      if (wasPending) {
+        toast.info("Request withdrawn.");
+        return;
+      }
       adjustMemberCount(clubId, -1);
       toast.info("Left club.");
     } catch (err) {
@@ -72,7 +92,7 @@ export function ClubMembershipProvider({ children }) {
 
   const toggleJoin = async (clubId) => {
     if (!isAuthenticated) return;
-    if (isJoined(clubId)) {
+    if (isJoined(clubId) || isPending(clubId)) {
       await leaveClub(clubId);
     } else {
       await joinClub(clubId);
@@ -99,6 +119,7 @@ export function ClubMembershipProvider({ children }) {
         loaded,
         favoriteClubId,
         isJoined,
+        isPending,
         isFavorite,
         joinClub,
         leaveClub,

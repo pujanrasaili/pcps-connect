@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { joinButtonState } from "../utils/clubJoinState";
 import { Link, useSearchParams } from "react-router-dom";
 import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
@@ -109,7 +110,7 @@ export default function Clubs() {
       return next;
     }, { replace: true });
   };
-  const { isJoined, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
+  const { isJoined, isPending, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
   const requireAuth = useRequireAuth();
 
   const categories = useMemo(
@@ -316,18 +317,20 @@ export default function Clubs() {
                   className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
                     isJoined(selectedClub._id)
                       ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
-                      : "bg-primary-500 text-white hover:bg-primary-600"
+                      : isPending(selectedClub._id)
+                        ? "bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300"
+                        : "bg-primary-500 text-white hover:bg-primary-600"
                   }`}
                 >
-                  {isJoined(selectedClub._id) ? (
-                    <>
-                      <FaCheck className="text-xs" /> Joined
-                    </>
-                  ) : (
-                    <>
-                      <FaPlus className="text-xs" /> Join Club
-                    </>
-                  )}
+                  {(() => {
+                    const join = joinButtonState({ club: selectedClub, joined: isJoined(selectedClub._id), pending: isPending(selectedClub._id) });
+                    const Icon = join.kind === "joined" || join.kind === "pending" ? FaCheck : FaPlus;
+                    return (
+                      <>
+                        <Icon className="text-xs" /> {join.label}
+                      </>
+                    );
+                  })()}
                 </button>
               </div>
             </div>

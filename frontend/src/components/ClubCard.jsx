@@ -6,13 +6,15 @@ import { getClubIcon } from "../utils/iconMap";
 import { resolveUploadUrl } from "../services/api";
 import { pluralize } from "../utils/plural";
 import SafeImage from "./SafeImage";
+import { joinButtonState } from "../utils/clubJoinState";
 
 export default function ClubCard({ club, onView }) {
   const Icon = getClubIcon(club.icon);
-  const { isJoined, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
+  const { isJoined, isPending, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
   const requireAuth = useRequireAuth();
   const tilt = useTilt({ max: 6, scale: 1.015 });
   const joined = isJoined(club._id);
+  const join = joinButtonState({ club, joined, pending: isPending(club._id) });
   const favorite = isFavorite(club._id);
 
   return (
@@ -72,16 +74,19 @@ export default function ClubCard({ club, onView }) {
           className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
             joined
               ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
-              : "bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
+              : join.kind === "pending"
+                ? "bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300"
+                : "bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
           }`}
+          title={join.hint || undefined}
         >
-          {joined ? (
+          {joined || join.kind === "pending" ? (
             <>
-              <FaCheck className="text-xs" /> Joined
+              <FaCheck className="text-xs" /> {join.label}
             </>
           ) : (
             <>
-              <FaPlus className="text-xs" /> Join Club
+              <FaPlus className="text-xs" /> {join.label}
             </>
           )}
         </button>

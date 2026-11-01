@@ -17,6 +17,7 @@ import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { installMode, detectIos } from "../src/utils/installApp.js";
+import { joinButtonState } from "../src/utils/clubJoinState.js";
 import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
 import { isRegistrationClosed, hasOpenDeadline, deadlineSoonLabel } from "../src/utils/registrationDeadline.js";
@@ -872,4 +873,11 @@ test("isAuthCheckUnreachable: only 'no answer' or a broken server counts, never 
   assert.equal(isAuthCheckUnreachable({ response: { status: 429 } }), true);
   assert.equal(isAuthCheckUnreachable({ response: { status: 401 } }), false);
   assert.equal(isAuthCheckUnreachable({ response: { status: 403 } }), false);
+});
+
+test("joinButtonState: plain clubs join, approval clubs ask, waiting requests can be withdrawn", () => {
+  assert.equal(joinButtonState({ club: {}, joined: false, pending: false }).label, "Join Club");
+  assert.equal(joinButtonState({ club: { requiresApproval: true }, joined: false, pending: false }).label, "Request to join");
+  assert.equal(joinButtonState({ club: { requiresApproval: true }, joined: false, pending: true }).kind, "pending");
+  assert.equal(joinButtonState({ club: { requiresApproval: true }, joined: true, pending: true }).kind, "joined");
 });

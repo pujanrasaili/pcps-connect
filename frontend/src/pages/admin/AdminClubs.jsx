@@ -29,6 +29,7 @@ const EMPTY_FORM = {
   leadRole: "",
   email: "",
   foundedYear: "",
+  requiresApproval: false,
 };
 
 export default function AdminClubs() {
@@ -121,8 +122,8 @@ export default function AdminClubs() {
   const openMessage = (club) => setMessageTarget(club);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const openCreate = () => {
@@ -145,6 +146,7 @@ export default function AdminClubs() {
       leadRole: club.leadRole || "",
       email: club.email || "",
       foundedYear: club.foundedYear || "",
+      requiresApproval: !!club.requiresApproval,
     });
     setFormOpen(true);
   };
@@ -356,6 +358,13 @@ export default function AdminClubs() {
               <input id="club-foundedYear" name="foundedYear" maxLength={10} className="input-field" value={form.foundedYear} onChange={handleChange} />
             </div>
           </div>
+          <label className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
+            <input type="checkbox" name="requiresApproval" checked={!!form.requiresApproval} onChange={handleChange} className="mt-0.5 h-4 w-4 rounded border-slate-300" />
+            <span>
+              Approve each person who joins
+              <span className="block text-xs text-slate-500 dark:text-slate-400">Students send a request; the club's leaders or an admin accept or decline it.</span>
+            </span>
+          </label>
           <Button type="submit" className="w-full" disabled={saving}>
             {saving ? "Saving..." : editingClub ? "Save changes" : "Create club"}
           </Button>
