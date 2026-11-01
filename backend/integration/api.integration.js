@@ -226,3 +226,51 @@ test("the scheduled email jobs run against real data", { skip }, async () => {
   assert.doesNotMatch(digest.out, /Schema hasn't been registered/);
   assert.equal(digest.code, 0, digest.out);
 });
+
+test("the notification bell tells the right people, and only them", { skip }, async () => {
+  const admin = await makeUser("bda", "admin");
+  const asha = await makeUser("bds");
+  const other = await makeUser("bdo");
+
+  let r = await admin.req("POST", "/clubs", { name: `Bell Club ${stamp}`, description: "A club used by the bell integration test.", category: "Technology" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const clubId = (r.json.club || r.json)._id;
+  r = await admin.req("POST", "/events/create", { title: "Bell Event", description: "Approval event for the bell integration test.", date: day(6), location: "Lab 1", capacity: 5, category: "Workshop", price: "Free", club: clubId, requiresApproval: true });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const event = r.json.event || r.json;
+
+  const bell = async (who) => (await who.req("GET", "/notifications")).json;
+  const types = (list) => list.notifications.map((n) => n.type);
+
+  // Nobody is told anything before something happens to them.
+  assert.equal((await bell(asha)).unreadCount, 0);
+
+  // A join request tells the admins -- not the student, not other students.
+  assert.equal((await asha.req("POST", "/registrations/register", { eventId: event._id })).status, 201);
+  const adminBell = await bell(admin);
+  assert.ok(types(adminBell).includes("join_request"), "the admin hears about the request");
+  assert.deepEqual(types(await bell(asha)), []);
+  assert.deepEqual(types(await bell(other)), []);
+
+  // Approving tells that student, and only them.
+  const regId = (await asha.req("GET", "/registrations/my")).json.registrations[0]._id;
+  assert.equal((await admin.req("PUT", `/admin/registrations/${regId}/decision`, { decision: "approve" })).status, 200);
+  let ashaBell = await bell(asha);
+  assert.deepEqual(types(ashaBell), ["join_approved"]);
+  assert.equal(ashaBell.unreadCount, 1);
+  assert.match(ashaBell.notifications[0].link, /^\/events\//);
+  assert.deepEqual(types(await bell(other)), []);
+
+  // Changing the event's place tells people who registered.
+  assert.equal((await admin.req("PUT", `/events/${event._id}`, { location: "Lab 2" })).status, 200);
+  assert.ok(types(await bell(asha)).includes("event_changed"));
+  assert.deepEqual(types(await bell(other)), []);
+
+  // Marking read only clears your own.
+  assert.equal((await asha.req("PUT", "/notifications/read-all")).status, 200);
+  assert.equal((await bell(asha)).unreadCount, 0);
+  assert.ok((await bell(admin)).unreadCount > 0, "someone else's messages stay unread");
+
+  // Logged-out visitors get nothing.
+  assert.equal((await new Client().req("GET", "/notifications")).status, 401);
+});
