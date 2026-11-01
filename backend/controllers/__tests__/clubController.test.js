@@ -2,6 +2,7 @@ jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/ClubJoinRequest");
+jest.mock("../../utils/admitWaitingRequests");
 jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../utils/audit");
@@ -14,6 +15,7 @@ const Event = require("../../models/Event");
 const { recordAudit } = require("../../utils/audit");
 const { getClubs, getClubById, createClub, updateClub, deleteClub } = require("../clubController");
 const { pickClubFields } = require("../../utils/clubFields");
+const { admitWaitingRequests } = require("../../utils/admitWaitingRequests");
 
 function mockRes() {
   const res = {};
@@ -111,6 +113,15 @@ describe("updateClub", () => {
     expect(Club.findByIdAndUpdate).toHaveBeenCalledWith("c1", { name: "New" }, { new: true, runValidators: true });
     expect(recordAudit).toHaveBeenCalledWith(admin, "club.updated", 'Edited club "New"');
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("lets the waiting students in when approval is switched off, and only then", async () => {
+    Club.findByIdAndUpdate = jest.fn().mockResolvedValue({ _id: "c1", name: "Chess" });
+    await updateClub({ user: admin, params: { id: "c1" }, body: { requiresApproval: true } }, mockRes());
+    await updateClub({ user: admin, params: { id: "c1" }, body: { name: "Chess" } }, mockRes());
+    expect(admitWaitingRequests).not.toHaveBeenCalled();
+    await updateClub({ user: admin, params: { id: "c1" }, body: { requiresApproval: false } }, mockRes());
+    expect(admitWaitingRequests).toHaveBeenCalledWith({ _id: "c1", name: "Chess" });
   });
 
   it("returns 404 when the club does not exist", async () => {

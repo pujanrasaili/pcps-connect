@@ -339,3 +339,19 @@ test("clubs that approve their members: request, review, approve", { skip }, asy
   assert.equal((await admin.req("DELETE", `/clubs/${club._id}`)).status, 200);
   assert.equal(await mongoose.connection.collection("clubjoinrequests").countDocuments({ club: new mongoose.Types.ObjectId(club._id) }), 0);
 });
+
+test("a club that stops approving lets the waiting students in", { skip }, async () => {
+  const admin = await makeUser("coa", "admin");
+  const asha = await makeUser("cos");
+  let r = await admin.req("POST", "/clubs", { name: `Opening ${stamp}`, description: "A club that opens up later.", category: "Arts", requiresApproval: true });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const club = r.json.club || r.json;
+  assert.equal((await asha.req("POST", "/club-memberships/join", { clubId: club._id })).status, 202);
+  assert.equal((await asha.req("GET", "/club-memberships/my")).json.memberships.length, 0);
+
+  r = await admin.req("PUT", `/clubs/${club._id}`, { requiresApproval: false });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal((await asha.req("GET", "/club-memberships/my")).json.memberships.length, 1, "let in");
+  assert.equal((await asha.req("GET", "/club-memberships/requests/my")).json.requests.length, 0);
+  assert.ok((await asha.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_approved"));
+});
