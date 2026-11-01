@@ -27,7 +27,7 @@ const {
 const { setNotice } = require("../controllers/noticeController");
 const { addWalkIn } = require("../controllers/walkInController");
 const { getClubMembers } = require("../controllers/clubMembersController");
-const { getClubJoinRequests, decideClubJoinRequest } = require("../controllers/clubRequestsController");
+const { getClubJoinRequests, decideClubJoinRequest, getRequestCounts } = require("../controllers/clubRequestsController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const { actionLimiter } = require("../middleware/rateLimit");
@@ -47,6 +47,7 @@ router.use(protect);
 router.get("/events/:id/registrations", staffOnly, getEventRegistrations);
 router.post("/events/:id/announce", staffOnly, actionLimiter, announceToRegistrants);
 router.get("/clubs/:id/members", staffOnly, getClubMembers);
+router.get("/club-request-counts", staffOnly, getRequestCounts);
 router.get("/clubs/:id/requests", staffOnly, getClubJoinRequests);
 router.put("/clubs/:id/requests/:requestId/decision", staffOnly, decideClubJoinRequest);
 router.post("/clubs/:id/announce", staffOnly, actionLimiter, announceToClubMembers);

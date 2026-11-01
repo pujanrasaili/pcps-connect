@@ -66,4 +66,26 @@ async function decideClubJoinRequest(req, res) {
   }
 }
 
-module.exports = { getClubJoinRequests, decideClubJoinRequest };
+// GET /api/admin/club-request-counts
+// How many students are waiting on each club the caller can manage (all
+// clubs for an admin, only the clubs they lead for a leader), so the club
+// lists can show a badge. Clubs with nobody waiting are left out.
+async function getRequestCounts(req, res) {
+  try {
+    const match = {};
+    if (req.user.role !== "admin") {
+      const led = await Club.find({ leaders: req.user._id }).select("_id");
+      match.club = { $in: led.map((c) => c._id) };
+    }
+    const rows = await ClubJoinRequest.aggregate([{ $match: match }, { $group: { _id: "$club", n: { $sum: 1 } } }]);
+    const counts = {};
+    rows.forEach((r) => {
+      counts[String(r._id)] = r.n;
+    });
+    res.status(200).json({ counts });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch request counts") });
+  }
+}
+
+module.exports = { getClubJoinRequests, decideClubJoinRequest, getRequestCounts };

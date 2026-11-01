@@ -118,6 +118,7 @@ const DESCRIPTIONS = {
   updateClub: "Edit a club.",
   deleteClub: "Delete a club along with its memberships and event links.",
   getMyJoinRequests: "The clubs you have asked to join and are still waiting on (clubs that approve their members).",
+  getRequestCounts: "How many students are waiting to join each club you manage (clubs that approve their members), for the badges in the club lists.",
   getClubJoinRequests: "List the students waiting to join a club that approves its members, oldest first; admins and that club's leaders only.",
   decideClubJoinRequest: "Approve or decline a student's request to join a club; approving makes them a member and both outcomes notify them; admins and that club's leaders only.",
   getClubMembers: "List who joined a club (name, email, student ID, join date), newest first; admins and that club's leaders only.",

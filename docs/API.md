@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-81 endpoints.
+82 endpoints.
 
 ## /api/health
 
@@ -64,6 +64,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/admin/events/:id/registrations` | Admin or club leader | Everyone registered for an event, plus its waitlist. |
 | POST | `/api/admin/events/:id/announce` | Admin or club leader (rate limited) | Email everyone registered for an event. |
 | GET | `/api/admin/clubs/:id/members` | Admin or club leader | List who joined a club (name, email, student ID, join date), newest first; admins and that club's leaders only. |
+| GET | `/api/admin/club-request-counts` | Admin or club leader | How many students are waiting to join each club you manage (clubs that approve their members), for the badges in the club lists. |
 | GET | `/api/admin/clubs/:id/requests` | Admin or club leader | List the students waiting to join a club that approves its members, oldest first; admins and that club's leaders only. |
 | PUT | `/api/admin/clubs/:id/requests/:requestId/decision` | Admin or club leader | Approve or decline a student's request to join a club; approving makes them a member and both outcomes notify them; admins and that club's leaders only. |
 | POST | `/api/admin/clubs/:id/announce` | Admin or club leader (rate limited) | Email everyone who joined a club (members who opted out are skipped). |
