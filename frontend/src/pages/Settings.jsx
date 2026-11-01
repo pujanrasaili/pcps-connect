@@ -133,7 +133,7 @@ export default function Settings() {
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Appearance</h2>
         <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-4">
           <div className="flex items-center gap-3">
-            {theme === "dark" ? <FaMoon className="text-primary-500" /> : <FaSun className="text-primary-500" />}
+            {theme === "dark" ? <FaMoon className="shrink-0 text-primary-500" /> : <FaSun className="shrink-0 text-primary-500" />}
             <div>
               <p className="font-medium text-slate-800 dark:text-slate-100">Dark mode</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -177,7 +177,7 @@ export default function Settings() {
             onClick={() => setPwOpen(true)}
             className="flex w-full items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
           >
-            <FaLock className="text-primary-500" />
+            <FaLock className="shrink-0 text-primary-500" />
             <div>
               <p className="font-medium text-slate-800 dark:text-slate-100">Change password</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">Update the password you use to log in.</p>
@@ -189,7 +189,7 @@ export default function Settings() {
             disabled={exporting}
             className="flex w-full items-center gap-3 rounded-xl border border-slate-100 dark:border-slate-800 p-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 disabled:opacity-60"
           >
-            <FaDownload className="text-primary-500" />
+            <FaDownload className="shrink-0 text-primary-500" />
             <div>
               <p className="font-medium text-slate-800 dark:text-slate-100">{exporting ? "Preparing..." : "Download my data"}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -203,7 +203,7 @@ export default function Settings() {
               onClick={() => setDelOpen(true)}
               className="flex w-full items-center gap-3 rounded-xl border border-rose-100 p-4 text-left transition-colors hover:bg-rose-50 dark:border-rose-900/40 dark:hover:bg-rose-900/10"
             >
-              <FaTrashAlt className="text-rose-500" />
+              <FaTrashAlt className="shrink-0 text-rose-500" />
               <div>
                 <p className="font-medium text-rose-700 dark:text-rose-400">Delete account</p>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -281,7 +281,7 @@ function PrefRow({ icon: Icon, title, desc, checked, onChange, disabled }) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-4">
       <div className="flex items-center gap-3">
-        <Icon className="text-primary-500" />
+        <Icon className="shrink-0 text-primary-500" />
         <div>
           <p className="font-medium text-slate-800 dark:text-slate-100">{title}</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">{desc}</p>
