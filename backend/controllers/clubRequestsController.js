@@ -32,7 +32,10 @@ async function getClubJoinRequests(req, res) {
   }
 }
 
-// PUT /api/admin/clubs/:id/requests/:requestId/decision  { decision: "approve" | "reject" }
+const MAX_REASON = 300;
+
+// PUT /api/admin/clubs/:id/requests/:requestId/decision  { decision: "approve" | "reject", reason?: string }
+// `reason` is an optional short note that goes in the decline email.
 // Approving makes the student a member (and drops the request); rejecting just
 // drops it. Either way the student is told. Admins and that club's leaders only.
 async function decideClubJoinRequest(req, res) {
@@ -40,6 +43,10 @@ async function decideClubJoinRequest(req, res) {
     const { decision } = req.body || {};
     if (decision !== "approve" && decision !== "reject") {
       return res.status(400).json({ message: 'decision must be "approve" or "reject"' });
+    }
+    const { reason } = req.body || {};
+    if (reason !== undefined && (typeof reason !== "string" || reason.length > MAX_REASON)) {
+      return res.status(400).json({ message: `The note must be text of ${MAX_REASON} characters or fewer` });
     }
     const club = await Club.findById(req.params.id).select("name");
     if (!club) return res.status(404).json({ message: "Club not found" });
@@ -59,7 +66,7 @@ async function decideClubJoinRequest(req, res) {
         if (err.code !== 11000) throw err; // already a member -- fine
       }
     }
-    if (request.user) await notifyStudentOfDecision(request.user, club, approved);
+    if (request.user) await notifyStudentOfDecision(request.user, club, approved, approved ? "" : String(reason || "").trim());
     await recordAudit(
       req.user,
       approved ? "club.join_approved" : "club.join_declined",

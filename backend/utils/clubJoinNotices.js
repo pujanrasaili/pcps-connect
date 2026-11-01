@@ -26,7 +26,7 @@ async function notifyClubStaffOfRequest(club, student) {
 
 // Tells the student how their request was decided: a bell message and an
 // email. Also best-effort.
-async function notifyStudentOfDecision(student, club, approved) {
+async function notifyStudentOfDecision(student, club, approved, reason = "") {
   const title = approved ? `You're in! ${club.name} approved your request to join` : `${club.name} declined your request to join`;
   await pushNotifications([student._id], {
     type: approved ? "club_join_approved" : "club_join_declined",
@@ -42,7 +42,7 @@ async function notifyStudentOfDecision(student, club, approved) {
         heading: approved ? "Your request was approved" : "Your request was declined",
         bodyHtml: approved
           ? `<p style="margin: 0 0 12px;">Hi ${escapeHtml(student.name)},</p><p style="margin: 0;">The leaders of <strong>${escapeHtml(club.name)}</strong> approved your request. You are now a member, and you will see its events and news.</p>`
-          : `<p style="margin: 0 0 12px;">Hi ${escapeHtml(student.name)},</p><p style="margin: 0;">The leaders of <strong>${escapeHtml(club.name)}</strong> could not accept your request to join this time. You can contact the club if you have questions.</p>`,
+          : `<p style="margin: 0 0 12px;">Hi ${escapeHtml(student.name)},</p><p style="margin: 0;">The leaders of <strong>${escapeHtml(club.name)}</strong> could not accept your request to join this time. You can contact the club if you have questions.</p>${reason ? `<p style="margin: 12px 0 0;"><strong>A note from the club:</strong> ${escapeHtml(reason)}</p>` : ""}`,
       }),
     });
   } catch (err) {

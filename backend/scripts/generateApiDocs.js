@@ -120,7 +120,7 @@ const DESCRIPTIONS = {
   getMyJoinRequests: "The clubs you have asked to join and are still waiting on (clubs that approve their members).",
   getRequestCounts: "How many students are waiting to join each club you manage (clubs that approve their members), for the badges in the club lists.",
   getClubJoinRequests: "List the students waiting to join a club that approves its members, oldest first; admins and that club's leaders only.",
-  decideClubJoinRequest: "Approve or decline a student's request to join a club; approving makes them a member and both outcomes notify them; admins and that club's leaders only.",
+  decideClubJoinRequest: "Approve or decline a student's request to join a club; approving makes them a member and both outcomes notify them (a decline can carry a short note of up to 300 characters for the email); admins and that club's leaders only.",
   getClubMembers: "List who joined a club (name, email, student ID, join date), newest first; admins and that club's leaders only.",
   addWalkIn: "Add a student who turned up without registering (by exact email or student ID) as registered and attended; admins and that event's club leaders only.",
   getQuestions: "The public questions and answers on an event (newest first, up to 50). Only first names are shown.",
