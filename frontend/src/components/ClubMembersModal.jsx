@@ -18,6 +18,9 @@ export default function ClubMembersModal({ club, onClose }) {
   const [search, setSearch] = useState("");
   const [requests, setRequests] = useState([]);
   const [busyId, setBusyId] = useState("");
+  // The request being declined, and the optional note for the student.
+  const [declining, setDeclining] = useState("");
+  const [note, setNote] = useState("");
 
   useEffect(() => {
     if (!club) return undefined;
@@ -41,11 +44,13 @@ export default function ClubMembersModal({ club, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [club]);
 
-  const decide = async (request, decision) => {
+  const decide = async (request, decision, reason = "") => {
     setBusyId(request._id);
     try {
-      await api.put(`/admin/clubs/${club._id}/requests/${request._id}/decision`, { decision });
+      await api.put(`/admin/clubs/${club._id}/requests/${request._id}/decision`, { decision, ...(reason ? { reason } : {}) });
       setRequests((prev) => prev.filter((r) => r._id !== request._id));
+      setDeclining("");
+      setNote("");
       if (decision === "approve") {
         setMembers((prev) => [{ _id: request._id, name: request.name, email: request.email, studentId: request.studentId, joinedAt: new Date().toISOString() }, ...prev]);
         toast.success(`${request.name} is now a member.`);
@@ -96,7 +101,11 @@ export default function ClubMembersModal({ club, onClose }) {
                     Approve
                   </button>
                   <button
-                    onClick={() => decide(r, "reject")}
+                    onClick={() => {
+                      setDeclining(declining === r._id ? "" : r._id);
+                      setNote("");
+                    }}
+                    aria-expanded={declining === r._id}
                     disabled={busyId === r._id}
                     aria-label={`Decline ${r.name}`}
                     className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 disabled:opacity-60 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-600"
@@ -104,6 +113,26 @@ export default function ClubMembersModal({ club, onClose }) {
                     Decline
                   </button>
                 </div>
+                {declining === r._id && (
+                  <div className="flex w-full flex-wrap items-center gap-2">
+                    <label className="sr-only" htmlFor={`decline-note-${r._id}`}>Note for {r.name} (optional)</label>
+                    <input
+                      id={`decline-note-${r._id}`}
+                      className="input-field min-w-0 flex-1"
+                      maxLength={300}
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      placeholder="Optional note for the student, sent in the email"
+                    />
+                    <button
+                      onClick={() => decide(r, "reject", note.trim())}
+                      disabled={busyId === r._id}
+                      className="rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-800 disabled:opacity-60"
+                    >
+                      Send decline
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
