@@ -69,9 +69,28 @@ describe("decideClubJoinRequest", () => {
     const res = mockRes();
     await decideClubJoinRequest(baseReq({ body: { decision: "approve" } }), res);
     expect(ClubMembership.create).toHaveBeenCalledWith({ user: "s1", club: "c1" });
-    expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, true);
+    expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, true, "");
     expect(res.json).toHaveBeenCalledWith({ message: "Request approved" });
     expect(recordAudit).toHaveBeenCalledWith(baseReq().user, "club.join_approved", 'Approved Asha joining "Chess"');
+  });
+
+  it("a decline can carry a short note for the student; an approval ignores it", async () => {
+    claim(waiting);
+    await decideClubJoinRequest(baseReq({ body: { decision: "reject", reason: "  Applications open in March  " } }), mockRes());
+    expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, false, "Applications open in March");
+    claim(waiting);
+    ClubMembership.create.mockResolvedValue({});
+    await decideClubJoinRequest(baseReq({ body: { decision: "approve", reason: "ignored" } }), mockRes());
+    expect(notifyStudentOfDecision).toHaveBeenLastCalledWith(waiting.user, club, true, "");
+  });
+
+  it("rejects a note that is not text or is too long, before touching anything", async () => {
+    for (const reason of [123, { $ne: 1 }, "x".repeat(301)]) {
+      const res = mockRes();
+      await decideClubJoinRequest(baseReq({ body: { decision: "reject", reason } }), res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(ClubJoinRequest.findOneAndDelete).not.toHaveBeenCalled();
   });
 
   it("declining drops the request without creating a membership", async () => {
@@ -79,7 +98,7 @@ describe("decideClubJoinRequest", () => {
     const res = mockRes();
     await decideClubJoinRequest(baseReq({ body: { decision: "reject" } }), res);
     expect(ClubMembership.create).not.toHaveBeenCalled();
-    expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, false);
+    expect(notifyStudentOfDecision).toHaveBeenCalledWith(waiting.user, club, false, "");
     expect(res.json).toHaveBeenCalledWith({ message: "Request declined" });
     expect(recordAudit).toHaveBeenCalledWith(baseReq().user, "club.join_declined", 'Declined Asha joining "Chess"');
   });

@@ -44,6 +44,14 @@ describe("notifyStudentOfDecision", () => {
     expect(mail.html).not.toContain("<b>");
   });
 
+  it("declined with a note: the note is in the email, escaped", async () => {
+    sendEmail.mockResolvedValue();
+    await notifyStudentOfDecision(student, { name: "Chess" }, false, "Try again in <March>");
+    const html = sendEmail.mock.calls[0][0].html;
+    expect(html).toContain("A note from the club");
+    expect(html).toContain("Try again in &lt;March&gt;");
+  });
+
   it("declined: says so, and a failing email never throws", async () => {
     sendEmail.mockRejectedValue(new Error("bounce"));
     jest.spyOn(console, "error").mockImplementation(() => {});
