@@ -274,3 +274,61 @@ test("the notification bell tells the right people, and only them", { skip }, as
   // Logged-out visitors get nothing.
   assert.equal((await new Client().req("GET", "/notifications")).status, 401);
 });
+
+test("clubs that approve their members: request, review, approve", { skip }, async () => {
+  const admin = await makeUser("cra", "admin");
+  const leader = await makeUser("crl");
+  const asha = await makeUser("crs");
+  const ram = await makeUser("crr");
+
+  let r = await admin.req("POST", "/clubs", { name: `Gated ${stamp}`, description: "A club that approves its members.", category: "Technology", requiresApproval: true });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const club = r.json.club || r.json;
+  assert.equal(club.requiresApproval, true);
+  assert.equal((await admin.req("PUT", `/admin/clubs/${club._id}/leaders`, { userIds: [leader.id] })).status, 200);
+
+  // A request is not a membership.
+  r = await asha.req("POST", "/club-memberships/join", { clubId: club._id });
+  assert.equal(r.status, 202, JSON.stringify(r.json));
+  assert.equal(r.json.pending, true);
+  assert.equal((await asha.req("POST", "/club-memberships/join", { clubId: club._id })).status, 400, "asking twice");
+  assert.equal((await asha.req("GET", "/club-memberships/my")).json.memberships.length, 0);
+  assert.equal((await asha.req("GET", "/club-memberships/requests/my")).json.requests.length, 1);
+  assert.equal((await ram.req("GET", "/club-memberships/requests/my")).json.requests.length, 0, "other students don't see it");
+  const publicClub = (await new Client().req("GET", "/clubs")).json.clubs.find((c) => c._id === club._id);
+  assert.equal(publicClub.memberCount, 0, "a waiting request is not counted as a member");
+
+  // The leader and admin are told; only staff of this club can read or decide.
+  assert.ok((await leader.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_request"));
+  assert.ok((await admin.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_request"));
+  assert.equal((await ram.req("GET", `/admin/clubs/${club._id}/requests`)).status, 403);
+  r = await leader.req("GET", `/admin/clubs/${club._id}/requests`);
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.requests.length, 1);
+  assert.equal(r.json.requests[0].email, asha.email);
+  const requestId = r.json.requests[0]._id;
+  assert.equal((await ram.req("PUT", `/admin/clubs/${club._id}/requests/${requestId}/decision`, { decision: "approve" })).status, 403);
+  assert.equal((await leader.req("PUT", `/admin/clubs/${club._id}/requests/${requestId}/decision`, { decision: "maybe" })).status, 400);
+
+  // Approving makes a real member and tells the student; a second try finds nothing.
+  assert.equal((await leader.req("PUT", `/admin/clubs/${club._id}/requests/${requestId}/decision`, { decision: "approve" })).status, 200);
+  assert.equal((await leader.req("PUT", `/admin/clubs/${club._id}/requests/${requestId}/decision`, { decision: "approve" })).status, 404);
+  assert.equal((await asha.req("GET", "/club-memberships/my")).json.memberships.length, 1);
+  assert.equal((await asha.req("GET", "/club-memberships/requests/my")).json.requests.length, 0);
+  assert.ok((await asha.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_approved"));
+
+  // Declining and withdrawing never create a membership.
+  assert.equal((await ram.req("POST", "/club-memberships/join", { clubId: club._id })).status, 202);
+  const ramRequest = (await admin.req("GET", `/admin/clubs/${club._id}/requests`)).json.requests[0]._id;
+  assert.equal((await admin.req("PUT", `/admin/clubs/${club._id}/requests/${ramRequest}/decision`, { decision: "reject" })).status, 200);
+  assert.equal((await ram.req("GET", "/club-memberships/my")).json.memberships.length, 0);
+  assert.ok((await ram.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_declined"));
+  assert.equal((await ram.req("POST", "/club-memberships/join", { clubId: club._id })).status, 202);
+  assert.equal((await ram.req("DELETE", `/club-memberships/${club._id}`)).json.message, "Request withdrawn");
+  assert.equal((await ram.req("GET", "/club-memberships/requests/my")).json.requests.length, 0);
+
+  // Deleting the club clears its requests.
+  assert.equal((await ram.req("POST", "/club-memberships/join", { clubId: club._id })).status, 202);
+  assert.equal((await admin.req("DELETE", `/clubs/${club._id}`)).status, 200);
+  assert.equal(await mongoose.connection.collection("clubjoinrequests").countDocuments({ club: new mongoose.Types.ObjectId(club._id) }), 0);
+});

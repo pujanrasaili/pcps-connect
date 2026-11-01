@@ -6,6 +6,7 @@ jest.mock("../../models/ClubPost");
 jest.mock("../../utils/notifyNewLeaders");
 jest.mock("../../utils/notifyClubMembers");
 jest.mock("../../models/ClubMembership");
+jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../models/EventQuestion");
 jest.mock("../../utils/waitlist");

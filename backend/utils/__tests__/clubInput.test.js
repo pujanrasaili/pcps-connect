@@ -28,3 +28,13 @@ describe("validateClubFields", () => {
     expect(validateClubFields({ activities: ["x".repeat(201)] })).toMatch(/200 characters/);
   });
 });
+
+describe("requiresApproval", () => {
+  const { validateClubFields } = require("../clubInput");
+  it("must be true or false when sent", () => {
+    expect(validateClubFields({ requiresApproval: true })).toBeNull();
+    expect(validateClubFields({ requiresApproval: false })).toBeNull();
+    expect(validateClubFields({ requiresApproval: "yes" })).toBe("Members need approval must be true or false");
+    expect(validateClubFields({ requiresApproval: { $ne: 1 } })).toBe("Members need approval must be true or false");
+  });
+});
