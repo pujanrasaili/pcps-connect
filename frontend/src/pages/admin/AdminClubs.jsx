@@ -8,6 +8,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { pluralize } from "../../utils/plural";
 import ClubMessageModal from "../../components/ClubMessageModal";
 import ClubMembersModal from "../../components/ClubMembersModal";
+import { useRequestCounts } from "../../hooks/useRequestCounts";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
@@ -35,6 +36,7 @@ const EMPTY_FORM = {
 export default function AdminClubs() {
   const { clubs, loading, error, refreshClubs } = useClubs();
   const toast = useToast();
+  const { counts: waiting, reload: reloadWaiting } = useRequestCounts();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 250);
   const [formOpen, setFormOpen] = useState(false);
@@ -242,11 +244,16 @@ export default function AdminClubs() {
                 <div className="flex w-full shrink-0 items-center justify-end gap-1 sm:w-auto">
                   <button
                     onClick={() => setMembersTarget(club)}
-                    aria-label={`View members of ${club.name}`}
+                    aria-label={`View members of ${club.name}${waiting[club._id] ? `, ${waiting[club._id]} waiting for approval` : ""}`}
                     title="View members"
-                    className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-900/20"
+                    className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-900/20"
                   >
                     <FaUsers />
+                    {waiting[club._id] > 0 && (
+                      <span aria-hidden="true" className="absolute -right-1 -top-1 min-w-[1.1rem] rounded-full bg-amber-600 px-1 text-center text-[10px] font-bold leading-[1.1rem] text-white">
+                        {waiting[club._id]}
+                      </span>
+                    )}
                   </button>
                   <button
                     onClick={() => openMessage(club)}
@@ -372,7 +379,7 @@ export default function AdminClubs() {
       </Modal>
 
       <ClubMessageModal club={messageTarget} onClose={() => setMessageTarget(null)} />
-      <ClubMembersModal club={membersTarget} onClose={() => setMembersTarget(null)} />
+      <ClubMembersModal club={membersTarget} onClose={() => { setMembersTarget(null); reloadWaiting(); }} />
 
       <Modal isOpen={!!leadersTarget} onClose={() => setLeadersTarget(null)} title={`Club leaders — ${leadersTarget?.name || ""}`} size="md">
         <div className="space-y-4">

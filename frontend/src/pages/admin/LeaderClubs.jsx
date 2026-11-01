@@ -5,6 +5,7 @@ import { useClubs } from "../../context/ClubsContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
 import ClubMembersModal from "../../components/ClubMembersModal";
 import Button from "../../components/Button";
+import { useRequestCounts } from "../../hooks/useRequestCounts";
 
 // The clubs this person leads, with the one club-wide action a leader has:
 // seeing and emailing the club's members.
@@ -14,6 +15,7 @@ export default function LeaderClubs() {
   const { clubs: allClubs } = useClubs();
   const [target, setTarget] = useState(null);
   const [membersTarget, setMembersTarget] = useState(null);
+  const { counts, reload } = useRequestCounts();
 
   return (
     <div className="space-y-6">
@@ -44,7 +46,7 @@ export default function LeaderClubs() {
             <p className="min-w-0 truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
             <div className="flex shrink-0 flex-wrap justify-end gap-2">
               <Button icon={FaUsers} onClick={() => setMembersTarget(club)}>
-                View members
+                View members{counts[club._id] ? ` (${counts[club._id]} waiting)` : ""}
               </Button>
               <Button icon={FaEnvelope} onClick={() => setTarget(club)}>
                 Message members
@@ -53,7 +55,7 @@ export default function LeaderClubs() {
           </div>
         ))}
       </div>
-      <ClubMembersModal club={membersTarget} onClose={() => setMembersTarget(null)} />
+      <ClubMembersModal club={membersTarget} onClose={() => { setMembersTarget(null); reload(); }} />
       <ClubMessageModal
         club={target}
         memberCount={target ? allClubs.find((c) => c._id === target._id)?.memberCount : undefined}
