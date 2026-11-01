@@ -9,7 +9,7 @@ const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const { canManageClub } = require("../../utils/clubAccess");
 const { notifyStudentOfDecision } = require("../../utils/clubJoinNotices");
-const { getClubJoinRequests, decideClubJoinRequest } = require("../clubRequestsController");
+const { getClubJoinRequests, decideClubJoinRequest, getRequestCounts } = require("../clubRequestsController");
 
 function mockRes() {
   const res = {};
@@ -113,5 +113,32 @@ describe("decideClubJoinRequest", () => {
     await decideClubJoinRequest(baseReq({ body: { decision: "approve" } }), denied);
     expect(denied.status).toHaveBeenCalledWith(403);
     expect(ClubJoinRequest.findOneAndDelete).not.toHaveBeenCalled();
+  });
+});
+
+describe("getRequestCounts", () => {
+  it("counts waiting students per club for an admin, across every club", async () => {
+    ClubJoinRequest.aggregate.mockResolvedValue([{ _id: "c1", n: 3 }, { _id: "c2", n: 1 }]);
+    const res = mockRes();
+    await getRequestCounts({ user: { _id: "a1", role: "admin" } }, res);
+    expect(ClubJoinRequest.aggregate.mock.calls[0][0][0]).toEqual({ $match: {} });
+    expect(res.json).toHaveBeenCalledWith({ counts: { c1: 3, c2: 1 } });
+  });
+
+  it("limits a leader to the clubs they lead", async () => {
+    Club.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ _id: "c9" }]) });
+    ClubJoinRequest.aggregate.mockResolvedValue([{ _id: "c9", n: 2 }]);
+    const res = mockRes();
+    await getRequestCounts({ user: { _id: "l1", role: "student" } }, res);
+    expect(Club.find).toHaveBeenCalledWith({ leaders: "l1" });
+    expect(ClubJoinRequest.aggregate.mock.calls[0][0][0]).toEqual({ $match: { club: { $in: ["c9"] } } });
+    expect(res.json).toHaveBeenCalledWith({ counts: { c9: 2 } });
+  });
+
+  it("answers 500 with a safe message when the database fails", async () => {
+    ClubJoinRequest.aggregate.mockRejectedValue(new Error("boom"));
+    const res = mockRes();
+    await getRequestCounts({ user: { _id: "a1", role: "admin" } }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
