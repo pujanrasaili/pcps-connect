@@ -298,6 +298,8 @@ export default function AdminEvents() {
                     {isRegistrationClosed(event) ? <FaLockOpen /> : <FaLock />}
                   </button>
                 )}
+                {/* Past events have no lock: keep the other buttons in the same columns. */}
+                {!isUpcoming(event.date) && <span aria-hidden="true" className="hidden h-9 w-9 sm:block" />}
                 <button
                   onClick={() => openDuplicate(event)}
                   aria-label={`Duplicate ${event.title}`}
