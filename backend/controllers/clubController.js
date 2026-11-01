@@ -1,6 +1,7 @@
 const Club = require("../models/Club");
 const ClubMembership = require("../models/ClubMembership");
 const ClubJoinRequest = require("../models/ClubJoinRequest");
+const { admitWaitingRequests } = require("../utils/admitWaitingRequests");
 const ClubPost = require("../models/ClubPost");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
@@ -64,6 +65,8 @@ async function updateClub(req, res) {
     });
     if (!club) return res.status(404).json({ message: "Club not found" });
     await recordAudit(req.user, "club.updated", `Edited club "${club.name}"`);
+    // Turning approval off lets the students already waiting in.
+    if (req.body?.requiresApproval === false) await admitWaitingRequests(club);
     res.status(200).json({ message: "Club updated", club });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update club") });
