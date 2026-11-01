@@ -59,10 +59,10 @@ export default function AdminLayout() {
       <main id="main-content" tabIndex={-1} className="flex-1 bg-slate-50 dark:bg-slate-950 outline-none">
         <div className="container-page grid grid-cols-1 gap-6 py-8 lg:grid-cols-[220px_1fr]">
           <aside className="card-surface h-fit p-4 lg:sticky lg:top-24">
-            <p className="px-2 pb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <p className="px-2 pb-2 text-xs lg:pb-3 font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {isAdmin ? "Admin Panel" : "Club Leader"}
             </p>
-            <nav aria-label="Admin menu" className="flex flex-col gap-1">
+            <nav aria-label="Admin menu" className="flex flex-wrap gap-1 lg:flex-col">
               {links.map(({ to, label, icon: Icon, end, badgeKey }) => {
                 const badgeCount = badgeKey ? badges[badgeKey] : 0; 
                 return (
@@ -71,15 +71,15 @@ export default function AdminLayout() {
                     to={to}
                     end={end}
                     className={({ isActive }) =>
-                      `flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                      `flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors lg:gap-3 lg:py-2.5 ${
                         isActive
                           ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"
                           : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                       }`
                     }
                   >
-                    <span className="flex items-center gap-3">
-                      <Icon className="text-base" /> {label}
+                    <span className="flex items-center gap-2 lg:gap-3">
+                      <Icon className="shrink-0 text-base" /> {label}
                     </span>
                     {badgeCount > 0 && (
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-semibold text-white">
