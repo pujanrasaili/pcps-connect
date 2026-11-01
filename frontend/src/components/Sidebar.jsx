@@ -21,7 +21,7 @@ export default function Sidebar({ className = "" }) {
   const { user } = useAuth();
 
   return (
-    <aside className={`card-surface flex flex-col gap-6 p-5 ${className}`}>
+    <aside className={`card-surface flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-5 ${className}`}>
       <div className="flex items-center gap-3">
         <Avatar user={user} className="h-11 w-11" />
         <div className="min-w-0">
@@ -34,13 +34,13 @@ export default function Sidebar({ className = "" }) {
         </div>
       </div>
 
-      <nav aria-label="Dashboard menu" className="flex flex-col gap-1">
+      <nav aria-label="Dashboard menu" className="flex flex-wrap gap-1 lg:flex-col">
         {LINKS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              `flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-colors lg:gap-3 lg:py-2.5 ${
                 isActive
                   ? "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"
                   : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
