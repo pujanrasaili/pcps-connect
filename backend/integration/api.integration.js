@@ -307,6 +307,10 @@ test("clubs that approve their members: request, review, approve", { skip }, asy
   assert.equal(r.json.requests.length, 1);
   assert.equal(r.json.requests[0].email, asha.email);
   const requestId = r.json.requests[0]._id;
+  // The club lists get a "N waiting" badge from the counts: staff of the club only.
+  assert.equal((await leader.req("GET", "/admin/club-request-counts")).json.counts[club._id], 1);
+  assert.equal((await admin.req("GET", "/admin/club-request-counts")).json.counts[club._id], 1);
+  assert.equal((await ram.req("GET", "/admin/club-request-counts")).status, 403);
   assert.equal((await ram.req("PUT", `/admin/clubs/${club._id}/requests/${requestId}/decision`, { decision: "approve" })).status, 403);
   assert.equal((await leader.req("PUT", `/admin/clubs/${club._id}/requests/${requestId}/decision`, { decision: "maybe" })).status, 400);
 
@@ -316,6 +320,9 @@ test("clubs that approve their members: request, review, approve", { skip }, asy
   assert.equal((await asha.req("GET", "/club-memberships/my")).json.memberships.length, 1);
   assert.equal((await asha.req("GET", "/club-memberships/requests/my")).json.requests.length, 0);
   assert.ok((await asha.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_approved"));
+  assert.equal((await leader.req("GET", "/admin/club-request-counts")).json.counts[club._id], undefined, "nobody left waiting");
+  const audit = (await admin.req("GET", "/admin/audit")).json.entries;
+  assert.ok(audit.some((e) => e.action === "club.join_approved" && e.summary.includes(`Gated ${stamp}`)), "the decision is in the activity log");
 
   // Declining and withdrawing never create a membership.
   assert.equal((await ram.req("POST", "/club-memberships/join", { clubId: club._id })).status, 202);
