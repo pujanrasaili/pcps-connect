@@ -120,6 +120,7 @@ export default function ClubMembersModal({ club, onClose }) {
                       id={`decline-note-${r._id}`}
                       className="input-field min-w-0 flex-1"
                       maxLength={300}
+                      autoFocus
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="Optional note for the student, sent in the email"
