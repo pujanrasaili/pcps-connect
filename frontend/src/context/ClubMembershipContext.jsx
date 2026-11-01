@@ -120,6 +120,7 @@ export function ClubMembershipProvider({ children }) {
         favoriteClubId,
         isJoined,
         isPending,
+        pendingClubIds,
         isFavorite,
         joinClub,
         leaveClub,
