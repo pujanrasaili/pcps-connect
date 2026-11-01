@@ -62,6 +62,13 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "club-approval",
+    question: "A club says \"Request to join\". What happens?",
+    answer: [
+      "Some clubs approve each new member. Press Request to join and the button changes to Request sent. The club's leaders get a message and either accept or decline you; you are told either way (bell and email). You are not a member until it is accepted. To change your mind, press Request sent again to withdraw it.",
+    ],
+  },
+  {
     id: "install-app",
     question: "Can I put PCPS Connect on my phone's home screen?",
     answer: [
