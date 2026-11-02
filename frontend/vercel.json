@@ -64,6 +64,10 @@
       "destination": "/api/preview?type=club&id=:club"
     },
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
