@@ -17,6 +17,7 @@ import { buildMonthGrid, dayKey, shiftMonth } from "../src/utils/monthGrid.js";
 import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { installMode, detectIos } from "../src/utils/installApp.js";
+import { eventJsonLd, jsonLdText, priceNumber } from "../src/utils/eventJsonLd.js";
 import { joinButtonState } from "../src/utils/clubJoinState.js";
 import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
@@ -880,4 +881,36 @@ test("joinButtonState: plain clubs join, approval clubs ask, waiting requests ca
   assert.equal(joinButtonState({ club: { requiresApproval: true }, joined: false, pending: false }).label, "Request to join");
   assert.equal(joinButtonState({ club: { requiresApproval: true }, joined: false, pending: true }).kind, "pending");
   assert.equal(joinButtonState({ club: { requiresApproval: true }, joined: true, pending: true }).kind, "joined");
+});
+
+test("eventJsonLd: the fields search engines need, nothing invented", () => {
+  const event = { _id: "e1", title: "Hack Night", date: "2026-11-06T13:00:00.000Z", endDate: "2026-11-06T15:00:00.000Z", location: "Main Hall", price: "Rs. 1,500", description: "Join us", image: "https://res.cloudinary.com/x/y.jpg", club: { name: "Coding Club" } };
+  const data = eventJsonLd(event, "https://site.example");
+  assert.equal(data["@type"], "Event");
+  assert.equal(data.startDate, "2026-11-06T13:00:00.000Z");
+  assert.equal(data.endDate, "2026-11-06T15:00:00.000Z");
+  assert.equal(data.url, "https://site.example/events/e1");
+  assert.equal(data.location.name, "Main Hall");
+  assert.equal(data.organizer.name, "Coding Club");
+  assert.deepEqual(data.offers, { "@type": "Offer", price: "1500", priceCurrency: "NPR", url: "https://site.example/events/e1" });
+  assert.deepEqual(data.image, ["https://res.cloudinary.com/x/y.jpg"]);
+});
+
+test("eventJsonLd: skips what is missing and never fabricates", () => {
+  assert.equal(eventJsonLd(null, "o"), null);
+  assert.equal(eventJsonLd({ _id: "e1", title: "No date" }, "o"), null);
+  assert.equal(eventJsonLd({ _id: "e1", title: "Bad", date: "not a date" }, "o"), null);
+  const plain = eventJsonLd({ _id: "e1", title: "Plain", date: "2026-11-06T13:00:00Z", image: "/uploads/a.jpg", price: "Donation welcome" }, "o");
+  assert.equal(plain.endDate, undefined);
+  assert.equal(plain.image, undefined, "relative upload paths are not valid absolute image URLs");
+  assert.equal(plain.offers, undefined, "a price with no number is left out");
+  assert.equal(plain.location.name, "PCPS College");
+});
+
+test("priceNumber and jsonLdText", () => {
+  assert.equal(priceNumber("Free"), "0");
+  assert.equal(priceNumber(""), "0");
+  assert.equal(priceNumber("NPR 250.50"), "250.50");
+  assert.equal(priceNumber("TBA"), null);
+  assert.ok(!jsonLdText({ a: "</script><b>" }).includes("<"));
 });
