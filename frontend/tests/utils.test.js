@@ -18,6 +18,7 @@ import { clubLink } from "../src/utils/share.js";
 import { gettingStartedSteps, pendingGettingStarted } from "../src/utils/gettingStarted.js";
 import { installMode, detectIos } from "../src/utils/installApp.js";
 import { eventJsonLd, jsonLdText, priceNumber } from "../src/utils/eventJsonLd.js";
+import { eventMetaDescription } from "../src/utils/metaDescription.js";
 import { joinButtonState } from "../src/utils/clubJoinState.js";
 import { eventReport, reportText } from "../src/utils/eventReport.js";
 import { localInputToIso, isoToLocalInput } from "../src/utils/dateTimeInput.js";
@@ -913,4 +914,15 @@ test("priceNumber and jsonLdText", () => {
   assert.equal(priceNumber("NPR 250.50"), "250.50");
   assert.equal(priceNumber("TBA"), null);
   assert.ok(!jsonLdText({ a: "</script><b>" }).includes("<"));
+});
+
+test("eventMetaDescription: when and where first, then the description, cut at a word", () => {
+  const text = eventMetaDescription({ title: "Hack Night", date: "2026-11-06T13:00:00Z", location: "Main Hall", description: "Join us for a night of coding." });
+  assert.equal(text, "Fri, Nov 6, 2026 at Main Hall. Join us for a night of coding.");
+  const long = eventMetaDescription({ title: "T", date: "2026-11-06T13:00:00Z", location: "Hall", description: "word ".repeat(100) });
+  assert.ok(long.length <= 160 && long.endsWith("…"));
+  assert.ok(!long.includes("  "));
+  assert.equal(eventMetaDescription({ title: "T" }), null);
+  assert.equal(eventMetaDescription(null), null);
+  assert.equal(eventMetaDescription({ title: "T", date: "garbage", location: "Hall" }), "Hall");
 });
