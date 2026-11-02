@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { eventJsonLd, jsonLdText } from "../utils/eventJsonLd";
 import { useParams, Link, Navigate } from "react-router-dom";
 import {
   FaMapMarkerAlt,
@@ -47,6 +48,17 @@ export default function EventDetails() {
   useEffect(() => {
     document.title = eventTitle(event?.title);
   }, [event?.title]);
+
+  // Event data for search engines, removed again when leaving the page.
+  useEffect(() => {
+    const data = eventJsonLd(event, window.location.origin);
+    if (!data) return undefined;
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.textContent = jsonLdText(data);
+    document.head.appendChild(script);
+    return () => script.remove();
+  }, [event]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
