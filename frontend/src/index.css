@@ -116,3 +116,18 @@ input:-webkit-autofill:focus {
   background-clip: text;
   color: transparent;
 }
+
+/* People who asked their system for less motion: no smooth scrolling and no
+   animated transitions (colour changes still happen, just instantly).
+   Loading spinners keep spinning so a wait never looks frozen. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
