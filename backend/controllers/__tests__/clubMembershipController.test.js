@@ -7,7 +7,7 @@ const Club = require("../../models/Club");
 const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const { notifyClubStaffOfRequest } = require("../../utils/clubJoinNotices");
-const { joinClub, leaveClub, getMyJoinRequests } = require("../clubMembershipController");
+const { getMyMemberships, joinClub, leaveClub, getMyJoinRequests } = require("../clubMembershipController");
 
 function mockRes() {
   const res = {};
@@ -102,5 +102,82 @@ describe("getMyJoinRequests", () => {
     await getMyJoinRequests({ user: student }, res);
     expect(ClubJoinRequest.find).toHaveBeenCalledWith({ user: "s1" });
     expect(res.json).toHaveBeenCalledWith({ requests: [{ club: CLUB_ID }] });
+  });
+});
+
+describe("getMyMemberships", () => {
+  it("returns only the caller's memberships, with each club filled in", async () => {
+    const populate = jest.fn().mockResolvedValue([{ _id: "m1" }]);
+    ClubMembership.find.mockReturnValue({ populate });
+    const res = mockRes();
+    await getMyMemberships({ user: student }, res);
+    expect(ClubMembership.find).toHaveBeenCalledWith({ user: "s1" });
+    expect(populate).toHaveBeenCalledWith("club");
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ memberships: [{ _id: "m1" }] });
+  });
+
+  it("answers 500, and in production says nothing about the database error", async () => {
+    const before = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      ClubMembership.find.mockImplementation(() => { throw new Error("secret db detail"); });
+      const res = mockRes();
+      await getMyMemberships({ user: student }, res);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ message: "Failed to fetch memberships" });
+    } finally {
+      process.env.NODE_ENV = before;
+      console.error.mockRestore();
+    }
+  });
+});
+
+describe("joinClub -- bad input and failures", () => {
+  it("needs a clubId, and an id that is not a real id is just 'not found'", async () => {
+    let res = mockRes();
+    await joinClub({ body: {}, user: student }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    for (const clubId of ["nope", { $ne: 1 }, 123]) {
+      res = mockRes();
+      await joinClub({ body: { clubId }, user: student }, res);
+      expect(res.status).toHaveBeenCalledWith(404);
+    }
+    expect(Club.findById).not.toHaveBeenCalled();
+  });
+
+  it("404s for a club that does not exist", async () => {
+    Club.findById.mockResolvedValue(null);
+    const res = mockRes();
+    await joinClub(joinReq(), res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(ClubMembership.create).not.toHaveBeenCalled();
+  });
+
+  it("answers 500 when saving fails for a reason other than a duplicate", async () => {
+    Club.findById.mockResolvedValue({ _id: CLUB_ID, requiresApproval: true });
+    ClubMembership.findOne.mockResolvedValue(null);
+    ClubJoinRequest.create.mockRejectedValue(new Error("db down"));
+    const res = mockRes();
+    await joinClub(joinReq(), res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(notifyClubStaffOfRequest).not.toHaveBeenCalled();
+  });
+});
+
+describe("leaveClub / getMyJoinRequests -- failures", () => {
+  it("leaveClub answers 500 when the database fails", async () => {
+    ClubMembership.findOneAndDelete.mockRejectedValue(new Error("db down"));
+    const res = mockRes();
+    await leaveClub({ params: { clubId: CLUB_ID }, user: student }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+  it("getMyJoinRequests answers 500 when the database fails", async () => {
+    ClubJoinRequest.find.mockImplementation(() => { throw new Error("db down"); });
+    const res = mockRes();
+    await getMyJoinRequests({ user: student }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
