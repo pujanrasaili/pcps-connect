@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { eventJsonLd, jsonLdText } from "../utils/eventJsonLd";
+import { eventMetaDescription } from "../utils/metaDescription";
 import { useParams, Link, Navigate } from "react-router-dom";
 import {
   FaMapMarkerAlt,
@@ -48,6 +49,17 @@ export default function EventDetails() {
   useEffect(() => {
     document.title = eventTitle(event?.title);
   }, [event?.title]);
+
+  // The snippet search engines show under the title; the page's usual
+  // description comes back when leaving.
+  useEffect(() => {
+    const text = eventMetaDescription(event);
+    const tag = document.querySelector('meta[name="description"]');
+    if (!text || !tag) return undefined;
+    const original = tag.getAttribute("content");
+    tag.setAttribute("content", text);
+    return () => tag.setAttribute("content", original);
+  }, [event]);
 
   // Event data for search engines, removed again when leaving the page.
   useEffect(() => {
