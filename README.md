@@ -56,6 +56,7 @@ pcps-connect/
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
 - The student Dashboard has an "On the waitlist" card: each full event they are queued for and their place in line ("Next in line", "3rd in line"), linking to the event
+- Each event page also sets its own search-result description (date and place, then the start of the event description) while it is open
 - Each event page carries schema.org "Event" data (name, start and end time, place, organiser, price) so search engines can show it as an event; it is added only for events that have a valid date and is removed when you leave the page
 - People whose device asks for reduced motion get no tilting cards, no smooth scrolling and no animated transitions (the hero effect, scroll reveals and autoplay video already respected it)
 - Keyboard users get a "Skip to main content" link as the first tab stop; `robots.txt` keeps private pages (admin, dashboard, profile) out of search engines and a sitemap lists the public ones plus every upcoming or recent event (built on request from the API and cached for an hour; if the server is asleep it still lists the fixed pages)
