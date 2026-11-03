@@ -21,7 +21,7 @@ GitHub Actions (on a timer) -> runs the reminder and digest scripts against the 
   in the browser can be bypassed.
 - **Database**: MongoDB, with these collections: users, clubs, events,
   registrations, club memberships, club join requests, waiting-list entries, in-app notifications
-  (the bell), the admin audit log and the site notice.
+  (the bell), contact messages, the admin audit log and the site notice.
 
 ## Logging in
 

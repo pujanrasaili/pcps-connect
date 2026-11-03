@@ -53,6 +53,7 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 - **Last 7 days and email warning:** the top of the Overview page shows new students and registrations against the week before, and an amber warning if email is not set up (or still goes through Gmail, which Render's free tier blocks).
 - **Report for the college:** on Overview (and Manage Events for club leaders), the "Attendance & feedback" card has "Download full report (CSV)": every past event with club, date, registered, attended, no-shows, attendance % and rating. It opens in Excel. Club leaders only get their own clubs.
 - **Site-wide notice:** the notice card on the Overview page puts a banner on the site (for example for a holiday or downtime).
+- **Contact form messages:** Admin → Messages lists what people sent through the Contact page. Press Reply to answer from your email app, then Mark handled. Messages are deleted automatically after 180 days.
 - **Who changed what:** the Activity page lists recent admin actions (last 200).
 - **Export a list:** the attendee list and the Users page have a CSV download.
 

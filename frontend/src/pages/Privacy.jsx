@@ -7,7 +7,7 @@ export default function Privacy() {
         <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
           Privacy Policy
         </h1>
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Last updated: October 2026</p>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Last updated: November 2026</p>
 
         <div className="card-surface mt-8 space-y-6 p-6 sm:p-8">
           <Section title="1. What we collect">
@@ -19,7 +19,10 @@ export default function Privacy() {
             you register for, so your Dashboard and Profile can show your
             own activity. The notification bell keeps short messages
             about your activity (such as a changed event or an approved
-            request) for 60 days.
+            request) for 60 days. Messages sent through the Contact form (your
+            name, email, subject and message) are saved so admins can reply
+            and are deleted after 180 days, or sooner if you delete your
+            account.
           </Section>
 
           <Section title="2. How we use it">

@@ -119,6 +119,7 @@ pcps-connect/
 - QR check-in: each registered student has a personal QR code; an organiser scans it with a normal phone camera and the student is marked as attended (codes are signed, so they can't be forged)
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
 - Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR, message their registrants and club members, and see turnout and ratings for their clubs' past events — nothing else (no users, other clubs or activity log); enforced on the server
+- Contact form messages are saved (kept 180 days, deleted with the sender's account) and listed for admins under Admin → Messages with Reply, Mark handled and Delete; admins get a bell notification for each new message, and the email still goes out as before
 - Activity log of admin actions (role changes, approvals/rejections, event and club creates, edits and deletions) with who did them, kept for a year; filter it by people / events / clubs or search by name
 - "Add all to calendar" on the student dashboard downloads every confirmed upcoming registration as one .ics file
 - Insights card on the admin overview: registrations per month (last 6 months), the most popular clubs by members, and overall turnout at past events
@@ -247,7 +248,7 @@ npm run backup                      # saves to ~/pcps-backups/pcps-backup-<date-
 npm run backup -- --out D:\backups  # or choose the folder
 ```
 
-It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, activity log, site notice) plus a `manifest.json` with the counts. To restore a collection, load its file back with MongoDB's `mongoimport`:
+It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, activity log, contact messages, site notice) plus a `manifest.json` with the counts. To restore a collection, load its file back with MongoDB's `mongoimport`:
 
 ```bash
 mongoimport --uri "<MONGO_URI>" --collection users --file users.json --jsonArray
