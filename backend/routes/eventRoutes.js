@@ -6,6 +6,7 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/eventController");
+const { addEventPhoto, removeEventPhoto } = require("../controllers/eventPhotosController");
 const { getCalendarFeed } = require("../controllers/calendarFeedController");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
 const { protect, optionalAuth } = require("../middleware/auth");
@@ -39,6 +40,9 @@ router.delete("/:id/questions/:questionId", protect, actionLimiter, deleteQuesti
 // other "send emails" actions (a club leader can't flood their members).
 router.post("/create", protect, staffOnly, actionLimiter, upload.single("image"), createEvent);
 router.put("/:id", protect, staffOnly, upload.single("image"), updateEvent);
+// Photo gallery: organisers only (the controller checks the club).
+router.post("/:id/photos", protect, staffOnly, actionLimiter, upload.single("image"), addEventPhoto);
+router.delete("/:id/photos", protect, staffOnly, actionLimiter, removeEventPhoto);
 router.delete("/:id", protect, staffOnly, deleteEvent);
 
 module.exports = router;

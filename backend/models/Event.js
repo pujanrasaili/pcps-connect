@@ -9,6 +9,9 @@ const eventSchema = new mongoose.Schema(
     endDate: { type: Date, default: null },
     location: { type: String, required: true },
     image: { type: String, default: null },
+    // Photos from the event itself, added by its organisers (at most 8; see
+    // controllers/eventPhotosController.js).
+    photos: { type: [String], default: [] },
     capacity: { type: Number, default: 100, min: 1 },
     // Optional: after this time nobody new can register or join the waitlist
     // (see utils/registrationDeadline.js).

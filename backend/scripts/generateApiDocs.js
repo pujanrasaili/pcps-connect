@@ -127,6 +127,8 @@ const DESCRIPTIONS = {
   getClubMembers: "List who joined a club (name, email, student ID, join date), newest first; admins and that club's leaders only.",
   addWalkIn: "Add a student who turned up without registering (by exact email or student ID) as registered and attended; admins and that event's club leaders only.",
   getQuestions: "The public questions and answers on an event (newest first, up to 50). Only first names are shown.",
+  addEventPhoto: "Add one photo (max 5 MB, jpg/png/webp/gif) to an event's gallery, up to 8; admins and the event's club leaders only.",
+  removeEventPhoto: "Remove a photo from an event's gallery (pass its address as ?url=); admins and the event's club leaders only.",
   askQuestion: "Ask a public question on an upcoming event (max 3 unanswered per student); the organiser is emailed.",
   answerQuestion: "Answer a question on an event (admins and that event's club leaders only); the asker is emailed the first time.",
   deleteQuestion: "Delete a question: its asker, or an admin / the event's club leader.",
