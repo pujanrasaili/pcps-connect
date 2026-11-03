@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaEnvelope, FaCheck, FaTrash } from "react-icons/fa";
 import { api, getErrorMessage } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { timeAgo } from "../../utils/timeAgo";
+import SearchBar from "../../components/SearchBar";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export default function AdminMessages() {
   const toast = useToast();
@@ -13,6 +15,8 @@ export default function AdminMessages() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [showNewOnly, setShowNewOnly] = useState(false);
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 250);
 
   useEffect(() => {
     api
@@ -23,7 +27,14 @@ export default function AdminMessages() {
   }, []);
 
   const unhandled = messages.filter((m) => !m.handled).length;
-  const visible = showNewOnly ? messages.filter((m) => !m.handled) : messages;
+  const visible = useMemo(() => {
+    const q = debouncedQuery.trim().toLowerCase();
+    return messages.filter(
+      (m) =>
+        (!showNewOnly || !m.handled) &&
+        (!q || [m.name, m.email, m.subject, m.message].some((f) => String(f || "").toLowerCase().includes(q)))
+    );
+  }, [messages, showNewOnly, debouncedQuery]);
 
   const toggleHandled = async (m) => {
     try {
@@ -61,6 +72,10 @@ export default function AdminMessages() {
       </div>
 
       {messages.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="w-full sm:w-72">
+            <SearchBar value={query} onChange={setQuery} placeholder="Search by name, email or text..." />
+          </div>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filter messages">
           {[
             [false, `All (${messages.length})`],
@@ -81,6 +96,7 @@ export default function AdminMessages() {
             </button>
           ))}
         </div>
+        </div>
       )}
 
       <div className="card-surface p-6">
@@ -96,7 +112,7 @@ export default function AdminMessages() {
             No messages yet.
           </p>
         ) : visible.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">Nothing new. Every message has been handled.</p>
+          <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">{showNewOnly && !debouncedQuery.trim() ? "Nothing new. Every message has been handled." : "No messages match."}</p>
         ) : (
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {visible.map((m) => (
