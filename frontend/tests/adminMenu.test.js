@@ -89,3 +89,9 @@ test("load and action errors on pages are announced (role=alert)", () => {
     assert.deepEqual(bad, [], `${f} has an unannounced error line`);
   }
 });
+
+test("the Messages page can filter to messages that are still new", () => {
+  const page = readFileSync(new URL("../src/pages/admin/AdminMessages.jsx", import.meta.url), "utf8");
+  assert.match(page, /aria-pressed=\{showNewOnly === value\}/);
+  assert.match(page, /visible\.map\(/);
+});
