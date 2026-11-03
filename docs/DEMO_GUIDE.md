@@ -34,6 +34,12 @@ open the club's Members window and press Approve. The student is told by bell
 and email. Say: "clubs can choose to vet their members, and every decision is
 in the activity log."
 
+Another optional extra (30 seconds): send a message from the Contact page,
+then open Admin → Messages. It is there with a badge on the menu; press Reply
+(your email app opens) and Mark handled. Say: "messages are saved, not just
+emailed, so none get lost, and the form has spam protection and its own rate
+limit."
+
 If something is slow, say "the free hosting tier wakes up slowly" and move on.
 It is true, and it is written in the README.
 
@@ -43,6 +49,10 @@ It is true, and it is written in the README.
 scheduled job emails the club's leaders (the admins, if there are none) about
 students who have waited more than 5 days. If an admin turns approval off, the
 students still waiting are let in at once.
+
+**What happens to the messages people send through Contact?** They are saved
+for 180 days, listed for admins only, and deleted with the sender's account.
+The Privacy page says so. The email still goes out as well.
 
 **Why MERN?** One language (JavaScript) on both sides, a large community, and
 MongoDB suits data that changes shape (clubs, events, registrations).
