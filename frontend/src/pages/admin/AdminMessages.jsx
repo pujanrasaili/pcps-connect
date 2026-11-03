@@ -12,6 +12,7 @@ export default function AdminMessages() {
   const [error, setError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [showNewOnly, setShowNewOnly] = useState(false);
 
   useEffect(() => {
     api
@@ -22,6 +23,7 @@ export default function AdminMessages() {
   }, []);
 
   const unhandled = messages.filter((m) => !m.handled).length;
+  const visible = showNewOnly ? messages.filter((m) => !m.handled) : messages;
 
   const toggleHandled = async (m) => {
     try {
@@ -58,6 +60,29 @@ export default function AdminMessages() {
         </p>
       </div>
 
+      {messages.length > 0 && (
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter messages">
+          {[
+            [false, `All (${messages.length})`],
+            [true, `New (${unhandled})`],
+          ].map(([value, label]) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => setShowNewOnly(value)}
+              aria-pressed={showNewOnly === value}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                showNewOnly === value
+                  ? "bg-primary-500 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="card-surface p-6">
         {loading ? (
           <div className="flex justify-center py-10">
@@ -70,9 +95,11 @@ export default function AdminMessages() {
             <FaEnvelope className="mx-auto mb-2 text-2xl text-slate-300" />
             No messages yet.
           </p>
+        ) : visible.length === 0 ? (
+          <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">Nothing new. Every message has been handled.</p>
         ) : (
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-            {messages.map((m) => (
+            {visible.map((m) => (
               <li key={m._id} className="py-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
