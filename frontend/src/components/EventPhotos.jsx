@@ -4,6 +4,7 @@ import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import ConfirmDialog from "./ConfirmDialog";
 import SafeImage from "./SafeImage";
+import { shrinkImage } from "../utils/resizeImage";
 
 export const MAX_EVENT_PHOTOS = 8;
 
@@ -28,7 +29,7 @@ export default function EventPhotos({ eventId, title, initialPhotos = [], canMan
     setUploading(true);
     try {
       const body = new FormData();
-      body.append("image", file);
+      body.append("image", await shrinkImage(file));
       const { data } = await api.post(`/events/${eventId}/photos`, body);
       setPhotos(data.photos || []);
       toast.success("Photo added.");
@@ -87,7 +88,7 @@ export default function EventPhotos({ eventId, title, initialPhotos = [], canMan
 
       {photos.length === 0 ? (
         <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          No photos yet. Add up to {MAX_EVENT_PHOTOS} (jpg, png, webp or gif, max 5 MB each).
+          No photos yet. Add up to {MAX_EVENT_PHOTOS} (jpg, png, webp or gif). Big photos are shrunk automatically.
         </p>
       ) : (
         <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
