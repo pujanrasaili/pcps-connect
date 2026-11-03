@@ -1,5 +1,5 @@
 const express = require("express");
-const { loginLimiter, registerLimiter, guessLimiter } = require("../rateLimit");
+const { loginLimiter, registerLimiter, guessLimiter, contactLimiter, authLimiter } = require("../rateLimit");
 
 // A tiny app with the real limiter in front of a fake login: the password
 // "right" succeeds, anything else is a 401.
@@ -129,6 +129,25 @@ describe("guessLimiter", () => {
       for (let i = 0; i < 50; i++) expect((await post("good")).status).toBe(200);
       for (let i = 0; i < 20; i++) expect((await post("nope")).status).toBe(400);
       expect((await post("good")).status).toBe(429);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+});
+
+describe("contactLimiter", () => {
+  it("has its own counter, so Contact spam cannot block password resets", async () => {
+    const app = express();
+    app.post("/contact", contactLimiter, (req, res) => res.status(200).json({ ok: true }));
+    app.post("/forgot", authLimiter, (req, res) => res.status(200).json({ ok: true }));
+    const server = await new Promise((resolve) => {
+      const s = app.listen(0, () => resolve(s));
+    });
+    const base = `http://127.0.0.1:${server.address().port}`;
+    try {
+      for (let i = 0; i < 10; i++) expect((await fetch(`${base}/contact`, { method: "POST" })).status).toBe(200);
+      expect((await fetch(`${base}/contact`, { method: "POST" })).status).toBe(429);
+      expect((await fetch(`${base}/forgot`, { method: "POST" })).status).toBe(200);
     } finally {
       await new Promise((resolve) => server.close(resolve));
     }
