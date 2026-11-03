@@ -27,3 +27,9 @@ test("photos open in a new tab safely and removal names the photo by its address
   assert.match(src, /target="_blank" rel="noopener noreferrer"/);
   assert.match(src, /params: \{ url: removeTarget \}/);
 });
+
+test("adding or removing a photo refreshes the cached events so a return visit is not stale", () => {
+  assert.equal((src.match(/onChange\?\.\(\)/g) || []).length, 2);
+  assert.match(page, /onChange=\{refreshEvents\}/);
+  assert.match(page, /events: allEvents, refreshEvents \} = useEvents\(\)/);
+});
