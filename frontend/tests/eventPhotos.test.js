@@ -33,3 +33,7 @@ test("adding or removing a photo refreshes the cached events so a return visit i
   assert.match(page, /onChange=\{refreshEvents\}/);
   assert.match(page, /events: allEvents, refreshEvents \} = useEvents\(\)/);
 });
+
+test("photos are shrunk in the browser before upload", () => {
+  assert.match(src, /body\.append\("image", await shrinkImage\(file\)\)/);
+});
