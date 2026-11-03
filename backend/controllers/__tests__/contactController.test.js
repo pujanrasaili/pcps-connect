@@ -98,4 +98,13 @@ describe("submitContactForm", () => {
     await submitContactForm({ body: valid }, res);
     expect(res.status).toHaveBeenCalledWith(500);
   });
+
+  it("silently drops submissions where the hidden honeypot field is filled", async () => {
+    const res = mockRes();
+    await submitContactForm({ body: { ...valid, website: "http://spam.example" } }, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(ContactMessage.create).not.toHaveBeenCalled();
+    expect(sendEmail).not.toHaveBeenCalled();
+    expect(notifyAdmins).not.toHaveBeenCalled();
+  });
 });

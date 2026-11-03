@@ -11,7 +11,13 @@ const { notifyAdmins } = require("../utils/inApp");
 // hit "reply" in their inbox to respond directly.
 async function submitContactForm(req, res) {
   try {
-    const { name, email, subject, message } = req.body;
+    const { name, email, subject, message, website } = req.body;
+    // Honeypot: the form has a hidden "website" field no person fills in.
+    // Pretend it worked so bots get no signal to adapt to, but store and
+    // email nothing.
+    if (typeof website === "string" && website.trim() !== "") {
+      return res.status(200).json({ message: "Message sent successfully" });
+    }
     if (!name || !email || !message) {
       return res.status(400).json({ message: "Name, email, and message are required" });
     }
