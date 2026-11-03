@@ -3,7 +3,7 @@
 // free of database calls so it's easy to test.
 const iso = (d) => (d ? new Date(d).toISOString() : null);
 
-function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [] }, now = new Date()) {
+function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [], joinRequests = [], questions = [], contactMessages = [] }, now = new Date()) {
   return {
     exportedAt: now.toISOString(),
     profile: {
@@ -40,6 +40,23 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
       .filter((m) => m.club)
       .map((m) => ({ club: m.club.name, joinedAt: iso(m.createdAt) })),
     clubsYouLead: ledClubs.map((c) => c.name),
+    clubJoinRequests: joinRequests
+      .filter((r) => r.club)
+      .map((r) => ({ club: r.club.name, requestedAt: iso(r.createdAt) })),
+    eventQuestions: questions
+      .filter((q) => q.event)
+      .map((q) => ({
+        event: q.event.title,
+        question: q.question,
+        answer: q.answer || "",
+        askedAt: iso(q.createdAt),
+      })),
+    // Messages sent through the Contact form from this account's email address.
+    contactMessages: contactMessages.map((m) => ({
+      subject: m.subject || "",
+      message: m.message,
+      sentAt: iso(m.createdAt),
+    })),
     notifications: notifications.map((n) => ({ message: n.title, read: !!n.read, receivedAt: iso(n.createdAt) })),
   };
 }

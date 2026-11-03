@@ -15,6 +15,9 @@ const WaitlistEntry = require("../models/WaitlistEntry");
 const ClubMembership = require("../models/ClubMembership");
 const Club = require("../models/Club");
 const Notification = require("../models/Notification");
+const ClubJoinRequest = require("../models/ClubJoinRequest");
+const EventQuestion = require("../models/EventQuestion");
+const ContactMessage = require("../models/ContactMessage");
 const { recordAudit } = require("../utils/audit");
 const { notifyAdmins } = require("../utils/inApp");
 
@@ -339,16 +342,23 @@ async function changePassword(req, res) {
 // Everything the app stores about the logged-in person, as a JSON download.
 async function exportMyData(req, res) {
   try {
-    const [user, registrations, waitlist, memberships, ledClubs, notifications] = await Promise.all([
+    const [user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions] = await Promise.all([
       User.findById(req.user._id).populate("favoriteClub", "name"),
       Registration.find({ user: req.user._id }).populate("event", "title date").sort({ createdAt: 1 }),
       WaitlistEntry.find({ user: req.user._id }).populate("event", "title date").sort({ createdAt: 1 }),
       ClubMembership.find({ user: req.user._id }).populate("club", "name").sort({ createdAt: 1 }),
       Club.find({ leaders: req.user._id }).select("name").sort({ name: 1 }),
       Notification.find({ user: req.user._id }).select("title read createdAt").sort({ createdAt: 1 }),
+      ClubJoinRequest.find({ user: req.user._id }).populate("club", "name").sort({ createdAt: 1 }),
+      EventQuestion.find({ author: req.user._id }).populate("event", "title").sort({ createdAt: 1 }),
     ]);
     if (!user) return res.status(404).json({ message: "Account not found" });
-    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs, notifications }));
+    // Contact messages carry an email address, not an account, so they are
+    // matched on this account's address.
+    const contactMessages = await ContactMessage.find({ email: String(user.email || "").toLowerCase() })
+      .select("subject message createdAt")
+      .sort({ createdAt: 1 });
+    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, contactMessages }));
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to export your data") });
   }
