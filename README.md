@@ -248,7 +248,7 @@ npm run backup                      # saves to ~/pcps-backups/pcps-backup-<date-
 npm run backup -- --out D:\backups  # or choose the folder
 ```
 
-It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, activity log, contact messages, site notice) plus a `manifest.json` with the counts. To restore a collection, load its file back with MongoDB's `mongoimport`:
+It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, club join requests, club news posts, event questions, activity log, contact messages, site notice) plus a `manifest.json` with the counts. To restore a collection, load its file back with MongoDB's `mongoimport`:
 
 ```bash
 mongoimport --uri "<MONGO_URI>" --collection users --file users.json --jsonArray
