@@ -113,8 +113,8 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 |---|---|---|---|
 | GET | `/api/club-memberships/my` | Logged-in student | The clubs you have joined. |
 | GET | `/api/club-memberships/requests/my` | Logged-in student | The clubs you have asked to join and are still waiting on (clubs that approve their members). |
-| POST | `/api/club-memberships/join` | Logged-in student | Join a club; for clubs that approve their members this sends a request instead (answer 202). |
-| DELETE | `/api/club-memberships/:clubId` | Logged-in student | Leave a club, or withdraw a request that is still waiting. |
+| POST | `/api/club-memberships/join` | Logged-in student (rate limited) | Join a club; for clubs that approve their members this sends a request instead (answer 202). |
+| DELETE | `/api/club-memberships/:clubId` | Logged-in student (rate limited) | Leave a club, or withdraw a request that is still waiting. |
 
 ## /api/contact
 
