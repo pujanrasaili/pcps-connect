@@ -29,3 +29,10 @@ test("the Messages route is admin-only", () => {
   const routes = readFileSync(new URL("../src/routes/AppRoutes.jsx", import.meta.url), "utf8");
   assert.match(routes, /path="\/admin\/messages"\s+element=\{\s*<AdminRoute>/);
 });
+
+test("the Messages link shows a badge and the page refreshes it after changes", () => {
+  assert.match(block("ADMIN_LINKS"), /to: "\/admin\/messages"[^\n]*badgeKey: "messages"/);
+  const page = readFileSync(new URL("../src/pages/admin/AdminMessages.jsx", import.meta.url), "utf8");
+  assert.equal((page.match(/pcps:messages-changed/g) || []).length, 2);
+  assert.match(source, /addEventListener\("pcps:messages-changed"/);
+});
