@@ -65,3 +65,18 @@ test("Contact and Forgot-password errors are announced and tied to their fields"
   assert.match(forgot, /aria-describedby=\{error \? "fp-email-error"/);
   assert.match(forgot, /id="fp-email-error" role="alert"/);
 });
+
+test("Login, Register and Reset-password errors are announced and tied to their fields", () => {
+  const files = {
+    "Login.jsx": ["login-email", "login-password"],
+    "Register.jsx": ["reg-name", "reg-email", "reg-id", "reg-password", "reg-confirm", "reg-agree"],
+    "ResetPassword.jsx": ["rp-password", "rp-confirm"],
+  };
+  for (const [file, ids] of Object.entries(files)) {
+    const src = readFileSync(new URL(`../src/pages/${file}`, import.meta.url), "utf8");
+    for (const id of ids) {
+      assert.match(src, new RegExp(`aria-describedby=\\{errors\\.\\w+ \\? "${id}-error"`), `${file}: ${id} describedby`);
+      assert.match(src, new RegExp(`id="${id}-error" role="alert"`), `${file}: ${id} alert`);
+    }
+  }
+});
