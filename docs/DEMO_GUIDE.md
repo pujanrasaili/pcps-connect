@@ -27,10 +27,22 @@ plus the questions people usually ask and honest answers. Read
 | 6-7 | Certificate and event report | Attended students get a certificate with a QR that anyone can verify. Admins see turnout and ratings. |
 | 7-8 | Admin overview, activity log | Every admin action is logged with who did it. |
 
+Optional extra (1 minute) if there is time: edit a club and tick "Approve each
+person who joins". As the student, press "Request to join" (it becomes "Request
+sent"). As the admin, the bell and the "waiting" badge on the club light up;
+open the club's Members window and press Approve. The student is told by bell
+and email. Say: "clubs can choose to vet their members, and every decision is
+in the activity log."
+
 If something is slow, say "the free hosting tier wakes up slowly" and move on.
 It is true, and it is written in the README.
 
 ## Likely questions
+
+**What if a club leader never answers a join request?** Twice a week a
+scheduled job emails the club's leaders (the admins, if there are none) about
+students who have waited more than 5 days. If an admin turns approval off, the
+students still waiting are let in at once.
 
 **Why MERN?** One language (JavaScript) on both sides, a large community, and
 MongoDB suits data that changes shape (clubs, events, registrations).
