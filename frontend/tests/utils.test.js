@@ -931,3 +931,9 @@ test("deleted contact messages get a readable, danger-toned audit label", () => 
   assert.equal(actionLabel("contact.deleted"), "Contact message deleted");
   assert.equal(actionTone("contact.deleted"), "danger");
 });
+
+test("event photo audit entries have readable labels", () => {
+  assert.equal(actionLabel("event.photoAdded"), "Event photo added");
+  assert.equal(actionLabel("event.photoRemoved"), "Event photo removed");
+  assert.equal(actionGroup("event.photoAdded"), "event");
+});
