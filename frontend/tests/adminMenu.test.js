@@ -36,3 +36,9 @@ test("the Messages link shows a badge and the page refreshes it after changes", 
   assert.equal((page.match(/pcps:messages-changed/g) || []).length, 2);
   assert.match(source, /addEventListener\("pcps:messages-changed"/);
 });
+
+test("the Contact form has a hidden honeypot field that is skipped by keyboard users", () => {
+  const page = readFileSync(new URL("../src/pages/Contact.jsx", import.meta.url), "utf8");
+  assert.match(page, /name="website"[^>]*tabIndex=\{-1\}/);
+  assert.match(page, /aria-hidden="true"/);
+});

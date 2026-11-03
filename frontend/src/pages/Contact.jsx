@@ -92,6 +92,14 @@ export default function Contact() {
               </p>
             )}
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              {/* Honeypot: invisible to people, tempting to bots. The server
+                  quietly drops submissions where this is filled in. */}
+              <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                <label>
+                  Leave this field empty
+                  <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website || ""} onChange={handleChange} />
+                </label>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="c-name" className="label-field">Full name</label>
