@@ -937,3 +937,13 @@ test("event photo audit entries have readable labels", () => {
   assert.equal(actionLabel("event.photoRemoved"), "Event photo removed");
   assert.equal(actionGroup("event.photoAdded"), "event");
 });
+
+test("event structured data lists the banner first, then up to five photos, web addresses only", () => {
+  const photos = Array.from({ length: 8 }, (_, i) => `https://img/p${i}.jpg`);
+  const data = eventJsonLd({ _id: "e1", title: "T", date: "2026-11-06T13:00:00Z", image: "https://img/banner.jpg", photos }, "o");
+  assert.equal(data.image.length, 6);
+  assert.equal(data.image[0], "https://img/banner.jpg");
+  const noBanner = eventJsonLd({ _id: "e1", title: "T", date: "2026-11-06T13:00:00Z", image: "/uploads/a.jpg", photos: ["https://img/p.jpg", "javascript:x", 5] }, "o");
+  assert.deepEqual(noBanner.image, ["https://img/p.jpg"]);
+  assert.equal(eventJsonLd({ _id: "e1", title: "T", date: "2026-11-06T13:00:00Z" }, "o").image, undefined);
+});
