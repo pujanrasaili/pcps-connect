@@ -41,7 +41,7 @@ import SafeImage from "../components/SafeImage";
 
 export default function EventDetails() {
   const { id } = useParams();
-  const { getEventById, events: allEvents } = useEvents();
+  const { getEventById, events: allEvents, refreshEvents } = useEvents();
   const { isAuthenticated, user } = useAuth();
   const { clubs: ledClubs } = useLedClubs();
   const { registrations, isRegistered, isPending, cancelRegistration } = useRegistrations();
@@ -297,7 +297,7 @@ export default function EventDetails() {
             </div>
           )}
 
-          <EventPhotos key={event._id} eventId={event._id} title={event.title} initialPhotos={event.photos || []} canManage={canAnswerQuestions} />
+          <EventPhotos key={event._id} eventId={event._id} title={event.title} initialPhotos={event.photos || []} canManage={canAnswerQuestions} onChange={refreshEvents} />
 
           <EventQuestions
             eventId={event._id}

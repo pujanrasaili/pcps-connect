@@ -9,8 +9,9 @@ export const MAX_EVENT_PHOTOS = 8;
 
 // The photo gallery on an event's page. Everyone sees the photos; admins and
 // the event's club leaders (canManage) can add and remove them. A viewer who
-// cannot manage an event with no photos sees nothing at all.
-export default function EventPhotos({ eventId, title, initialPhotos = [], canManage }) {
+// cannot manage an event with no photos sees nothing at all. onChange lets the
+// page refresh its cached events, so coming back later shows the new photos.
+export default function EventPhotos({ eventId, title, initialPhotos = [], canManage, onChange }) {
   const toast = useToast();
   const fileInput = useRef(null);
   const [photos, setPhotos] = useState(initialPhotos);
@@ -31,6 +32,7 @@ export default function EventPhotos({ eventId, title, initialPhotos = [], canMan
       const { data } = await api.post(`/events/${eventId}/photos`, body);
       setPhotos(data.photos || []);
       toast.success("Photo added.");
+      onChange?.();
     } catch (err) {
       toast.error(getErrorMessage(err, "Could not add the photo"));
     } finally {
@@ -44,6 +46,7 @@ export default function EventPhotos({ eventId, title, initialPhotos = [], canMan
       const { data } = await api.delete(`/events/${eventId}/photos`, { params: { url: removeTarget } });
       setPhotos(data.photos || []);
       toast.success("Photo removed.");
+      onChange?.();
       setRemoveTarget(null);
     } catch (err) {
       toast.error(getErrorMessage(err, "Could not remove the photo"));
