@@ -26,6 +26,7 @@ const {
 } = require("../controllers/adminController");
 const { setNotice } = require("../controllers/noticeController");
 const { addWalkIn } = require("../controllers/walkInController");
+const { getContactMessages, setMessageHandled, deleteContactMessage } = require("../controllers/contactMessagesController");
 const { getClubMembers } = require("../controllers/clubMembersController");
 const { getClubJoinRequests, decideClubJoinRequest, getRequestCounts } = require("../controllers/clubRequestsController");
 const { protect, adminOnly } = require("../middleware/auth");
@@ -61,6 +62,10 @@ router.post("/check-in", staffOnly, checkInByCode);
 
 // Everything below is admin-only.
 router.use(adminOnly);
+
+router.get("/messages", getContactMessages);
+router.put("/messages/:id", setMessageHandled);
+router.delete("/messages/:id", deleteContactMessage);
 
 router.get("/insights", getInsights);
 router.get("/week", getWeekSummary);

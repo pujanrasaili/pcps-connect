@@ -2,6 +2,8 @@ const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
 const { escapeHtml } = require("../utils/escapeHtml");
+const ContactMessage = require("../models/ContactMessage");
+const { notifyAdmins } = require("../utils/inApp");
 
 // POST /api/contact  (public, rate-limited)
 // Emails the submission straight to the college's contact address --
@@ -30,22 +32,45 @@ async function submitContactForm(req, res) {
       return res.status(400).json({ message: "One or more fields are too long" });
     }
 
+    // Keep a copy first, so the message survives a failed email. Saving is
+    // best-effort too: if the database hiccups the email is still tried.
+    let saved = null;
+    try {
+      saved = await ContactMessage.create({ name: name.trim(), email: email.trim(), subject: (subject || "").trim(), message });
+    } catch (err) {
+      console.error("Failed to store a contact message:", err.message);
+    }
+
     const receiver = process.env.CONTACT_RECEIVER_EMAIL || process.env.EMAIL_USER;
 
-    await sendEmail({
-      to: receiver,
-      subject: subject ? `[PCPS Connect Contact] ${subject}` : "[PCPS Connect Contact] New message",
-      replyTo: email.trim(),
-      html: renderEmail({
-        heading: "New contact form message",
-        bodyHtml: `
-          <p style="margin: 0 0 8px;"><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
-          ${subject ? `<p style="margin: 0 0 8px;"><strong>Subject:</strong> ${escapeHtml(subject)}</p>` : ""}
-          <p style="margin: 16px 0 4px;"><strong>Message:</strong></p>
-          <p style="margin: 0;">${escapeHtml(message).replace(/\n/g, "<br>")}</p>
-        `,
-      }),
-    });
+    let emailed = true;
+    try {
+      await sendEmail({
+        to: receiver,
+        subject: subject ? `[PCPS Connect Contact] ${subject}` : "[PCPS Connect Contact] New message",
+        replyTo: email.trim(),
+        html: renderEmail({
+          heading: "New contact form message",
+          bodyHtml: `
+            <p style="margin: 0 0 8px;"><strong>From:</strong> ${escapeHtml(name)} (${escapeHtml(email)})</p>
+            ${subject ? `<p style="margin: 0 0 8px;"><strong>Subject:</strong> ${escapeHtml(subject)}</p>` : ""}
+            <p style="margin: 16px 0 4px;"><strong>Message:</strong></p>
+            <p style="margin: 0;">${escapeHtml(message).replace(/\n/g, "<br>")}</p>
+          `,
+        }),
+      });
+    } catch (err) {
+      emailed = false;
+      console.error("Failed to email a contact message:", err.message);
+    }
+
+    // Lost only if it could be neither stored nor emailed.
+    if (!saved && !emailed) {
+      return res.status(500).json({ message: "Failed to send message. Please try again or email us directly." });
+    }
+    if (saved) {
+      await notifyAdmins({ type: "contact_message", title: `New message from ${saved.name}`, link: "/admin/messages" });
+    }
 
     res.status(200).json({ message: "Message sent successfully" });
   } catch (err) {

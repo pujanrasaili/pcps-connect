@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-82 endpoints.
+85 endpoints.
 
 ## /api/health
 
@@ -73,6 +73,9 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | PUT | `/api/admin/registrations/:id/decision` | Admin or club leader | Approve or decline a join request for an approval-only event. |
 | GET | `/api/admin/attendance-report` | Admin or club leader | Turnout and ratings for recent past events (add ?all=1 for every past event, up to 500). |
 | POST | `/api/admin/check-in` | Admin or club leader | Check a student in by scanning or typing their registration code. |
+| GET | `/api/admin/messages` | Admin only | Messages sent through the Contact form (newest first, up to 200) and how many are not handled yet; admins only. |
+| PUT | `/api/admin/messages/:id` | Admin only | Mark a contact message as handled or not handled; admins only. |
+| DELETE | `/api/admin/messages/:id` | Admin only | Delete a contact message; admins only. |
 | GET | `/api/admin/insights` | Admin only | Registrations per month, most popular clubs and overall turnout. |
 | GET | `/api/admin/week` | Admin only | New students and registrations in the last 7 days versus the week before, plus events in the next 7 days. |
 | GET | `/api/admin/users` | Admin only | All accounts. |

@@ -7,6 +7,7 @@ const EventQuestion = require("../models/EventQuestion");
 const Club = require("../models/Club");
 const ClubPost = require("../models/ClubPost");
 const Notification = require("../models/Notification");
+const ContactMessage = require("../models/ContactMessage");
 const { notifyEventCancelled } = require("./notifyRegistrants");
 
 // Removes a user and everything that points at them. Shared by the admin
@@ -34,6 +35,8 @@ async function removeUserAndData(user) {
   await Registration.deleteMany({ user: user._id });
   await WaitlistEntry.deleteMany({ user: user._id });
   await Notification.deleteMany({ user: user._id });
+  // Contact-form messages they sent from their account address.
+  if (user.email) await ContactMessage.deleteMany({ email: String(user.email).toLowerCase() });
   // Their public questions go too (the answers to them are no use without the question).
   await EventQuestion.deleteMany({ author: user._id });
   await ClubMembership.deleteMany({ user: user._id });
