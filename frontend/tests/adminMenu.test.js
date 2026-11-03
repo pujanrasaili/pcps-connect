@@ -45,6 +45,11 @@ test("the Contact form has a hidden honeypot field that is skipped by keyboard u
 
 test("the Contact form's success message is announced to screen readers and stays long enough to read", () => {
   const page = readFileSync(new URL("../src/pages/Contact.jsx", import.meta.url), "utf8");
-  assert.match(page, /role="status"[^>]*>\s*<FaCheckCircle/);
+  assert.match(page, /<div role="status">\s*\{sent && \(/);
   assert.match(page, /setSent\(false\), 10000/);
+});
+
+test("Settings' saved confirmation sits in an always-present live region", () => {
+  const page = readFileSync(new URL("../src/pages/Settings.jsx", import.meta.url), "utf8");
+  assert.match(page, /<div role="status">\s*\{saved && \(/);
 });
