@@ -66,7 +66,7 @@ export default function VerifyCertificate() {
           {state.status === "error" && (
             <div className="py-10">
               <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">Couldn't check this certificate</h1>
-              <p className="mt-2 text-rose-700 dark:text-rose-400">{state.message}</p>
+              <p role="alert" className="mt-2 text-rose-700 dark:text-rose-400">{state.message}</p>
             </div>
           )}
 

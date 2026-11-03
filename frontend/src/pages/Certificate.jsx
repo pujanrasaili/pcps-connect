@@ -31,7 +31,7 @@ export default function Certificate() {
     return (
       <main className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">Couldn't open this certificate</h1>
-        <p className="mt-2 font-medium text-rose-700 dark:text-rose-400">{error}</p>
+        <p role="alert" className="mt-2 font-medium text-rose-700 dark:text-rose-400">{error}</p>
         <Link to="/profile" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
           <FaArrowLeft className="text-xs" /> Back to profile
         </Link>
