@@ -53,3 +53,15 @@ test("Settings' saved confirmation sits in an always-present live region", () =>
   const page = readFileSync(new URL("../src/pages/Settings.jsx", import.meta.url), "utf8");
   assert.match(page, /<div role="status">\s*\{saved && \(/);
 });
+
+test("Contact and Forgot-password errors are announced and tied to their fields", () => {
+  const contact = readFileSync(new URL("../src/pages/Contact.jsx", import.meta.url), "utf8");
+  for (const id of ["c-name", "c-email", "c-message"]) {
+    assert.match(contact, new RegExp(`aria-describedby=\\{errors\\.\\w+ \\? "${id}-error"`));
+    assert.match(contact, new RegExp(`id="${id}-error" role="alert"`));
+  }
+  assert.match(contact, /<p role="alert" className="mb-5/);
+  const forgot = readFileSync(new URL("../src/pages/ForgotPassword.jsx", import.meta.url), "utf8");
+  assert.match(forgot, /aria-describedby=\{error \? "fp-email-error"/);
+  assert.match(forgot, /id="fp-email-error" role="alert"/);
+});
