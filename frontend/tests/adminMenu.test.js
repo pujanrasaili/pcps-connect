@@ -95,3 +95,9 @@ test("the Messages page can filter to messages that are still new", () => {
   assert.match(page, /aria-pressed=\{showNewOnly === value\}/);
   assert.match(page, /visible\.map\(/);
 });
+
+test("the Messages page can be searched by name, email, subject or text", () => {
+  const page = readFileSync(new URL("../src/pages/admin/AdminMessages.jsx", import.meta.url), "utf8");
+  assert.match(page, /<SearchBar value=\{query\}/);
+  assert.match(page, /\[m\.name, m\.email, m\.subject, m\.message\]\.some/);
+});
