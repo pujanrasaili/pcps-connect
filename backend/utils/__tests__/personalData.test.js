@@ -49,4 +49,26 @@ describe("buildPersonalData", () => {
     expect(d.profile.favoriteClub).toBeNull();
     expect(d.profile.joined).toBeNull();
   });
+
+  it("includes join requests, event questions and contact messages, skipping dangling references", () => {
+    const d = buildPersonalData(
+      {
+        user,
+        joinRequests: [{ club: { name: "Robotics" }, createdAt: "2026-10-03T00:00:00Z" }, { club: null }],
+        questions: [{ event: { title: "Hack" }, question: "Q?", createdAt: "2026-10-04T00:00:00Z" }, { event: null, question: "gone" }],
+        contactMessages: [{ message: "Hello", createdAt: "2026-10-05T00:00:00Z" }],
+      },
+      NOW
+    );
+    expect(d.clubJoinRequests).toEqual([{ club: "Robotics", requestedAt: "2026-10-03T00:00:00.000Z" }]);
+    expect(d.eventQuestions).toEqual([{ event: "Hack", question: "Q?", answer: "", askedAt: "2026-10-04T00:00:00.000Z" }]);
+    expect(d.contactMessages).toEqual([{ subject: "", message: "Hello", sentAt: "2026-10-05T00:00:00.000Z" }]);
+  });
+
+  it("returns empty lists when there is nothing", () => {
+    const d = buildPersonalData({ user }, NOW);
+    expect(d.clubJoinRequests).toEqual([]);
+    expect(d.eventQuestions).toEqual([]);
+    expect(d.contactMessages).toEqual([]);
+  });
 });
