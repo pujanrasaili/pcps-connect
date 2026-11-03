@@ -81,11 +81,13 @@ export default function Contact() {
           </div>
 
           <div className="card-surface p-6 sm:p-8">
-            {sent && (
-              <div role="status" className="mb-5 flex items-start gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                <FaCheckCircle className="mt-0.5 shrink-0" aria-hidden="true" /> Message sent — we'll reply to the email address you gave.
-              </div>
-            )}
+            <div role="status">
+              {sent && (
+                <div className="mb-5 flex items-start gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                  <FaCheckCircle className="mt-0.5 shrink-0" aria-hidden="true" /> Message sent — we'll reply to the email address you gave.
+                </div>
+              )}
+            </div>
             {serverError && (
               <p className="mb-5 rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
                 {serverError}
