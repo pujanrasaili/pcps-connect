@@ -25,3 +25,9 @@ test("when the browser cannot shrink (no createImageBitmap), the original file g
   const file = { type: "image/jpeg", size: 9 * 1024 * 1024, name: "a.jpg" };
   assert.equal(await shrinkImage(file), file);
 });
+
+import { readFileSync } from "node:fs";
+test("the event form shrinks its banner image before upload too", () => {
+  const src = readFileSync(new URL("../src/pages/admin/AdminEvents.jsx", import.meta.url), "utf8");
+  assert.match(src, /formData\.append\("image", await shrinkImage\(imageFile\)\)/);
+});
