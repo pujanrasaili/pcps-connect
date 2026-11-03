@@ -15,7 +15,7 @@ const ADMIN_LINKS = [
   { to: "/admin/events", label: "Events", icon: FaCalendarAlt },
   { to: "/admin/check-in", label: "Check-in", icon: FaQrcode },
   { to: "/admin/users", label: "Users", icon: FaUserShield, badgeKey: "pending" },
-  { to: "/admin/messages", label: "Messages", icon: FaEnvelope },
+  { to: "/admin/messages", label: "Messages", icon: FaEnvelope, badgeKey: "messages" },
   { to: "/admin/activity", label: "Activity", icon: FaHistory },
 ];
 
@@ -33,6 +33,7 @@ export default function AdminLayout() {
   // re-fetching on every pathname change keeps the badge from going stale
   // right after an admin approves/rejects someone and clicks elsewhere.
   const [pendingCount, setPendingCount] = useState(0);
+  const [messageCount, setMessageCount] = useState(0);
   const { pathname } = useLocation();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
@@ -49,7 +50,21 @@ export default function AdminLayout() {
       .catch(() => {});
   }, [pathname, isAdmin]);
 
-  const badges = { pending: pendingCount };
+  // Unanswered Contact-form messages. The Messages page announces its own
+  // changes so this badge doesn't wait for the next navigation.
+  useEffect(() => {
+    if (!isAdmin) return undefined;
+    const load = () =>
+      api
+        .get("/admin/messages")
+        .then((res) => setMessageCount(res.data.unhandled || 0))
+        .catch(() => {});
+    load();
+    window.addEventListener("pcps:messages-changed", load);
+    return () => window.removeEventListener("pcps:messages-changed", load);
+  }, [pathname, isAdmin]);
+
+  const badges = { pending: pendingCount, messages: messageCount };
 
   return (
     <div className="flex min-h-screen flex-col">

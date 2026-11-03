@@ -27,6 +27,7 @@ export default function AdminMessages() {
     try {
       await api.put(`/admin/messages/${m._id}`, { handled: !m.handled });
       setMessages((list) => list.map((x) => (x._id === m._id ? { ...x, handled: !m.handled } : x)));
+      window.dispatchEvent(new Event("pcps:messages-changed"));
     } catch (err) {
       toast.error(getErrorMessage(err, "Could not update the message"));
     }
@@ -38,6 +39,7 @@ export default function AdminMessages() {
       await api.delete(`/admin/messages/${deleteTarget._id}`);
       setMessages((list) => list.filter((x) => x._id !== deleteTarget._id));
       toast.success("Message deleted.");
+      window.dispatchEvent(new Event("pcps:messages-changed"));
       setDeleteTarget(null);
     } catch (err) {
       toast.error(getErrorMessage(err, "Could not delete the message"));
