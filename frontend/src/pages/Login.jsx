@@ -97,7 +97,7 @@ export default function Login() {
             <div className="relative">
               <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
-                id="login-email"
+                id="login-email" aria-invalid={errors.email ? "true" : undefined} aria-describedby={errors.email ? "login-email-error" : undefined}
                 name="email"
                 autoComplete="username"
                 type="email"
@@ -108,7 +108,7 @@ export default function Login() {
                 onChange={handleChange}
               />
             </div>
-            {errors.email && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
+            {errors.email && <p id="login-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
           </div>
 
           <div>
@@ -121,7 +121,7 @@ export default function Login() {
             <div className="relative">
               <FaLock className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
-                id="login-password"
+                id="login-password" aria-invalid={errors.password ? "true" : undefined} aria-describedby={errors.password ? "login-password-error" : undefined}
                 name="password"
                 autoComplete="current-password"
                 type={showPassword ? "text" : "password"}
@@ -140,7 +140,7 @@ export default function Login() {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            {errors.password && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
+            {errors.password && <p id="login-password-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
           </div>
 
           {notice && (
