@@ -63,6 +63,8 @@ export default function ForgotPassword() {
                   <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                   <input
                     id="fp-email"
+                    aria-invalid={error ? "true" : undefined}
+                    aria-describedby={error ? "fp-email-error" : undefined}
                     type="email"
                     className="input-field" style={{ paddingLeft: "2.75rem" }}
                     placeholder="you@patancollege.edu.np"
@@ -70,7 +72,7 @@ export default function ForgotPassword() {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                {error && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
+                {error && <p id="fp-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{error}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? "Sending..." : "Send reset link"}
