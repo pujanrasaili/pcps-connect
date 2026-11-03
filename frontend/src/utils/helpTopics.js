@@ -136,7 +136,7 @@ export const HELP_TOPICS = [
     id: "my-data",
     question: "Can I download or delete my data?",
     answer: [
-      "Both are in Settings. You can download everything the app holds about you as a file, or delete your account (you will be asked for your password). Deleting removes your registrations and memberships too.",
+      "Both are in Settings. You can download everything the app holds about you as a file (including your questions on events and messages sent through Contact), or delete your account (you will be asked for your password). Deleting removes your registrations, memberships, questions and Contact messages too.",
     ],
   },
   {

@@ -62,7 +62,7 @@ pcps-connect/
 - Keyboard users get a "Skip to main content" link as the first tab stop; `robots.txt` keeps private pages (admin, dashboard, profile) out of search engines and a sitemap lists the public ones plus every upcoming or recent event (built on request from the API and cached for an hour; if the server is asleep it still lists the fixed pages)
 - Event cards show a "Registered" tag for events you've signed up for, and the Events page has a "Registered" tab listing all of them (upcoming first)
 - Dark mode is applied before first paint (no white flash on load), and the app still works in browsers that block local storage (private windows)
-- Students can download all the data the app holds about them (profile, registrations, ratings, memberships) as a JSON file from Settings
+- Students can download all the data the app holds about them (profile, registrations, ratings, memberships, club join requests, questions asked on events, Contact messages, notifications) as a JSON file from Settings
 - The profile shows six small milestones (first event, 5 and 10 events attended, joining clubs, rating an event), worked out from what the student has done, never stored
 - Event questions: students ask public questions on an upcoming event's page (first name only, max 3 unanswered each), and an admin or the club's leaders answer; the organiser is emailed when a question arrives and the asker when it is answered
 - Walk-ins: on the attendees list an admin or the club's leaders can add a student who turned up without registering, by exact email or student ID; they are registered and checked in at once (capacity still applies)
