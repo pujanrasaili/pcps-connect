@@ -19,6 +19,8 @@ const LABELS = {
   "club.post": "Club news posted",
   "club.postDeleted": "Club news deleted",
   "event.created": "Event created",
+  "event.photoAdded": "Event photo added",
+  "event.photoRemoved": "Event photo removed",
   "event.updated": "Event edited",
   "event.deleted": "Event deleted",
   "event.announcement": "Event message sent",

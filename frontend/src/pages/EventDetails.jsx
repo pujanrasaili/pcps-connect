@@ -20,6 +20,7 @@ import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import EventQuestions from "../components/EventQuestions";
+import EventPhotos from "../components/EventPhotos";
 import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
 import Modal from "../components/Modal";
@@ -295,6 +296,8 @@ export default function EventDetails() {
               </div>
             </div>
           )}
+
+          <EventPhotos key={event._id} eventId={event._id} title={event.title} initialPhotos={event.photos || []} canManage={canAnswerQuestions} />
 
           <EventQuestions
             eventId={event._id}
