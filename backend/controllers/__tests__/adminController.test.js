@@ -17,6 +17,7 @@ jest.mock("../../utils/notifyRegistrants");
 jest.mock("../../models/Notification");
 jest.mock("../../models/ContactMessage");
 jest.mock("../../utils/inApp");
+jest.mock("../../utils/eventPhotoCleanup");
 process.env.JWT_SECRET = "test-secret";
 
 const User = require("../../models/User");
@@ -35,6 +36,7 @@ const Club = require("../../models/Club");
 const { notifyClubAnnouncement } = require("../../utils/notifyClubMembers");
 const { announceToClubMembers } = require("../adminController");
 const { createCheckInCode } = require("../../utils/checkInCode");
+const { destroyEventPhotos } = require("../../utils/eventPhotoCleanup");
 
 function mockRes() {
   const res = {};
@@ -1028,6 +1030,31 @@ describe("markEmailVerified", () => {
     const res = await run();
     expect(user.save).not.toHaveBeenCalled();
     expect(recordAudit).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+
+describe("deleteEventAdmin", () => {
+  const { deleteEventAdmin } = require("../adminController");
+  afterEach(() => jest.clearAllMocks());
+
+  it("404s for a missing event and deletes nothing", async () => {
+    Event.findById.mockResolvedValue(null);
+    const res = mockRes();
+    await deleteEventAdmin({ params: { id: "e1" }, user: { _id: ADMIN_ID } }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(destroyEventPhotos).not.toHaveBeenCalled();
+  });
+
+  it("deletes the event and also removes its photos from storage", async () => {
+    const photos = ["https://res.cloudinary.com/d/image/upload/v1/pcps-connect/event-photos/a.jpg"];
+    const ev = { _id: "e1", title: "Hack Night", photos, deleteOne: jest.fn().mockResolvedValue() };
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await deleteEventAdmin({ params: { id: "e1" }, user: { _id: ADMIN_ID } }, res);
+    expect(ev.deleteOne).toHaveBeenCalled();
+    expect(destroyEventPhotos).toHaveBeenCalledWith(photos);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
