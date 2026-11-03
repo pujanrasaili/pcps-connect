@@ -1,11 +1,13 @@
 jest.mock("../../models/Event");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/clubAccess");
+jest.mock("../../config/cloudinary", () => ({ uploader: { destroy: jest.fn() } }));
 jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn() }));
 
 const Event = require("../../models/Event");
 const { recordAudit } = require("../../utils/audit");
 const { canManageEvent } = require("../../utils/clubAccess");
+const cloudinary = require("../../config/cloudinary");
 const { uploadBufferToCloudinary } = require("../../middleware/upload");
 const { addEventPhoto, removeEventPhoto } = require("../eventPhotosController");
 
@@ -116,6 +118,36 @@ describe("removeEventPhoto", () => {
     await removeEventPhoto({ params: { id: EV }, query: { url: "https://a/1.jpg" }, user }, res);
     expect(ev.photos).toEqual(["https://a/2.jpg"]);
     expect(recordAudit).toHaveBeenCalledWith(user, "event.photoRemoved", expect.any(String));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  const CLOUD = "https://res.cloudinary.com/demo/image/upload/v1700000000/pcps-connect/event-photos/abc123.jpg";
+
+  it("also deletes the file from Cloudinary", async () => {
+    Event.findById.mockResolvedValue(mkEvent([CLOUD]));
+    canManageEvent.mockResolvedValue(true);
+    const res = mockRes();
+    await removeEventPhoto({ params: { id: EV }, query: { url: CLOUD }, user }, res);
+    expect(cloudinary.uploader.destroy).toHaveBeenCalledWith("pcps-connect/event-photos/abc123", { resource_type: "image" });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("still succeeds when Cloudinary fails to delete", async () => {
+    Event.findById.mockResolvedValue(mkEvent([CLOUD]));
+    canManageEvent.mockResolvedValue(true);
+    cloudinary.uploader.destroy.mockRejectedValue(new Error("down"));
+    const res = mockRes();
+    await removeEventPhoto({ params: { id: EV }, query: { url: CLOUD }, user }, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("does not touch Cloudinary for addresses outside the event-photos folder", async () => {
+    const other = "https://res.cloudinary.com/demo/image/upload/v1/pcps-connect/clubs/logo.jpg";
+    Event.findById.mockResolvedValue(mkEvent([other]));
+    canManageEvent.mockResolvedValue(true);
+    const res = mockRes();
+    await removeEventPhoto({ params: { id: EV }, query: { url: other }, user }, res);
+    expect(cloudinary.uploader.destroy).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
