@@ -7,11 +7,13 @@ jest.mock("../../utils/notifyClubMembers");
 jest.mock("../../utils/notifyRegistrants");
 jest.mock("../../utils/waitlist");
 jest.mock("../../utils/audit");
+jest.mock("../../utils/eventPhotoCleanup");
 jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn() }));
 
 const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const Registration = require("../../models/Registration");
+const { destroyEventPhotos } = require("../../utils/eventPhotoCleanup");
 const { createEvent, updateEvent, deleteEvent } = require("../eventController");
 
 const mockRes = () => {
@@ -100,5 +102,12 @@ describe("event rules for club leaders", () => {
     const res = mockRes();
     await deleteEvent({ params: { id: "ev1" }, user: LEADER }, res);
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("delete: the event's photos are removed from storage too", async () => {
+    const ev = { ...existing(A), photos: ["https://res.cloudinary.com/d/image/upload/v1/pcps-connect/event-photos/a.jpg"] };
+    Event.findById.mockResolvedValue(ev);
+    await deleteEvent({ params: { id: "ev1" }, user: LEADER }, mockRes());
+    expect(destroyEventPhotos).toHaveBeenCalledWith(ev.photos);
   });
 });
