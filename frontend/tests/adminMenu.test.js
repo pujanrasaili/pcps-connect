@@ -42,3 +42,9 @@ test("the Contact form has a hidden honeypot field that is skipped by keyboard u
   assert.match(page, /name="website"[^>]*tabIndex=\{-1\}/);
   assert.match(page, /aria-hidden="true"/);
 });
+
+test("the Contact form's success message is announced to screen readers and stays long enough to read", () => {
+  const page = readFileSync(new URL("../src/pages/Contact.jsx", import.meta.url), "utf8");
+  assert.match(page, /role="status"[^>]*>\s*<FaCheckCircle/);
+  assert.match(page, /setSent\(false\), 10000/);
+});
