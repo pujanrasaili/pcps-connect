@@ -119,7 +119,7 @@ pcps-connect/
 - QR check-in: each registered student has a personal QR code; an organiser scans it with a normal phone camera and the student is marked as attended (codes are signed, so they can't be forged)
 - Admins can email everyone registered for an event (venue change, what to bring) straight from its attendee list
 - Club leaders: an admin can name up to 10 students as leaders of a club (Admin → Clubs → leaders icon). Leaders get a limited panel to create/edit/delete only their own club's events, see registrants, mark attendance, check students in by QR, message their registrants and club members, and see turnout and ratings for their clubs' past events — nothing else (no users, other clubs or activity log); enforced on the server
-- Event photos: an admin or the event's club leader can add up to 8 photos to an event (5 MB each) from the event page; everyone sees them as a gallery, and organisers can remove them (both are recorded in the activity log)
+- Event photos: an admin or the event's club leader can add up to 8 photos to an event (big phone photos are shrunk automatically before upload) from the event page; everyone sees them as a gallery, and organisers can remove them (both are recorded in the activity log)
 - Contact form messages are saved (kept 180 days, deleted with the sender's account) and listed for admins under Admin → Messages with Reply, Mark handled and Delete; admins get a bell notification for each new message, and the email still goes out as before
 - Activity log of admin actions (role changes, approvals/rejections, event and club creates, edits and deletions) with who did them, kept for a year; filter it by people / events / clubs or search by name
 - "Add all to calendar" on the student dashboard downloads every confirmed upcoming registration as one .ics file
@@ -132,7 +132,7 @@ pcps-connect/
 - Passwords hashed with bcrypt, never stored in plain text
 - The website is sent with a Content-Security-Policy (`frontend/vercel.json`): only its own scripts run, other sites can't frame it, and plugins are off. If you ever edit the small inline theme script in `frontend/index.html`, a test fails until you put its new hash into that policy
 - New passwords need at least 8 characters (older, shorter ones still work until changed)
-- Rate limiting on login/register/password-reset routes (brute-force protection)
+- Rate limiting on login/register/password-reset routes (brute-force protection); the Contact form has its own limit and a hidden spam-trap field, and joining or leaving clubs is limited per student
 - Event fields are validated server-side (valid date, text length limits, sane capacity) and return a clear 400 instead of a server error
 - Club fields are validated server-side too (required name/category/description, text length limits, activities list)
 - `helmet` security headers
