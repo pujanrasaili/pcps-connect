@@ -123,11 +123,15 @@ export default function Settings() {
         <p className="text-slate-500 dark:text-slate-400">Manage how PCPS Connect looks and talks to you.</p>
       </div>
 
-      {saved && (
-        <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-          <FaCheckCircle /> Preferences saved.
-        </div>
-      )}
+      {/* The live region itself is always on the page; only its content
+          comes and goes, which is what makes screen readers announce it. */}
+      <div role="status">
+        {saved && (
+          <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <FaCheckCircle className="shrink-0" aria-hidden="true" /> Preferences saved.
+          </div>
+        )}
+      </div>
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Appearance</h2>
