@@ -7,6 +7,7 @@ jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
 jest.mock("../../models/Notification");
+jest.mock("../../models/ContactMessage");
 jest.mock("../notifyRegistrants");
 
 const Event = require("../../models/Event");
@@ -15,6 +16,7 @@ const WaitlistEntry = require("../../models/WaitlistEntry");
 const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const Club = require("../../models/Club");
+const ContactMessage = require("../../models/ContactMessage");
 const ClubPost = require("../../models/ClubPost");
 const { notifyEventCancelled } = require("../notifyRegistrants");
 const EventQuestion = require("../../models/EventQuestion");
@@ -25,8 +27,9 @@ afterEach(() => jest.resetAllMocks());
 describe("removeUserAndData", () => {
   it("removes everything tied to a student with no events of their own", async () => {
     Event.find.mockResolvedValue([]);
-    const user = { _id: "u1", deleteOne: jest.fn().mockResolvedValue() };
+    const user = { _id: "u1", email: "Stu@Example.com", deleteOne: jest.fn().mockResolvedValue() };
     await removeUserAndData(user);
+    expect(ContactMessage.deleteMany).toHaveBeenCalledWith({ email: "stu@example.com" });
     expect(notifyEventCancelled).not.toHaveBeenCalled();
     expect(Registration.deleteMany).toHaveBeenCalledWith({ user: "u1" });
     expect(WaitlistEntry.deleteMany).toHaveBeenCalledWith({ user: "u1" });
