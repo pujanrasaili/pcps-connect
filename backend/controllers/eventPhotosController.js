@@ -3,6 +3,8 @@ const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { canManageEvent } = require("../utils/clubAccess");
 const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
+const cloudinary = require("../config/cloudinary");
+const { eventPhotoPublicId } = require("../utils/cloudinaryId");
 
 const MAX_PHOTOS = 8;
 
@@ -48,6 +50,16 @@ async function removeEventPhoto(req, res) {
 
     event.photos = event.photos.filter((p) => p !== url);
     await event.save();
+    // Best effort: the photo is already off the site, so a Cloudinary hiccup
+    // must not turn this into an error (it only leaves an orphan file).
+    const publicId = eventPhotoPublicId(url);
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+      } catch (err) {
+        console.error("Failed to delete a removed event photo from Cloudinary:", err.message);
+      }
+    }
     await recordAudit(req.user, "event.photoRemoved", `Removed a photo from "${event.title}"`);
     res.status(200).json({ message: "Photo removed", photos: event.photos });
   } catch (err) {

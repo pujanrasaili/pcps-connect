@@ -45,7 +45,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | POST | `/api/events/create` | Admin or club leader (rate limited; image upload) | Create an event (admins, or a leader for their own club), with an optional image. Send repeat (weekly or biweekly) and repeatCount (2 to 12) to create a series of separate events. An optional endDate (after the start, at most 7 days long) sets when it ends. |
 | PUT | `/api/events/:id` | Admin or club leader (image upload) | Edit an event; registered students are emailed if the date or place changes. |
 | POST | `/api/events/:id/photos` | Admin or club leader (rate limited; image upload) | Add one photo (max 5 MB, jpg/png/webp/gif) to an event's gallery, up to 8; admins and the event's club leaders only. |
-| DELETE | `/api/events/:id/photos` | Admin or club leader (rate limited) | Remove a photo from an event's gallery (pass its address as ?url=); admins and the event's club leaders only. |
+| DELETE | `/api/events/:id/photos` | Admin or club leader (rate limited) | Remove a photo from an event's gallery and from image storage (pass its address as ?url=); admins and the event's club leaders only. |
 | DELETE | `/api/events/:id` | Admin or club leader | Delete an event; registered students are emailed the cancellation. |
 
 ## /api/registrations
