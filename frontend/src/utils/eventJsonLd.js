@@ -34,7 +34,11 @@ export function eventJsonLd(event, origin) {
   const endDate = isoOrNull(event.endDate);
   if (endDate) data.endDate = endDate;
   if (event.description) data.description = String(event.description).slice(0, 300);
-  if (/^https?:\/\//.test(event.image || "")) data.image = [event.image];
+  // The banner first, then the event's own photos (search engines take a list).
+  const images = [event.image, ...(Array.isArray(event.photos) ? event.photos : [])]
+    .filter((u) => typeof u === "string" && /^https?:\/\//.test(u))
+    .slice(0, 6);
+  if (images.length) data.image = images;
   if (event.club?.name) data.organizer = { "@type": "Organization", name: event.club.name };
   const price = priceNumber(event.price);
   if (price !== null) data.offers = { "@type": "Offer", price, priceCurrency: "NPR", url: data.url };
