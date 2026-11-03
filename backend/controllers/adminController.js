@@ -1,4 +1,5 @@
 const { notifyNewLeaders } = require("../utils/notifyNewLeaders");
+const { destroyEventPhotos } = require("../utils/eventPhotoCleanup");
 const { removeUserAndData } = require("../utils/deleteAccountData");
 const User = require("../models/User");
 const Event = require("../models/Event");
@@ -337,6 +338,7 @@ async function deleteEventAdmin(req, res) {
     await Registration.deleteMany({ event: event._id });
     await WaitlistEntry.deleteMany({ event: event._id });
     await EventQuestion.deleteMany({ event: event._id });
+    await destroyEventPhotos(event.photos);
     await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
     res.status(200).json({ message: "Event deleted" });
   } catch (err) {

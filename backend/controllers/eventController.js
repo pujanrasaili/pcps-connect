@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const { destroyEventPhotos } = require("../utils/eventPhotoCleanup");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const EventQuestion = require("../models/EventQuestion");
@@ -293,6 +294,7 @@ async function deleteEvent(req, res) {
     await Registration.deleteMany({ event: event._id });
     await WaitlistEntry.deleteMany({ event: event._id });
     await EventQuestion.deleteMany({ event: event._id });
+    await destroyEventPhotos(event.photos);
     await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
 
     res.status(200).json({ message: "Event deleted" });
