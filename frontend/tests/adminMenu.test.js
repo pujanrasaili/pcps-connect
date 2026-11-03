@@ -19,3 +19,13 @@ test("the admin menu links to Check-in", () => {
 test("the club-leader menu links to Check-in", () => {
   assert.match(block("LEADER_LINKS"), /to: "\/admin\/check-in"/);
 });
+
+test("only the admin menu links to Messages (leaders can't read the inbox)", () => {
+  assert.match(block("ADMIN_LINKS"), /to: "\/admin\/messages"/);
+  assert.doesNotMatch(block("LEADER_LINKS"), /messages/);
+});
+
+test("the Messages route is admin-only", () => {
+  const routes = readFileSync(new URL("../src/routes/AppRoutes.jsx", import.meta.url), "utf8");
+  assert.match(routes, /path="\/admin\/messages"\s+element=\{\s*<AdminRoute>/);
+});

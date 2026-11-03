@@ -926,3 +926,8 @@ test("eventMetaDescription: when and where first, then the description, cut at a
   assert.equal(eventMetaDescription(null), null);
   assert.equal(eventMetaDescription({ title: "T", date: "garbage", location: "Hall" }), "Hall");
 });
+
+test("deleted contact messages get a readable, danger-toned audit label", () => {
+  assert.equal(actionLabel("contact.deleted"), "Contact message deleted");
+  assert.equal(actionTone("contact.deleted"), "danger");
+});

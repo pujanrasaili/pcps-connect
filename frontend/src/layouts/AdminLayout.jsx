@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode } from "react-icons/fa";
+import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode, FaEnvelope } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import SlowServerNotice from "../components/SlowServerNotice";
 import SkipLink from "../components/SkipLink";
@@ -15,6 +15,7 @@ const ADMIN_LINKS = [
   { to: "/admin/events", label: "Events", icon: FaCalendarAlt },
   { to: "/admin/check-in", label: "Check-in", icon: FaQrcode },
   { to: "/admin/users", label: "Users", icon: FaUserShield, badgeKey: "pending" },
+  { to: "/admin/messages", label: "Messages", icon: FaEnvelope },
   { to: "/admin/activity", label: "Activity", icon: FaHistory },
 ];
 

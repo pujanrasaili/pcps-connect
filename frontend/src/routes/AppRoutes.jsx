@@ -41,6 +41,7 @@ const AdminClubs = lazy(() => import("../pages/admin/AdminClubs"));
 const AdminEvents = lazy(() => import("../pages/admin/AdminEvents"));
 const AdminUsers = lazy(() => import("../pages/admin/AdminUsers"));
 const AdminActivity = lazy(() => import("../pages/admin/AdminActivity"));
+const AdminMessages = lazy(() => import("../pages/admin/AdminMessages"));
 const LeaderClubs = lazy(() => import("../pages/admin/LeaderClubs"));
 const AdminCheckIn = lazy(() => import("../pages/admin/AdminCheckIn"));
 const Certificate = lazy(() => import("../pages/Certificate"));
@@ -173,6 +174,14 @@ export default function AppRoutes() {
           element={
             <AdminRoute>
               <AdminActivity />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/messages"
+          element={
+            <AdminRoute>
+              <AdminMessages />
             </AdminRoute>
           }
         />

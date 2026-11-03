@@ -8,6 +8,7 @@ const LABELS = {
   "user.role_changed": "Role changed",
   "user.deleted": "User deleted",
   "user.selfDeleted": "Self-deleted account",
+  "contact.deleted": "Contact message deleted",
   "club.created": "Club created",
   "club.updated": "Club edited",
   "club.deleted": "Club deleted",

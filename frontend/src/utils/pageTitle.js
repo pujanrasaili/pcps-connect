@@ -23,6 +23,7 @@ const TITLES = {
   "/admin/users": "Manage users",
   "/admin/check-in": "Check-in",
   "/admin/activity": "Activity log",
+  "/admin/messages": "Messages",
 };
 
 export const DEFAULT_TITLE = "PCPS Connect | Club & Event Management";
