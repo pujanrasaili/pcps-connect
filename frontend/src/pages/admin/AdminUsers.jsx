@@ -189,7 +189,7 @@ export default function AdminUsers() {
       </div>
 
       {error && (
-        <p className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
+        <p role="alert" className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
           {error}
         </p>
       )}

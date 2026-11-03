@@ -64,7 +64,7 @@ export default function AdminMessages() {
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
           </div>
         ) : error ? (
-          <p className="py-10 text-center text-sm text-rose-700 dark:text-rose-400">{error}</p>
+          <p role="alert" className="py-10 text-center text-sm text-rose-700 dark:text-rose-400">{error}</p>
         ) : messages.length === 0 ? (
           <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaEnvelope className="mx-auto mb-2 text-2xl text-slate-300" />

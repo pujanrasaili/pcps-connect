@@ -292,7 +292,7 @@ export default function AdminClubs() {
         )}
         {!loading && error && filteredClubs.length === 0 && (
           <div className="p-6 text-center" role="alert">
-            <p className="font-medium text-rose-700 dark:text-rose-400">Couldn't load clubs.</p>
+            <p role="alert" className="font-medium text-rose-700 dark:text-rose-400">Couldn't load clubs.</p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
             <button type="button" onClick={() => refreshClubs()} className="btn-outline mt-3">Try again</button>
           </div>

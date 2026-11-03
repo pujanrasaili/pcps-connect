@@ -31,7 +31,7 @@ export default function LeaderClubs() {
         )}
         {loaded && failed && (
           <div className="p-6 text-center" role="alert">
-            <p className="font-medium text-rose-700 dark:text-rose-400">Couldn't load your clubs.</p>
+            <p role="alert" className="font-medium text-rose-700 dark:text-rose-400">Couldn't load your clubs.</p>
             <button type="button" onClick={retry} className="btn-outline mt-3">Try again</button>
           </div>
         )}
