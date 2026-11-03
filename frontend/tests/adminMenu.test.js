@@ -80,3 +80,12 @@ test("Login, Register and Reset-password errors are announced and tied to their 
     }
   }
 });
+
+test("load and action errors on pages are announced (role=alert)", () => {
+  const files = ["components/CheckInQrModal.jsx", "pages/admin/AdminOverview.jsx", "pages/admin/AdminMessages.jsx", "pages/admin/AdminActivity.jsx", "pages/admin/AdminUsers.jsx", "pages/Settings.jsx", "pages/Certificate.jsx", "pages/VerifyCertificate.jsx", "pages/admin/AdminClubs.jsx", "pages/admin/LeaderClubs.jsx", "pages/admin/AdminEvents.jsx"];
+  for (const f of files) {
+    const src = readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8");
+    const bad = src.split("\n").filter((l) => /<p [^>]*text-rose/.test(l) && !/role="alert"/.test(l) && !/>Delete account</.test(l));
+    assert.deepEqual(bad, [], `${f} has an unannounced error line`);
+  }
+});
