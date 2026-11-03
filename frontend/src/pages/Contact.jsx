@@ -34,7 +34,7 @@ export default function Contact() {
       await api.post("/contact", form);
       setSent(true);
       setForm({ name: "", email: "", subject: "", message: "" });
-      setTimeout(() => setSent(false), 5000);
+      setTimeout(() => setSent(false), 10000);
     } catch (err) {
       setServerError(getErrorMessage(err, "Failed to send message. Please try again."));
     } finally {
@@ -82,8 +82,8 @@ export default function Contact() {
 
           <div className="card-surface p-6 sm:p-8">
             {sent && (
-              <div className="mb-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                <FaCheckCircle /> Message sent — we'll get back to you soon.
+              <div role="status" className="mb-5 flex items-start gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                <FaCheckCircle className="mt-0.5 shrink-0" aria-hidden="true" /> Message sent — we'll reply to the email address you gave.
               </div>
             )}
             {serverError && (
