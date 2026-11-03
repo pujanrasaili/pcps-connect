@@ -48,6 +48,19 @@ const guessLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// The public Contact form gets a counter of its own. It used to share
+// authLimiter with "forgot password" and "resend verification", so someone
+// spamming the form could use up the allowance that students on the same
+// campus IP need to reset a password. Messages are now stored, so the cap is
+// also tighter: ten per IP per 15 minutes is plenty for real questions.
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Too many messages from this network. Please try again in a few minutes." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Looser limiter for logged-in actions like event registration -- a student
 // browsing a club fair might legitimately register for several events in a
 // few minutes, so this only needs to stop a script from hammering the
@@ -71,4 +84,4 @@ const actionLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, loginLimiter, registerLimiter, guessLimiter, actionLimiter, actionKey };
+module.exports = { authLimiter, contactLimiter, loginLimiter, registerLimiter, guessLimiter, actionLimiter, actionKey };
