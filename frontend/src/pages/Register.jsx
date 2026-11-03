@@ -90,7 +90,7 @@ export default function Register() {
             <div className="relative">
               <FaUser className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
-                id="reg-name"
+                id="reg-name" aria-invalid={errors.name ? "true" : undefined} aria-describedby={errors.name ? "reg-name-error" : undefined}
                 name="name"
                 autoComplete="name"
                 maxLength={80}
@@ -101,7 +101,7 @@ export default function Register() {
                 onChange={handleChange}
               />
             </div>
-            {errors.name && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
+            {errors.name && <p id="reg-name-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
           </div>
 
           <div>
@@ -109,7 +109,7 @@ export default function Register() {
             <div className="relative">
               <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
-                id="reg-email"
+                id="reg-email" aria-invalid={errors.email ? "true" : undefined} aria-describedby={errors.email ? "reg-email-error" : undefined}
                 name="email"
                 autoComplete="email"
                 type="email"
@@ -121,7 +121,7 @@ export default function Register() {
               />
             </div>
             {errors.email ? (
-              <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>
+              <p id="reg-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>
             ) : (
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Must be a PCPS email address (@patancollege.edu.np)</p>
             )}
@@ -132,7 +132,7 @@ export default function Register() {
             <div className="relative">
               <FaIdCard className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
-                id="reg-id"
+                id="reg-id" aria-invalid={errors.studentId ? "true" : undefined} aria-describedby={errors.studentId ? "reg-id-error" : undefined}
                 name="studentId"
                 maxLength={30}
                 className="input-field"
@@ -142,23 +142,23 @@ export default function Register() {
                 onChange={handleChange}
               />
             </div>
-            {errors.studentId && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.studentId}</p>}
+            {errors.studentId && <p id="reg-id-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.studentId}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="reg-password" className="label-field">Password</label>
-              <PasswordInput icon id="reg-password" name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
+              <PasswordInput icon id="reg-password" aria-invalid={errors.password ? "true" : undefined} aria-describedby={errors.password ? "reg-password-error" : undefined} name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
               {errors.password ? (
-                <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>
+                <p id="reg-password-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>
               ) : (
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">At least 8 characters.</p>
               )}
             </div>
             <div>
               <label htmlFor="reg-confirm" className="label-field">Confirm</label>
-              <PasswordInput icon id="reg-confirm" name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
-              {errors.confirmPassword && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
+              <PasswordInput icon id="reg-confirm" aria-invalid={errors.confirmPassword ? "true" : undefined} aria-describedby={errors.confirmPassword ? "reg-confirm-error" : undefined} name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
+              {errors.confirmPassword && <p id="reg-confirm-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
             </div>
           </div>
 
@@ -166,6 +166,8 @@ export default function Register() {
             <input
               type="checkbox"
               name="agree"
+              aria-invalid={errors.agree ? "true" : undefined}
+              aria-describedby={errors.agree ? "reg-agree-error" : undefined}
               checked={form.agree}
               onChange={handleChange}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
@@ -182,7 +184,7 @@ export default function Register() {
             .
             </span>
           </label>
-          {errors.agree && <p className="text-xs text-rose-600 dark:text-rose-400">{errors.agree}</p>}
+          {errors.agree && <p id="reg-agree-error" role="alert" className="text-xs text-rose-600 dark:text-rose-400">{errors.agree}</p>}
 
           {submitError && (
             <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
