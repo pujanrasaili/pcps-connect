@@ -101,7 +101,18 @@ about students who have waited more than 5 days.
 ## Protections worth knowing about
 
 - Rate limits on login, registration, password and contact routes, designed
-  for a campus where many students share one IP address.
+  for a campus where many students share one IP address. The Contact form has
+  its own counter (so spam there cannot block password resets), and joining or
+  leaving clubs and other actions are limited per logged-in student.
+- The Contact form has a hidden "trap" field that real people never see; a
+  submission that fills it in is quietly dropped. Genuine messages are saved
+  for 180 days and shown to admins under Admin → Messages.
+- Event photos (up to 8 per event, added by admins and the event's club
+  leaders) are shrunk in the browser, stored on Cloudinary, and deleted from
+  Cloudinary when a photo is removed or the event is deleted. The server only
+  ever deletes files in its own event-photos folder.
+- "Download my data" lists everything stored about a student, and deleting an
+  account removes it, including their questions and Contact messages.
 - Input checks on the server for events, clubs, profile fields and passwords,
   with clear 400 messages; bad IDs and broken request bodies are answered
   cleanly instead of crashing.
