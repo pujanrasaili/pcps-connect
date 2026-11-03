@@ -89,7 +89,7 @@ export default function Contact() {
               )}
             </div>
             {serverError && (
-              <p className="mb-5 rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
+              <p role="alert" className="mb-5 rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
                 {serverError}
               </p>
             )}
@@ -107,24 +107,28 @@ export default function Contact() {
                   <label htmlFor="c-name" className="label-field">Full name</label>
                   <input
                     id="c-name"
+                    aria-invalid={errors.name ? "true" : undefined}
+                    aria-describedby={errors.name ? "c-name-error" : undefined}
                     name="name"
                     className="input-field"
                     value={form.name}
                     onChange={handleChange}
                   />
-                  {errors.name && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
+                  {errors.name && <p id="c-name-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
                 </div>
                 <div>
                   <label htmlFor="c-email" className="label-field">Email address</label>
                   <input
                     id="c-email"
+                    aria-invalid={errors.email ? "true" : undefined}
+                    aria-describedby={errors.email ? "c-email-error" : undefined}
                     name="email"
                     type="email"
                     className="input-field"
                     value={form.email}
                     onChange={handleChange}
                   />
-                  {errors.email && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
+                  {errors.email && <p id="c-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
                 </div>
               </div>
               <div>
@@ -141,13 +145,15 @@ export default function Contact() {
                 <label htmlFor="c-message" className="label-field">Message</label>
                 <textarea
                   id="c-message"
+                  aria-invalid={errors.message ? "true" : undefined}
+                  aria-describedby={errors.message ? "c-message-error" : undefined}
                   name="message"
                   rows={5}
                   className="input-field resize-none"
                   value={form.message}
                   onChange={handleChange}
                 />
-                {errors.message && <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.message}</p>}
+                {errors.message && <p id="c-message-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.message}</p>}
               </div>
               <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
                 {submitting ? "Sending..." : "Send message"}
