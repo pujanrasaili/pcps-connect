@@ -20,6 +20,7 @@ import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 import { isoToLocalInput, localInputToIso } from "../../utils/dateTimeInput";
 import { isRegistrationClosed } from "../../utils/registrationDeadline";
+import { shrinkImage } from "../../utils/resizeImage";
 
 const PAGE_SIZE = 10;
 const EMPTY_FORM = {
@@ -165,7 +166,8 @@ export default function AdminEvents() {
       // Times go to the server as exact instants (see utils/dateTimeInput.js).
       formData.append(key, key === "date" || key === "endDate" || key === "registrationDeadline" ? localInputToIso(value) : value);
     });
-    if (imageFile) formData.append("image", imageFile);
+    // Big phone photos are shrunk first so they fit the server's 5 MB limit.
+    if (imageFile) formData.append("image", await shrinkImage(imageFile));
 
     try {
       if (editingEvent) {
