@@ -22,6 +22,7 @@ import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
 import { useMyWaitlist } from "../hooks/useMyWaitlist";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import { useRequestCounts } from "../hooks/useRequestCounts";
 import { useClubMembership } from "../context/ClubMembershipContext";
@@ -40,6 +41,7 @@ import SafeImage from "../components/SafeImage";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { t } = useLang();
   const { favoriteClubId, memberships, pendingClubIds, loaded: membershipsLoaded } = useClubMembership();
   const { clubs } = useClubs();
   const { clubs: ledClubs } = useLedClubs();
@@ -129,28 +131,28 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-          Welcome back, {user?.name?.split(" ")[0]}
+          {t("Welcome back, {name}", { name: user?.name?.split(" ")[0] })}
         </h1>
         <p className="text-slate-500 dark:text-slate-400">
-          Here's a snapshot of your involvement at PCPS.
+          {t("Here's a snapshot of your involvement at PCPS.")}
         </p>
       </div>
 
       {loadFailed && <LoadFailedBanner what="your registrations" onRetry={refreshRegistrations} />}
 
       <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 lg:grid-cols-4">
-        <StatsCard icon={FaCalendarCheck} label="Registered Events" value={registeredEvents.length} accent="primary" />
-        <StatsCard icon={FaCheckDouble} label="Attended Events" value={attendedCount} accent="emerald" />
-        <StatsCard icon={FaHeart} label="Favorite Club" value={favoriteClub?.name.replace("PCPS ", "") || "—"} accent="accent" />
-        <StatsCard icon={FaClock} label="Upcoming Registrations" value={upcoming.length} accent="amber" />
+        <StatsCard icon={FaCalendarCheck} label={t("Registered Events")} value={registeredEvents.length} accent="primary" />
+        <StatsCard icon={FaCheckDouble} label={t("Attended Events")} value={attendedCount} accent="emerald" />
+        <StatsCard icon={FaHeart} label={t("Favorite Club")} value={favoriteClub?.name.replace("PCPS ", "") || "—"} accent="accent" />
+        <StatsCard icon={FaClock} label={t("Upcoming Registrations")} value={upcoming.length} accent="amber" />
       </div>
 
       {gettingStarted && (
         <div className="card-surface min-w-0 p-5">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="font-semibold text-slate-800 dark:text-slate-100">Get started</h2>
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">{t("Get started")}</h2>
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {gettingStarted.done} of {gettingStarted.total} done
+              {t("{done} of {total} done", { done: gettingStarted.done, total: gettingStarted.total })}
             </span>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -159,8 +161,8 @@ export default function Dashboard() {
                 {step.done ? (
                   <p className="flex items-center gap-3 py-2.5 text-sm text-slate-500 dark:text-slate-400">
                     <FaCheckCircle className="shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-                    <span className="line-through">{step.label}</span>
-                    <span className="sr-only">(done)</span>
+                    <span className="line-through">{t(step.label)}</span>
+                    <span className="sr-only">{t("(done)")}</span>
                   </p>
                 ) : (
                   <Link
@@ -169,8 +171,8 @@ export default function Dashboard() {
                   >
                     <FaRegCircle className="shrink-0 text-slate-400" aria-hidden="true" />
                     <span className="min-w-0 flex-1">
-                      <span className="block font-medium text-slate-700 dark:text-slate-200">{step.label}</span>
-                      <span className="block text-xs text-slate-500 dark:text-slate-400">{step.hint}</span>
+                      <span className="block font-medium text-slate-700 dark:text-slate-200">{t(step.label)}</span>
+                      <span className="block text-xs text-slate-500 dark:text-slate-400">{t(step.hint)}</span>
                     </span>
                     <FaArrowRight className="shrink-0 text-xs text-primary-600 dark:text-primary-300" aria-hidden="true" />
                   </Link>
@@ -186,11 +188,11 @@ export default function Dashboard() {
           <div className="flex min-w-0 items-center gap-3">
             <FaClock className="shrink-0 text-amber-500" />
             <p className="min-w-0 text-sm text-slate-700 dark:text-slate-200">
-              Waiting for approval: <strong>{waitingClubs.map((c) => c.name).join(", ")}</strong>. You will get a message when the club decides.
+              {t("Waiting for approval:")} <strong>{waitingClubs.map((c) => c.name).join(", ")}</strong>. {t("You will get a message when the club decides.")}
             </p>
           </div>
           <Link to="/clubs" className="shrink-0 text-sm font-semibold text-primary-600 dark:text-primary-300">
-            View clubs <FaArrowRight className="inline text-xs" />
+            {t("View clubs")} <FaArrowRight className="inline text-xs" />
           </Link>
         </div>
       )}
@@ -200,17 +202,17 @@ export default function Dashboard() {
           <div className="flex min-w-0 items-center gap-3">
             <FaUserTie className="shrink-0 text-amber-500" />
             <p className="min-w-0 text-sm text-slate-700 dark:text-slate-200">
-              You lead <strong>{ledClubs.map((c) => c.name).join(", ")}</strong>. Create events, see registrations and check students in.
+              {t("You lead")} <strong>{ledClubs.map((c) => c.name).join(", ")}</strong>. {t("Create events, see registrations and check students in.")}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-x-4 gap-y-1">
             {waitingOnMyClubs > 0 && (
               <Link to="/admin/my-clubs" className="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                {waitingOnMyClubs} waiting to join <FaArrowRight className="inline text-xs" />
+                {t("{n} waiting to join", { n: waitingOnMyClubs })} <FaArrowRight className="inline text-xs" />
               </Link>
             )}
             <Link to="/admin/events" className="text-sm font-semibold text-primary-600 dark:text-primary-300">
-              Manage events <FaArrowRight className="inline text-xs" />
+              {t("Manage events")} <FaArrowRight className="inline text-xs" />
             </Link>
           </div>
         </div>
@@ -221,7 +223,7 @@ export default function Dashboard() {
           <div className="mb-3 flex items-center gap-2">
             <FaStar className="shrink-0 text-amber-400" />
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">
-              How were the events you attended?
+              {t("How were the events you attended?")}
             </h2>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -234,14 +236,14 @@ export default function Dashboard() {
                 <span className="flex shrink-0 items-center gap-3">
                   <Link
                     to={`/certificate/${r._id}`}
-                    aria-label={`Certificate for ${r.event.title}`}
-                    title="Attendance certificate"
+                    aria-label={t("Certificate for {title}", { title: r.event.title })}
+                    title={t("Attendance certificate")}
                     className="text-slate-500 dark:text-slate-400 transition-colors hover:text-primary-500"
                   >
                     <FaCertificate />
                   </Link>
                   <Link to="/profile" className="text-xs font-semibold text-primary-600 dark:text-primary-300">
-                    Rate
+                    {t("Rate")}
                   </Link>
                 </span>
               </li>
@@ -249,7 +251,7 @@ export default function Dashboard() {
           </ul>
           {needsRating.length > 3 && (
             <Link to="/profile" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
-              +{needsRating.length - 3} more in your profile
+              {t("+{n} more in your profile", { n: needsRating.length - 3 })}
             </Link>
           )}
         </div>
@@ -259,7 +261,7 @@ export default function Dashboard() {
         <div className="card-surface min-w-0 p-5">
           <div className="mb-3 flex items-center gap-2">
             <FaUsers className="shrink-0 text-primary-500" />
-            <h2 className="font-semibold text-slate-800 dark:text-slate-100">From your clubs</h2>
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">{t("From your clubs")}</h2>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {fromMyClubs.slice(0, 3).map((e) => {
@@ -278,7 +280,7 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <span className={`badge shrink-0 ${full ? "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" : "bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300"}`}>
-                      {full ? "Full · join waitlist" : "Open"}
+                      {full ? t("Full · join waitlist") : t("Open")}
                     </span>
                   </Link>
                 </li>
@@ -287,7 +289,7 @@ export default function Dashboard() {
           </ul>
           {fromMyClubs.length > 3 && (
             <Link to="/events" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
-              +{fromMyClubs.length - 3} more on the Events page
+              {t("+{n} more on the Events page", { n: fromMyClubs.length - 3 })}
             </Link>
           )}
         </div>
@@ -299,7 +301,7 @@ export default function Dashboard() {
         <div className="card-surface min-w-0 p-5">
           <div className="mb-3 flex items-center gap-2">
             <FaBookmark className="shrink-0 text-primary-500" />
-            <h2 className="font-semibold text-slate-800 dark:text-slate-100">Saved for later</h2>
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">{t("Saved for later")}</h2>
           </div>
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {savedForLater.slice(0, 3).map((e) => (
@@ -319,7 +321,7 @@ export default function Dashboard() {
           </ul>
           {savedForLater.length > 3 && (
             <Link to="/events?when=saved" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
-              See all {savedForLater.length} saved events
+              {t("See all {n} saved events", { n: savedForLater.length })}
             </Link>
           )}
         </div>
@@ -328,7 +330,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card-surface p-6">
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
-            Participation by Month
+            {t("Participation by Month")}
           </h2>
           <div className={`mt-4 ${monthlyData.length > 0 ? "h-64" : ""}`}>
             {monthlyData.length > 0 ? (
@@ -341,7 +343,7 @@ export default function Dashboard() {
 
         <div className="card-surface p-6">
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
-            Events by Category
+            {t("Events by Category")}
           </h2>
           <div className={`mt-4 ${categoryData.length > 0 ? "h-64" : ""}`}>
             {categoryData.length > 0 ? (
@@ -356,7 +358,7 @@ export default function Dashboard() {
       <div className="card-surface p-6">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
-            Upcoming Registrations
+            {t("Upcoming Registrations")}
           </h2>
           <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
             {upcomingConfirmed.length > 0 && (
@@ -364,16 +366,16 @@ export default function Dashboard() {
                 onClick={() => downloadIcsAll(upcomingConfirmed.map((r) => r.event))}
                 className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
               >
-                <FaCalendarPlus className="text-xs" /> Add all to calendar
+                <FaCalendarPlus className="text-xs" /> {t("Add all to calendar")}
               </button>
             )}
             {upcomingConfirmed.length > 0 && (
               <Link to="/tickets" className="flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
-                <FaQrcode className="text-xs" /> My tickets (work offline)
+                <FaQrcode className="text-xs" /> {t("My tickets (work offline)")}
               </Link>
             )}
             <Link to="/events" className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300">
-              Find more events <FaArrowRight className="text-xs" />
+              {t("Find more events")} <FaArrowRight className="text-xs" />
             </Link>
           </div>
         </div>
@@ -392,11 +394,11 @@ export default function Dashboard() {
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                     {r.status === "pending" && (
-                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">Pending approval</p>
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">{t("Pending approval")}</p>
                     )}
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       {relativeDay(r.event.date) && (
-                        <span className="font-semibold text-accent-600 dark:text-accent-300">{relativeDay(r.event.date)} · </span>
+                        <span className="font-semibold text-accent-600 dark:text-accent-300">{translateDay(relativeDay(r.event.date), t)} · </span>
                       )}
                       {formatDateAndTime(r.event.date)}
                     </p>
@@ -409,8 +411,8 @@ export default function Dashboard() {
                 )}
                 <button
                   onClick={() => handleUnregister(r.event._id)}
-                  aria-label={`Unregister from ${r.event.title}`}
-                  title="Unregister"
+                  aria-label={t("Unregister from {title}", { title: r.event.title })}
+                  title={t("Unregister")}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-sm" />
@@ -420,7 +422,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            No upcoming registrations yet. Browse events to find something you like.
+            {t("No upcoming registrations yet. Browse events to find something you like.")}
           </p>
         )}
       </div>
@@ -429,9 +431,16 @@ export default function Dashboard() {
 }
 
 function EmptyChart() {
+  const { t } = useLang();
   return (
     <div className="flex items-center justify-center py-6 text-center text-sm text-slate-500 dark:text-slate-400">
-      No data yet — register for an event to see your stats.
+      {t("No data yet — register for an event to see your stats.")}
     </div>
   );
+}
+
+// relativeDay() returns English ("Today", "Tomorrow", "In 3 days").
+function translateDay(text, t) {
+  const m = /^In (\d+) days$/.exec(text);
+  return m ? t("In {n} days", { n: m[1] }) : t(text);
 }
