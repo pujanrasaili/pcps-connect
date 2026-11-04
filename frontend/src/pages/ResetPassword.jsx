@@ -5,6 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
+import { useLang } from "../context/LanguageContext";
 import logo from "../assets/images/pcps-shield.webp";
 
 export default function ResetPassword() {
@@ -12,6 +13,7 @@ export default function ResetPassword() {
   const token = searchParams.get("token");
   const navigate = useNavigate();
   const toast = useToast();
+  const { t } = useLang();
 
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
   const [errors, setErrors] = useState({});
@@ -41,10 +43,10 @@ export default function ResetPassword() {
     try {
       await api.post("/auth/reset-password", { token, newPassword: form.password });
       setDone(true);
-      toast.success("Password reset! You can now log in.");
+      toast.success(t("Password reset! You can now log in."));
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      const text = getErrorMessage(err, "This reset link is invalid or has expired.");
+      const text = getErrorMessage(err, t("This reset link is invalid or has expired."));
       setServerError(text); // also on the page: a pop-up alone is easy to miss
       toast.error(text);
     } finally {
@@ -56,12 +58,12 @@ export default function ResetPassword() {
     return (
       <div className="section-y flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <p className="font-semibold text-slate-800 dark:text-slate-100">Invalid reset link</p>
+          <p className="font-semibold text-slate-800 dark:text-slate-100">{t("Invalid reset link")}</p>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            This link is missing its reset token. Please request a new one.
+            {t("This link is missing its reset token. Please request a new one.")}
           </p>
           <Link to="/forgot-password" className="btn-primary mt-5 inline-flex">
-            Request a new link
+            {t("Request a new link")}
           </Link>
         </div>
       </div>
@@ -74,7 +76,7 @@ export default function ResetPassword() {
         <div className="mb-8 text-center">
           <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto rounded-xl animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
           <h1 className="mt-4 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Set a new password
+            {t("Set a new password")}
           </h1>
         </div>
 
@@ -82,34 +84,34 @@ export default function ResetPassword() {
           {done ? (
             <div className="flex flex-col items-center gap-3 py-4 text-center">
               <FaCheckCircle className="text-4xl text-emerald-500" />
-              <p className="font-semibold text-slate-800 dark:text-slate-100">Password reset</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Redirecting you to login...</p>
+              <p className="font-semibold text-slate-800 dark:text-slate-100">{t("Password reset")}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("Redirecting you to login...")}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div>
-                <label htmlFor="rp-password" className="label-field">New password</label>
+                <label htmlFor="rp-password" className="label-field">{t("New password")}</label>
                 <PasswordInput icon id="rp-password" aria-invalid={errors.password ? "true" : undefined} aria-describedby={errors.password ? "rp-password-error" : undefined} name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
-                {errors.password && <p id="rp-password-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>}
+                {errors.password && <p id="rp-password-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.password)}</p>}
               </div>
 
               <div>
-                <label htmlFor="rp-confirm" className="label-field">Confirm new password</label>
+                <label htmlFor="rp-confirm" className="label-field">{t("Confirm new password")}</label>
                 <PasswordInput icon id="rp-confirm" aria-invalid={errors.confirmPassword ? "true" : undefined} aria-describedby={errors.confirmPassword ? "rp-confirm-error" : undefined} name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
-                {errors.confirmPassword && <p id="rp-confirm-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
+                {errors.confirmPassword && <p id="rp-confirm-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.confirmPassword)}</p>}
               </div>
 
               {serverError && (
                 <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
                   {serverError}{" "}
                   <Link to="/forgot-password" className="font-semibold underline underline-offset-2">
-                    Request a new link
+                    {t("Request a new link")}
                   </Link>
                 </p>
               )}
 
               <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Resetting..." : "Reset password"}
+                {submitting ? t("Resetting...") : t("Reset password")}
               </Button>
             </form>
           )}
