@@ -1,3 +1,4 @@
+import { useLang } from "../context/LanguageContext";
 import { useEffect, useRef } from "react";
 import { FaTimes } from "react-icons/fa";
 
@@ -5,6 +6,7 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])';
 
 export default function Modal({ isOpen, onClose, title, children, size = "md" }) {
+  const { t } = useLang();
   const dialogRef = useRef(null);
 
   // Callers usually pass an inline arrow function for onClose, which is a
@@ -100,7 +102,7 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
           </h2>
           <button
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={t("Close dialog")}
             className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <FaTimes />
