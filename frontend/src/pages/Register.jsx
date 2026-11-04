@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FaUser, FaEnvelope, FaIdCard } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { useLang } from "../context/LanguageContext";
 import Button from "../components/Button";
 import RegistrationDone from "../components/RegistrationDone";
 import logo from "../assets/images/pcps-shield.webp";
@@ -11,6 +12,7 @@ import logo from "../assets/images/pcps-shield.webp";
 export default function Register() {
   const { register } = useAuth();
   const toast = useToast();
+  const { t } = useLang();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -77,16 +79,16 @@ export default function Register() {
         <div className="mb-8 text-center">
           <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto rounded-xl animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
           <h1 className="mt-4 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Create your account
+            {t("Create your account")}
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Join clubs and register for events at PCPS
+            {t("Join clubs and register for events at PCPS")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="card-surface space-y-4 p-6 sm:p-8" noValidate>
           <div>
-            <label htmlFor="reg-name" className="label-field">Full name</label>
+            <label htmlFor="reg-name" className="label-field">{t("Full name")}</label>
             <div className="relative">
               <FaUser className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
@@ -96,16 +98,16 @@ export default function Register() {
                 maxLength={80}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
-                placeholder="Your full name"
+                placeholder={t("Your full name")}
                 value={form.name}
                 onChange={handleChange}
               />
             </div>
-            {errors.name && <p id="reg-name-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
+            {errors.name && <p id="reg-name-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.name)}</p>}
           </div>
 
           <div>
-            <label htmlFor="reg-email" className="label-field">Email address</label>
+            <label htmlFor="reg-email" className="label-field">{t("Email address")}</label>
             <div className="relative">
               <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
@@ -121,14 +123,14 @@ export default function Register() {
               />
             </div>
             {errors.email ? (
-              <p id="reg-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>
+              <p id="reg-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.email)}</p>
             ) : (
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Must be a PCPS email address (@patancollege.edu.np)</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("Must be a PCPS email address (@patancollege.edu.np)")}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="reg-id" className="label-field">Student ID</label>
+            <label htmlFor="reg-id" className="label-field">{t("Student ID")}</label>
             <div className="relative">
               <FaIdCard className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
@@ -142,23 +144,23 @@ export default function Register() {
                 onChange={handleChange}
               />
             </div>
-            {errors.studentId && <p id="reg-id-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.studentId}</p>}
+            {errors.studentId && <p id="reg-id-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.studentId)}</p>}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="reg-password" className="label-field">Password</label>
+              <label htmlFor="reg-password" className="label-field">{t("Password")}</label>
               <PasswordInput icon id="reg-password" aria-invalid={errors.password ? "true" : undefined} aria-describedby={errors.password ? "reg-password-error" : undefined} name="password" maxLength={72} placeholder="••••••••" value={form.password} onChange={handleChange} autoComplete="new-password" />
               {errors.password ? (
-                <p id="reg-password-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.password}</p>
+                <p id="reg-password-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.password)}</p>
               ) : (
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">At least 8 characters.</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("At least 8 characters.")}</p>
               )}
             </div>
             <div>
-              <label htmlFor="reg-confirm" className="label-field">Confirm</label>
+              <label htmlFor="reg-confirm" className="label-field">{t("Confirm")}</label>
               <PasswordInput icon id="reg-confirm" aria-invalid={errors.confirmPassword ? "true" : undefined} aria-describedby={errors.confirmPassword ? "reg-confirm-error" : undefined} name="confirmPassword" maxLength={72} placeholder="••••••••" value={form.confirmPassword} onChange={handleChange} autoComplete="new-password" />
-              {errors.confirmPassword && <p id="reg-confirm-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p id="reg-confirm-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.confirmPassword)}</p>}
             </div>
           </div>
 
@@ -173,18 +175,18 @@ export default function Register() {
               className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
             />
             <span>
-            I agree to the PCPS Connect{" "}
+            {t("I agree to the PCPS Connect")}{" "}
             <Link to="/terms" target="_blank" className="font-medium text-primary-600 dark:text-primary-300 underline underline-offset-2">
-              terms of use
+              {t("terms of use")}
             </Link>{" "}
-            and{" "}
+            {t("and")}{" "}
             <Link to="/privacy" target="_blank" className="font-medium text-primary-600 dark:text-primary-300 underline underline-offset-2">
-              privacy policy
+              {t("privacy policy")}
             </Link>
             .
             </span>
           </label>
-          {errors.agree && <p id="reg-agree-error" role="alert" className="text-xs text-rose-600 dark:text-rose-400">{errors.agree}</p>}
+          {errors.agree && <p id="reg-agree-error" role="alert" className="text-xs text-rose-600 dark:text-rose-400">{t(errors.agree)}</p>}
 
           {submitError && (
             <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
@@ -193,13 +195,13 @@ export default function Register() {
           )}
 
           <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "Creating account..." : "Create account"}
+            {submitting ? t("Creating account...") : t("Create account")}
           </Button>
 
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-            Already have an account?{" "}
+            {t("Already have an account?")}{" "}
             <Link to="/login" className="font-semibold text-primary-600 dark:text-primary-300">
-              Log in
+              {t("Log in")}
             </Link>
           </p>
         </form>
