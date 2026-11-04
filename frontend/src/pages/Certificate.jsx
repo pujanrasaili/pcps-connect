@@ -107,7 +107,7 @@ export default function Certificate() {
               Issued by PCPS Connect. Scan the code to confirm this certificate is genuine.
             </p>
             <div className="flex flex-col items-center">
-              <QRCodeSVG value={verifyUrl} size={72} level="M" />
+              <QRCodeSVG value={verifyUrl} size={72} level="M" title="QR code that opens this certificate's verification page" />
               <p className="mt-1 text-[9px] uppercase tracking-wider text-slate-500 dark:text-slate-400">Verify</p>
             </div>
           </div>
