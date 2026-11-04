@@ -121,6 +121,28 @@ export const ne = {
   "Tap to leave this club": "यो क्लब छाड्न थिच्नुहोस्",
   "Waiting for the club's leaders. Tap to withdraw": "क्लबका नेताहरूको प्रतीक्षामा। फिर्ता लिन थिच्नुहोस्",
 
+  // Clubs page
+  "Student Life": "विद्यार्थी जीवन",
+  "Explore PCPS Clubs": "पीसीपीएस क्लबहरू अन्वेषण गर्नुहोस्",
+  "Find your community — from coding sprints to sports leagues and creative pursuits.":
+    "आफ्नो समुदाय फेला पार्नुहोस् — कोडिङ प्रतियोगितादेखि खेलकुद लिग र सिर्जनात्मक रुचिहरूसम्म।",
+  "Search by name, topic or category...": "नाम, विषय वा वर्गबाट खोज्नुहोस्...",
+  "Only clubs I've joined": "मैले सामेल भएका क्लब मात्र",
+  "Sort by": "क्रमबद्ध गर्नुहोस्",
+  "Default order": "सामान्य क्रम",
+  "Most members": "धेरै सदस्य भएका",
+  "Name (A-Z)": "नाम (A-Z)",
+  "You haven't joined any clubs yet.": "तपाईं अहिलेसम्म कुनै क्लबमा सामेल हुनुभएको छैन।",
+  "No clubs match your search.": "तपाईंको खोजसँग मिल्ने कुनै क्लब छैन।",
+  "Untick the box to browse every club.": "सबै क्लब हेर्न बाकसको चिन्ह हटाउनुहोस्।",
+  "Founded {year}": "स्थापना: {year}",
+  "Club activities": "क्लबका गतिविधिहरू",
+  "Upcoming events": "आगामी कार्यक्रमहरू",
+  "See all {n} upcoming events": "सबै {n} आगामी कार्यक्रमहरू हेर्नुहोस्",
+  "View events from this club": "यस क्लबका कार्यक्रमहरू हेर्नुहोस्",
+  "Share this club": "यो क्लब साझा गर्नुहोस्",
+  "Toggle favorite club": "मनपर्ने क्लब बदल्नुहोस्",
+
   // Events page
   "What's Happening": "के हुँदैछ",
   "Workshops, contests, and seminars hosted by PCPS clubs — register in a couple of clicks.":

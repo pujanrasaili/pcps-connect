@@ -15,11 +15,11 @@ import { useClubMembership } from "../context/ClubMembershipContext";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 import { resolveUploadUrl } from "../services/api";
 import { usePagination } from "../hooks/usePagination";
-import { pluralize } from "../utils/plural";
 import Pagination from "../components/Pagination";
 import { useToast } from "../context/ToastContext";
 import { shareClub } from "../utils/share";
 import { CLUB_SORTS, filterClubs, sortClubs } from "../utils/clubFilters";
+import { useLang } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
@@ -28,6 +28,7 @@ import SafeImage from "../components/SafeImage";
 const PAGE_SIZE = 9;
 
 export default function Clubs() {
+  const { t } = useLang();
   const { clubs, loading, error } = useClubs();
   const [params, setParams] = useSearchParams();
   const toast = useToast();
@@ -130,20 +131,19 @@ export default function Clubs() {
       <div className="container-page">
         <div className="text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-            Student Life
+            {t("Student Life")}
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
-            Explore PCPS Clubs
+            {t("Explore PCPS Clubs")}
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-slate-500 dark:text-slate-400">
-            Find your community — from coding sprints to sports leagues and
-            creative pursuits.
+            {t("Find your community — from coding sprints to sports leagues and creative pursuits.")}
           </p>
         </div>
 
         <div className="mx-auto mt-8 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
-            <SearchBar value={query} onChange={setQuery} placeholder="Search by name, topic or category..." />
+            <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, topic or category...")} />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
@@ -157,13 +157,13 @@ export default function Clubs() {
                 onChange={(e) => setFilter("mine", e.target.checked ? "1" : "")}
                 className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
               />
-              Only clubs I've joined
+              {t("Only clubs I've joined")}
             </label>
           ) : (
             <span />
           )}
           <label className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-            Sort by
+            {t("Sort by")}
             <select
               value={sort}
               onChange={(e) => setFilter("sort", e.target.value, "default")}
@@ -171,7 +171,7 @@ export default function Clubs() {
             >
               {CLUB_SORTS.map(([value, label]) => (
                 <option key={value} value={value}>
-                  {label}
+                  {t(label)}
                 </option>
               ))}
             </select>
@@ -202,14 +202,14 @@ export default function Clubs() {
         ) : (
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
             <p className="text-lg font-medium">
-              {mineOnly && !query && category === "All" ? "You haven't joined any clubs yet." : "No clubs match your search."}
+              {mineOnly && !query && category === "All" ? t("You haven't joined any clubs yet.") : t("No clubs match your search.")}
             </p>
             <p className="mt-1 text-sm">
-              {mineOnly && !query && category === "All" ? "Untick the box to browse every club." : "Try a different name or category."}
+              {mineOnly && !query && category === "All" ? t("Untick the box to browse every club.") : t("Try a different name or category.")}
             </p>
             {(query || category !== "All" || mineOnly) && (
               <button onClick={clearFilters} className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
-                Clear filters
+                {t("Clear filters")}
               </button>
             )}
           </div>
@@ -223,12 +223,12 @@ export default function Clubs() {
             <div className="flex flex-wrap gap-4 text-sm text-slate-500 dark:text-slate-400">
               {typeof selectedClub.memberCount === "number" && (
                 <span className="flex items-center gap-1.5">
-                  <FaUsers className="shrink-0 text-primary-500" /> {pluralize(selectedClub.memberCount, "member")}
+                  <FaUsers className="shrink-0 text-primary-500" /> {selectedClub.memberCount === 1 ? t("1 member") : t("{n} members", { n: selectedClub.memberCount })}
                 </span>
               )}
               {selectedClub.foundedYear && (
                 <span className="flex items-center gap-1.5">
-                  <FaCalendarAlt className="shrink-0 text-primary-500" /> Founded {selectedClub.foundedYear}
+                  <FaCalendarAlt className="shrink-0 text-primary-500" /> {t("Founded {year}", { year: selectedClub.foundedYear })}
                 </span>
               )}
               {selectedClub.email && (
@@ -243,7 +243,7 @@ export default function Clubs() {
             {selectedClub.activities?.length > 0 && (
               <>
                 <h3 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">
-                  Club activities
+                  {t("Club activities")}
                 </h3>
                 <ul className="mt-2 space-y-1.5">
                   {selectedClub.activities.map((activity) => (
@@ -258,7 +258,7 @@ export default function Clubs() {
 
             {clubEvents.length > 0 && (
               <>
-                <h3 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">Upcoming events</h3>
+                <h3 className="mt-5 font-semibold text-slate-800 dark:text-slate-100">{t("Upcoming events")}</h3>
                 <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
                   {clubEvents.slice(0, 3).map((e) => (
                     <li key={e._id}>
@@ -281,7 +281,7 @@ export default function Clubs() {
               to={`/events?club=${selectedClub._id}`}
               className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
             >
-              {clubEvents.length > 3 ? `See all ${clubEvents.length} upcoming events` : "View events from this club"}{" "}
+              {clubEvents.length > 3 ? t("See all {n} upcoming events", { n: clubEvents.length }) : t("View events from this club")}{" "}
               <FaArrowRight className="text-xs" />
             </Link>
 
@@ -299,7 +299,7 @@ export default function Clubs() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleShare}
-                  aria-label="Share this club"
+                  aria-label={t("Share this club")}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
                 >
                   <FaShareAlt />
@@ -307,7 +307,7 @@ export default function Clubs() {
                 <button
                   onClick={() => requireAuth(() => toggleFavorite(selectedClub._id))}
                   aria-pressed={isFavorite(selectedClub._id)}
-                  aria-label="Toggle favorite club"
+                  aria-label={t("Toggle favorite club")}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-rose-500 shadow-sm transition-transform hover:scale-110"
                 >
                   {isFavorite(selectedClub._id) ? <FaHeart /> : <FaRegHeart />}
@@ -327,7 +327,7 @@ export default function Clubs() {
                     const Icon = join.kind === "joined" || join.kind === "pending" ? FaCheck : FaPlus;
                     return (
                       <>
-                        <Icon className="text-xs" /> {join.label}
+                        <Icon className="text-xs" /> {t(join.label)}
                       </>
                     );
                   })()}
