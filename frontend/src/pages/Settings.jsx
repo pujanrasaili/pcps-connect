@@ -4,6 +4,7 @@ import PasswordInput from "../components/PasswordInput";
 import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaTrashAlt, FaDownload } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import { useToast } from "../context/ToastContext";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
@@ -14,6 +15,7 @@ export default function Settings() {
   const { theme, toggleTheme } = useTheme();
   const { user, changePassword, updateUser, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLang();
   const toast = useToast();
   const [saved, setSaved] = useState(false);
   const [savingPref, setSavingPref] = useState(null);
@@ -28,9 +30,9 @@ export default function Settings() {
     try {
       const res = await api.get("/auth/export");
       downloadJson("pcps-connect-my-data.json", res.data);
-      toast.success("Your data was downloaded.");
+      toast.success(t("Your data was downloaded."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't download your data"));
+      toast.error(getErrorMessage(err, t("Couldn't download your data")));
     } finally {
       setExporting(false);
     }
@@ -57,9 +59,9 @@ export default function Settings() {
       // Leave this protected page first, otherwise logging out bounces to /login.
       navigate("/", { replace: true });
       await logout();
-      toast.success("Your account has been deleted.");
+      toast.success(t("Your account has been deleted."));
     } catch (err) {
-      setDelError(getErrorMessage(err, "Couldn't delete your account"));
+      setDelError(getErrorMessage(err, t("Couldn't delete your account")));
       setDelBusy(false);
     }
   };
@@ -73,7 +75,7 @@ export default function Settings() {
     const result = await updateUser({ [key]: !(user?.[key] !== false) });
     setSavingPref(null);
     if (!result.ok) {
-      toast.error(result.message || "Failed to update preference");
+      toast.error(result.message || t("Failed to update preference"));
       return;
     }
     setSaved(true);
@@ -96,11 +98,11 @@ export default function Settings() {
     setPwError("");
 
     if (pwForm.newPassword.length < 8) {
-      setPwError("New password must be at least 8 characters.");
+      setPwError(t("New password must be at least 8 characters."));
       return;
     }
     if (pwForm.newPassword !== pwForm.confirmPassword) {
-      setPwError("New passwords do not match.");
+      setPwError(t("New passwords do not match."));
       return;
     }
 
@@ -112,15 +114,15 @@ export default function Settings() {
       setPwError(result.message);
       return;
     }
-    toast.success("Password changed successfully.");
+    toast.success(t("Password changed successfully."));
     closePwModal();
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">Settings</h1>
-        <p className="text-slate-500 dark:text-slate-400">Manage how PCPS Connect looks and talks to you.</p>
+        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">{t("Settings")}</h1>
+        <p className="text-slate-500 dark:text-slate-400">{t("Manage how PCPS Connect looks and talks to you.")}</p>
       </div>
 
       {/* The live region itself is always on the page; only its content
@@ -128,30 +130,30 @@ export default function Settings() {
       <div role="status">
         {saved && (
           <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-            <FaCheckCircle className="shrink-0" aria-hidden="true" /> Preferences saved.
+            <FaCheckCircle className="shrink-0" aria-hidden="true" /> {t("Preferences saved.")}
           </div>
         )}
       </div>
 
       <div className="card-surface p-6">
-        <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Appearance</h2>
+        <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">{t("Appearance")}</h2>
         <div className="mt-4 flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-4">
           <div className="flex items-center gap-3">
             {theme === "dark" ? <FaMoon className="shrink-0 text-primary-500" /> : <FaSun className="shrink-0 text-primary-500" />}
             <div>
-              <p className="font-medium text-slate-800 dark:text-slate-100">Dark mode</p>
+              <p className="font-medium text-slate-800 dark:text-slate-100">{t("Dark mode")}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Switch between light and dark themes.
+                {t("Switch between light and dark themes.")}
               </p>
             </div>
           </div>
-          <ToggleSwitch checked={theme === "dark"} onChange={toggleTheme} label="Toggle dark mode" />
+          <ToggleSwitch checked={theme === "dark"} onChange={toggleTheme} label={t("Toggle dark mode")} />
         </div>
       </div>
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Notification Preferences
+          {t("Notification Preferences")}
         </h2>
         <div className="mt-4 space-y-3">
           <PrefRow
@@ -174,7 +176,7 @@ export default function Settings() {
       </div>
 
       <div className="card-surface p-6">
-        <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Account</h2>
+        <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">{t("Account")}</h2>
         <div className="mt-4 space-y-3">
           <button
             type="button"
@@ -183,8 +185,8 @@ export default function Settings() {
           >
             <FaLock className="shrink-0 text-primary-500" />
             <div>
-              <p className="font-medium text-slate-800 dark:text-slate-100">Change password</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Update the password you use to log in.</p>
+              <p className="font-medium text-slate-800 dark:text-slate-100">{t("Change password")}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{t("Update the password you use to log in.")}</p>
             </div>
           </button>
           <button
@@ -195,9 +197,9 @@ export default function Settings() {
           >
             <FaDownload className="shrink-0 text-primary-500" />
             <div>
-              <p className="font-medium text-slate-800 dark:text-slate-100">{exporting ? "Preparing..." : "Download my data"}</p>
+              <p className="font-medium text-slate-800 dark:text-slate-100">{exporting ? t("Preparing...") : t("Download my data")}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                A file with your profile, registrations, ratings and club memberships.
+                {t("A file with your profile, registrations, ratings and club memberships.")}
               </p>
             </div>
           </button>
@@ -209,9 +211,9 @@ export default function Settings() {
             >
               <FaTrashAlt className="shrink-0 text-rose-500" />
               <div>
-                <p className="font-medium text-rose-700 dark:text-rose-400">Delete account</p>
+                <p className="font-medium text-rose-700 dark:text-rose-400">{t("Delete account")}</p>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Permanently remove your account, registrations and club memberships.
+                  {t("Permanently remove your account, registrations and club memberships.")}
                 </p>
               </div>
             </button>
@@ -219,11 +221,10 @@ export default function Settings() {
         </div>
       </div>
 
-      <Modal isOpen={delOpen} onClose={closeDelModal} title="Delete your account?" size="sm">
+      <Modal isOpen={delOpen} onClose={closeDelModal} title={t("Delete your account?")} size="sm">
         <form onSubmit={handleDelete} className="space-y-4">
           <p className="text-sm text-slate-600 dark:text-slate-300">
-            This permanently deletes your account, your event registrations (including certificates and ratings) and
-            your club memberships. Any upcoming events you created are cancelled and the students registered for them are told. It can't be undone.
+            {t("This permanently deletes your account, your event registrations (including certificates and ratings) and your club memberships. Any upcoming events you created are cancelled and the students registered for them are told. It can't be undone.")}
           </p>
           {delError && (
             <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-400">
@@ -231,7 +232,7 @@ export default function Settings() {
             </p>
           )}
           <div>
-            <label className="label-field" htmlFor="delete-password">Enter your password to confirm</label>
+            <label className="label-field" htmlFor="delete-password">{t("Enter your password to confirm")}</label>
             <input
               data-autofocus
               id="delete-password"
@@ -248,12 +249,12 @@ export default function Settings() {
             disabled={delBusy || !delPassword}
             className="w-full rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-rose-700 disabled:opacity-50"
           >
-            {delBusy ? "Deleting..." : "Delete my account"}
+            {delBusy ? t("Deleting...") : t("Delete my account")}
           </button>
         </form>
       </Modal>
 
-      <Modal isOpen={pwOpen} onClose={closePwModal} title="Change password" size="sm">
+      <Modal isOpen={pwOpen} onClose={closePwModal} title={t("Change password")} size="sm">
         <form onSubmit={handlePwSubmit} className="space-y-4">
           {pwError && (
             <p role="alert" className="rounded-lg bg-rose-50 dark:bg-rose-900/20 px-3 py-2 text-sm text-rose-700 dark:text-rose-400">
@@ -261,19 +262,19 @@ export default function Settings() {
             </p>
           )}
           <div>
-            <label className="label-field" htmlFor="current-password">Current password</label>
+            <label className="label-field" htmlFor="current-password">{t("Current password")}</label>
             <PasswordInput data-autofocus id="current-password" name="currentPassword" value={pwForm.currentPassword} onChange={handlePwChange} autoComplete="current-password" required />
           </div>
           <div>
-            <label className="label-field" htmlFor="new-password">New password</label>
+            <label className="label-field" htmlFor="new-password">{t("New password")}</label>
             <PasswordInput id="new-password" name="newPassword" maxLength={72} value={pwForm.newPassword} onChange={handlePwChange} autoComplete="new-password" required />
           </div>
           <div>
-            <label className="label-field" htmlFor="confirm-new-password">Confirm new password</label>
+            <label className="label-field" htmlFor="confirm-new-password">{t("Confirm new password")}</label>
             <PasswordInput id="confirm-new-password" name="confirmPassword" maxLength={72} value={pwForm.confirmPassword} onChange={handlePwChange} autoComplete="new-password" required />
           </div>
           <Button type="submit" className="w-full" disabled={pwSaving}>
-            {pwSaving ? "Changing..." : "Change password"}
+            {pwSaving ? t("Changing...") : t("Change password")}
           </Button>
         </form>
       </Modal>
@@ -282,16 +283,17 @@ export default function Settings() {
 }
 
 function PrefRow({ icon: Icon, title, desc, checked, onChange, disabled }) {
+  const { t } = useLang();
   return (
     <div className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 p-4">
       <div className="flex items-center gap-3">
         <Icon className="shrink-0 text-primary-500" />
         <div>
-          <p className="font-medium text-slate-800 dark:text-slate-100">{title}</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{desc}</p>
+          <p className="font-medium text-slate-800 dark:text-slate-100">{t(title)}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t(desc)}</p>
         </div>
       </div>
-      <ToggleSwitch checked={checked} onChange={onChange} label={`Toggle ${title}`} disabled={disabled} />
+      <ToggleSwitch checked={checked} onChange={onChange} label={t("Toggle {title}", { title: t(title) })} disabled={disabled} />
     </div>
   );
 }
