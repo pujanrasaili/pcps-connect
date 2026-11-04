@@ -7,7 +7,7 @@ import { ne } from "../src/i18n/ne.js";
 const read = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const FILES = [
   "components/Navbar.jsx", "components/Footer.jsx", "components/HeroSection.jsx", "components/EventCard.jsx",
-  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx", "pages/Register.jsx", "pages/Contact.jsx", "pages/ForgotPassword.jsx", "pages/ResetPassword.jsx", "pages/Dashboard.jsx", "components/LoadFailedBanner.jsx", "components/Sidebar.jsx", "pages/EventDetails.jsx", "pages/Settings.jsx", "pages/Profile.jsx", "components/MilestonesCard.jsx", "components/StarRating.jsx", "components/CheckInQrModal.jsx", "components/EventPhotos.jsx", "components/EventQuestions.jsx", "components/ConfirmDialog.jsx", "components/Modal.jsx", "components/DashboardCharts.jsx",
+  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx", "pages/Register.jsx", "pages/Contact.jsx", "pages/ForgotPassword.jsx", "pages/ResetPassword.jsx", "pages/Dashboard.jsx", "components/LoadFailedBanner.jsx", "components/Sidebar.jsx", "pages/EventDetails.jsx", "pages/Settings.jsx", "pages/Profile.jsx", "components/MilestonesCard.jsx", "components/StarRating.jsx", "components/CheckInQrModal.jsx", "components/PasswordInput.jsx", "components/SkipLink.jsx", "components/SearchBar.jsx", "components/Pagination.jsx", "components/RegistrationForm.jsx", "components/RegistrationDone.jsx", "components/WaitlistCard.jsx", "pages/NotFound.jsx", "components/EventPhotos.jsx", "components/EventQuestions.jsx", "components/ConfirmDialog.jsx", "components/Modal.jsx", "components/DashboardCharts.jsx",
 ];
 
 test("English stays English, Nepali is looked up, and unknown text falls back to English", () => {
@@ -55,7 +55,7 @@ test("labels that reach t() through variables are translated too", () => {
     "Name is required.", "Enter a valid email.", "Please write a message.",
     "your registrations", "your event history", "Today", "Tomorrow", "{n} event", "{n} events", "Delete", "Deleting...", "Cancel",
     "First event", "Attend your first event", "Regular", "Attend 5 events", "Campus star", "Attend 10 events",
-    "Club member", "Connector", "Join 3 clubs", "Critic", "Rate an event you attended", "{n} star", "{n} stars",
+    "Club member", "Connector", "Join 3 clubs", "Critic", "Rate an event you attended", "{n} star", "{n} stars", "Search...",
     "Event reminders", "Get an email before events you registered for.", "Club updates",
     "Get an email when a club you've joined announces a new event, plus a short weekly summary of what your clubs have planned.",
     "Join a club", "Clubs you join send you their events.", "Pick a favourite club", "Tap the heart on a club to bookmark it.",
