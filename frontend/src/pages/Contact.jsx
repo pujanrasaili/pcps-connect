@@ -2,8 +2,10 @@ import { useState } from "react";
 import { FaMapMarkerAlt, FaPhoneAlt, FaClock, FaCheckCircle, FaUserTie } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
+import { useLang } from "../context/LanguageContext";
 
 export default function Contact() {
+  const { t } = useLang();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
@@ -36,7 +38,7 @@ export default function Contact() {
       setForm({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setSent(false), 10000);
     } catch (err) {
-      setServerError(getErrorMessage(err, "Failed to send message. Please try again."));
+      setServerError(getErrorMessage(err, t("Failed to send message. Please try again.")));
     } finally {
       setSubmitting(false);
     }
@@ -47,24 +49,24 @@ export default function Contact() {
       <div className="container-page">
         <div className="text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-            We'd Love to Hear from You
+            {t("We'd Love to Hear from You")}
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
-            Get in Touch
+            {t("Get in Touch")}
           </h1>
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.3fr]">
           <div className="space-y-4">
-            <ContactRow icon={FaMapMarkerAlt} title="Address" text="PCPS College, Kandevatasthan, Lalitpur, Nepal" />
-            <ContactRow icon={FaPhoneAlt} title="Phone" text="01-5181198" />
-            <ContactRow icon={FaUserTie} title="Events — Rishika Dahal (College Events Head)" text="9801102247" />
-            <ContactRow icon={FaUserTie} title="Admission — Pramila Ghimire (Admission Manager)" text="9801102235" />
-            <ContactRow icon={FaClock} title="Office Hours" text="Sun – Fri, 9:00 AM – 5:00 PM" />
+            <ContactRow icon={FaMapMarkerAlt} title={t("Address")} text={t("PCPS College, Kandevatasthan, Lalitpur, Nepal")} />
+            <ContactRow icon={FaPhoneAlt} title={t("Phone")} text="01-5181198" />
+            <ContactRow icon={FaUserTie} title={t("Events — Rishika Dahal (College Events Head)")} text="9801102247" />
+            <ContactRow icon={FaUserTie} title={t("Admission — Pramila Ghimire (Admission Manager)")} text="9801102235" />
+            <ContactRow icon={FaClock} title={t("Office Hours")} text={t("Sun – Fri, 9:00 AM – 5:00 PM")} />
 
             <div className="card-surface overflow-hidden">
               <iframe
-                title="PCPS College Location"
+                title={t("PCPS College Location")}
                 src="https://www.google.com/maps?q=Patan+College+For+Professional+Studies&ll=27.6844602,85.317011&z=16&output=embed"
                 className="h-56 w-full border-0"
                 loading="lazy"
@@ -75,7 +77,7 @@ export default function Contact() {
                 rel="noopener noreferrer"
                 className="block border-t border-slate-100 dark:border-slate-800 px-4 py-3 text-center text-sm font-semibold text-primary-600 dark:text-primary-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
               >
-                Get directions on Google Maps
+                {t("Get directions on Google Maps")}
               </a>
             </div>
           </div>
@@ -84,7 +86,7 @@ export default function Contact() {
             <div role="status">
               {sent && (
                 <div className="mb-5 flex items-start gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                  <FaCheckCircle className="mt-0.5 shrink-0" aria-hidden="true" /> Message sent — we'll reply to the email address you gave.
+                  <FaCheckCircle className="mt-0.5 shrink-0" aria-hidden="true" /> {t("Message sent — we'll reply to the email address you gave.")}
                 </div>
               )}
             </div>
@@ -104,7 +106,7 @@ export default function Contact() {
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="c-name" className="label-field">Full name</label>
+                  <label htmlFor="c-name" className="label-field">{t("Full name")}</label>
                   <input
                     id="c-name"
                     aria-invalid={errors.name ? "true" : undefined}
@@ -114,10 +116,10 @@ export default function Contact() {
                     value={form.name}
                     onChange={handleChange}
                   />
-                  {errors.name && <p id="c-name-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>}
+                  {errors.name && <p id="c-name-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.name)}</p>}
                 </div>
                 <div>
-                  <label htmlFor="c-email" className="label-field">Email address</label>
+                  <label htmlFor="c-email" className="label-field">{t("Email address")}</label>
                   <input
                     id="c-email"
                     aria-invalid={errors.email ? "true" : undefined}
@@ -128,11 +130,11 @@ export default function Contact() {
                     value={form.email}
                     onChange={handleChange}
                   />
-                  {errors.email && <p id="c-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>}
+                  {errors.email && <p id="c-email-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.email)}</p>}
                 </div>
               </div>
               <div>
-                <label htmlFor="c-subject" className="label-field">Subject</label>
+                <label htmlFor="c-subject" className="label-field">{t("Subject")}</label>
                 <input
                   id="c-subject"
                   name="subject"
@@ -142,7 +144,7 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label htmlFor="c-message" className="label-field">Message</label>
+                <label htmlFor="c-message" className="label-field">{t("Message")}</label>
                 <textarea
                   id="c-message"
                   aria-invalid={errors.message ? "true" : undefined}
@@ -153,10 +155,10 @@ export default function Contact() {
                   value={form.message}
                   onChange={handleChange}
                 />
-                {errors.message && <p id="c-message-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.message}</p>}
+                {errors.message && <p id="c-message-error" role="alert" className="mt-1 text-xs text-rose-600 dark:text-rose-400">{t(errors.message)}</p>}
               </div>
               <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
-                {submitting ? "Sending..." : "Send message"}
+                {submitting ? t("Sending...") : t("Send message")}
               </Button>
             </form>
           </div>
