@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode, FaCertificate } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useClubMembership } from "../context/ClubMembershipContext";
 import { useToast } from "../context/ToastContext";
@@ -18,6 +19,7 @@ import SafeImage from "../components/SafeImage";
 
 export default function Profile() {
   const { user, updateUser } = useAuth();
+  const { t } = useLang();
   const { registrations, cancelRegistration, submitFeedback, loadFailed, refreshRegistrations } = useRegistrations();
   const { memberships, favoriteClubId, leaveClub } = useClubMembership();
   const toast = useToast();
@@ -61,7 +63,7 @@ export default function Profile() {
       toast.error(result.message);
       return;
     }
-    toast.success("Profile updated.");
+    toast.success(t("Profile updated."));
     setEditOpen(false);
   };
 
@@ -78,7 +80,7 @@ export default function Profile() {
   const handleSubmitRating = async (e) => {
     e.preventDefault();
     if (!ratingDraft) {
-      toast.error("Pick a star rating first.");
+      toast.error(t("Pick a star rating first."));
       return;
     }
     setRatingSaving(true);
@@ -103,26 +105,26 @@ export default function Profile() {
                 {user?.name}
               </h1>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {[user?.program, user?.semester].filter(Boolean).join(" · ") || "No program set"}
+                {[user?.program, user?.semester].filter(Boolean).join(" · ") || t("No program set")}
               </p>
             </div>
           </div>
           <Button variant="outline" icon={FaEdit} onClick={() => setEditOpen(true)}>
-            Edit profile
+            {t("Edit profile")}
           </Button>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InfoRow icon={FaIdBadge} label="Student ID" value={user?.studentId || "Not set"} />
-          <InfoRow icon={FaEnvelope} label="Email" value={user?.email} />
-          <InfoRow icon={FaPhone} label="Phone" value={user?.phone || "Not set"} />
-          <InfoRow icon={FaGraduationCap} label="Program" value={user?.program || "Not set"} />
+          <InfoRow icon={FaIdBadge} label={t("Student ID")} value={user?.studentId || t("Not set")} />
+          <InfoRow icon={FaEnvelope} label={t("Email")} value={user?.email} />
+          <InfoRow icon={FaPhone} label={t("Phone")} value={user?.phone || t("Not set")} />
+          <InfoRow icon={FaGraduationCap} label={t("Program")} value={user?.program || t("Not set")} />
         </div>
       </div>
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Registered Clubs
+          {t("Registered Clubs")}
         </h2>
         {memberships.length > 0 ? (
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -133,15 +135,15 @@ export default function Profile() {
                   <p className="flex items-center gap-1.5 truncate font-medium text-slate-800 dark:text-slate-100">
                     {m.club?.name}
                     {m.club?._id === favoriteClubId && (
-                      <FaHeart className="shrink-0 text-xs text-rose-500" title="Favorite club" />
+                      <FaHeart className="shrink-0 text-xs text-rose-500" title={t("Favorite club")} />
                     )}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">{m.club?.category}</p>
                 </div>
                 <button
                   onClick={() => handleLeaveClub(m.club._id)}
-                  aria-label={`Leave ${m.club?.name}`}
-                  title="Leave club"
+                  aria-label={t("Leave {name}", { name: m.club?.name })}
+                  title={t("Leave club")}
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-sm" />
@@ -151,7 +153,7 @@ export default function Profile() {
           </div>
         ) : (
           <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-            You haven't joined any clubs yet — browse clubs and hit "Join Club" to add one here.
+            {t("You haven't joined any clubs yet — browse the clubs and join one to see it here.")}
           </p>
         )}
       </div>
@@ -160,13 +162,13 @@ export default function Profile() {
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
-          Event History
+          {t("Event History")}
         </h2>
         {eventHistory.length > 0 ? (
           <div className="mt-4 divide-y divide-slate-100 dark:divide-slate-800">
             {eventHistory.map((r) => {
               const isPast = isPastEvent(r.event.date);
-              const label = r.attended ? "Attended" : isPast ? "Past" : "Upcoming";
+              const label = r.attended ? t("Attended") : isPast ? t("Past") : t("Upcoming");
               const badgeClass = r.attended
                 ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                 : isPast
@@ -174,18 +176,18 @@ export default function Profile() {
                 : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
               return (
                 <div key={r._id} className="flex items-center justify-between gap-3 py-3">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(r.event.date)}</p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
                     {r.attended && r.rating ? <Stars value={r.rating} className="text-xs" /> : null}
                     <span className={`badge ${badgeClass}`}>{label}</span>
                     {r.attended && (
                       <Link
                         to={`/certificate/${r._id}`}
-                        aria-label={`Certificate for ${r.event.title}`}
-                        title="Attendance certificate"
+                        aria-label={t("Certificate for {title}", { title: r.event.title })}
+                        title={t("Attendance certificate")}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
                       >
                         <FaCertificate className="text-sm" />
@@ -196,14 +198,14 @@ export default function Profile() {
                         onClick={() => openRate(r)}
                         className="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/20"
                       >
-                        {r.rating ? "Edit rating" : "Rate"}
+                        {r.rating ? t("Edit rating") : t("Rate")}
                       </button>
                     )}
                     {!r.attended && !isPast && (
                       <button
                         onClick={() => setQrTarget(r)}
-                        aria-label={`Check-in QR for ${r.event.title}`}
-                        title="Check-in QR"
+                        aria-label={t("Check-in QR for {title}", { title: r.event.title })}
+                        title={t("Check-in QR")}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-500 dark:hover:bg-primary-900/20"
                       >
                         <FaQrcode className="text-sm" />
@@ -212,8 +214,8 @@ export default function Profile() {
                     {!r.attended && !isPast && (
                       <button
                         onClick={() => handleUnregister(r.event._id)}
-                        aria-label={`Unregister from ${r.event.title}`}
-                        title="Unregister"
+                        aria-label={t("Unregister from {title}", { title: r.event.title })}
+                        title={t("Unregister")}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                       >
                         <FaTimes className="text-sm" />
@@ -225,18 +227,18 @@ export default function Profile() {
             })}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No event history yet.</p>
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{t("No event history yet.")}</p>
         )}
       </div>
 
       <CheckInQrModal registration={qrTarget} onClose={() => setQrTarget(null)} />
 
-      <Modal isOpen={!!rateTarget} onClose={() => setRateTarget(null)} title="How was the event?" size="sm">
+      <Modal isOpen={!!rateTarget} onClose={() => setRateTarget(null)} title={t("How was the event?")} size="sm">
         <form onSubmit={handleSubmitRating} className="space-y-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">{rateTarget?.event?.title}</p>
           <StarRating value={ratingDraft} onChange={setRatingDraft} disabled={ratingSaving} />
           <div>
-            <label className="label-field" htmlFor="rate-comment">Comments (optional)</label>
+            <label className="label-field" htmlFor="rate-comment">{t("Comments (optional)")}</label>
             <textarea
               id="rate-comment"
               rows={3}
@@ -244,40 +246,40 @@ export default function Profile() {
               className="input-field"
               value={commentDraft}
               onChange={(e) => setCommentDraft(e.target.value)}
-              placeholder="What went well? What could be better?"
+              placeholder={t("What went well? What could be better?")}
             />
             <p className="mt-1 text-right text-xs text-slate-500 dark:text-slate-400">{commentDraft.length}/500</p>
           </div>
           <Button type="submit" className="w-full" disabled={ratingSaving}>
-            {ratingSaving ? "Saving..." : "Submit feedback"}
+            {ratingSaving ? t("Saving...") : t("Submit feedback")}
           </Button>
         </form>
       </Modal>
 
-      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title="Edit profile" size="sm">
+      <Modal isOpen={editOpen} onClose={() => setEditOpen(false)} title={t("Edit profile")} size="sm">
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="label-field" htmlFor="edit-name">Full name</label>
+            <label className="label-field" htmlFor="edit-name">{t("Full name")}</label>
             <input data-autofocus id="edit-name" name="name" maxLength={80} className="input-field" value={form.name} onChange={handleChange} />
           </div>
           <div>
-            <label className="label-field" htmlFor="edit-studentId">Student ID</label>
+            <label className="label-field" htmlFor="edit-studentId">{t("Student ID")}</label>
             <input id="edit-studentId" name="studentId" maxLength={30} className="input-field" value={form.studentId} onChange={handleChange} />
           </div>
           <div>
-            <label className="label-field" htmlFor="edit-program">Program</label>
+            <label className="label-field" htmlFor="edit-program">{t("Program")}</label>
             <input id="edit-program" name="program" maxLength={80} className="input-field" value={form.program} onChange={handleChange} />
           </div>
           <div>
-            <label className="label-field" htmlFor="edit-semester">Semester</label>
+            <label className="label-field" htmlFor="edit-semester">{t("Semester")}</label>
             <input id="edit-semester" name="semester" maxLength={20} className="input-field" value={form.semester} onChange={handleChange} />
           </div>
           <div>
-            <label className="label-field" htmlFor="edit-phone">Phone number</label>
+            <label className="label-field" htmlFor="edit-phone">{t("Phone number")}</label>
             <input id="edit-phone" name="phone" maxLength={20} className="input-field" value={form.phone} onChange={handleChange} />
           </div>
           <Button type="submit" className="w-full" disabled={saving}>
-            {saving ? "Saving..." : "Save changes"}
+            {saving ? t("Saving...") : t("Save changes")}
           </Button>
         </form>
       </Modal>
