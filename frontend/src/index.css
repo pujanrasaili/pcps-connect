@@ -131,3 +131,10 @@ input:-webkit-autofill:focus {
     transition-delay: 0ms !important;
   }
 }
+
+/* Nepali (Devanagari) text: letters are joined into connected shapes, so wide
+   letter-spacing and forced capitals (made for Latin text) would break or look
+   odd, and the tall marks above and below the line need a little more room. */
+html[lang="ne"] .uppercase { text-transform: none; }
+html[lang="ne"] [class*="tracking-"] { letter-spacing: normal; }
+html[lang="ne"] :is(h1, h2, h3) { line-height: 1.35; }
