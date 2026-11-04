@@ -7,7 +7,7 @@ import { ne } from "../src/i18n/ne.js";
 const read = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const FILES = [
   "components/Navbar.jsx", "components/Footer.jsx", "components/HeroSection.jsx", "components/EventCard.jsx",
-  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx", "pages/Register.jsx", "pages/Contact.jsx", "pages/ForgotPassword.jsx", "pages/ResetPassword.jsx",
+  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx", "pages/Register.jsx", "pages/Contact.jsx", "pages/ForgotPassword.jsx", "pages/ResetPassword.jsx", "pages/Dashboard.jsx", "components/LoadFailedBanner.jsx", "components/Sidebar.jsx", "components/DashboardCharts.jsx",
 ];
 
 test("English stays English, Nepali is looked up, and unknown text falls back to English", () => {
@@ -53,6 +53,9 @@ test("labels that reach t() through variables are translated too", () => {
     "Full name is required.", "Enter a valid email address.", "Registration is limited to PCPS email addresses (@patancollege.edu.np).",
     "Student ID is required.", "Password must be at least 8 characters.", "Passwords do not match.", "You must accept the terms to continue.",
     "Name is required.", "Enter a valid email.", "Please write a message.",
+    "your registrations", "your event history", "Today", "Tomorrow", "{n} event", "{n} events",
+    "Join a club", "Clubs you join send you their events.", "Pick a favourite club", "Tap the heart on a club to bookmark it.",
+    "Register for an event", "Your QR code and reminders appear here.",
   ];
   assert.deepEqual(dynamic.filter((k) => !(k in ne)), []);
 });
