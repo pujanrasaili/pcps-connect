@@ -1,25 +1,26 @@
 import { Link } from "react-router-dom";
 import { FaHome, FaCompass } from "react-icons/fa";
+import { useLang } from "../context/LanguageContext";
 import shield from "../assets/images/pcps-shield.webp";
 
 export default function NotFound() {
+  const { t } = useLang();
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
       <img src={shield} alt="" className="h-24 w-auto rounded-2xl opacity-80 animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
       <h1 className="mt-6 font-display text-6xl font-extrabold text-gradient-brand">404</h1>
       <h2 className="mt-2 font-display text-2xl font-semibold text-slate-800 dark:text-slate-100">
-        Page not found
+        {t("Page not found")}
       </h2>
       <p className="mt-2 max-w-md text-slate-500 dark:text-slate-400">
-        The page you're looking for doesn't exist or may have been moved.
-        Let's get you back on track.
+        {t("The page you're looking for doesn't exist or may have been moved. Let's get you back on track.")}
       </p>
       <div className="mt-7 flex flex-wrap justify-center gap-4">
         <Link to="/" className="btn-primary">
-          <FaHome /> Back to home
+          <FaHome /> {t("Back to home")}
         </Link>
         <Link to="/events" className="btn-outline">
-          <FaCompass /> Browse events
+          <FaCompass /> {t("Browse events")}
         </Link>
       </div>
     </div>
