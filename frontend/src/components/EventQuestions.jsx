@@ -6,6 +6,7 @@ import { useToast } from "../context/ToastContext";
 import { formatDate } from "../utils/formatDate";
 import ConfirmDialog from "./ConfirmDialog";
 import Button from "./Button";
+import { useLang } from "../context/LanguageContext";
 
 const MAX_QUESTION = 300;
 const MAX_ANSWER = 1000;
@@ -17,6 +18,7 @@ const MAX_ANSWER = 1000;
 // are shown, so a student's full name is never public.
 export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthenticated }) {
   const toast = useToast();
+  const { t } = useLang();
   const [questions, setQuestions] = useState(null); // null = loading
   const [draft, setDraft] = useState("");
   const [asking, setAsking] = useState(false);
@@ -46,9 +48,9 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
       const res = await api.post(`/events/${eventId}/questions`, { question: draft });
       setQuestions((prev) => [res.data.question, ...(prev || [])]);
       setDraft("");
-      toast.success("Question posted. You'll get an email when it's answered.");
+      toast.success(t("Question posted. You'll get an email when it's answered."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't post your question"));
+      toast.error(getErrorMessage(err, t("Couldn't post your question")));
     } finally {
       setAsking(false);
     }
@@ -69,9 +71,9 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
       setQuestions((prev) => prev.map((q) => (q._id === answering ? { ...q, ...saved, mine: q.mine } : q)));
       setAnswering(null);
       setAnswerDraft("");
-      toast.success("Answer saved.");
+      toast.success(t("Answer saved."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't save the answer"));
+      toast.error(getErrorMessage(err, t("Couldn't save the answer")));
     } finally {
       setSavingAnswer(false);
     }
@@ -83,9 +85,9 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
       await api.delete(`/events/${eventId}/questions/${deleteTarget._id}`);
       setQuestions((prev) => prev.filter((q) => q._id !== deleteTarget._id));
       setDeleteTarget(null);
-      toast.success("Question deleted.");
+      toast.success(t("Question deleted."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't delete the question"));
+      toast.error(getErrorMessage(err, t("Couldn't delete the question")));
     } finally {
       setDeleting(false);
     }
@@ -98,14 +100,14 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
   return (
     <section aria-labelledby="event-questions-heading" className="card-surface p-6">
       <h2 id="event-questions-heading" className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">
-        Questions &amp; answers
+        {t("Questions & answers")}
       </h2>
 
       {!eventOver &&
         (isAuthenticated ? (
           <form onSubmit={handleAsk} className="mt-4">
             <label htmlFor="event-question-draft" className="label-field">
-              Ask the organisers
+              {t("Ask the organisers")}
             </label>
             <textarea
               id="event-question-draft"
@@ -113,15 +115,15 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
               maxLength={MAX_QUESTION}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="For example: is food provided, or should I bring a laptop?"
+              placeholder={t("For example: is food provided, or should I bring a laptop?")}
               className="input-field resize-none"
             />
             <div className="mt-2 flex items-center justify-between gap-3">
               <span className="text-xs text-slate-600 dark:text-slate-300">
-                {draft.length} / {MAX_QUESTION} · your first name is shown
+                {t("{n} / {max} · your first name is shown", { n: draft.length, max: MAX_QUESTION })}
               </span>
               <Button type="submit" disabled={asking || draft.trim().length < 3}>
-                {asking ? "Posting..." : "Ask"}
+                {asking ? t("Posting...") : t("Ask")}
               </Button>
             </div>
           </form>
@@ -132,36 +134,36 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
               state={{ from: `/events/${eventId}` }}
               className="font-semibold text-primary-600 hover:underline dark:text-primary-300"
             >
-              Log in
+              {t("Log in")}
             </Link>{" "}
-            to ask the organisers a question.
+            {t("to ask the organisers a question.")}
           </p>
         ))}
 
       {questions.length === 0 ? (
-        <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">No questions yet.</p>
+        <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{t("No questions yet.")}</p>
       ) : (
         <ul className="mt-4 space-y-4">
           {questions.map((q) => (
             <li key={q._id} className="rounded-xl border border-slate-100 p-4 dark:border-slate-800">
               <p className="whitespace-pre-line break-words text-sm font-medium text-slate-800 dark:text-slate-100">{q.question}</p>
               <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                {q.authorName} asked · {formatDate(q.createdAt)}
+                {t("{name} asked", { name: q.authorName })} · {formatDate(q.createdAt)}
               </p>
 
               {q.answer ? (
                 <div className="mt-3 rounded-lg bg-primary-50 p-3 dark:bg-primary-900/20">
                   <p className="whitespace-pre-line break-words text-sm text-slate-800 dark:text-slate-100">{q.answer}</p>
-                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">Answered by {q.answeredByName || "the organisers"}</p>
+                  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{q.answeredByName ? t("Answered by {name}", { name: q.answeredByName }) : t("Answered by the organisers")}</p>
                 </div>
               ) : (
-                <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">Waiting for an answer</p>
+                <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-300">{t("Waiting for an answer")}</p>
               )}
 
               {answering === q._id && (
                 <form onSubmit={handleAnswer} className="mt-3">
                   <label htmlFor={`answer-${q._id}`} className="sr-only">
-                    Your answer
+                    {t("Your answer")}
                   </label>
                   <textarea
                     id={`answer-${q._id}`}
@@ -174,14 +176,14 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
                   />
                   <div className="mt-2 flex items-center justify-between gap-3">
                     <span className="text-xs text-slate-600 dark:text-slate-300">
-                      {answerDraft.length} / {MAX_ANSWER} · public
+                      {t("{n} / {max} · public", { n: answerDraft.length, max: MAX_ANSWER })}
                     </span>
                     <div className="flex gap-2">
                       <Button type="button" variant="outline" onClick={() => setAnswering(null)}>
-                        Cancel
+                        {t("Cancel")}
                       </Button>
                       <Button type="submit" disabled={savingAnswer || !answerDraft.trim()}>
-                        {savingAnswer ? "Saving..." : "Save answer"}
+                        {savingAnswer ? t("Saving...") : t("Save answer")}
                       </Button>
                     </div>
                   </div>
@@ -196,13 +198,13 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
                       onClick={() => startAnswer(q)}
                       className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 hover:underline dark:text-primary-300"
                     >
-                      <FaReply aria-hidden="true" /> {q.answer ? "Edit answer" : "Answer"}
+                      <FaReply aria-hidden="true" /> {q.answer ? t("Edit answer") : t("Answer")}
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(q)}
-                    aria-label={`Delete the question from ${q.authorName}`}
+                    aria-label={t("Delete the question from {name}", { name: q.authorName })}
                     className="ml-auto flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:text-slate-300 dark:hover:bg-rose-900/20"
                   >
                     <FaTrash className="text-xs" />
@@ -218,8 +220,8 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        title="Delete this question?"
-        message="The question and its answer will be removed from the event page. This can't be undone."
+        title={t("Delete this question?")}
+        message={t("The question and its answer will be removed from the event page. This can't be undone.")}
         confirming={deleting}
       />
     </section>
