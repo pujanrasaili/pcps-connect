@@ -12,6 +12,8 @@ import {
   FaSearch,
 } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
+import { useLang } from "../context/LanguageContext";
+import LanguageToggle from "./LanguageToggle";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import SearchDialog from "./SearchDialog";
@@ -34,6 +36,7 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const menuRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
+  const { t } = useLang();
   const { isAuthenticated, user, logout } = useAuth();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { clubs: ledClubs } = useLedClubs();
@@ -116,7 +119,7 @@ export default function Navbar() {
         <div className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
             <NavLink key={link.to} to={link.to} className={linkClass} end={link.to === "/"}>
-              {link.label}
+              {t(link.label)}
             </NavLink>
           ))}
         </div>
@@ -124,16 +127,17 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <button
             onClick={() => setSearchOpen(true)}
-            aria-label="Search clubs and events"
-            title="Search (press /)"
+            aria-label={t("Search clubs and events")}
+            title={t("Search (press /)")}
             className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <FaSearch />
           </button>
           {isAuthenticated && isDesktop && <NotificationBell />}
+          <LanguageToggle />
           <button
             onClick={toggleTheme}
-            aria-label="Toggle dark mode"
+            aria-label={t("Toggle dark mode")}
             className="rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
@@ -157,28 +161,28 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
-                    <FaTachometerAlt /> Dashboard
+                    <FaTachometerAlt /> {t("Dashboard")}
                   </Link>
                   <Link
                     to="/profile"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
-                    <FaUserCircle /> Profile
+                    <FaUserCircle /> {t("Profile")}
                   </Link>
                   <Link
                     to="/settings"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
-                    <FaCog /> Settings
+                    <FaCog /> {t("Settings")}
                   </Link>
                   <hr className="my-1 border-slate-100 dark:border-slate-800" />
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/20"
                   >
-                    <FaSignOutAlt /> Log out
+                    <FaSignOutAlt /> {t("Log out")}
                   </button>
                 </div>
               )}
@@ -186,10 +190,10 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-3">
               <Link to="/login" className="btn-ghost">
-                Log in
+                {t("Log in")}
               </Link>
               <Link to="/register" className="btn-primary">
-                Sign up
+                {t("Sign up")}
               </Link>
             </div>
           )}
@@ -198,22 +202,23 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:hidden">
           <button
             onClick={() => setSearchOpen(true)}
-            aria-label="Search clubs and events"
+            aria-label={t("Search clubs and events")}
             className="rounded-full p-2 text-slate-500 dark:text-slate-400"
           >
             <FaSearch />
           </button>
           {isAuthenticated && !isDesktop && <NotificationBell />}
+          <LanguageToggle />
           <button
             onClick={toggleTheme}
-            aria-label="Toggle dark mode"
+            aria-label={t("Toggle dark mode")}
             className="rounded-full p-2 text-slate-500 dark:text-slate-400"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
           <button
             onClick={() => setOpen((o) => !o)}
-            aria-label="Toggle navigation menu"
+            aria-label={t("Toggle navigation menu")}
             aria-expanded={open}
             className="rounded-full p-2 text-slate-600 dark:text-slate-300"
           >
@@ -239,17 +244,17 @@ export default function Navbar() {
                 }
                 end={link.to === "/"}
               >
-                {link.label}
+                {t(link.label)}
               </NavLink>
             ))}
             <hr className="my-2 border-slate-100 dark:border-slate-800" />
             {isAuthenticated ? (
               <>
                 <NavLink to="/profile" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Profile
+                  {t("Profile")}
                 </NavLink>
                 <NavLink to="/settings" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Settings
+                  {t("Settings")}
                 </NavLink>
                 <button
                   onClick={() => {
@@ -258,16 +263,16 @@ export default function Navbar() {
                   }}
                   className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-rose-600 dark:text-rose-400"
                 >
-                  Log out
+                  {t("Log out")}
                 </button>
               </>
             ) : (
               <div className="flex gap-3 px-3 pt-1">
                 <Link to="/login" onClick={() => setOpen(false)} className="btn-outline flex-1">
-                  Log in
+                  {t("Log in")}
                 </Link>
                 <Link to="/register" onClick={() => setOpen(false)} className="btn-primary flex-1">
-                  Sign up
+                  {t("Sign up")}
                 </Link>
               </div>
             )}

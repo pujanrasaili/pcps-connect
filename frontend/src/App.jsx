@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
 import { EventsProvider } from "./context/EventsContext";
@@ -13,6 +14,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
+        <LanguageProvider>
         <ToastProvider>
           <AuthProvider>
             <EventsProvider>
@@ -28,6 +30,7 @@ export default function App() {
             </EventsProvider>
           </AuthProvider>
         </ToastProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

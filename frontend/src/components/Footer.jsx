@@ -8,6 +8,7 @@ import {
   FaPhoneAlt,
 } from "react-icons/fa";
 import { FaTiktok } from "react-icons/fa6";
+import { useLang } from "../context/LanguageContext";
 import logo from "../assets/images/pcps-logo.webp";
 
 const SOCIAL_LINKS = [
@@ -20,6 +21,7 @@ const SOCIAL_LINKS = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { t } = useLang();
 
   return (
     <footer className="border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
@@ -27,8 +29,7 @@ export default function Footer() {
         <div>
           <img src={logo} alt="PCPS College" className="h-10 w-auto" />
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            Empowering students of Patan College of Professional Studies to
-            learn, lead, and grow through clubs and events.
+            {t("Empowering students of Patan College of Professional Studies to learn, lead, and grow through clubs and events.")}
           </p>
           <div className="mt-5 flex gap-3">
             {SOCIAL_LINKS.map(({ Icon, href, label }) => (
@@ -48,7 +49,7 @@ export default function Footer() {
 
         <div>
           <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
-            Quick Links
+            {t("Quick Links")}
           </h2>
           <ul className="mt-4 space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
             {[
@@ -60,7 +61,7 @@ export default function Footer() {
             ].map(([label, to]) => (
               <li key={to}>
                 <Link to={to} className="hover:text-primary-500 transition-colors">
-                  {label}
+                  {t(label)}
                 </Link>
               </li>
             ))}
@@ -69,7 +70,7 @@ export default function Footer() {
 
         <div>
           <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
-            Account
+            {t("Account")}
           </h2>
           <ul className="mt-4 space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
             {[
@@ -84,7 +85,7 @@ export default function Footer() {
             ].map(([label, to]) => (
               <li key={to}>
                 <Link to={to} className="hover:text-primary-500 transition-colors">
-                  {label}
+                  {t(label)}
                 </Link>
               </li>
             ))}
@@ -93,12 +94,12 @@ export default function Footer() {
 
         <div>
           <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
-            Contact
+            {t("Contact")}
           </h2>
           <ul className="mt-4 space-y-3 text-sm text-slate-500 dark:text-slate-400">
             <li className="flex items-start gap-2.5">
               <FaMapMarkerAlt className="mt-0.5 shrink-0 text-primary-500" />
-              PCPS College, Kandevatasthan, Lalitpur, Nepal
+              {t("PCPS College, Kandevatasthan, Lalitpur, Nepal")}
             </li>
             <li className="flex items-center gap-2.5">
               <FaPhoneAlt className="shrink-0 text-primary-500" /> 01-5181198
@@ -108,7 +109,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-slate-100 py-5 text-center text-xs text-slate-500 dark:text-slate-400 dark:border-slate-800">
-        © {year} Patan College of Professional Studies. PCPS Connect — Club & Event Management System.
+        © {year} {t("Patan College of Professional Studies. PCPS Connect — Club & Event Management System.")}
       </div>
     </footer>
   );

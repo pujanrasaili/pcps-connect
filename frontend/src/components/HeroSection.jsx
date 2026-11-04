@@ -4,9 +4,11 @@ import { FaArrowRight, FaCalendarCheck } from "react-icons/fa";
 import campusBuilding from "../assets/images/campus-building.webp";
 import { api } from "../services/api";
 import { sharedRequest } from "../utils/sharedRequest";
+import { useLang } from "../context/LanguageContext";
 
 export default function HeroSection() {
   const imgRef = useRef(null);
+  const { t } = useLang();
 
   // Real counts from the database, not placeholder marketing numbers --
   // the Home page's own Stats section pulls from the same endpoint, so
@@ -47,7 +49,7 @@ export default function HeroSection() {
         <img
           ref={imgRef}
           src={campusBuilding}
-          alt="PCPS College campus building"
+          alt={t("PCPS College campus building")}
           className="absolute inset-0 h-full w-full object-cover will-change-transform"
           style={{ transform: "scale(1.1)" }}
         />
@@ -58,23 +60,21 @@ export default function HeroSection() {
         <div className="container-page relative flex h-full items-center">
           <div className="max-w-xl text-white animate-slide-up">
             <span className="badge border border-white/20 bg-white/10 text-white/90 backdrop-blur">
-              Patan College of Professional Studies
+              {t("Patan College of Professional Studies")}
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold leading-tight sm:text-5xl">
-              Where PCPS students <br className="hidden sm:block" />
-              <span className="text-gradient-brand-light">learn, lead,</span> and belong.
+              {t("Where PCPS students")} <br className="hidden sm:block" />
+              <span className="text-gradient-brand-light">{t("learn, lead,")}</span> {t("and belong.")}
             </h1>
             <p className="mt-5 max-w-lg text-slate-200">
-              Discover clubs that match your passion, register for events in
-              seconds, and track every step of your campus journey — all in
-              one place.
+              {t("Discover clubs that match your passion, register for events in seconds, and track every step of your campus journey — all in one place.")}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link to="/clubs" className="btn-on-dark">
-                Explore Clubs <FaArrowRight />
+                {t("Explore Clubs")} <FaArrowRight />
               </Link>
               <Link to="/events" className="btn-outline-on-dark">
-                <FaCalendarCheck /> Browse Events
+                <FaCalendarCheck /> {t("Browse Events")}
               </Link>
             </div>
             <div className="mt-10 flex flex-wrap gap-8 border-t border-white/15 pt-6">
@@ -85,7 +85,7 @@ export default function HeroSection() {
               ].map(([num, label]) => (
                 <div key={label}>
                   <p className="font-display text-2xl font-bold">{num}</p>
-                  <p className="text-sm text-slate-300">{label}</p>
+                  <p className="text-sm text-slate-300">{t(label)}</p>
                 </div>
               ))}
             </div>
