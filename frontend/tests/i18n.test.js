@@ -7,7 +7,7 @@ import { ne } from "../src/i18n/ne.js";
 const read = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const FILES = [
   "components/Navbar.jsx", "components/Footer.jsx", "components/HeroSection.jsx", "components/EventCard.jsx",
-  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx",
+  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx",
 ];
 
 test("English stays English, Nepali is looked up, and unknown text falls back to English", () => {
@@ -49,7 +49,7 @@ test("labels that reach t() through variables are translated too", () => {
     "Active Clubs", "Members", "Events Hosted", "Registered Students", "Event Registrations",
     "Upcoming", "This week", "Past", "Registered", "Saved", "List", "Calendar",
     "Joined", "Request sent", "Request to join", "Join Club", "Tap to leave this club",
-    "Waiting for the club's leaders. Tap to withdraw", "Free",
+    "Waiting for the club's leaders. Tap to withdraw", "Free", "Default order", "Most members", "Name (A-Z)",
   ];
   assert.deepEqual(dynamic.filter((k) => !(k in ne)), []);
 });
