@@ -95,6 +95,7 @@ pcps-connect/
 - Each event page suggests "More events you may like": upcoming events from the same club first, then the same category
 - "Save for later" bookmark on every event card and event page, and a "Saved" tab on the Events page; kept in your own browser, so no login is needed; upcoming saved events also show on the student dashboard
 - A Help & FAQ page (`/help`, linked in the footer) answers the common questions: signing up and approval, registering, waitlists, QR check-in, certificates, reminders and data export
+- Nepali language option (first part): a "नेपाली" / "English" switch in the top bar translates the menu, footer, home page, events and clubs cards, the Events page and the login page; text not yet translated stays in English, the choice is remembered on the device, and Devanagari gets its own typography rules
 - Contact form that actually emails the college
 - Branded HTML emails (verification, password reset, notifications) instead of plain text
 - Toast notifications for every action, and a graceful fallback screen if anything ever crashes

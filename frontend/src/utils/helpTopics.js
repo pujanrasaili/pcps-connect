@@ -140,6 +140,13 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "nepali",
+    question: "Can I use the site in Nepali?",
+    answer: [
+      'Yes. Press "नेपाली" in the top bar (and "English" to switch back). The menu, footer, home page, events and clubs pages and the login page are translated so far; anything not yet translated stays in English. Your choice is remembered on this device.',
+    ],
+  },
+  {
     id: "slow",
     question: "Why is the first page so slow sometimes?",
     answer: [
