@@ -7,6 +7,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import Avatar from "./Avatar";
 
 const LINKS = [
@@ -19,6 +20,7 @@ const LINKS = [
 
 export default function Sidebar({ className = "" }) {
   const { user } = useAuth();
+  const { t } = useLang();
 
   return (
     <aside className={`card-surface flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-5 ${className}`}>
@@ -34,7 +36,7 @@ export default function Sidebar({ className = "" }) {
         </div>
       </div>
 
-      <nav aria-label="Dashboard menu" className="flex flex-wrap gap-1 lg:flex-col">
+      <nav aria-label={t("Dashboard menu")} className="flex flex-wrap gap-1 lg:flex-col">
         {LINKS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -47,7 +49,7 @@ export default function Sidebar({ className = "" }) {
               }`
             }
           >
-            <Icon className="text-base" /> {label}
+            <Icon className="text-base" /> {t(label)}
           </NavLink>
         ))}
       </nav>
