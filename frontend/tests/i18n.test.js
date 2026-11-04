@@ -7,7 +7,7 @@ import { ne } from "../src/i18n/ne.js";
 const read = (p) => readFileSync(new URL(`../src/${p}`, import.meta.url), "utf8");
 const FILES = [
   "components/Navbar.jsx", "components/Footer.jsx", "components/HeroSection.jsx", "components/EventCard.jsx",
-  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx", "pages/Register.jsx", "pages/Contact.jsx",
+  "components/ClubCard.jsx", "components/LanguageToggle.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Events.jsx", "pages/Clubs.jsx", "components/FilterButtons.jsx", "pages/Register.jsx", "pages/Contact.jsx", "pages/ForgotPassword.jsx", "pages/ResetPassword.jsx",
 ];
 
 test("English stays English, Nepali is looked up, and unknown text falls back to English", () => {
