@@ -17,6 +17,7 @@ import {
   FaRegBookmark,
 } from "react-icons/fa";
 import { useEvents } from "../context/EventsContext";
+import { useLang } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import EventQuestions from "../components/EventQuestions";
@@ -41,6 +42,7 @@ import SafeImage from "../components/SafeImage";
 
 export default function EventDetails() {
   const { id } = useParams();
+  const { t } = useLang();
   const { getEventById, events: allEvents, refreshEvents } = useEvents();
   const { isAuthenticated, user } = useAuth();
   const { clubs: ledClubs } = useLedClubs();
@@ -166,12 +168,12 @@ export default function EventDetails() {
   if (loadFailed && !event) {
     return (
       <div className="container-page flex min-h-[60vh] flex-col items-center justify-center text-center" role="alert">
-        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">Couldn't load this event</h1>
+        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">{t("Couldn't load this event")}</h1>
         <p className="mt-2 max-w-md text-slate-500 dark:text-slate-400">
-          The server may be waking up or your connection dropped. The event is still there; give it a moment and try again.
+          {t("The server may be waking up or your connection dropped. The event is still there; give it a moment and try again.")}
         </p>
         <button type="button" onClick={() => setLoadAttempt((n) => n + 1)} className="btn-primary mt-5">
-          Try again
+          {t("Try again")}
         </button>
       </div>
     );
@@ -197,9 +199,9 @@ export default function EventDetails() {
     try {
       const res = await api.post(`/waitlist/${event._id}`);
       setWaitlist({ onWaitlist: true, position: res.data.position });
-      toast.success("You're on the waitlist. We'll email you if a spot opens.");
+      toast.success(t("You're on the waitlist. We'll email you if a spot opens."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't join the waitlist"));
+      toast.error(getErrorMessage(err, t("Couldn't join the waitlist")));
     } finally {
       setWaitlistBusy(false);
     }
@@ -210,9 +212,9 @@ export default function EventDetails() {
     try {
       await api.delete(`/waitlist/${event._id}`);
       setWaitlist({ onWaitlist: false });
-      toast.info("Removed from the waitlist.");
+      toast.info(t("Removed from the waitlist."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't leave the waitlist"));
+      toast.error(getErrorMessage(err, t("Couldn't leave the waitlist")));
     } finally {
       setWaitlistBusy(false);
     }
@@ -226,9 +228,9 @@ export default function EventDetails() {
   const handleShare = async () => {
     try {
       const result = await shareEvent(event);
-      if (result === "copied") toast.success("Link copied to clipboard.");
+      if (result === "copied") toast.success(t("Link copied to clipboard."));
     } catch {
-      toast.error("Couldn't share this event. Copy the link from your address bar instead.");
+      toast.error(t("Couldn't share this event. Copy the link from your address bar instead."));
     }
   };
 
@@ -245,14 +247,14 @@ export default function EventDetails() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/55 to-slate-900/15" />
         <div className="container-page absolute inset-x-0 bottom-6 text-white">
           <Link to="/events" className="mb-3 flex w-fit items-center gap-1.5 text-sm text-white hover:underline">
-            <FaArrowLeft className="text-xs" /> Back to events
+            <FaArrowLeft className="text-xs" /> {t("Back to events")}
           </Link>
           <div className="flex flex-wrap gap-2">
             {event.category && <span className="badge bg-white/20 backdrop-blur">{event.category}</span>}
             {event.club?.name && (
-              <span className="badge max-w-full bg-white/20 backdrop-blur">Hosted by {event.club.name}</span>
+              <span className="badge max-w-full bg-white/20 backdrop-blur">{t("Hosted by {name}", { name: event.club.name })}</span>
             )}
-            {isPast && <span className="badge bg-slate-700/60 backdrop-blur">Past event</span>}
+            {isPast && <span className="badge bg-slate-700/60 backdrop-blur">{t("Past event")}</span>}
           </div>
           <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{event.title}</h1>
         </div>
@@ -262,7 +264,7 @@ export default function EventDetails() {
         <div className="space-y-8">
           <div className="card-surface p-6">
             <h2 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">
-              About this event
+              {t("About this event")}
             </h2>
             <p className="mt-3 text-slate-600 dark:text-slate-300">{event.description}</p>
           </div>
@@ -270,7 +272,7 @@ export default function EventDetails() {
           {event.createdBy && (
             <div className="card-surface p-6">
               <h2 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">
-                Organizer
+                {t("Organizer")}
               </h2>
               <div className="mt-4 flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full gradient-brand text-white font-semibold">
@@ -286,9 +288,9 @@ export default function EventDetails() {
                     !isAuthenticated && (
                       <p className="text-sm text-slate-500 dark:text-slate-400">
                         <Link to="/login" state={{ from: `/events/${event._id}` }} className="font-semibold text-primary-600 hover:underline dark:text-primary-300">
-                          Log in
+                          {t("Log in")}
                         </Link>{" "}
-                        to see their contact email
+                        {t("to see their contact email")}
                       </p>
                     )
                   )}
@@ -321,20 +323,20 @@ export default function EventDetails() {
               <li className="flex items-center gap-3">
                 <FaUsers className="shrink-0 text-primary-500" />
                 <span className="text-slate-600 dark:text-slate-300">
-                  {registeredCount}/{capacity} registered
+                  {t("{count}/{capacity} registered", { count: registeredCount, capacity })}
                 </span>
               </li>
               {event.averageRating != null && (
                 <li className="flex items-center gap-3">
                   <Stars value={Math.round(event.averageRating)} />
                   <span className="text-slate-600 dark:text-slate-300">
-                    {event.averageRating.toFixed(1)} · {event.ratingCount} rating{event.ratingCount > 1 ? "s" : ""}
+                    {event.averageRating.toFixed(1)} · {t(event.ratingCount > 1 ? "{n} ratings" : "{n} rating", { n: event.ratingCount })}
                   </span>
                 </li>
               )}
               <li className="flex items-center gap-3">
                 <FaTag className="shrink-0 text-primary-500" />
-                <span className="text-slate-600 dark:text-slate-300">{event.price || "Free"}</span>
+                <span className="text-slate-600 dark:text-slate-300">{event.price ? t(event.price) : t("Free")}</span>
               </li>
             </ul>
 
@@ -350,7 +352,7 @@ export default function EventDetails() {
               onClick={handleShare}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
             >
-              <FaShareAlt className="text-xs" /> Share this event
+              <FaShareAlt className="text-xs" /> {t("Share this event")}
             </button>
             <button
               type="button"
@@ -359,37 +361,37 @@ export default function EventDetails() {
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
             >
               {isSaved(event._id) ? <FaBookmark className="text-xs" /> : <FaRegBookmark className="text-xs" />}
-              {isSaved(event._id) ? "Saved for later" : "Save for later"}
+              {isSaved(event._id) ? t("Saved for later") : t("Save for later")}
             </button>
 
             {confirmedHere && isPast ? (
               <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                <FaCheckCircle /> {myRegistration?.attended ? "You attended this event" : "You were registered for this event"}
+                <FaCheckCircle /> {myRegistration?.attended ? t("You attended this event") : t("You were registered for this event")}
               </div>
             ) : pendingHere ? (
               <div className="mt-5 space-y-2">
                 <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-                  Request sent -- waiting for the organisers. A seat is being held for you, and we'll email you when they decide.
+                  {t("Request sent -- waiting for the organisers. A seat is being held for you, and we'll email you when they decide.")}
                 </div>
                 <button
                   onClick={handleUnregister}
                   disabled={unregistering}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
                 >
-                  <FaTimes className="text-xs" /> {unregistering ? "Withdrawing..." : "Withdraw request"}
+                  <FaTimes className="text-xs" /> {unregistering ? t("Withdrawing...") : t("Withdraw request")}
                 </button>
               </div>
             ) : registered ? (
               <div className="mt-5 space-y-2">
                 <div className="flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                  <FaCheckCircle /> You're registered for this event
+                  <FaCheckCircle /> {t("You're registered for this event")}
                 </div>
                 <button
                   type="button"
                   onClick={() => setQrOpen(true)}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
                 >
-                  <FaQrcode /> Show my check-in QR
+                  <FaQrcode /> {t("Show my check-in QR")}
                 </button>
                 <div className="grid grid-cols-2 gap-2">
                   <a
@@ -398,14 +400,14 @@ export default function EventDetails() {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
                   >
-                    <FaCalendarPlus className="text-xs" /> Google Calendar
+                    <FaCalendarPlus className="text-xs" /> {t("Google Calendar")}
                   </a>
                   <button
                     type="button"
                     onClick={() => downloadIcs(event)}
                     className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
                   >
-                    <FaCalendarPlus className="text-xs" /> Download .ics
+                    <FaCalendarPlus className="text-xs" /> {t("Download .ics")}
                   </button>
                 </div>
                 <button
@@ -413,55 +415,55 @@ export default function EventDetails() {
                   disabled={unregistering}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
                 >
-                  <FaTimes className="text-xs" /> {unregistering ? "Unregistering..." : "Unregister"}
+                  <FaTimes className="text-xs" /> {unregistering ? t("Unregistering...") : t("Unregister")}
                 </button>
               </div>
             ) : isPast ? (
               <Button className="mt-5 w-full" disabled variant="outline">
-                Event has ended
+                {t("Event has ended")}
               </Button>
             ) : registrationClosed && !(isFull && isAuthenticated && waitlist?.onWaitlist) ? (
               <Button className="mt-5 w-full" disabled variant="outline">
-                Registration has closed
+                {t("Registration has closed")}
               </Button>
             ) : isFull && isAuthenticated && waitlist?.onWaitlist ? (
               <div className="mt-5 space-y-2">
                 <div className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
-                  You're #{waitlist.position} on the waitlist. We'll register you and email you if a spot opens.
+                  {t("You're #{n} on the waitlist. We'll register you and email you if a spot opens.", { n: waitlist.position })}
                 </div>
                 <button
                   onClick={handleLeaveWaitlist}
                   disabled={waitlistBusy}
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
                 >
-                  <FaTimes className="text-xs" /> {waitlistBusy ? "Leaving..." : "Leave waitlist"}
+                  <FaTimes className="text-xs" /> {waitlistBusy ? t("Leaving...") : t("Leave waitlist")}
                 </button>
               </div>
             ) : isFull && isAuthenticated ? (
               <div className="mt-5 space-y-2">
-                <p className="text-center text-sm text-slate-500 dark:text-slate-400">This event is full.</p>
+                <p className="text-center text-sm text-slate-500 dark:text-slate-400">{t("This event is full.")}</p>
                 <Button className="w-full" variant="outline" onClick={handleJoinWaitlist} disabled={waitlistBusy}>
-                  {waitlistBusy ? "Joining..." : "Join the waitlist"}
+                  {waitlistBusy ? t("Joining...") : t("Join the waitlist")}
                 </Button>
               </div>
             ) : isFull ? (
               <Button className="mt-5 w-full" disabled variant="outline">
-                Registration full
+                {t("Registration full")}
               </Button>
             ) : isAuthenticated ? (
               <>
               {hasOpenDeadline(event) && (
                 <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">
-                  Registration closes {formatDateTime(event.registrationDeadline)}
+                  {t("Registration closes {when}", { when: formatDateTime(event.registrationDeadline) })}
                 </p>
               )}
               <Button className="mt-5 w-full" onClick={handleRegisterClick}>
-                {event.requiresApproval ? "Request to join" : "Register now"}
+                {event.requiresApproval ? t("Request to join") : t("Register now")}
               </Button>
               </>
             ) : (
               <Link to="/login" state={{ from: `/events/${event._id}` }} className="btn-primary mt-5 w-full">
-                Log in to register
+                {t("Log in to register")}
               </Link>
             )}
           </div>
@@ -471,7 +473,7 @@ export default function EventDetails() {
       {related.length > 0 && (
         <section className="container-page pb-16" aria-labelledby="related-events">
           <h2 id="related-events" className="font-display text-xl font-semibold text-slate-900 dark:text-white">
-            More events you may like
+            {t("More events you may like")}
           </h2>
           <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((e) => (
@@ -481,7 +483,7 @@ export default function EventDetails() {
         </section>
       )}
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={event.requiresApproval ? "Request to join this event" : "Register for this event"}>
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={event.requiresApproval ? t("Request to join this event") : t("Register for this event")}>
         <RegistrationForm event={event} onSuccess={() => setShowModal(false)} />
       </Modal>
 
