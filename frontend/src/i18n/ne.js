@@ -1,0 +1,151 @@
+// Nepali versions of the interface text. The English text is the key; any
+// string missing here simply shows in English. Keep {placeholders} exactly as
+// they are in the English text.
+export const ne = {
+  // Top bar and menus
+  Home: "गृहपृष्ठ",
+  Clubs: "क्लबहरू",
+  Events: "कार्यक्रमहरू",
+  Contact: "सम्पर्क",
+  Dashboard: "ड्यासबोर्ड",
+  Admin: "प्रशासक",
+  Manage: "व्यवस्थापन",
+  Profile: "प्रोफाइल",
+  Settings: "सेटिङ",
+  "Log out": "लग आउट",
+  "Log in": "लग इन",
+  "Sign up": "साइन अप",
+  "Toggle dark mode": "डार्क मोड बदल्नुहोस्",
+  "Search clubs and events": "क्लब र कार्यक्रम खोज्नुहोस्",
+  "Search (press /)": "खोज्नुहोस् (/ थिच्नुहोस्)",
+  "Toggle navigation menu": "मेनु खोल्नुहोस् वा बन्द गर्नुहोस्",
+  "Switch to English": "अंग्रेजीमा बदल्नुहोस्",
+
+  // Footer
+  "Empowering students of Patan College of Professional Studies to learn, lead, and grow through clubs and events.":
+    "पाटन कलेज अफ प्रोफेसनल स्टडिजका विद्यार्थीहरूलाई क्लब र कार्यक्रमहरूमार्फत सिक्न, नेतृत्व गर्न र अगाडि बढ्न सशक्त बनाउँदै।",
+  "Quick Links": "छिटो लिंकहरू",
+  Account: "खाता",
+  Login: "लग इन",
+  Register: "दर्ता गर्नुहोस्",
+  "Forgot Password": "पासवर्ड बिर्सनुभयो",
+  "Help & FAQ": "सहयोग र बारम्बार सोधिने प्रश्न",
+  "Terms of Use": "प्रयोगका सर्तहरू",
+  "Privacy Policy": "गोपनीयता नीति",
+  "PCPS College, Kandevatasthan, Lalitpur, Nepal": "पीसीपीएस कलेज, कण्डेवटस्थान, ललितपुर, नेपाल",
+  "Patan College of Professional Studies. PCPS Connect — Club & Event Management System.":
+    "पाटन कलेज अफ प्रोफेसनल स्टडिज। पीसीपीएस कनेक्ट — क्लब तथा कार्यक्रम व्यवस्थापन प्रणाली।",
+
+  // Home: hero
+  "Patan College of Professional Studies": "पाटन कलेज अफ प्रोफेसनल स्टडिज",
+  "Where PCPS students": "जहाँ पीसीपीएसका विद्यार्थीहरू",
+  "learn, lead,": "सिक्छन्, नेतृत्व गर्छन्,",
+  "and belong.": "र आफ्नोपन महसुस गर्छन्।",
+  "Discover clubs that match your passion, register for events in seconds, and track every step of your campus journey — all in one place.":
+    "आफ्नो रुचिसँग मिल्ने क्लबहरू फेला पार्नुहोस्, केही सेकेन्डमै कार्यक्रमहरूमा दर्ता गर्नुहोस्, र आफ्नो क्याम्पस यात्राको हरेक पाइला एकै ठाउँमा हेर्नुहोस्।",
+  "PCPS College campus building": "पीसीपीएस कलेजको क्याम्पस भवन",
+  "Explore Clubs": "क्लबहरू हेर्नुहोस्",
+  "Browse Events": "कार्यक्रमहरू हेर्नुहोस्",
+  "Active Clubs": "सक्रिय क्लबहरू",
+  Members: "सदस्यहरू",
+  "Events Hosted": "आयोजित कार्यक्रमहरू",
+  "Registered Students": "दर्ता भएका विद्यार्थीहरू",
+  "Event Registrations": "कार्यक्रम दर्ताहरू",
+
+  // Home: sections
+  "On Campus": "क्याम्पसमा",
+  "Life at PCPS": "पीसीपीएसको जीवन",
+  "Fests, workshops, and open-air showcases": "महोत्सव, कार्यशाला र खुला आकाशमुनिका प्रदर्शनीहरू",
+  "Clubs bring the courtyard to life throughout the year — from art showcases to tech demos.":
+    "क्लबहरूले वर्षभरि चोकलाई जीवन्त बनाउँछन् — कला प्रदर्शनीदेखि प्रविधि प्रदर्शनसम्म।",
+  "Watch the full PCPS campus reel": "पीसीपीएस क्याम्पसको पूरा भिडियो हेर्नुहोस्",
+  "Watch: A day at PCPS": "हेर्नुहोस्: पीसीपीएसमा एक दिन",
+  "Classes, clubs, and campus moments — click to watch in full.":
+    "कक्षा, क्लब र क्याम्पसका पलहरू — पूरा हेर्न क्लिक गर्नुहोस्।",
+  "Get Involved": "सहभागी बन्नुहोस्",
+  "Featured Clubs": "विशेष क्लबहरू",
+  "View all clubs": "सबै क्लबहरू हेर्नुहोस्",
+  "Mark Your Calendar": "पात्रोमा चिन्ह लगाउनुहोस्",
+  "Upcoming Events": "आगामी कार्यक्रमहरू",
+  "View all events": "सबै कार्यक्रमहरू हेर्नुहोस्",
+
+  "Students at a PCPS college event on campus": "क्याम्पसमा पीसीपीएस कलेजको कार्यक्रममा सहभागी विद्यार्थीहरू",
+  Playing: "चलिरहेको",
+  "Tap to play": "चलाउन थिच्नुहोस्",
+  "Ready to make your mark at PCPS?": "पीसीपीएसमा आफ्नो छाप छोड्न तयार हुनुहुन्छ?",
+  "Join a club, register for an event, and start building the college experience you'll remember.":
+    "क्लबमा सामेल हुनुहोस्, कार्यक्रममा दर्ता गर्नुहोस्, र जीवनभर सम्झिने कलेज अनुभव बनाउन थाल्नुहोस्।",
+  "Create your account": "आफ्नो खाता बनाउनुहोस्",
+  "Browse clubs": "क्लबहरू हेर्नुहोस्",
+  "See all clubs": "सबै क्लबहरू हेर्नुहोस्",
+
+  // Login
+  "Welcome back": "फेरि स्वागत छ",
+  "Log in to your PCPS Connect account": "आफ्नो पीसीपीएस कनेक्ट खातामा लग इन गर्नुहोस्",
+  "Email address": "इमेल ठेगाना",
+  Password: "पासवर्ड",
+  "Forgot password?": "पासवर्ड बिर्सनुभयो?",
+  "Hide password": "पासवर्ड लुकाउनुहोस्",
+  "Show password": "पासवर्ड देखाउनुहोस्",
+  "Didn't get the verification email?": "प्रमाणीकरण इमेल पाउनुभएन?",
+  "Sending...": "पठाउँदै...",
+  "Resend verification email": "प्रमाणीकरण इमेल फेरि पठाउनुहोस्",
+  "Logging in...": "लग इन हुँदै...",
+  "Don't have an account?": "खाता छैन?",
+
+  // Event cards
+  "Past event": "बितेको कार्यक्रम",
+  "Organized by {name}": "आयोजक: {name}",
+  "Fully booked": "सिट भरिएको",
+  "{n} spots left": "{n} सिट बाँकी",
+  "{count}/{capacity} registered": "{count}/{capacity} दर्ता भएका",
+  "Registration closed": "दर्ता बन्द भयो",
+  Free: "निःशुल्क",
+  "Pending approval": "स्वीकृतिको प्रतीक्षामा",
+  Registered: "दर्ता भएको",
+  Details: "विवरण",
+  "Remove {title} from saved events": "{title} लाई सुरक्षित कार्यक्रमबाट हटाउनुहोस्",
+  "Save {title} for later": "{title} पछिका लागि सुरक्षित गर्नुहोस्",
+
+  // Club cards
+  "{name} banner": "{name} को ब्यानर",
+  "Remove from favorite club": "मनपर्ने क्लबबाट हटाउनुहोस्",
+  "Set as favorite club": "मनपर्ने क्लब बनाउनुहोस्",
+  "1 member": "1 सदस्य",
+  "{n} members": "{n} सदस्यहरू",
+  View: "हेर्नुहोस्",
+  Joined: "सामेल भइसक्नुभयो",
+  "Request sent": "अनुरोध पठाइयो",
+  "Request to join": "सामेल हुन अनुरोध गर्नुहोस्",
+  "Join Club": "क्लबमा सामेल हुनुहोस्",
+  "Tap to leave this club": "यो क्लब छाड्न थिच्नुहोस्",
+  "Waiting for the club's leaders. Tap to withdraw": "क्लबका नेताहरूको प्रतीक्षामा। फिर्ता लिन थिच्नुहोस्",
+
+  // Events page
+  "What's Happening": "के हुँदैछ",
+  "Workshops, contests, and seminars hosted by PCPS clubs — register in a couple of clicks.":
+    "पीसीपीएस क्लबहरूले आयोजना गर्ने कार्यशाला, प्रतियोगिता र सेमिनारहरू — केही क्लिकमै दर्ता गर्नुहोस्।",
+  All: "सबै",
+  Upcoming: "आगामी",
+  "This week": "यो हप्ता",
+  Past: "बितेका",
+  Saved: "सुरक्षित",
+  List: "सूची",
+  Calendar: "पात्रो",
+  "Search by name, place or club...": "नाम, ठाउँ वा क्लबबाट खोज्नुहोस्...",
+  "Only events with spots left": "सिट बाँकी भएका कार्यक्रम मात्र",
+  "Free events only": "निःशुल्क कार्यक्रम मात्र",
+  "Events from {club}": "{club} का कार्यक्रमहरू",
+  "this club": "यो क्लब",
+  "Clear club filter": "क्लब फिल्टर हटाउनुहोस्",
+  "You haven't registered for any matching events.": "मिल्दो कुनै कार्यक्रममा तपाईंले दर्ता गर्नुभएको छैन।",
+  "You haven't saved any events yet.": "तपाईंले अहिलेसम्म कुनै कार्यक्रम सुरक्षित गर्नुभएको छैन।",
+  "None of your saved events match.": "तपाईंका सुरक्षित कार्यक्रमहरूमध्ये कुनै मिलेन।",
+  "No upcoming events match your search.": "तपाईंको खोजसँग मिल्ने कुनै आगामी कार्यक्रम छैन।",
+  "Nothing is happening in the next 7 days.": "आगामी ७ दिनमा कुनै कार्यक्रम छैन।",
+  "No past events match your search.": "तपाईंको खोजसँग मिल्ने कुनै बितेको कार्यक्रम छैन।",
+  "Tap the bookmark on an event to keep it here for later.":
+    "कार्यक्रममा रहेको बुकमार्क थिचेर यहाँ पछिका लागि राख्नुहोस्।",
+  "Try a different name or category.": "फरक नाम वा वर्ग प्रयास गर्नुहोस्।",
+  "Clear filters": "फिल्टरहरू हटाउनुहोस्",
+};
