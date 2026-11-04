@@ -1,4 +1,7 @@
+import { useLang } from "../context/LanguageContext";
+
 export default function FilterButtons({ options, active, onChange }) {
+  const { t } = useLang();
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="Filter options">
       {options.map((option) => {
@@ -14,7 +17,7 @@ export default function FilterButtons({ options, active, onChange }) {
                 : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-primary-300"
             }`}
           >
-            {option}
+            {t(option)}
           </button>
         );
       })}

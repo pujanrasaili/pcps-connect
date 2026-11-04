@@ -6,6 +6,7 @@ import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useSavedEvents } from "../hooks/useSavedEvents";
+import { useLang } from "../context/LanguageContext";
 import SafeImage from "./SafeImage";
 
 export default function EventCard({ event }) {
@@ -20,6 +21,7 @@ export default function EventCard({ event }) {
   const { isSaved, toggle } = useSavedEvents();
   const saved = isSaved(event._id);
   const tilt = useTilt({ max: 6, scale: 1.015 });
+  const { t } = useLang();
 
   return (
     <div
@@ -52,12 +54,12 @@ export default function EventCard({ event }) {
         )}
         {isPast && (
           <span className="badge absolute right-3 top-11 bg-slate-800/90 text-white">
-            Past event
+            {t("Past event")}
           </span>
         )}
         <div className="absolute bottom-3 left-4 right-4 text-white">
           <p className="text-xs font-medium opacity-90">
-            {event.createdBy?.name ? `Organized by ${event.createdBy.name}` : ""}
+            {event.createdBy?.name ? t("Organized by {name}", { name: event.createdBy.name }) : ""}
           </p>
           <h3 className="font-display text-lg font-semibold leading-tight">
             {event.title}
@@ -76,15 +78,15 @@ export default function EventCard({ event }) {
         <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <FaUsers className="text-primary-500 shrink-0" />
           {isFull ? (
-            <span className="font-medium text-rose-600 dark:text-rose-400">Fully booked</span>
+            <span className="font-medium text-rose-600 dark:text-rose-400">{t("Fully booked")}</span>
           ) : isFillingUp ? (
-            <span className="font-medium text-amber-700 dark:text-amber-400">{spotsLeft} spots left</span>
+            <span className="font-medium text-amber-700 dark:text-amber-400">{t("{n} spots left", { n: spotsLeft })}</span>
           ) : (
-            <span>{registeredCount}/{capacity} registered</span>
+            <span>{t("{count}/{capacity} registered", { count: registeredCount, capacity })}</span>
           )}
         </div>
         {isRegistrationClosed(event) && !registered && !isPastEvent(event.date) && (
-          <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">Registration closed</p>
+          <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">{t("Registration closed")}</p>
         )}
         {!registered && deadlineSoonLabel(event) && (
           <p className="mt-2 text-sm font-medium text-amber-700 dark:text-amber-400">{deadlineSoonLabel(event)}</p>
@@ -98,16 +100,16 @@ export default function EventCard({ event }) {
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-3">
             <span className="text-sm font-semibold text-primary-600 dark:text-primary-300">
-              {event.price || "Free"}
+              {event.price || t("Free")}
             </span>
             {registered && (
               isPending(event._id) ? (
                 <span className="flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400">
-                  <FaHourglassHalf /> Pending approval
+                  <FaHourglassHalf /> {t("Pending approval")}
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                  <FaCheckCircle /> Registered
+                  <FaCheckCircle /> {t("Registered")}
                 </span>
               )
             )}
@@ -117,13 +119,13 @@ export default function EventCard({ event }) {
               type="button"
               onClick={() => toggle(event._id)}
               aria-pressed={saved}
-              aria-label={saved ? `Remove ${event.title} from saved events` : `Save ${event.title} for later`}
+              aria-label={saved ? t("Remove {title} from saved events", { title: event.title }) : t("Save {title} for later", { title: event.title })}
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-primary-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-primary-300 dark:hover:bg-slate-800/50"
             >
               {saved ? <FaBookmark /> : <FaRegBookmark />}
             </button>
             <Link to={`/events/${event._id}`} className="btn-outline !px-4 !py-2 text-sm">
-              Details
+              {t("Details")}
             </Link>
           </span>
         </div>

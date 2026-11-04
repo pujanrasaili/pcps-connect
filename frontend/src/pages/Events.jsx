@@ -8,6 +8,7 @@ import FilterButtons from "../components/FilterButtons";
 import Reveal from "../components/Reveal";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { usePagination } from "../hooks/usePagination";
@@ -20,6 +21,7 @@ import { hasOpenSpots, isFreeEvent, isThisWeek, readEventFilters, withEventFilte
 const PAGE_SIZE = 9;
 
 export default function Events() {
+  const { t } = useLang();
   const { events, loading, error } = useEvents();
   const { isAuthenticated } = useAuth();
   const { registrations } = useRegistrations();
@@ -114,14 +116,13 @@ export default function Events() {
       <div className="container-page">
         <div className="text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">
-            What's Happening
+            {t("What's Happening")}
           </span>
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
-            Events
+            {t("Events")}
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-slate-500 dark:text-slate-400">
-            Workshops, contests, and seminars hosted by PCPS clubs — register
-            in a couple of clicks.
+            {t("Workshops, contests, and seminars hosted by PCPS clubs — register in a couple of clicks.")}
           </p>
         </div>
 
@@ -146,7 +147,7 @@ export default function Events() {
                     : "text-slate-600 dark:text-slate-400"
                 }`}
               >
-                {label}
+                {t(label)}
               </button>
             ))}
           </div>
@@ -166,7 +167,7 @@ export default function Events() {
                     : "text-slate-600 dark:text-slate-400"
                 }`}
               >
-                <Icon className="text-xs" /> {label}
+                <Icon className="text-xs" /> {t(label)}
               </button>
             ))}
           </div>
@@ -174,7 +175,7 @@ export default function Events() {
 
         <div className="mx-auto mt-5 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
-            <SearchBar value={query} onChange={setQuery} placeholder="Search by name, place or club..." />
+            <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, place or club...")} />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
@@ -187,7 +188,7 @@ export default function Events() {
               onChange={(e) => update({ open: e.target.checked })}
               className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
             />
-            Only events with spots left
+            {t("Only events with spots left")}
           </label>
           <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
             <input
@@ -196,7 +197,7 @@ export default function Events() {
               onChange={(e) => update({ free: e.target.checked })}
               className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
             />
-            Free events only
+            {t("Free events only")}
           </label>
         </div>
 
@@ -206,7 +207,7 @@ export default function Events() {
               onClick={clearClubFilter}
               className="flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
             >
-              Events from {clubFilterName || "this club"} <FaTimes className="text-xs" aria-label="Clear club filter" />
+              {t("Events from {club}", { club: clubFilterName || t("this club") })} <FaTimes className="text-xs" aria-label={t("Clear club filter")} />
             </button>
           </div>
         )}
@@ -240,21 +241,21 @@ export default function Events() {
           <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
             <p className="text-lg font-medium">
               {when === "mine"
-                ? "You haven't registered for any matching events."
+                ? t("You haven't registered for any matching events.")
                 : when === "saved"
                   ? savedIds.length === 0
-                    ? "You haven't saved any events yet."
-                    : "None of your saved events match."
+                    ? t("You haven't saved any events yet.")
+                    : t("None of your saved events match.")
                   : when === "upcoming"
-                  ? "No upcoming events match your search."
+                  ? t("No upcoming events match your search.")
                   : when === "week"
-                    ? "Nothing is happening in the next 7 days."
-                    : "No past events match your search."}
+                    ? t("Nothing is happening in the next 7 days.")
+                    : t("No past events match your search.")}
             </p>
             <p className="mt-1 text-sm">
               {when === "saved" && savedIds.length === 0
-                ? "Tap the bookmark on an event to keep it here for later."
-                : "Try a different name or category."}
+                ? t("Tap the bookmark on an event to keep it here for later.")
+                : t("Try a different name or category.")}
             </p>
             {(query || category !== "All" || openOnly || freeOnly) && (
               <button
@@ -264,7 +265,7 @@ export default function Events() {
                 }}
                 className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
               >
-                Clear filters
+                {t("Clear filters")}
               </button>
             )}
           </div>

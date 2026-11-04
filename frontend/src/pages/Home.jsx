@@ -18,8 +18,10 @@ import { isUpcoming } from "../utils/formatDate";
 import campusEvent from "../assets/images/campus-event.webp";
 import reelPoster from "../assets/images/campus-reel-poster.webp";
 import SafeImage from "../components/SafeImage";
+import { useLang } from "../context/LanguageContext";
 
 export default function Home() {
+  const { t } = useLang();
   const [selectedClub, setSelectedClub] = useState(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   // Fixed at first render: a data-saver or slow-connection visitor sees the poster, not an autoplaying reel.
@@ -59,10 +61,10 @@ export default function Home() {
         <div className="container-page">
           <Reveal className="text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-              On Campus
+              {t("On Campus")}
             </span>
             <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
-              Life at PCPS
+              {t("Life at PCPS")}
             </h2>
           </Reveal>
 
@@ -77,18 +79,17 @@ export default function Home() {
               >
                 <img
                   src={campusEvent}
-                  alt="Students at a PCPS college event on campus"
+                  alt={t("Students at a PCPS college event on campus")}
                   loading="lazy"
                   decoding="async"
                   className="h-72 w-full shrink-0 object-cover"
                 />
                 <div className="flex flex-1 flex-col justify-center p-5">
                   <p className="font-medium text-slate-800 dark:text-slate-100">
-                    Fests, workshops, and open-air showcases
+                    {t("Fests, workshops, and open-air showcases")}
                   </p>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Clubs bring the courtyard to life throughout the year —
-                    from art showcases to tech demos.
+                    {t("Clubs bring the courtyard to life throughout the year — from art showcases to tech demos.")}
                   </p>
                 </div>
               </div>
@@ -105,7 +106,7 @@ export default function Home() {
                 <button
                   onClick={() => setLightboxOpen(true)}
                   className="group relative block h-72 w-full shrink-0 bg-slate-900"
-                  aria-label="Watch the full PCPS campus reel"
+                  aria-label={t("Watch the full PCPS campus reel")}
                 >
                   <video
                     src="/media/campus-reel.mp4"
@@ -123,15 +124,15 @@ export default function Home() {
                     </span>
                   </span>
                   <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                    <FaPlay className="text-[10px]" /> {reelAutoplay ? "Playing" : "Tap to play"}
+                    <FaPlay className="text-[10px]" /> {reelAutoplay ? t("Playing") : t("Tap to play")}
                   </span>
                 </button>
                 <div className="flex flex-1 flex-col justify-center p-5">
                   <p className="font-medium text-slate-800 dark:text-slate-100">
-                    Watch: A day at PCPS
+                    {t("Watch: A day at PCPS")}
                   </p>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    Classes, clubs, and campus moments — click to watch in full.
+                    {t("Classes, clubs, and campus moments — click to watch in full.")}
                   </p>
                 </div>
               </div>
@@ -157,7 +158,7 @@ export default function Home() {
             [FaHandshake, "Event Registrations", stats.totalRegistrations, "amber"],
           ].map(([Icon, label, value, accent], i) => (
             <Reveal key={label} delay={i * 80}>
-              <StatsCard icon={Icon} label={label} value={value} accent={accent} />
+              <StatsCard icon={Icon} label={t(label)} value={value} accent={accent} />
             </Reveal>
           ))}
         </div>
@@ -169,14 +170,14 @@ export default function Home() {
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-                Get Involved
+                {t("Get Involved")}
               </span>
               <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
-                Featured Clubs
+                {t("Featured Clubs")}
               </h2>
             </div>
             <Link to="/clubs" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
-              View all clubs <FaArrowRight className="text-xs" />
+              {t("View all clubs")} <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -195,14 +196,14 @@ export default function Home() {
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <span className="text-sm font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">
-                Mark Your Calendar
+                {t("Mark Your Calendar")}
               </span>
               <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
-                Upcoming Events
+                {t("Upcoming Events")}
               </h2>
             </div>
             <Link to="/events" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
-              View all events <FaArrowRight className="text-xs" />
+              {t("View all events")} <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -237,18 +238,17 @@ export default function Home() {
 
               <div className="relative">
                 <h2 className="font-display text-3xl font-bold sm:text-4xl">
-                  Ready to make your mark at PCPS?
+                  {t("Ready to make your mark at PCPS?")}
                 </h2>
                 <p className="mx-auto mt-3 max-w-xl text-white/80">
-                  Join a club, register for an event, and start building the
-                  college experience you'll remember.
+                  {t("Join a club, register for an event, and start building the college experience you'll remember.")}
                 </p>
                 <div className="mt-7 flex flex-wrap justify-center gap-4">
                   <Link to="/register" className="btn-on-dark">
-                    Create your account
+                    {t("Create your account")}
                   </Link>
                   <Link to="/clubs" className="btn-outline-on-dark">
-                    Browse clubs
+                    {t("Browse clubs")}
                   </Link>
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function Home() {
               onClick={() => setSelectedClub(null)}
               className="btn-primary mt-5 w-full"
             >
-              See all clubs
+              {t("See all clubs")}
             </Link>
           </div>
         )}

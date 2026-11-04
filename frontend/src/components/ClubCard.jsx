@@ -4,7 +4,7 @@ import { useTilt } from "../hooks/useTilt";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 import { getClubIcon } from "../utils/iconMap";
 import { resolveUploadUrl } from "../services/api";
-import { pluralize } from "../utils/plural";
+import { useLang } from "../context/LanguageContext";
 import SafeImage from "./SafeImage";
 import { joinButtonState } from "../utils/clubJoinState";
 
@@ -13,6 +13,7 @@ export default function ClubCard({ club, onView }) {
   const { isJoined, isPending, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
   const requireAuth = useRequireAuth();
   const tilt = useTilt({ max: 6, scale: 1.015 });
+  const { t } = useLang();
   const joined = isJoined(club._id);
   const join = joinButtonState({ club, joined, pending: isPending(club._id) });
   const favorite = isFavorite(club._id);
@@ -28,7 +29,7 @@ export default function ClubCard({ club, onView }) {
       <div className="relative h-40 overflow-hidden bg-slate-100 dark:bg-slate-800">
         <SafeImage
           src={resolveUploadUrl(club.image, 800)}
-          alt={`${club.name} banner`}
+          alt={t("{name} banner", { name: club.name })}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
@@ -44,7 +45,7 @@ export default function ClubCard({ club, onView }) {
             e.stopPropagation();
             requireAuth(() => toggleFavorite(club._id));
           }}
-          aria-label={favorite ? "Remove from favorite club" : "Set as favorite club"}
+          aria-label={favorite ? t("Remove from favorite club") : t("Set as favorite club")}
           aria-pressed={favorite}
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 dark:bg-slate-900/95 text-rose-500 shadow-md transition-transform hover:scale-110"
         >
@@ -60,13 +61,13 @@ export default function ClubCard({ club, onView }) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <FaUsers className="shrink-0 text-primary-500" /> {typeof club.memberCount === "number" ? pluralize(club.memberCount, "member") : club.category}
+            <FaUsers className="shrink-0 text-primary-500" /> {typeof club.memberCount === "number" ? (club.memberCount === 1 ? t("1 member") : t("{n} members", { n: club.memberCount })) : club.category}
           </span>
           <button
             onClick={() => onView?.(club)}
             className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300 hover:gap-2 transition-all"
           >
-            View <FaArrowRight className="text-xs" />
+            {t("View")} <FaArrowRight className="text-xs" />
           </button>
         </div>
         <button
@@ -78,15 +79,15 @@ export default function ClubCard({ club, onView }) {
                 ? "bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300"
                 : "bg-primary-50 text-primary-600 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300"
           }`}
-          title={join.hint || undefined}
+          title={join.hint ? t(join.hint) : undefined}
         >
           {joined || join.kind === "pending" ? (
             <>
-              <FaCheck className="text-xs" /> {join.label}
+              <FaCheck className="text-xs" /> {t(join.label)}
             </>
           ) : (
             <>
-              <FaPlus className="text-xs" /> {join.label}
+              <FaPlus className="text-xs" /> {t(join.label)}
             </>
           )}
         </button>

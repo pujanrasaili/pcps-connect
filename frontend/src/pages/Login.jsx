@@ -5,10 +5,12 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
+import { useLang } from "../context/LanguageContext";
 import logo from "../assets/images/pcps-shield.webp";
 
 export default function Login() {
   const { login } = useAuth();
+  const { t } = useLang();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -84,16 +86,16 @@ export default function Login() {
         <div className="mb-8 text-center">
           <img src={logo} alt="PCPS" className="mx-auto h-16 w-auto rounded-xl animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
           <h1 className="mt-4 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Welcome back
+            {t("Welcome back")}
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Log in to your PCPS Connect account
+            {t("Log in to your PCPS Connect account")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="card-surface space-y-4 p-6 sm:p-8" noValidate>
           <div>
-            <label htmlFor="login-email" className="label-field">Email address</label>
+            <label htmlFor="login-email" className="label-field">{t("Email address")}</label>
             <div className="relative">
               <FaEnvelope className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
               <input
@@ -113,9 +115,9 @@ export default function Login() {
 
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="login-password" className="label-field">Password</label>
+              <label htmlFor="login-password" className="label-field">{t("Password")}</label>
               <Link to="/forgot-password" className="text-xs font-medium text-primary-600 dark:text-primary-300">
-                Forgot password?
+                {t("Forgot password?")}
               </Link>
             </div>
             <div className="relative">
@@ -134,7 +136,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={showPassword ? t("Hide password") : t("Show password")}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -160,26 +162,26 @@ export default function Login() {
 
           {showResend && (
             <div className="rounded-lg bg-amber-50 dark:bg-amber-900/20 px-3 py-2.5 text-sm text-amber-700 dark:text-amber-400">
-              <p>Didn't get the verification email?</p>
+              <p>{t("Didn't get the verification email?")}</p>
               <button
                 type="button"
                 onClick={handleResend}
                 disabled={resending}
                 className="mt-1 font-semibold underline underline-offset-2 disabled:opacity-50"
               >
-                {resending ? "Sending..." : "Resend verification email"}
+                {resending ? t("Sending...") : t("Resend verification email")}
               </button>
             </div>
           )}
 
           <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "Logging in..." : "Log in"}
+            {submitting ? t("Logging in...") : t("Log in")}
           </Button>
 
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-            Don't have an account?{" "}
+            {t("Don't have an account?")}{" "}
             <Link to="/register" className="font-semibold text-primary-600 dark:text-primary-300">
-              Sign up
+              {t("Sign up")}
             </Link>
           </p>
         </form>
