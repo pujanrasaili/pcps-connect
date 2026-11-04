@@ -1,19 +1,21 @@
 import { FaCheck, FaLock } from "react-icons/fa";
 import { buildMilestones } from "../utils/milestones";
+import { useLang } from "../context/LanguageContext";
 
 // A friendly row of goals on the profile. Earned ones are highlighted; the
 // rest show progress ("2 of 5") so there is always a clear next step. State is
 // written in words as well as colour, so it doesn't rely on colour alone.
 export default function MilestonesCard({ registrations, clubCount }) {
+  const { t } = useLang();
   const milestones = buildMilestones(registrations, clubCount);
   const earned = milestones.filter((m) => m.earned).length;
 
   return (
     <div className="card-surface p-6">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">Milestones</h2>
+        <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">{t("Milestones")}</h2>
         <p className="text-sm text-slate-600 dark:text-slate-300">
-          {earned} of {milestones.length} earned
+          {t("{earned} of {total} earned", { earned, total: milestones.length })}
         </p>
       </div>
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -37,14 +39,14 @@ export default function MilestonesCard({ registrations, clubCount }) {
               {m.earned ? <FaCheck /> : <FaLock />}
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{m.title}</p>
-              <p className="text-xs text-slate-600 dark:text-slate-300">{m.description}</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t(m.title)}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-300">{t(m.description)}</p>
               <p
                 className={`mt-1 text-xs font-medium ${
                   m.earned ? "text-emerald-700 dark:text-emerald-300" : "text-slate-600 dark:text-slate-300"
                 }`}
               >
-                {m.earned ? "Earned" : `${m.current} of ${m.target}`}
+                {m.earned ? t("Earned") : t("{current} of {target}", { current: m.current, target: m.target })}
               </p>
             </div>
           </li>

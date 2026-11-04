@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { api, getErrorMessage } from "../services/api";
 import Modal from "./Modal";
+import { useLang } from "../context/LanguageContext";
 import { browserStorage, readTickets, ticketUrl } from "../utils/offlineTickets";
 
 // Shows a student's personal check-in QR. The code is fetched fresh each time
@@ -10,6 +11,7 @@ import { browserStorage, readTickets, ticketUrl } from "../utils/offlineTickets"
 // their phone's normal camera app: it opens the page, which marks the student
 // as attended. No scanner library needed on either side.
 export default function CheckInQrModal({ registration, onClose }) {
+  const { t } = useLang();
   const [code, setCode] = useState(null);
   const [error, setError] = useState("");
   const registrationId = registration?._id;
@@ -27,7 +29,7 @@ export default function CheckInQrModal({ registration, onClose }) {
         // Offline (no answer from the server at all): use the copy saved on this phone.
         const saved = !err?.response && readTickets(browserStorage()).find((t) => t.id === registrationId);
         if (saved) setCode(saved.code);
-        else setError(getErrorMessage(err, "Couldn't create your check-in code"));
+        else setError(getErrorMessage(err, t("Couldn't create your check-in code")));
       });
     return () => {
       cancelled = true;
@@ -37,7 +39,7 @@ export default function CheckInQrModal({ registration, onClose }) {
   const url = code ? ticketUrl(window.location.origin, code) : "";
 
   return (
-    <Modal isOpen={!!registration} onClose={onClose} title="Your check-in code" size="sm">
+    <Modal isOpen={!!registration} onClose={onClose} title={t("Your check-in code")} size="sm">
       <div className="flex flex-col items-center gap-4 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-400">{registration?.event?.title}</p>
         {error ? (
@@ -49,11 +51,11 @@ export default function CheckInQrModal({ registration, onClose }) {
         ) : (
           // Always dark-on-white, even in dark mode -- scanners need the contrast.
           <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
-            <QRCodeSVG value={url} size={208} level="M" />
+            <QRCodeSVG value={url} size={208} level="M" title={t("Your check-in code")} />
           </div>
         )}
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Show this to an organiser at the door. It's personal to you, so don't share a screenshot of it.
+          {t("Show this to an organiser at the door. It's personal to you, so don't share a screenshot of it.")}
         </p>
       </div>
     </Modal>
