@@ -1,6 +1,30 @@
+import { ne } from "../i18n/ne.js";
+import { translate } from "../i18n/translate.js";
+
+// Dates are formatted outside React, so read the saved language directly.
+// Month and weekday names go through the dictionary (not Intl) so Nepali looks
+// the same in every browser; English output is exactly what Intl gave before.
+function isNepali() {
+  try {
+    return localStorage.getItem("pcps_lang") === "ne";
+  } catch {
+    return false;
+  }
+}
+
+function formatParts(date, options, method = "toLocaleDateString") {
+  const text = date[method]("en-US", options);
+  if (!isNepali()) return text;
+  const names = new Set(["weekday", "month"]);
+  return new Intl.DateTimeFormat("en-US", options)
+    .formatToParts(date)
+    .map((part) => (names.has(part.type) ? translate(ne, "ne", part.value) : part.value))
+    .join("");
+}
+
 export function formatDate(dateStr, options = {}) {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
+  return formatParts(date, {
     weekday: options.weekday ?? "short",
     month: "short",
     day: "numeric",
@@ -15,7 +39,7 @@ export function formatDay(dateStr) {
 
 export function formatMonth(dateStr) {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  return formatParts(date, { month: "short" }).toUpperCase();
 }
 
 // Exact-time comparison (not just "is it still today") -- an event that
@@ -43,14 +67,14 @@ export function relativeDay(dateStr, now = new Date()) {
 
 // "Tue, Dec 30, 2026, 10:00 AM" in the viewer's own time zone.
 export function formatDateTime(dateStr) {
-  return new Date(dateStr).toLocaleString("en-US", {
+  return formatParts(new Date(dateStr), {
     weekday: "short",
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  });
+  }, "toLocaleString");
 }
 
 // "10:00 AM" in the viewer's own time zone.
@@ -79,7 +103,7 @@ export function formatTimeRange(startStr, endStr) {
   if (!end) return formatTime(startStr);
   const start = new Date(startStr);
   if (sameLocalDay(start, end)) return `${formatTime(start)} \u2013 ${formatTime(end)}`;
-  const day = end.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  const day = formatParts(end, { weekday: "short", month: "short", day: "numeric" });
   return `${formatTime(start)} \u2013 ${day}, ${formatTime(end)}`;
 }
 
