@@ -3,14 +3,8 @@ import { Link } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import { useNotifications } from "../hooks/useNotifications";
 import { timeAgo } from "../utils/timeAgo";
+import { translateAgo } from "../utils/translateAgo";
 import { useLang } from "../context/LanguageContext";
-
-// timeAgo() returns English ("5 min ago"); show it in the chosen language.
-function agoText(text, t) {
-  const m = /^(\d+) (min|h|d) ago$/.exec(text);
-  if (m) return t(`{n} ${m[2]} ago`, { n: m[1] });
-  return t(text);
-}
 
 // The bell in the top bar: a badge with the number of unseen messages and a
 // small list ("You got a seat: Hack Night"). Opening it shows the newest
@@ -94,7 +88,7 @@ export default function NotificationBell({ className = "" }) {
                       {newIds.has(n._id) && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-500" aria-label={t("New")} />}
                       <span className="min-w-0 text-sm text-slate-700 dark:text-slate-200">{t(n.title)}</span>
                     </span>
-                    <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{agoText(timeAgo(n.createdAt), t)}</span>
+                    <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{translateAgo(timeAgo(n.createdAt), t)}</span>
                   </>
                 );
                 return (
