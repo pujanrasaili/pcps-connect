@@ -6,6 +6,7 @@ import SearchBar from "../../components/SearchBar";
 import { useDebounce } from "../../hooks/useDebounce";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
+import { useLang } from "../../context/LanguageContext";
 
 const PAGE_SIZE = 15;
 
@@ -33,6 +34,7 @@ function formatWhen(iso) {
 }
 
 export default function AdminActivity() {
+  const { t } = useLang();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,7 +46,7 @@ export default function AdminActivity() {
     api
       .get("/admin/audit")
       .then((res) => setEntries(res.data.entries || []))
-      .catch((err) => setError(getErrorMessage(err, "Failed to load activity")))
+      .catch((err) => setError(getErrorMessage(err, t("Failed to load activity"))))
       .finally(() => setLoading(false));
   }, []);
 
@@ -62,17 +64,17 @@ export default function AdminActivity() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">Activity</h1>
+        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">{t("Activity")}</h1>
         <p className="text-slate-500 dark:text-slate-400">
-          Who approved, rejected, promoted or deleted what. Entries are kept for a year.
+          {t("Who approved, rejected, promoted or deleted what. Entries are kept for a year.")}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="w-full sm:w-72">
-          <SearchBar value={query} onChange={setQuery} placeholder="Search by person or detail..." />
+          <SearchBar value={query} onChange={setQuery} placeholder={t("Search by person or detail...")} />
         </div>
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by kind of action">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("Filter by kind of action")}>
           {GROUPS.map(([value, label]) => (
             <button
               key={value}
@@ -85,7 +87,7 @@ export default function AdminActivity() {
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               }`}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>
@@ -101,10 +103,10 @@ export default function AdminActivity() {
         ) : entries.length === 0 ? (
           <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaHistory className="mx-auto mb-2 text-2xl text-slate-300" />
-            No admin activity recorded yet.
+            {t("No admin activity recorded yet.")}
           </p>
         ) : filtered.length === 0 ? (
-          <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">No activity matches your filter.</p>
+          <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">{t("No activity matches your filter.")}</p>
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {pageItems.map((entry) => (
@@ -112,11 +114,11 @@ export default function AdminActivity() {
                 <div className="min-w-0">
                   <p className="font-medium text-slate-800 dark:text-slate-100">{entry.summary}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    by {entry.actorName} · {formatWhen(entry.createdAt)}
+                    {t("by {name}", { name: entry.actorName })} · {formatWhen(entry.createdAt)}
                   </p>
                 </div>
                 <span className={`badge shrink-0 ${TONE_CLASS[actionTone(entry.action)]}`}>
-                  {actionLabel(entry.action)}
+                  {t(actionLabel(entry.action))}
                 </span>
               </div>
             ))}
