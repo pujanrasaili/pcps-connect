@@ -19,8 +19,10 @@ import EmailStatusCard from "../../components/EmailStatusCard";
 import SiteNoticeCard from "../../components/SiteNoticeCard";
 import { formatDate, isUpcoming } from "../../utils/formatDate";
 import { useRequestCounts } from "../../hooks/useRequestCounts";
+import { useLang } from "../../context/LanguageContext";
 
 export default function AdminOverview() {
+  const { t } = useLang();
   const { clubs } = useClubs();
   const { events } = useEvents();
   const { counts: clubRequestCounts } = useRequestCounts();
@@ -35,7 +37,7 @@ export default function AdminOverview() {
     api
       .get("/admin/users")
       .then((res) => setUsers(res.data.users || []))
-      .catch((err) => setError(getErrorMessage(err, "Failed to load users")));
+      .catch((err) => setError(getErrorMessage(err, t("Failed to load users"))));
     // The report is a nice-to-have; if it fails the rest of the page still works.
     api
       .get("/admin/attendance-report")
@@ -71,10 +73,10 @@ export default function AdminOverview() {
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-          Admin Overview
+          {t("Admin Overview")}
         </h1>
         <p className="text-slate-500 dark:text-slate-400">
-          A snapshot of everything happening on PCPS Connect.
+          {t("A snapshot of everything happening on PCPS Connect.")}
         </p>
       </div>
 
@@ -95,8 +97,7 @@ export default function AdminOverview() {
         >
           <FaExclamationCircle className="shrink-0 text-lg text-amber-500" />
           <p className="flex-1 text-sm font-medium text-amber-800 dark:text-amber-300">
-            {pendingUsers.length} {pendingUsers.length === 1 ? "student is" : "students are"} waiting
-            for approval
+            {t(pendingUsers.length === 1 ? "{n} student is waiting for approval" : "{n} students are waiting for approval", { n: pendingUsers.length })}
           </p>
           <FaArrowRight className="shrink-0 text-xs text-amber-700 dark:text-amber-400" />
         </Link>
@@ -109,7 +110,7 @@ export default function AdminOverview() {
         >
           <FaExclamationCircle className="shrink-0 text-lg text-primary-500" />
           <p className="flex-1 text-sm font-medium text-primary-800 dark:text-primary-200">
-            {pendingRequests} {pendingRequests === 1 ? "request to join an event is" : "requests to join events are"} waiting for a decision
+            {t(pendingRequests === 1 ? "{n} request to join an event is waiting for a decision" : "{n} requests to join events are waiting for a decision", { n: pendingRequests })}
           </p>
           <FaArrowRight className="shrink-0 text-xs text-primary-700 dark:text-primary-300" />
         </Link>
@@ -122,17 +123,17 @@ export default function AdminOverview() {
         >
           <FaExclamationCircle className="shrink-0 text-lg text-primary-500" />
           <p className="flex-1 text-sm font-medium text-primary-800 dark:text-primary-200">
-            {pendingClubRequests} {pendingClubRequests === 1 ? "student is" : "students are"} waiting to join clubs that approve their members
+            {t(pendingClubRequests === 1 ? "{n} student is waiting to join clubs that approve their members" : "{n} students are waiting to join clubs that approve their members", { n: pendingClubRequests })}
           </p>
           <FaArrowRight className="shrink-0 text-xs text-primary-700 dark:text-primary-300" />
         </Link>
       )}
 
       <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 lg:grid-cols-4">
-        <StatsCard icon={FaUsers} label="Total Clubs" value={clubs.length} accent="primary" />
-        <StatsCard icon={FaCalendarAlt} label="Total Events" value={events.length} accent="accent" />
-        <StatsCard icon={FaUserFriends} label="Registered Students" value={users?.length ?? "—"} accent="emerald" />
-        <StatsCard icon={FaClipboardList} label="Registrations" value={totalRegistrations} accent="amber" />
+        <StatsCard icon={FaUsers} label={t("Total Clubs")} value={clubs.length} accent="primary" />
+        <StatsCard icon={FaCalendarAlt} label={t("Total Events")} value={events.length} accent="accent" />
+        <StatsCard icon={FaUserFriends} label={t("Registered Students")} value={users?.length ?? "—"} accent="emerald" />
+        <StatsCard icon={FaClipboardList} label={t("Registrations")} value={totalRegistrations} accent="amber" />
       </div>
 
       <EmailStatusCard provider={emailProvider} />
@@ -148,13 +149,13 @@ export default function AdminOverview() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card-surface p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-800 dark:text-slate-100">Coming Up</h2>
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">{t("Coming Up")}</h2>
             <Link to="/admin/events" className="text-xs font-semibold text-primary-600 dark:text-primary-300">
-              View all
+              {t("View all")}
             </Link>
           </div>
           {nextEvents.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No upcoming events scheduled.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("No upcoming events scheduled.")}</p>
           ) : (
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
               {nextEvents.map((e) => (
@@ -180,14 +181,15 @@ export default function AdminOverview() {
 }
 
 function QuickLink({ to, label, desc }) {
+  const { t } = useLang();
   return (
     <Link
       to={to}
       className="card-surface flex items-center justify-between p-5 transition-shadow hover:shadow-soft"
     >
       <div>
-        <p className="font-semibold text-slate-800 dark:text-slate-100">{label}</p>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{desc}</p>
+        <p className="font-semibold text-slate-800 dark:text-slate-100">{t(label)}</p>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t(desc)}</p>
       </div>
       <FaArrowRight className="shrink-0 text-primary-500" />
     </Link>
