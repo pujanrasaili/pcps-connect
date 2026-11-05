@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaFileCsv } from "react-icons/fa";
 import { buildCsv, downloadCsv } from "../../utils/csv";
-import { pluralize } from "../../utils/plural";
+import { useLang } from "../../context/LanguageContext";
 import { FaUserShield, FaUser, FaTrash, FaCheck, FaTimes, FaEnvelope } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -22,6 +22,7 @@ const STATUS_STYLES = {
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
   const toast = useToast();
+  const { t } = useLang();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,7 +40,7 @@ export default function AdminUsers() {
     api
       .get("/admin/users")
       .then((res) => setUsers(res.data.users || []))
-      .catch((err) => setError(getErrorMessage(err, "Failed to load users")))
+      .catch((err) => setError(getErrorMessage(err, t("Failed to load users"))))
       .finally(() => setLoading(false));
   };
 
@@ -52,10 +53,10 @@ export default function AdminUsers() {
     setUpdatingId(targetUser._id);
     try {
       await api.put(`/admin/users/${targetUser._id}`, { role: nextRole });
-      toast.success(`${targetUser.name} is now ${nextRole === "admin" ? "an admin" : "a student"}.`);
+      toast.success(t(nextRole === "admin" ? "{name} is now an admin." : "{name} is now a student.", { name: targetUser.name }));
       loadUsers();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to update role"));
+      toast.error(getErrorMessage(err, t("Failed to update role")));
     } finally {
       setUpdatingId(null);
     }
@@ -67,12 +68,12 @@ export default function AdminUsers() {
       await api.put(`/admin/users/${targetUser._id}`, { approvalStatus });
       toast.success(
         approvalStatus === "approved"
-          ? `${targetUser.name} approved -- they can now log in.`
-          : `${targetUser.name}'s registration was rejected.`
+          ? t("{name} approved -- they can now log in.", { name: targetUser.name })
+          : t("{name}'s registration was rejected.", { name: targetUser.name })
       );
       loadUsers();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to update approval status"));
+      toast.error(getErrorMessage(err, t("Failed to update approval status")));
     } finally {
       setUpdatingId(null);
     }
@@ -86,11 +87,11 @@ export default function AdminUsers() {
     setVerifying(true);
     try {
       await api.put(`/admin/users/${verifyTarget._id}/verify-email`);
-      toast.success(`${verifyTarget.name}'s email is marked as verified.`);
+      toast.success(t("{name}'s email is marked as verified.", { name: verifyTarget.name }));
       setVerifyTarget(null);
       loadUsers();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to mark the email as verified"));
+      toast.error(getErrorMessage(err, t("Failed to mark the email as verified")));
     } finally {
       setVerifying(false);
     }
@@ -107,10 +108,10 @@ export default function AdminUsers() {
         const res = await api.put("/admin/users/bulk-approve", { userIds: ids.slice(i, i + 200) });
         approved += res.data.approved || 0;
       }
-      toast.success(`Approved ${pluralize(approved, "account")}.`);
+      toast.success(t(approved === 1 ? "Approved {n} account." : "Approved {n} accounts.", { n: approved }));
       setBulkOpen(false);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to approve accounts"));
+      toast.error(getErrorMessage(err, t("Failed to approve accounts")));
     } finally {
       setBulkBusy(false);
       loadUsers();
@@ -121,11 +122,11 @@ export default function AdminUsers() {
     setDeleting(true);
     try {
       await api.delete(`/admin/users/${deleteTarget._id}`);
-      toast.success("User deleted.");
+      toast.success(t("User deleted."));
       setDeleteTarget(null);
       loadUsers();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to delete user"));
+      toast.error(getErrorMessage(err, t("Failed to delete user")));
     } finally {
       setDeleting(false);
     }
@@ -171,18 +172,19 @@ export default function AdminUsers() {
   };
 
   const pendingCount = users.filter((u) => u.approvalStatus === "pending").length;
+  const pendingShown = filteredUsers.filter((u) => u.approvalStatus === "pending").length;
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-          Manage Users
+          {t("Manage Users")}
         </h1>
         <p className="text-slate-500 dark:text-slate-400">
-          {pluralize(users.length, "registered student")}
+          {t(users.length === 1 ? "{n} registered student" : "{n} registered students", { n: users.length })}
           {pendingCount > 0 && (
             <span className="ml-2 badge bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-              {pendingCount} awaiting approval
+              {t("{n} awaiting approval", { n: pendingCount })}
             </span>
           )}
         </p>
@@ -195,10 +197,10 @@ export default function AdminUsers() {
       )}
 
       <div className="max-w-sm">
-        <SearchBar value={query} onChange={setQuery} placeholder="Search by name, email or student ID..." />
+        <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, email or student ID...")} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by approval status">
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("Filter by approval status")}>
         {["all", "pending", "approved", "rejected"].map((status) => (
           <button
             key={status}
@@ -211,7 +213,7 @@ export default function AdminUsers() {
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             }`}
           >
-            {status} ({statusCounts[status]})
+            {t(status)} ({statusCounts[status]})
           </button>
         ))}
         {statusFilter === "pending" && filteredUsers.length > 0 && (
@@ -220,7 +222,7 @@ export default function AdminUsers() {
             onClick={() => setBulkOpen(true)}
             className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary-600"
           >
-            <FaCheck /> Approve all ({filteredUsers.length})
+            <FaCheck /> {t("Approve all")} ({filteredUsers.length})
           </button>
         )}
         <button
@@ -229,7 +231,7 @@ export default function AdminUsers() {
           disabled={filteredUsers.length === 0}
           className={`${statusFilter === "pending" && filteredUsers.length > 0 ? "" : "ml-auto "}flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50`}
         >
-          <FaFileCsv /> Export CSV ({filteredUsers.length})
+          <FaFileCsv /> {t("Export CSV")} ({filteredUsers.length})
         </button>
       </div>
 
@@ -240,7 +242,7 @@ export default function AdminUsers() {
           </div>
         ) : filteredUsers.length === 0 ? (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            {users.length === 0 ? "No registered students yet." : "No users match your search or filter."}
+            {users.length === 0 ? t("No registered students yet.") : t("No users match your search or filter.")}
           </p>
         ) : (
           pagedUsers.map((u) => {
@@ -250,7 +252,7 @@ export default function AdminUsers() {
               <div key={u._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-slate-800 dark:text-slate-100">
-                    {u.name} {isSelf && <span className="text-xs text-slate-500 dark:text-slate-400">(you)</span>}
+                    {u.name} {isSelf && <span className="text-xs text-slate-500 dark:text-slate-400">{t("(you)")}</span>}
                   </p>
                   <p className="truncate text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
                 </div>
@@ -259,21 +261,21 @@ export default function AdminUsers() {
                   {!u.emailVerified && (
                     <span
                       className="badge bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                      title="Hasn't clicked their email verification link yet"
+                      title={t("Hasn't clicked their email verification link yet")}
                     >
-                      <FaEnvelope className="mr-1 text-[10px]" /> Unverified
+                      <FaEnvelope className="mr-1 text-[10px]" /> {t("Unverified")}
                     </span>
                   )}
                   {!u.emailVerified && (
                     <button
                       onClick={() => setVerifyTarget(u)}
-                      aria-label={`Mark ${u.name}'s email as verified`}
+                      aria-label={t("Mark {name}'s email as verified", { name: u.name })}
                       className="rounded-full px-2 py-0.5 text-xs font-semibold text-primary-600 underline underline-offset-2 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/30"
                     >
-                      Mark verified
+                      {t("Mark verified")}
                     </button>
                   )}
-                  <span className={`badge ${STATUS_STYLES[u.approvalStatus]}`}>{u.approvalStatus}</span>
+                  <span className={`badge ${STATUS_STYLES[u.approvalStatus]}`}>{t(u.approvalStatus)}</span>
                   <span
                     className={`badge ${
                       u.role === "admin"
@@ -281,7 +283,7 @@ export default function AdminUsers() {
                         : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                     }`}
                   >
-                    {u.role}
+                    {t(u.role)}
                   </span>
                 </div>
 
@@ -291,7 +293,7 @@ export default function AdminUsers() {
                       <button
                         onClick={() => setApproval(u, "approved")}
                         disabled={updatingId === u._id}
-                        title="Approve"
+                        title={t("Approve")}
                         className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 disabled:opacity-30 dark:hover:bg-emerald-900/20"
                       >
                         <FaCheck />
@@ -299,7 +301,7 @@ export default function AdminUsers() {
                       <button
                         onClick={() => setApproval(u, "rejected")}
                         disabled={updatingId === u._id}
-                        title="Reject"
+                        title={t("Reject")}
                         className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 dark:hover:bg-rose-900/20"
                       >
                         <FaTimes />
@@ -309,7 +311,7 @@ export default function AdminUsers() {
                   <button
                     onClick={() => toggleRole(u)}
                     disabled={isSelf || updatingId === u._id}
-                    title={isSelf ? "You can't change your own role" : u.role === "admin" ? "Demote to student" : "Promote to admin"}
+                    title={isSelf ? t("You can't change your own role") : u.role === "admin" ? t("Demote to student") : t("Promote to admin")}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-primary-900/20"
                   >
                     {u.role === "admin" ? <FaUser /> : <FaUserShield />}
@@ -317,7 +319,7 @@ export default function AdminUsers() {
                   <button
                     onClick={() => setDeleteTarget(u)}
                     disabled={isSelf}
-                    aria-label={`Delete ${u.name}`}
+                    aria-label={t("Delete {name}", { name: u.name })}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-30 disabled:hover:bg-transparent dark:hover:bg-rose-900/20"
                   >
                     <FaTrash />
@@ -340,7 +342,7 @@ export default function AdminUsers() {
         confirmLabel="Approve all"
         confirmingLabel="Approving..."
         title="Approve all pending accounts?"
-        message={`This approves the ${pluralize(filteredUsers.filter((u) => u.approvalStatus === "pending").length, "pending account")} shown here and emails each person that they can log in.`}
+        message={t("This approves the {n} shown here and emails each person that they can log in.", { n: t(pendingShown === 1 ? "{n} pending account" : "{n} pending accounts", { n: pendingShown }) })}
       />
 
       <ConfirmDialog
@@ -352,7 +354,7 @@ export default function AdminUsers() {
         confirmLabel="Mark verified"
         confirmingLabel="Saving..."
         title="Mark this email as verified?"
-        message={`Only do this if you know ${verifyTarget?.email} really belongs to ${verifyTarget?.name} (for example, they told you the verification email never arrived). It does not approve the account -- that is a separate step.`}
+        message={t("Only do this if you know {email} really belongs to {name} (for example, they told you the verification email never arrived). It does not approve the account -- that is a separate step.", { email: verifyTarget?.email, name: verifyTarget?.name })}
       />
 
       <ConfirmDialog
@@ -361,7 +363,7 @@ export default function AdminUsers() {
         onConfirm={handleDelete}
         confirming={deleting}
         title="Delete this user?"
-        message={`This will permanently delete "${deleteTarget?.name}"'s account, along with their club memberships and event registrations. This can't be undone.`}
+        message={t("This will permanently delete “{name}”'s account, along with their club memberships and event registrations. This can't be undone.", { name: deleteTarget?.name })}
       />
     </div>
   );
