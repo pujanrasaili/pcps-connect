@@ -1,14 +1,14 @@
 import { Component } from "react";
 import { FaExclamationTriangle, FaHome, FaRedo } from "react-icons/fa";
 import shield from "../assets/images/pcps-shield.webp";
-import { ne } from "../i18n/ne";
+import { getNe } from "../i18n/dictionary";
 import { translate, normalizeLang } from "../i18n/translate";
 
 // A class component can't use the language hook (and the provider may be what
 // crashed), so read the saved choice directly.
 function t(text) {
   try {
-    return translate(ne, normalizeLang(localStorage.getItem("pcps_lang")), text);
+    return translate(getNe() || {}, normalizeLang(localStorage.getItem("pcps_lang")), text);
   } catch {
     return text;
   }

@@ -1,4 +1,4 @@
-import { ne } from "../i18n/ne.js";
+import { getNe } from "../i18n/dictionary.js";
 import { translate } from "../i18n/translate.js";
 
 // Dates are formatted outside React, so read the saved language directly.
@@ -18,7 +18,7 @@ function formatParts(date, options, method = "toLocaleDateString") {
   const names = new Set(["weekday", "month"]);
   return new Intl.DateTimeFormat("en-US", options)
     .formatToParts(date)
-    .map((part) => (names.has(part.type) ? translate(ne, "ne", part.value) : part.value))
+    .map((part) => (names.has(part.type) ? translate(getNe() || {}, "ne", part.value) : part.value))
     .join("");
 }
 
