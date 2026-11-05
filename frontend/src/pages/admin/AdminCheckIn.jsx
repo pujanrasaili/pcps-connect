@@ -4,12 +4,14 @@ import { FaCheckCircle, FaExclamationCircle, FaQrcode } from "react-icons/fa";
 import { api, getErrorMessage } from "../../services/api";
 import { formatDate } from "../../utils/formatDate";
 import { addScan, sessionCounts } from "../../utils/checkInLog";
+import { useLang } from "../../context/LanguageContext";
 
 // Landing page for the QR a student shows at the door. The admin scans it with
 // their phone's camera, which opens /admin/check-in?code=..., and the student
 // is marked as attended straight away. A pasted code works too, for when
 // scanning isn't possible.
 export default function AdminCheckIn() {
+  const { t } = useLang();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlCode = searchParams.get("code");
   const [manualCode, setManualCode] = useState("");
@@ -28,7 +30,7 @@ export default function AdminCheckIn() {
       setResult(res.data);
       setLog((prev) => addScan(prev, res.data));
     } catch (err) {
-      setError(getErrorMessage(err, "Check-in failed"));
+      setError(getErrorMessage(err, t("Check-in failed")));
     } finally {
       setBusy(false);
     }
@@ -56,9 +58,9 @@ export default function AdminCheckIn() {
     <div className="mx-auto max-w-md space-y-6 py-6">
       <div className="text-center">
         <FaQrcode className="mx-auto text-3xl text-primary-500" />
-        <h1 className="mt-2 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">Check-in</h1>
+        <h1 className="mt-2 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">{t("Check-in")}</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Scan a student's QR code with your phone camera to mark them as attended.
+          {t("Scan a student's QR code with your phone camera to mark them as attended.")}
         </p>
       </div>
 
@@ -90,7 +92,7 @@ export default function AdminCheckIn() {
               result.alreadyCheckedIn ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400"
             }`}
           >
-            {result.alreadyCheckedIn ? "Already checked in earlier" : "Checked in"}
+            {result.alreadyCheckedIn ? t("Already checked in earlier") : t("Checked in")}
           </p>
         </div>
       )}
@@ -105,7 +107,7 @@ export default function AdminCheckIn() {
       {log.length > 0 && (
         <section className="card-surface p-5" aria-labelledby="checkin-session">
           <h2 id="checkin-session" className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-            Checked in this session: {sessionCounts(log).checkedIn}
+            {t("Checked in this session: {n}", { n: sessionCounts(log).checkedIn })}
           </h2>
           <ul className="mt-2 divide-y divide-slate-100 dark:divide-slate-800">
             {log.slice(0, 8).map((e) => (
@@ -120,25 +122,25 @@ export default function AdminCheckIn() {
               </li>
             ))}
           </ul>
-          {log.length > 8 && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">and {log.length - 8} more</p>}
+          {log.length > 8 && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("and {n} more", { n: log.length - 8 })}</p>}
         </section>
       )}
 
       <form onSubmit={handleManual} className="card-surface space-y-3 p-5">
-        <label className="label-field" htmlFor="manual-code">Or paste a code</label>
+        <label className="label-field" htmlFor="manual-code">{t("Or paste a code")}</label>
         <input
           id="manual-code"
           className="input-field"
           value={manualCode}
           onChange={(e) => setManualCode(e.target.value)}
-          placeholder="Paste the code or the scanned link's code"
+          placeholder={t("Paste the code or the scanned link's code")}
         />
         <button
           type="submit"
           disabled={busy || !manualCode.trim()}
           className="w-full rounded-xl bg-primary-500 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600 disabled:opacity-50"
         >
-          Check in
+          {t("Check in")}
         </button>
       </form>
     </div>
