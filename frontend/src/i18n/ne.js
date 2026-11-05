@@ -966,4 +966,9 @@ export const ne = {
   "Friday": "शुक्रबार",
   "Saturday": "शनिबार",
   "{weekday}, {month} {day}": "{weekday}, {month} {day}",
+  "Video player": "भिडियो प्लेयर",
+  "Close video": "भिडियो बन्द गर्नुहोस्",
+  "Waking up the server — PCPS Connect runs on free hosting, so the first load after a quiet spell can take up to a minute. Thanks for your patience!": "सर्भर ब्युँझाउँदै — PCPS Connect निःशुल्क होस्टिङमा चल्छ, त्यसैले केही समय प्रयोग नभएपछि पहिलो लोड हुन एक मिनेटसम्म लाग्न सक्छ। धैर्य गरिदिनुभएकोमा धन्यवाद!",
+  "Can't reach the server right now": "अहिले सर्भरमा पुग्न सकिएन",
+  "We couldn't check your login. The server may be waking up or your connection dropped. You are not logged out; give it a moment and try again.": "हामीले तपाईंको लगइन जाँच गर्न सकेनौं। सर्भर ब्युँझिँदै छ वा तपाईंको इन्टरनेट गएको हुन सक्छ। तपाईं लगआउट हुनुभएको छैन; केही क्षण पर्खेर फेरि प्रयास गर्नुहोस्।",
 };
