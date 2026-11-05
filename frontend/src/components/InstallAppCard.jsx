@@ -1,10 +1,12 @@
 import { FaMobileAlt } from "react-icons/fa";
 import { useInstallApp } from "../hooks/useInstallApp";
 import Button from "./Button";
+import { useLang } from "../context/LanguageContext";
 
 // "Add PCPS Connect to your home screen". Renders nothing when installing isn't
 // possible or the site is already open as an app.
 export default function InstallAppCard({ className = "mt-6" }) {
+  const { t } = useLang();
   const { mode, install } = useInstallApp();
   if (mode === "hidden") return null;
   return (
@@ -14,17 +16,17 @@ export default function InstallAppCard({ className = "mt-6" }) {
           <FaMobileAlt />
         </span>
         <div>
-          <p className="font-semibold text-slate-800 dark:text-slate-100">Add PCPS Connect to your home screen</p>
+          <p className="font-semibold text-slate-800 dark:text-slate-100">{t("Add PCPS Connect to your home screen")}</p>
           <p className="text-sm text-slate-600 dark:text-slate-300">
             {mode === "ios-steps"
-              ? 'Tap the Share button in Safari, then "Add to Home Screen". Your tickets will be one tap away.'
-              : "Open it like an app, straight from your home screen. Your tickets will be one tap away."}
+              ? t("Tap the Share button in Safari, then “Add to Home Screen”. Your tickets will be one tap away.")
+              : t("Open it like an app, straight from your home screen. Your tickets will be one tap away.")}
           </p>
         </div>
       </div>
       {mode === "prompt" && (
         <Button onClick={install} className="shrink-0">
-          Install
+          {t("Install")}
         </Button>
       )}
     </div>
