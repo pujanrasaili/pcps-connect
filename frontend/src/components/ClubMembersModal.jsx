@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { FaFileCsv, FaUsers } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
+import { useLang } from "../context/LanguageContext";
+import { translateAgo } from "../utils/translateAgo";
 import Modal from "./Modal";
 import SearchBar from "./SearchBar";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
-import { pluralize } from "../utils/plural";
 import { filterMembers } from "../utils/clubMembers";
 import { timeAgo } from "../utils/timeAgo";
 
@@ -13,6 +14,7 @@ import { timeAgo } from "../utils/timeAgo";
 // open it, null to close.
 export default function ClubMembersModal({ club, onClose }) {
   const toast = useToast();
+  const { t } = useLang();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -31,7 +33,7 @@ export default function ClubMembersModal({ club, onClose }) {
     api
       .get(`/admin/clubs/${club._id}/members`)
       .then((res) => !cancelled && setMembers(res.data.members))
-      .catch((err) => !cancelled && toast.error(getErrorMessage(err, "Failed to load members")))
+      .catch((err) => !cancelled && toast.error(getErrorMessage(err, t("Failed to load members"))))
       .finally(() => !cancelled && setLoading(false));
     setRequests([]);
     api
@@ -53,12 +55,12 @@ export default function ClubMembersModal({ club, onClose }) {
       setNote("");
       if (decision === "approve") {
         setMembers((prev) => [{ _id: request._id, name: request.name, email: request.email, studentId: request.studentId, joinedAt: new Date().toISOString() }, ...prev]);
-        toast.success(`${request.name} is now a member.`);
+        toast.success(t("{name} is now a member.", { name: request.name }));
       } else {
-        toast.info(`Declined ${request.name}.`);
+        toast.info(t("Declined {name}.", { name: request.name }));
       }
     } catch (err) {
-      toast.error(getErrorMessage(err, "Could not save that decision"));
+      toast.error(getErrorMessage(err, t("Could not save that decision")));
       // Someone else may have handled it already: drop it from the list.
       if (err?.response?.status === 404) setRequests((prev) => prev.filter((r) => r._id !== request._id));
     } finally {
@@ -74,11 +76,11 @@ export default function ClubMembersModal({ club, onClose }) {
   const visible = filterMembers(members, search);
 
   return (
-    <Modal isOpen={!!club} onClose={onClose} title={`Members — ${club?.name || ""}`} size="lg">
+    <Modal isOpen={!!club} onClose={onClose} title={t("Members — {name}", { name: club?.name || "" })} size="lg">
       {requests.length > 0 && (
-        <section className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20" aria-label="Requests to join">
+        <section className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20" aria-label={t("Requests to join")}>
           <p className="mb-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
-            {pluralize(requests.length, "student")} waiting for your decision
+            {t(requests.length === 1 ? "{n} student waiting for your decision" : "{n} students waiting for your decision", { n: requests.length })}
           </p>
           <ul className="divide-y divide-amber-100 dark:divide-amber-900/40">
             {requests.map((r) => (
@@ -88,17 +90,17 @@ export default function ClubMembersModal({ club, onClose }) {
                   <p className="truncate text-xs text-slate-600 dark:text-slate-300">
                     {r.email}
                     {r.studentId ? ` · ${r.studentId}` : ""}
-                    {r.requestedAt ? ` · ${timeAgo(r.requestedAt)}` : ""}
+                    {r.requestedAt ? ` · ${translateAgo(timeAgo(r.requestedAt), t)}` : ""}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <button
                     onClick={() => decide(r, "approve")}
                     disabled={busyId === r._id}
-                    aria-label={`Approve ${r.name}`}
+                    aria-label={t("Approve {name}", { name: r.name })}
                     className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-800 disabled:opacity-60"
                   >
-                    Approve
+                    {t("Approve")}
                   </button>
                   <button
                     onClick={() => {
@@ -107,15 +109,15 @@ export default function ClubMembersModal({ club, onClose }) {
                     }}
                     aria-expanded={declining === r._id}
                     disabled={busyId === r._id}
-                    aria-label={`Decline ${r.name}`}
+                    aria-label={t("Decline {name}", { name: r.name })}
                     className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50 disabled:opacity-60 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-600"
                   >
-                    Decline
+                    {t("Decline")}
                   </button>
                 </div>
                 {declining === r._id && (
                   <div className="flex w-full flex-wrap items-center gap-2">
-                    <label className="sr-only" htmlFor={`decline-note-${r._id}`}>Note for {r.name} (optional)</label>
+                    <label className="sr-only" htmlFor={`decline-note-${r._id}`}>{t("Note for {name} (optional)", { name: r.name })}</label>
                     <input
                       id={`decline-note-${r._id}`}
                       className="input-field min-w-0 flex-1"
@@ -123,14 +125,14 @@ export default function ClubMembersModal({ club, onClose }) {
                       autoFocus
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
-                      placeholder="Optional note for the student, sent in the email"
+                      placeholder={t("Optional note for the student, sent in the email")}
                     />
                     <button
                       onClick={() => decide(r, "reject", note.trim())}
                       disabled={busyId === r._id}
                       className="rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-800 disabled:opacity-60"
                     >
-                      Send decline
+                      {t("Send decline")}
                     </button>
                   </div>
                 )}
@@ -146,22 +148,22 @@ export default function ClubMembersModal({ club, onClose }) {
       ) : members.length === 0 ? (
         <p className="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
           <FaUsers className="mx-auto mb-2 text-2xl text-slate-300" />
-          No one has joined this club yet.
+          {t("No one has joined this club yet.")}
         </p>
       ) : (
         <>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-slate-600 dark:text-slate-300">{pluralize(members.length, "member")}, newest first</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">{t(members.length === 1 ? "{n} member, newest first" : "{n} members, newest first", { n: members.length })}</p>
             <button
               onClick={exportCsv}
               className="flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
             >
-              <FaFileCsv aria-hidden="true" /> Export CSV
+              <FaFileCsv aria-hidden="true" /> {t("Export CSV")}
             </button>
           </div>
           {members.length > 8 && (
             <div className="mb-3">
-              <SearchBar value={search} onChange={setSearch} placeholder="Find by name, email or student ID..." />
+              <SearchBar value={search} onChange={setSearch} placeholder={t("Find by name, email or student ID...")} />
             </div>
           )}
           <ul className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -174,7 +176,7 @@ export default function ClubMembersModal({ club, onClose }) {
                 </p>
               </li>
             ))}
-            {visible.length === 0 && <li className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">No one matches that search.</li>}
+            {visible.length === 0 && <li className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">{t("No one matches that search.")}</li>}
           </ul>
         </>
       )}
