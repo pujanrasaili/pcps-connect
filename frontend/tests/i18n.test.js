@@ -44,6 +44,7 @@ test("every string wrapped in t(\"...\") on the translated pages has a Nepali ve
 
 test("labels that reach t() through variables are translated too", () => {
   const dynamic = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "College website",
     "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",
     "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
     "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
