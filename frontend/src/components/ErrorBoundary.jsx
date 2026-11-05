@@ -1,6 +1,18 @@
 import { Component } from "react";
 import { FaExclamationTriangle, FaHome, FaRedo } from "react-icons/fa";
 import shield from "../assets/images/pcps-shield.webp";
+import { ne } from "../i18n/ne";
+import { translate, normalizeLang } from "../i18n/translate";
+
+// A class component can't use the language hook (and the provider may be what
+// crashed), so read the saved choice directly.
+function t(text) {
+  try {
+    return translate(ne, normalizeLang(localStorage.getItem("pcps_lang")), text);
+  } catch {
+    return text;
+  }
+}
 
 // Catches render-time errors anywhere below it in the tree so a bug in one
 // page shows a friendly fallback instead of a blank white screen. Must be a
@@ -43,18 +55,17 @@ export default class ErrorBoundary extends Component {
         />
         <FaExclamationTriangle className="mt-6 text-3xl text-amber-500" />
         <h1 className="mt-4 font-display text-2xl font-semibold text-slate-800 dark:text-slate-100">
-          Something went wrong
+          {t("Something went wrong")}
         </h1>
         <p className="mt-2 max-w-md text-slate-500 dark:text-slate-400">
-          An unexpected error occurred. Try reloading the page -- if it keeps
-          happening, let us know through the contact page.
+          {t("An unexpected error occurred. Try reloading the page -- if it keeps happening, let us know through the contact page.")}
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-4">
           <button onClick={this.handleReload} className="btn-primary">
-            <FaRedo /> Reload page
+            <FaRedo /> {t("Reload page")}
           </button>
           <button onClick={this.handleGoHome} className="btn-outline">
-            <FaHome /> Back to home
+            <FaHome /> {t("Back to home")}
           </button>
         </div>
       </div>
