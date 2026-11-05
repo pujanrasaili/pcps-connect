@@ -2,15 +2,23 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { buildMonthGrid, dayKey, shiftMonth, WEEKDAYS } from "../utils/monthGrid";
-import { pluralize } from "../utils/plural";
+import { useLang } from "../context/LanguageContext";
 import { isPastEvent } from "../utils/formatDate";
 
-const monthTitle = (year, month) => new Date(year, month, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
-const timeOf = (date) => new Date(date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+// Month and weekday names go through the dictionary (not Intl) so Nepali shows
+// the same in every browser.
+const EN = "en-US";
+const monthName = (date, t) => t(date.toLocaleDateString(EN, { month: "long" }));
+const monthTitle = (year, month, t) => `${monthName(new Date(year, month, 1), t)} ${year}`;
+const dayTitle = (date, t) =>
+  t("{weekday}, {month} {day}", { weekday: t(date.toLocaleDateString(EN, { weekday: "long" })), month: monthName(date, t), day: date.getDate() });
+const timeOf = (date) => new Date(date).toLocaleTimeString(EN, { hour: "numeric", minute: "2-digit" });
 
 // Month view of the events list: a day with events can be selected to see them
 // underneath. `registeredIds` marks events the student already signed up for.
 export default function EventCalendar({ events, registeredIds }) {
+  const { t } = useLang();
+  const eventCount = (n) => t(n === 1 ? "{n} event" : "{n} events", { n });
   const today = new Date();
   const [{ year, month }, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const [selectedKey, setSelectedKey] = useState(dayKey(today));
@@ -35,17 +43,17 @@ export default function EventCalendar({ events, registeredIds }) {
     <div className="mx-auto mt-8 max-w-4xl">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100" aria-live="polite">
-          {monthTitle(year, month)}
-          <span className="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">{pluralize(monthCount, "event")}</span>
+          {monthTitle(year, month, t)}
+          <span className="ml-2 text-sm font-normal text-slate-500 dark:text-slate-400">{eventCount(monthCount)}</span>
         </h2>
         <div className="flex items-center gap-1.5">
           <button onClick={goToday} className="rounded-lg px-3 py-1.5 text-sm font-semibold text-primary-600 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/20">
-            Today
+            {t("Today")}
           </button>
-          <button onClick={() => go(-1)} aria-label="Previous month" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50">
+          <button onClick={() => go(-1)} aria-label={t("Previous month")} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50">
             <FaChevronLeft className="text-xs" />
           </button>
-          <button onClick={() => go(1)} aria-label="Next month" className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50">
+          <button onClick={() => go(1)} aria-label={t("Next month")} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50">
             <FaChevronRight className="text-xs" />
           </button>
         </div>
@@ -55,7 +63,7 @@ export default function EventCalendar({ events, registeredIds }) {
         <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50 text-center text-xs font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-300">
           {WEEKDAYS.map((d) => (
             <div key={d} className="py-2">
-              {d}
+              {t(d)}
             </div>
           ))}
         </div>
@@ -74,7 +82,7 @@ export default function EventCalendar({ events, registeredIds }) {
                   } ${cell.inMonth ? "" : "bg-slate-50/70 dark:bg-slate-950/40"}`}
                 >
                   <span className="sr-only">
-                    {`${cell.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}, ${pluralize(cell.events.length, "event")}`}
+                    {`${dayTitle(cell.date, t)}, ${eventCount(cell.events.length)}`}
                   </span>
                   <span
                     aria-hidden="true"
@@ -97,7 +105,7 @@ export default function EventCalendar({ events, registeredIds }) {
                       </span>
                     ))}
                     {cell.events.length > 2 && (
-                      <span className="px-1 text-[11px] font-medium text-slate-600 dark:text-slate-400">+{cell.events.length - 2} more</span>
+                      <span className="px-1 text-[11px] font-medium text-slate-600 dark:text-slate-400">{t("+{n} more", { n: cell.events.length - 2 })}</span>
                     )}
                   </span>
                 </button>
@@ -110,11 +118,11 @@ export default function EventCalendar({ events, registeredIds }) {
       <div className="mt-5" aria-live="polite">
         <h3 className="font-semibold text-slate-800 dark:text-slate-100">
           {selectedCell
-            ? selectedCell.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
-            : monthTitle(year, month)}
+            ? dayTitle(selectedCell.date, t)
+            : monthTitle(year, month, t)}
         </h3>
         {selectedEvents.length === 0 ? (
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">No events on this day.</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("No events on this day.")}</p>
         ) : (
           <ul className="mt-2 divide-y divide-slate-100 rounded-xl border border-slate-100 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
             {selectedEvents.map((e) => (
@@ -128,9 +136,9 @@ export default function EventCalendar({ events, registeredIds }) {
                     </span>
                   </span>
                   {registeredIds.has(e._id) ? (
-                    <span className="shrink-0 text-xs font-semibold text-emerald-700 dark:text-emerald-400">Registered</span>
+                    <span className="shrink-0 text-xs font-semibold text-emerald-700 dark:text-emerald-400">{t("Registered")}</span>
                   ) : isPastEvent(e.date) ? (
-                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">Past</span>
+                    <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{t("Past")}</span>
                   ) : null}
                 </Link>
               </li>
