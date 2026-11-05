@@ -3,12 +3,21 @@ import { Link } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import { useNotifications } from "../hooks/useNotifications";
 import { timeAgo } from "../utils/timeAgo";
+import { useLang } from "../context/LanguageContext";
+
+// timeAgo() returns English ("5 min ago"); show it in the chosen language.
+function agoText(text, t) {
+  const m = /^(\d+) (min|h|d) ago$/.exec(text);
+  if (m) return t(`{n} ${m[2]} ago`, { n: m[1] });
+  return t(text);
+}
 
 // The bell in the top bar: a badge with the number of unseen messages and a
 // small list ("You got a seat: Hack Night"). Opening it shows the newest
 // messages and marks them as seen; the ones that were new stay highlighted
 // until it is closed.
 export default function NotificationBell({ className = "" }) {
+  const { t } = useLang();
   const { items, unread, load, markAllRead } = useNotifications(true);
   const [open, setOpen] = useState(false);
   const [newIds, setNewIds] = useState(() => new Set());
@@ -50,7 +59,7 @@ export default function NotificationBell({ className = "" }) {
         type="button"
         ref={buttonRef}
         onClick={toggle}
-        aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+        aria-label={unread > 0 ? t("Notifications, {n} unread", { n: unread }) : t("Notifications")}
         aria-expanded={open}
         aria-haspopup="true"
         className="relative rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -68,13 +77,13 @@ export default function NotificationBell({ className = "" }) {
       {open && (
         <div
           role="region"
-          aria-label="Notifications"
+          aria-label={t("Notifications")}
           className="card-surface fixed inset-x-3 top-16 z-50 animate-fade-in p-2 md:absolute md:inset-x-auto md:right-0 md:top-auto md:mt-2 md:w-96"
         >
-          <p className="px-3 pb-1 pt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">Notifications</p>
+          <p className="px-3 pb-1 pt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">{t("Notifications")}</p>
           {items.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
-              Nothing yet. You'll see waitlist spots, join decisions and event changes here.
+              {t("Nothing yet. You'll see waitlist spots, join decisions and event changes here.")}
             </p>
           ) : (
             <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
@@ -82,10 +91,10 @@ export default function NotificationBell({ className = "" }) {
                 const body = (
                   <>
                     <span className="flex items-start gap-2">
-                      {newIds.has(n._id) && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-500" aria-label="New" />}
-                      <span className="min-w-0 text-sm text-slate-700 dark:text-slate-200">{n.title}</span>
+                      {newIds.has(n._id) && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-500" aria-label={t("New")} />}
+                      <span className="min-w-0 text-sm text-slate-700 dark:text-slate-200">{t(n.title)}</span>
                     </span>
-                    <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{timeAgo(n.createdAt)}</span>
+                    <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{agoText(timeAgo(n.createdAt), t)}</span>
                   </>
                 );
                 return (

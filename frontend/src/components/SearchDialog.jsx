@@ -6,9 +6,11 @@ import { useEvents } from "../context/EventsContext";
 import { useClubs } from "../context/ClubsContext";
 import { searchSite } from "../utils/siteSearch";
 import { formatDateAndTime } from "../utils/formatDate";
+import { useLang } from "../context/LanguageContext";
 
 // One search box for the whole site: clubs and events that match what you type.
 export default function SearchDialog({ isOpen, onClose }) {
+  const { t } = useLang();
   const { events } = useEvents();
   const { clubs } = useClubs();
   const [query, setQuery] = useState("");
@@ -25,8 +27,8 @@ export default function SearchDialog({ isOpen, onClose }) {
     "-mx-2 flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50";
 
   return (
-    <Modal isOpen={isOpen} onClose={close} title="Search clubs and events">
-      <label className="label-field" htmlFor="site-search">What are you looking for?</label>
+    <Modal isOpen={isOpen} onClose={close} title={t("Search clubs and events")}>
+      <label className="label-field" htmlFor="site-search">{t("What are you looking for?")}</label>
       <div className="relative">
         <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
         <input
@@ -36,19 +38,19 @@ export default function SearchDialog({ isOpen, onClose }) {
           autoComplete="off"
           className="input-field"
           style={{ paddingLeft: "2.75rem" }}
-          placeholder="A club, event, place or topic"
+          placeholder={t("A club, event, place or topic")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </div>
 
       <div aria-live="polite" className="mt-4">
-        {!hasQuery && <p className="text-sm text-slate-500 dark:text-slate-400">Type to search every club and event.</p>}
-        {nothing && <p className="text-sm text-slate-500 dark:text-slate-400">Nothing matches &ldquo;{query.trim()}&rdquo;. Try a shorter word.</p>}
+        {!hasQuery && <p className="text-sm text-slate-500 dark:text-slate-400">{t("Type to search every club and event.")}</p>}
+        {nothing && <p className="text-sm text-slate-500 dark:text-slate-400">{t("Nothing matches “{query}”. Try a shorter word.", { query: query.trim() })}</p>}
 
         {results.clubs.length > 0 && (
-          <section aria-label="Clubs">
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Clubs</h3>
+          <section aria-label={t("Clubs")}>
+            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("Clubs")}</h3>
             <ul>
               {results.clubs.map((club) => (
                 <li key={club._id}>
@@ -66,8 +68,8 @@ export default function SearchDialog({ isOpen, onClose }) {
         )}
 
         {results.events.length > 0 && (
-          <section aria-label="Events" className={results.clubs.length > 0 ? "mt-4" : ""}>
-            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Events</h3>
+          <section aria-label={t("Events")} className={results.clubs.length > 0 ? "mt-4" : ""}>
+            <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">{t("Events")}</h3>
             <ul>
               {results.events.map((event) => (
                 <li key={event._id}>
