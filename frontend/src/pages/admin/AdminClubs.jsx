@@ -5,7 +5,7 @@ import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
 import { getClubIcon } from "../../utils/iconMap";
 import { useDebounce } from "../../hooks/useDebounce";
-import { pluralize } from "../../utils/plural";
+import { useLang } from "../../context/LanguageContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
 import ClubMembersModal from "../../components/ClubMembersModal";
 import { useRequestCounts } from "../../hooks/useRequestCounts";
@@ -36,6 +36,7 @@ const EMPTY_FORM = {
 export default function AdminClubs() {
   const { clubs, loading, error, refreshClubs } = useClubs();
   const toast = useToast();
+  const { t } = useLang();
   const { counts: waiting, reload: reloadWaiting } = useRequestCounts();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 250);
@@ -67,7 +68,7 @@ export default function AdminClubs() {
       const res = await api.get(`/admin/clubs/${club._id}/leaders`);
       setLeaders(res.data.leaders || []);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to load club leaders"));
+      toast.error(getErrorMessage(err, t("Failed to load club leaders")));
       setLeadersTarget(null);
     } finally {
       setLeadersLoading(false);
@@ -112,10 +113,10 @@ export default function AdminClubs() {
     setSavingLeaders(true);
     try {
       await api.put(`/admin/clubs/${leadersTarget._id}/leaders`, { userIds: leaders.map((l) => l._id) });
-      toast.success("Club leaders updated.");
+      toast.success(t("Club leaders updated."));
       setLeadersTarget(null);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to update club leaders"));
+      toast.error(getErrorMessage(err, t("Failed to update club leaders")));
     } finally {
       setSavingLeaders(false);
     }
@@ -166,15 +167,15 @@ export default function AdminClubs() {
     try {
       if (editingClub) {
         await api.put(`/clubs/${editingClub._id}`, payload);
-        toast.success("Club updated.");
+        toast.success(t("Club updated."));
       } else {
         await api.post("/clubs", payload);
-        toast.success("Club created.");
+        toast.success(t("Club created."));
       }
       await refreshClubs();
       setFormOpen(false);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to save club"));
+      toast.error(getErrorMessage(err, t("Failed to save club")));
     } finally {
       setSaving(false);
     }
@@ -184,11 +185,11 @@ export default function AdminClubs() {
     setDeleting(true);
     try {
       await api.delete(`/clubs/${deleteTarget._id}`);
-      toast.success("Club deleted.");
+      toast.success(t("Club deleted."));
       await refreshClubs();
       setDeleteTarget(null);
     } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to delete club"));
+      toast.error(getErrorMessage(err, t("Failed to delete club")));
     } finally {
       setDeleting(false);
     }
@@ -206,17 +207,17 @@ export default function AdminClubs() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-            Manage Clubs
+            {t("Manage Clubs")}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">{pluralize(clubs.length, "club")} total</p>
+          <p className="text-slate-500 dark:text-slate-400">{t(clubs.length === 1 ? "{n} club total" : "{n} clubs total", { n: clubs.length })}</p>
         </div>
         <Button icon={FaPlus} onClick={openCreate}>
-          Add Club
+          {t("Add Club")}
         </Button>
       </div>
 
       <div className="max-w-sm">
-        <SearchBar value={query} onChange={setQuery} placeholder="Search clubs..." />
+        <SearchBar value={query} onChange={setQuery} placeholder={t("Search clubs...")} />
       </div>
 
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
@@ -244,8 +245,8 @@ export default function AdminClubs() {
                 <div className="flex w-full shrink-0 items-center justify-end gap-1 sm:w-auto">
                   <button
                     onClick={() => setMembersTarget(club)}
-                    aria-label={`View members of ${club.name}${waiting[club._id] ? `, ${waiting[club._id]} waiting for approval` : ""}`}
-                    title="View members"
+                    aria-label={waiting[club._id] ? t("View members of {name}, {n} waiting for approval", { name: club.name, n: waiting[club._id] }) : t("View members of {name}", { name: club.name })}
+                    title={t("View members")}
                     className="relative flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-900/20"
                   >
                     <FaUsers />
@@ -257,30 +258,30 @@ export default function AdminClubs() {
                   </button>
                   <button
                     onClick={() => openMessage(club)}
-                    aria-label={`Message members of ${club.name}`}
-                    title="Message members"
+                    aria-label={t("Message members of {name}", { name: club.name })}
+                    title={t("Message members")}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
                   >
                     <FaEnvelope />
                   </button>
                   <button
                     onClick={() => openLeaders(club)}
-                    aria-label={`Manage leaders of ${club.name}`}
-                    title="Club leaders"
+                    aria-label={t("Manage leaders of {name}", { name: club.name })}
+                    title={t("Club leaders")}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20"
                   >
                     <FaUserTie />
                   </button>
                   <button
                     onClick={() => openEdit(club)}
-                    aria-label={`Edit ${club.name}`}
+                    aria-label={t("Edit {name}", { name: club.name })}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600 dark:hover:bg-primary-900/20"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => setDeleteTarget(club)}
-                    aria-label={`Delete ${club.name}`}
+                    aria-label={t("Delete {name}", { name: club.name })}
                     className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500 dark:hover:bg-rose-900/20"
                   >
                     <FaTrash />
@@ -292,48 +293,48 @@ export default function AdminClubs() {
         )}
         {!loading && error && filteredClubs.length === 0 && (
           <div className="p-6 text-center" role="alert">
-            <p role="alert" className="font-medium text-rose-700 dark:text-rose-400">Couldn't load clubs.</p>
+            <p role="alert" className="font-medium text-rose-700 dark:text-rose-400">{t("Couldn't load clubs.")}</p>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
-            <button type="button" onClick={() => refreshClubs()} className="btn-outline mt-3">Try again</button>
+            <button type="button" onClick={() => refreshClubs()} className="btn-outline mt-3">{t("Try again")}</button>
           </div>
         )}
         {!loading && !error && filteredClubs.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaUsers className="mx-auto mb-2 text-2xl text-slate-300" />
-            {clubs.length === 0 ? 'No clubs yet. Click "Add Club" to create one.' : "No clubs match your search."}
+            {clubs.length === 0 ? t("No clubs yet. Click “Add Club” to create one.") : t("No clubs match your search.")}
           </p>
         )}
       </div>
 
       <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
-      <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingClub ? "Edit Club" : "Add Club"} size="lg">
+      <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingClub ? t("Edit Club") : t("Add Club")} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field" htmlFor="club-name">Club name</label>
+              <label className="label-field" htmlFor="club-name">{t("Club name")}</label>
               <input data-autofocus id="club-name" name="name" maxLength={100} className="input-field" value={form.name} onChange={handleChange} required />
             </div>
             <div>
-              <label className="label-field" htmlFor="club-category">Category</label>
-              <input id="club-category" name="category" maxLength={50} className="input-field" value={form.category} onChange={handleChange} required placeholder="Technology, Arts, Sports..." />
+              <label className="label-field" htmlFor="club-category">{t("Category")}</label>
+              <input id="club-category" name="category" maxLength={50} className="input-field" value={form.category} onChange={handleChange} required placeholder={t("Technology, Arts, Sports...")} />
             </div>
           </div>
           <div>
-            <label className="label-field" htmlFor="club-description">Short description</label>
+            <label className="label-field" htmlFor="club-description">{t("Short description")}</label>
             <textarea id="club-description" name="description" rows={2} maxLength={500} className="input-field resize-none" value={form.description} onChange={handleChange} required />
           </div>
           <div>
-            <label className="label-field" htmlFor="club-longDescription">Full description</label>
+            <label className="label-field" htmlFor="club-longDescription">{t("Full description")}</label>
             <textarea id="club-longDescription" name="longDescription" rows={3} maxLength={5000} className="input-field resize-none" value={form.longDescription} onChange={handleChange} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field" htmlFor="club-image">Image URL</label>
+              <label className="label-field" htmlFor="club-image">{t("Image URL")}</label>
               <input id="club-image" name="image" maxLength={500} className="input-field" value={form.image} onChange={handleChange} placeholder="https://..." />
             </div>
             <div>
-              <label className="label-field" htmlFor="club-icon">Icon</label>
+              <label className="label-field" htmlFor="club-icon">{t("Icon")}</label>
               <select id="club-icon" name="icon" className="input-field" value={form.icon} onChange={handleChange}>
                 {ICON_OPTIONS.map((opt) => (
                   <option key={opt} value={opt}>{opt.replace("Fa", "")}</option>
@@ -342,38 +343,38 @@ export default function AdminClubs() {
             </div>
           </div>
           <div>
-            <label className="label-field" htmlFor="club-activities">Activities (one per line)</label>
+            <label className="label-field" htmlFor="club-activities">{t("Activities (one per line)")}</label>
             <textarea id="club-activities" name="activities" rows={3} className="input-field resize-none" value={form.activities} onChange={handleChange} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field" htmlFor="club-leadName">Club lead name</label>
+              <label className="label-field" htmlFor="club-leadName">{t("Club lead name")}</label>
               <input id="club-leadName" name="leadName" maxLength={100} className="input-field" value={form.leadName} onChange={handleChange} />
             </div>
             <div>
-              <label className="label-field" htmlFor="club-leadRole">Club lead role</label>
-              <input id="club-leadRole" name="leadRole" maxLength={100} className="input-field" value={form.leadRole} onChange={handleChange} placeholder="Club President" />
+              <label className="label-field" htmlFor="club-leadRole">{t("Club lead role")}</label>
+              <input id="club-leadRole" name="leadRole" maxLength={100} className="input-field" value={form.leadRole} onChange={handleChange} placeholder={t("Club President")} />
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label-field" htmlFor="club-email">Contact email</label>
+              <label className="label-field" htmlFor="club-email">{t("Contact email")}</label>
               <input id="club-email" name="email" type="email" maxLength={254} className="input-field" value={form.email} onChange={handleChange} />
             </div>
             <div>
-              <label className="label-field" htmlFor="club-foundedYear">Founded year</label>
+              <label className="label-field" htmlFor="club-foundedYear">{t("Founded year")}</label>
               <input id="club-foundedYear" name="foundedYear" maxLength={10} className="input-field" value={form.foundedYear} onChange={handleChange} />
             </div>
           </div>
           <label className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
             <input type="checkbox" name="requiresApproval" checked={!!form.requiresApproval} onChange={handleChange} className="mt-0.5 h-4 w-4 rounded border-slate-300" />
             <span>
-              Approve each person who joins
-              <span className="block text-xs text-slate-500 dark:text-slate-400">Students send a request; the club's leaders or an admin accept or decline it. Unticking later lets everyone waiting in.</span>
+              {t("Approve each person who joins")}
+              <span className="block text-xs text-slate-500 dark:text-slate-400">{t("Students send a request; the club's leaders or an admin accept or decline it. Unticking later lets everyone waiting in.")}</span>
             </span>
           </label>
           <Button type="submit" className="w-full" disabled={saving}>
-            {saving ? "Saving..." : editingClub ? "Save changes" : "Create club"}
+            {saving ? t("Saving...") : editingClub ? t("Save changes") : t("Create club")}
           </Button>
         </form>
       </Modal>
@@ -381,11 +382,10 @@ export default function AdminClubs() {
       <ClubMessageModal club={messageTarget} onClose={() => setMessageTarget(null)} />
       <ClubMembersModal club={membersTarget} onClose={() => { setMembersTarget(null); reloadWaiting(); }} />
 
-      <Modal isOpen={!!leadersTarget} onClose={() => setLeadersTarget(null)} title={`Club leaders — ${leadersTarget?.name || ""}`} size="md">
+      <Modal isOpen={!!leadersTarget} onClose={() => setLeadersTarget(null)} title={t("Club leaders — {name}", { name: leadersTarget?.name || "" })} size="md">
         <div className="space-y-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Leaders can create and manage events for this club, see who registered, mark attendance and check
-            students in. They can't touch anything else.
+            {t("Leaders can create and manage events for this club, see who registered, mark attendance and check students in. They can't touch anything else.")}
           </p>
           {leadersLoading ? (
             <div className="flex justify-center py-4">
@@ -394,7 +394,7 @@ export default function AdminClubs() {
           ) : (
             <ul className="divide-y divide-slate-100 rounded-xl border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
               {leaders.length === 0 && (
-                <li className="p-3 text-sm text-slate-500 dark:text-slate-400">No leaders yet.</li>
+                <li className="p-3 text-sm text-slate-500 dark:text-slate-400">{t("No leaders yet.")}</li>
               )}
               {leaders.map((l) => (
                 <li key={l._id} className="flex items-center justify-between gap-3 p-3">
@@ -405,23 +405,23 @@ export default function AdminClubs() {
                   <button
                     type="button"
                     onClick={() => setLeaders((prev) => prev.filter((x) => x._id !== l._id))}
-                    aria-label={`Remove ${l.name} as leader`}
+                    aria-label={t("Remove {name} as leader", { name: l.name })}
                     className="text-xs font-medium text-rose-700 hover:underline dark:text-rose-400"
                   >
-                    Remove
+                    {t("Remove")}
                   </button>
                 </li>
               ))}
             </ul>
           )}
           <div>
-            <label className="label-field" htmlFor="leader-search">Add a leader</label>
+            <label className="label-field" htmlFor="leader-search">{t("Add a leader")}</label>
             <input
               id="leader-search"
               className="input-field"
               value={leaderQuery}
               onChange={(e) => setLeaderQuery(e.target.value)}
-              placeholder="Search by name, email or student ID"
+              placeholder={t("Search by name, email or student ID")}
               autoComplete="off"
             />
             {leaderResults.length > 0 && (
@@ -441,7 +441,7 @@ export default function AdminClubs() {
                         <span className="block truncate text-sm font-medium text-slate-800 dark:text-slate-100">{u.name}</span>
                         <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{u.email}</span>
                       </span>
-                      <span className="text-xs font-medium text-primary-600">Add</span>
+                      <span className="text-xs font-medium text-primary-600">{t("Add")}</span>
                     </button>
                   </li>
                 ))}
@@ -449,7 +449,7 @@ export default function AdminClubs() {
             )}
           </div>
           <Button className="w-full" onClick={saveLeaders} disabled={savingLeaders || leadersLoading}>
-            {savingLeaders ? "Saving..." : "Save leaders"}
+            {savingLeaders ? t("Saving...") : t("Save leaders")}
           </Button>
         </div>
       </Modal>
@@ -460,7 +460,7 @@ export default function AdminClubs() {
         onConfirm={handleDelete}
         confirming={deleting}
         title="Delete this club?"
-        message={`This will permanently delete "${deleteTarget?.name}". Students' memberships in this club will also be removed. This can't be undone.`}
+        message={t("This will permanently delete “{name}”. Students' memberships in this club will also be removed. This can't be undone.", { name: deleteTarget?.name })}
       />
     </div>
   );
