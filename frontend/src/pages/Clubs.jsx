@@ -189,7 +189,7 @@ export default function Clubs() {
           </div>
         ) : filteredClubs.length > 0 ? (
           <>
-            <h2 className="sr-only">Club list</h2>
+            <h2 className="sr-only">{t("Club list")}</h2>
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pagedClubs.map((club, i) => (
                 <Reveal key={club._id} delay={(i % 6) * 80}>

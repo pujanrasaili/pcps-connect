@@ -152,7 +152,7 @@ export default function Events() {
             ))}
           </div>
           )}
-          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label="View">
+          <div className="inline-flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800" role="group" aria-label={t("View")}>
             {[
               ["list", "List", FaList],
               ["calendar", "Calendar", FaRegCalendarAlt],
@@ -227,7 +227,7 @@ export default function Events() {
           </div>
         ) : filteredEvents.length > 0 ? (
           <>
-            <h2 className="sr-only">Event list</h2>
+            <h2 className="sr-only">{t("Event list")}</h2>
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pagedEvents.map((event, i) => (
                 <Reveal key={event._id} delay={(i % 6) * 80}>

@@ -3,7 +3,7 @@ import { useLang } from "../context/LanguageContext";
 export default function FilterButtons({ options, active, onChange }) {
   const { t } = useLang();
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Filter options">
+    <div className="flex flex-wrap gap-2" role="group" aria-label={t("Filter options")}>
       {options.map((option) => {
         const isActive = active === option;
         return (

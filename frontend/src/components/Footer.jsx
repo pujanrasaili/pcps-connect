@@ -38,7 +38,7 @@ export default function Footer() {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={label}
+                aria-label={t(label)}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-primary-500 hover:text-white dark:bg-slate-800 dark:text-slate-400"
               >
                 <Icon className="text-sm" />
