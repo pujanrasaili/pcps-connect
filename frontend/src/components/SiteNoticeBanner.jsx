@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaBullhorn, FaTimes } from "react-icons/fa";
 import { api } from "../services/api";
+import { useLang } from "../context/LanguageContext";
 import { noticeId } from "../utils/siteNotice";
 
 const DISMISSED_KEY = "pcps.dismissedNotice";
@@ -16,6 +17,7 @@ function readDismissed() {
 // The announcement an admin set (Admin -> Overview). Closing it hides that
 // exact notice for the rest of the browser session; an edited one shows again.
 export default function SiteNoticeBanner() {
+  const { t } = useLang();
   const [notice, setNotice] = useState(null);
   const [dismissed, setDismissed] = useState(readDismissed);
 
@@ -56,7 +58,7 @@ export default function SiteNoticeBanner() {
     >
       <FaBullhorn className="mt-0.5 shrink-0" aria-hidden="true" />
       <p className="min-w-0 flex-1 break-words">{notice.message}</p>
-      <button type="button" onClick={close} aria-label="Dismiss announcement" className="shrink-0 rounded p-1 hover:bg-black/5 dark:hover:bg-white/10">
+      <button type="button" onClick={close} aria-label={t("Dismiss announcement")} className="shrink-0 rounded p-1 hover:bg-black/5 dark:hover:bg-white/10">
         <FaTimes />
       </button>
     </div>
