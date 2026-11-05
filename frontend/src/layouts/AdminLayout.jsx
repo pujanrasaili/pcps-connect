@@ -8,6 +8,7 @@ import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
 import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLang } from "../context/LanguageContext";
 
 const ADMIN_LINKS = [
   { to: "/admin", label: "Overview", icon: FaChartPie, end: true },
@@ -36,6 +37,7 @@ export default function AdminLayout() {
   const [messageCount, setMessageCount] = useState(0);
   const { pathname } = useLocation();
   const { user } = useAuth();
+  const { t } = useLang();
   const isAdmin = user?.role === "admin";
   const links = isAdmin ? ADMIN_LINKS : LEADER_LINKS;
 
@@ -76,9 +78,9 @@ export default function AdminLayout() {
         <div className="container-page grid grid-cols-1 gap-6 py-8 lg:grid-cols-[220px_1fr]">
           <aside className="card-surface h-fit p-4 lg:sticky lg:top-24">
             <p className="px-2 pb-2 text-xs lg:pb-3 font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {isAdmin ? "Admin Panel" : "Club Leader"}
+              {isAdmin ? t("Admin Panel") : t("Club Leader")}
             </p>
-            <nav aria-label="Admin menu" className="flex flex-wrap gap-1 lg:flex-col">
+            <nav aria-label={t("Admin menu")} className="flex flex-wrap gap-1 lg:flex-col">
               {links.map(({ to, label, icon: Icon, end, badgeKey }) => {
                 const badgeCount = badgeKey ? badges[badgeKey] : 0; 
                 return (
@@ -95,7 +97,7 @@ export default function AdminLayout() {
                     }
                   >
                     <span className="flex items-center gap-2 lg:gap-3">
-                      <Icon className="shrink-0 text-base" /> {label}
+                      <Icon className="shrink-0 text-base" /> {t(label)}
                     </span>
                     {badgeCount > 0 && (
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-semibold text-white">
