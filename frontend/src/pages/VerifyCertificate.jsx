@@ -3,10 +3,12 @@ import { Link, useParams } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { formatDate } from "../utils/formatDate";
+import { useLang } from "../context/LanguageContext";
 
 // Public page behind the QR printed on every certificate. No login needed:
 // the point is that anyone handed a certificate can check it.
 export default function VerifyCertificate() {
+  const { t } = useLang();
   const { code } = useParams();
   const [state, setState] = useState({ status: "loading" });
 
@@ -19,7 +21,7 @@ export default function VerifyCertificate() {
         if (cancelled) return;
         // The API answers 404 {valid:false} for anything it can't vouch for.
         if (err.response?.status === 404) setState({ status: "invalid" });
-        else setState({ status: "error", message: getErrorMessage(err, "Couldn't check this certificate right now") });
+        else setState({ status: "error", message: getErrorMessage(err, t("Couldn't check this certificate right now")) });
       });
     return () => {
       cancelled = true;
@@ -32,7 +34,7 @@ export default function VerifyCertificate() {
         <div className="mx-auto max-w-md text-center">
           {state.status === "loading" && (
             <div className="flex justify-center py-10">
-              <h1 className="sr-only">Checking certificate</h1>
+              <h1 className="sr-only">{t("Checking certificate")}</h1>
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
             </div>
           )}
@@ -41,10 +43,10 @@ export default function VerifyCertificate() {
             <div className="card-surface p-8 ring-2 ring-emerald-300" role="status">
               <FaCheckCircle className="mx-auto text-5xl text-emerald-500" />
               <h1 className="mt-4 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-                Genuine certificate
+                {t("Genuine certificate")}
               </h1>
               <p className="mt-4 text-xl font-semibold text-slate-800 dark:text-slate-100">{state.data.student.name}</p>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">attended</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("attended")}</p>
               <p className="mt-1 font-medium text-slate-700 dark:text-slate-200">{state.data.event.title}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">{formatDate(state.data.event.date)}</p>
             </div>
@@ -54,24 +56,23 @@ export default function VerifyCertificate() {
             <div className="card-surface p-8 ring-2 ring-rose-300" role="alert">
               <FaTimesCircle className="mx-auto text-5xl text-rose-500" />
               <h1 className="mt-4 font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
-                Couldn't verify this certificate
+                {t("Couldn't verify this certificate")}
               </h1>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                This code isn't one PCPS Connect issued, or the attendance it refers to was never recorded. If you were
-                given this certificate, treat it as unverified.
+                {t("This code isn't one PCPS Connect issued, or the attendance it refers to was never recorded. If you were given this certificate, treat it as unverified.")}
               </p>
             </div>
           )}
 
           {state.status === "error" && (
             <div className="py-10">
-              <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">Couldn't check this certificate</h1>
+              <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">{t("Couldn't check this certificate")}</h1>
               <p role="alert" className="mt-2 text-rose-700 dark:text-rose-400">{state.message}</p>
             </div>
           )}
 
           <Link to="/" className="mt-6 inline-block text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
-            Go to PCPS Connect
+            {t("Go to PCPS Connect")}
           </Link>
         </div>
       </div>
