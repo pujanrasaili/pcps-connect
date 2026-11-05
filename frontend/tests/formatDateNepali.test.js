@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { formatDate, formatDateTime, formatMonth } from "../src/utils/formatDate.js";
+import { loadNe } from "../src/i18n/dictionary.js";
 
 const sample = "2026-11-10T04:55:00Z";
 
@@ -18,7 +19,8 @@ test("English dates are unchanged", () => {
   assert.equal(withLang("en", () => formatMonth(sample)), "NOV");
 });
 
-test("Nepali dates use Nepali weekday and month names", () => {
+test("Nepali dates use Nepali weekday and month names", async () => {
+  await loadNe();
   const text = withLang("ne", () => formatDate(sample));
   assert.match(text, /नोभे/);
   assert.doesNotMatch(text, /[A-Za-z]/);
