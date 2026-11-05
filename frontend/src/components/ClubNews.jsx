@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
+import { useLang } from "../context/LanguageContext";
 import { formatDate } from "../utils/formatDate";
 import ConfirmDialog from "./ConfirmDialog";
 import Button from "./Button";
@@ -14,6 +15,7 @@ const MAX = 1000;
 // convenience.
 export default function ClubNews({ clubId, canPost }) {
   const toast = useToast();
+  const { t } = useLang();
   const [posts, setPosts] = useState(null); // null = still loading
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
@@ -40,9 +42,9 @@ export default function ClubNews({ clubId, canPost }) {
       const res = await api.post(`/clubs/${clubId}/posts`, { body: draft });
       setPosts((prev) => [res.data.post, ...(prev || [])]);
       setDraft("");
-      toast.success("Posted.");
+      toast.success(t("Posted."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't post your update"));
+      toast.error(getErrorMessage(err, t("Couldn't post your update")));
     } finally {
       setSaving(false);
     }
@@ -54,9 +56,9 @@ export default function ClubNews({ clubId, canPost }) {
       await api.delete(`/clubs/${clubId}/posts/${deleteTarget._id}`);
       setPosts((prev) => (prev || []).filter((p) => p._id !== deleteTarget._id));
       setDeleteTarget(null);
-      toast.success("Post deleted.");
+      toast.success(t("Post deleted."));
     } catch (err) {
-      toast.error(getErrorMessage(err, "Couldn't delete the post"));
+      toast.error(getErrorMessage(err, t("Couldn't delete the post")));
     } finally {
       setDeleting(false);
     }
@@ -68,13 +70,13 @@ export default function ClubNews({ clubId, canPost }) {
   return (
     <section aria-labelledby="club-news-heading" className="mt-5">
       <h3 id="club-news-heading" className="font-semibold text-slate-800 dark:text-slate-100">
-        Club news
+        {t("Club news")}
       </h3>
 
       {canPost && (
         <form onSubmit={handlePost} className="mt-2">
           <label htmlFor="club-news-draft" className="sr-only">
-            Write a news update for this club
+            {t("Write a news update for this club")}
           </label>
           <textarea
             id="club-news-draft"
@@ -82,7 +84,7 @@ export default function ClubNews({ clubId, canPost }) {
             maxLength={MAX}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="Share an update with the club's members and visitors..."
+            placeholder={t("Share an update with the club's members and visitors...")}
             className="input-field resize-none"
           />
           <div className="mt-2 flex items-center justify-between gap-3">
@@ -90,7 +92,7 @@ export default function ClubNews({ clubId, canPost }) {
               {draft.length} / {MAX}
             </span>
             <Button type="submit" disabled={saving || !draft.trim()}>
-              {saving ? "Posting..." : "Post"}
+              {saving ? t("Posting...") : t("Post")}
             </Button>
           </div>
         </form>
@@ -109,7 +111,7 @@ export default function ClubNews({ clubId, canPost }) {
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(post)}
-                    aria-label={`Delete the post from ${formatDate(post.createdAt)}`}
+                    aria-label={t("Delete the post from {date}", { date: formatDate(post.createdAt) })}
                     className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:text-slate-300 dark:hover:bg-rose-900/20"
                   >
                     <FaTrash className="text-xs" />
@@ -120,7 +122,7 @@ export default function ClubNews({ clubId, canPost }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">No news yet. Your first update will show here.</p>
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{t("No news yet. Your first update will show here.")}</p>
       )}
 
       <ConfirmDialog
@@ -128,7 +130,7 @@ export default function ClubNews({ clubId, canPost }) {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title="Delete this post?"
-        message="It will disappear from the club page. This can't be undone."
+        message={t("It will disappear from the club page. This can't be undone.")}
         confirming={deleting}
       />
     </section>
