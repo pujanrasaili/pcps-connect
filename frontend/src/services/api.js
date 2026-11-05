@@ -1,3 +1,4 @@
+import { translateServerText } from "../i18n/serverText";
 import axios from "axios";
 import { optimizeImageUrl } from "../utils/imageUrl";
 import { slowRequests } from "../utils/slowRequests";
@@ -73,5 +74,5 @@ export function resolveUploadUrl(path, width) {
 
 // Normalizes axios errors into a plain message string (see utils/errorText.js).
 export function getErrorMessage(err, fallback) {
-  return errorText(err, fallback);
+  return translateServerText(errorText(err, fallback));
 }
