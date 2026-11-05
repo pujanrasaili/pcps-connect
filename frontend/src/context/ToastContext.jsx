@@ -1,4 +1,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
+import { useLang } from "./LanguageContext";
+import { translateServerText } from "../i18n/serverText";
 import { FaCheckCircle, FaExclamationCircle, FaInfoCircle, FaTimes } from "react-icons/fa";
 
 const ToastContext = createContext(null);
@@ -7,9 +9,10 @@ let idCounter = 0;
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
+  const { t } = useLang();
 
   const dismiss = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
   // type: "success" | "error" | "info"
@@ -46,19 +49,19 @@ export function ToastProvider({ children }) {
         className="fixed inset-x-0 top-4 z-[100] flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:items-end"
         aria-live="polite"
       >
-        {toasts.map((t) => {
-          const Icon = ICONS[t.type];
+        {toasts.map((item) => {
+          const Icon = ICONS[item.type];
           return (
             <div
-              key={t.id}
+              key={item.id}
               role="status"
-              className={`flex w-full max-w-sm items-start gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur animate-slide-up ${STYLES[t.type]}`}
+              className={`flex w-full max-w-sm items-start gap-3 rounded-xl border px-4 py-3 shadow-lg backdrop-blur animate-slide-up ${STYLES[item.type]}`}
             >
               <Icon className="mt-0.5 shrink-0" />
-              <p className="flex-1 text-sm font-medium">{t.message}</p>
+              <p className="flex-1 text-sm font-medium">{translateServerText(item.message)}</p>
               <button
-                onClick={() => dismiss(t.id)}
-                aria-label="Dismiss notification"
+                onClick={() => dismiss(item.id)}
+                aria-label={t("Dismiss notification")}
                 className="shrink-0 text-current opacity-60 hover:opacity-100"
               >
                 <FaTimes className="text-xs" />
