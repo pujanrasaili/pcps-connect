@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { FaTimes } from "react-icons/fa";
+import { useLang } from "../context/LanguageContext";
 
 export default function VideoLightbox({ isOpen, onClose, src, poster }) {
+  const { t } = useLang();
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -20,12 +22,12 @@ export default function VideoLightbox({ isOpen, onClose, src, poster }) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 animate-fade-in"
       role="dialog"
       aria-modal="true"
-      aria-label="Video player"
+      aria-label={t("Video player")}
     >
       <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={onClose} />
       <button
         onClick={onClose}
-        aria-label="Close video"
+        aria-label={t("Close video")}
         className="absolute right-4 top-4 sm:right-6 sm:top-6 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
       >
         <FaTimes className="text-lg" />
