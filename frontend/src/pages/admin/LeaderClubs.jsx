@@ -6,10 +6,12 @@ import ClubMessageModal from "../../components/ClubMessageModal";
 import ClubMembersModal from "../../components/ClubMembersModal";
 import Button from "../../components/Button";
 import { useRequestCounts } from "../../hooks/useRequestCounts";
+import { useLang } from "../../context/LanguageContext";
 
 // The clubs this person leads, with the one club-wide action a leader has:
 // seeing and emailing the club's members.
 export default function LeaderClubs() {
+  const { t } = useLang();
   const { clubs, loaded, failed, retry } = useLedClubs();
   // The leader endpoint has no member counts; the public club list does.
   const { clubs: allClubs } = useClubs();
@@ -20,8 +22,8 @@ export default function LeaderClubs() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">My Clubs</h1>
-        <p className="text-slate-500 dark:text-slate-400">Clubs you lead.</p>
+        <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">{t("My Clubs")}</h1>
+        <p className="text-slate-500 dark:text-slate-400">{t("Clubs you lead.")}</p>
       </div>
       <div className="card-surface divide-y divide-slate-100 dark:divide-slate-800">
         {!loaded && (
@@ -31,25 +33,25 @@ export default function LeaderClubs() {
         )}
         {loaded && failed && (
           <div className="p-6 text-center" role="alert">
-            <p role="alert" className="font-medium text-rose-700 dark:text-rose-400">Couldn't load your clubs.</p>
-            <button type="button" onClick={retry} className="btn-outline mt-3">Try again</button>
+            <p role="alert" className="font-medium text-rose-700 dark:text-rose-400">{t("Couldn't load your clubs.")}</p>
+            <button type="button" onClick={retry} className="btn-outline mt-3">{t("Try again")}</button>
           </div>
         )}
         {loaded && !failed && clubs.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaUsers className="mx-auto mb-2 text-2xl text-slate-300" />
-            You don't lead any clubs.
+            {t("You don't lead any clubs.")}
           </p>
         )}
         {clubs.map((club) => (
-          <div key={club._id} className="flex items-center justify-between gap-3 p-4">
+          <div key={club._id} className="flex flex-wrap items-center justify-between gap-3 p-4">
             <p className="min-w-0 truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
-            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <div className="flex min-w-0 flex-wrap justify-end gap-2">
               <Button icon={FaUsers} onClick={() => setMembersTarget(club)}>
-                View members{counts[club._id] ? ` (${counts[club._id]} waiting)` : ""}
+                {t("View members")}{counts[club._id] ? ` ${t("({n} waiting)", { n: counts[club._id] })}` : ""}
               </Button>
               <Button icon={FaEnvelope} onClick={() => setTarget(club)}>
-                Message members
+                {t("Message members")}
               </Button>
             </div>
           </div>
