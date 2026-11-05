@@ -5,6 +5,7 @@ import { FaPrint, FaArrowLeft } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { formatDate } from "../utils/formatDate";
 import logo from "../assets/images/pcps-shield.webp";
+import { useLang } from "../context/LanguageContext";
 
 // A printable certificate of attendance. Deliberately its own full-page route
 // (no site navbar/footer) so "Print" gives just the certificate, and always
@@ -12,6 +13,7 @@ import logo from "../assets/images/pcps-shield.webp";
 // paper. The QR points at the public verify page, so anyone holding a printout
 // can confirm it's genuine.
 export default function Certificate() {
+  const { t } = useLang();
   const { id } = useParams();
   const [certificate, setCertificate] = useState(null);
   const [error, setError] = useState("");
@@ -21,7 +23,7 @@ export default function Certificate() {
     api
       .get(`/registrations/${id}/certificate`)
       .then((res) => !cancelled && setCertificate(res.data.certificate))
-      .catch((err) => !cancelled && setError(getErrorMessage(err, "Couldn't load this certificate")));
+      .catch((err) => !cancelled && setError(getErrorMessage(err, t("Couldn't load this certificate"))));
     return () => {
       cancelled = true;
     };
@@ -30,10 +32,10 @@ export default function Certificate() {
   if (error) {
     return (
       <main className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">Couldn't open this certificate</h1>
+        <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">{t("Couldn't open this certificate")}</h1>
         <p role="alert" className="mt-2 font-medium text-rose-700 dark:text-rose-400">{error}</p>
         <Link to="/profile" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
-          <FaArrowLeft className="text-xs" /> Back to profile
+          <FaArrowLeft className="text-xs" /> {t("Back to profile")}
         </Link>
       </main>
     );
@@ -42,7 +44,7 @@ export default function Certificate() {
   if (!certificate) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center">
-        <h1 className="sr-only">Loading certificate</h1>
+        <h1 className="sr-only">{t("Loading certificate")}</h1>
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
       </main>
     );
@@ -51,19 +53,19 @@ export default function Certificate() {
   const verifyUrl = `${window.location.origin}/verify/${encodeURIComponent(certificate.code)}`;
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8 print:min-h-0 print:bg-white print:p-0">
+    <main className="min-h-screen bg-slate-100 px-4 py-8 print:min-h-0 print:bg-white print:p-0">
       {/* Landscape A4, no browser margins -- only applies while printing */}
       <style>{"@media print { @page { size: A4 landscape; margin: 0; } }"}</style>
 
       <div className="mx-auto mb-6 flex max-w-4xl items-center justify-between print:hidden">
         <Link to="/profile" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline">
-          <FaArrowLeft className="text-xs" /> Back to profile
+          <FaArrowLeft className="text-xs" /> {t("Back to profile")}
         </Link>
         <button
           onClick={() => window.print()}
           className="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
         >
-          <FaPrint /> Print / Save as PDF
+          <FaPrint /> {t("Print / Save as PDF")}
         </button>
       </div>
 
@@ -113,6 +115,6 @@ export default function Certificate() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
