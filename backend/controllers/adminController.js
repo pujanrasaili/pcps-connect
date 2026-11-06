@@ -19,6 +19,8 @@ const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } = require("../utils/notifyRegistrants");
 const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
+const { pickLanguage } = require("../utils/emailText");
+const { noticeEmail } = require("../utils/noticeEmailText");
 const { escapeHtml } = require("../utils/escapeHtml");
 
 const FORBIDDEN = { message: "Access denied: insufficient permissions" };
@@ -38,22 +40,17 @@ const { sendRegistrationConfirmation, sendRequestDeclined } = require("../utils/
 async function notifyApprovalDecision(user, approvalStatus) {
   try {
     const isApproved = approvalStatus === "approved";
+    const lang = pickLanguage(user.language);
+    const mail = noticeEmail(isApproved ? "approved" : "rejected", lang, { name: escapeHtml(user.name) });
     await sendEmail({
       to: user.email,
-      subject: isApproved ? "Your PCPS Connect account is approved" : "Update on your PCPS Connect registration",
+      subject: mail.subject,
       html: renderEmail({
-        heading: isApproved ? "You're approved!" : "Registration update",
-        bodyHtml: isApproved
-          ? `
-            <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-            <p style="margin: 0;">Your PCPS Connect account has been approved. You can log in now and start exploring clubs and events.</p>
-          `
-          : `
-            <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-            <p style="margin: 0;">Your PCPS Connect registration wasn't approved. If you think this is a mistake, please contact PCPS administration.</p>
-          `,
-        ctaText: isApproved ? "Log in" : undefined,
+        heading: mail.heading,
+        bodyHtml: mail.bodyHtml,
+        ctaText: isApproved ? mail.ctaText : undefined,
         ctaUrl: isApproved ? `${process.env.CLIENT_ORIGIN}/login` : undefined,
+        language: lang,
       }),
     });
   } catch (emailErr) {
@@ -202,7 +199,7 @@ async function bulkApproveUsers(req, res) {
     }
     const ids = [...new Set(userIds)];
 
-    const pending = await User.find({ _id: { $in: ids }, approvalStatus: "pending" }).select("name email");
+    const pending = await User.find({ _id: { $in: ids }, approvalStatus: "pending" }).select("name email language");
     if (pending.length === 0) {
       return res.status(200).json({ message: "No pending accounts to approve", approved: 0 });
     }
@@ -570,7 +567,7 @@ async function setClubLeaders(req, res) {
     const club = await Club.findById(req.params.id).select("name +leaders");
     if (!club) return res.status(404).json({ message: "Club not found" });
 
-    const users = await User.find({ _id: { $in: unique }, approvalStatus: "approved" }).select("name email studentId");
+    const users = await User.find({ _id: { $in: unique }, approvalStatus: "approved" }).select("name email studentId language");
     if (users.length !== unique.length) {
       return res.status(400).json({ message: "Every leader must be an approved student account" });
     }

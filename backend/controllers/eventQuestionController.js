@@ -58,7 +58,7 @@ async function askQuestion(req, res) {
 
     // Tell the organiser, unless they asked it themselves. Best effort.
     if (String(event.createdBy) !== String(req.user._id)) {
-      const organiser = await User.findById(event.createdBy).select("name email");
+      const organiser = await User.findById(event.createdBy).select("name email language");
       await notifyOrganiserOfQuestion(organiser, event, question, authorName);
     }
 
@@ -92,7 +92,7 @@ async function answerQuestion(req, res) {
 
     await recordAudit(req.user, "event.questionAnswered", `Answered a question on "${event.title}"`);
     if (firstAnswer) {
-      const asker = await User.findById(question.author).select("name email");
+      const asker = await User.findById(question.author).select("name email language");
       await notifyAskerOfAnswer(asker, event, question.question, answer);
     }
     res.status(200).json({ message: "Answer saved", question: publicQuestion(question, null) });

@@ -1,6 +1,8 @@
 const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
+const { pickLanguage } = require("./emailText");
+const { noticeEmail } = require("./noticeEmailText");
 
 // Tells students an admin has just made them a club leader, so the new
 // "Manage" area doesn't go unnoticed. Best-effort like every other notification
@@ -8,20 +10,15 @@ const { escapeHtml } = require("./escapeHtml");
 async function notifyNewLeaders(users, club) {
   const recipients = users.filter((u) => u?.email);
   await Promise.allSettled(
-    recipients.map((u) =>
-      sendEmail({
+    recipients.map((u) => {
+      const lang = pickLanguage(u.language);
+      const mail = noticeEmail("leader", lang, { name: escapeHtml(u.name), club: escapeHtml(club.name), rawClub: club.name });
+      return sendEmail({
         to: u.email,
-        subject: `You're now a leader of ${club.name}`,
-        html: renderEmail({
-          heading: `You're a leader of ${club.name}`,
-          bodyHtml: `
-            <p style="margin: 0 0 12px;">Hi ${escapeHtml(u.name)},</p>
-            <p style="margin: 0 0 16px;">An admin has made you a leader of <strong>${escapeHtml(club.name)}</strong> on PCPS Connect.</p>
-            <p style="margin: 0;">Log in and open <strong>Manage</strong> in the top menu to create events for the club, see who registered, mark attendance and check students in.</p>
-          `,
-        }),
-      })
-    )
+        subject: mail.subject,
+        html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: lang }),
+      });
+    })
   );
   return recipients.length;
 }
