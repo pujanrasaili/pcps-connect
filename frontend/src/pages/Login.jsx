@@ -137,7 +137,7 @@ export default function Login() {
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
                 aria-label={showPassword ? t("Hide password") : t("Show password")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
+                className="absolute right-1.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
               >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
