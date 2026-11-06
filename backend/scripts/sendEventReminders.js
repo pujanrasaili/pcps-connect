@@ -34,6 +34,8 @@ const { escapeHtml } = require("../utils/escapeHtml");
 const { formatEventDate } = require("../utils/formatEventDate");
 const { getReminderWindow } = require("../utils/reminderWindow");
 const { pushNotifications } = require("../utils/inApp");
+const { pickLanguage } = require("../utils/emailText");
+const { eventReminderEmail, settingsWord } = require("../utils/reminderEmailText");
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
@@ -53,7 +55,7 @@ async function run() {
       reminderSent: false,
       // Students whose request hasn't been approved aren't going yet.
       status: { $ne: "pending" },
-    }).populate("user", "name email eventReminders");
+    }).populate("user", "name email eventReminders language");
 
     for (const registration of registrations) {
       if (!registration.user?.email) {
@@ -80,21 +82,20 @@ async function run() {
       });
 
       try {
+        const lang = pickLanguage(registration.user.language);
+        const mail = eventReminderEmail(lang, {
+          name: escapeHtml(registration.user.name),
+          title: escapeHtml(event.title),
+          rawTitle: event.title,
+          when: formatEventDate(event.date, lang),
+          where: escapeHtml(event.location),
+          settings: settingsLink(undefined, settingsWord(lang)),
+        });
         await sendEmail({
           to: registration.user.email,
           headers: unsubscribeHeaders(),
-          subject: `Reminder: ${event.title} is coming up`,
-          html: renderEmail({
-            heading: "Your event is coming up",
-            bodyHtml: `
-              <p style="margin: 0 0 12px;">Hi ${escapeHtml(registration.user.name)},</p>
-              <p style="margin: 0 0 16px;">Just a reminder that you're registered for <strong>${escapeHtml(event.title)}</strong>, happening soon:</p>
-              <p style="margin: 0 0 4px;"><strong>When:</strong> ${formatEventDate(event.date)}</p>
-              <p style="margin: 0;"><strong>Where:</strong> ${escapeHtml(event.location)}</p>
-              <p style="margin: 16px 0 0;">See you there!</p>
-              <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">You can turn event reminders off in ${settingsLink()}.</p>
-            `,
-          }),
+          subject: mail.subject,
+          html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: mail.lang }),
         });
         sent++;
       } catch (err) {
