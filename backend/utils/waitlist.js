@@ -5,23 +5,25 @@ const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
 const { buildIcs } = require("./ics");
+const { pickLanguage } = require("./emailText");
+const { eventEmail } = require("./eventEmailText");
 const { pushNotifications } = require("./inApp");
 
 async function sendSpotOpenedEmail(user, event, needsApproval = false) {
   try {
+    const lang = pickLanguage(user.language);
+    const mail = eventEmail("spotOpened", lang, {
+      name: escapeHtml(user.name),
+      title: escapeHtml(event.title),
+      rawTitle: event.title,
+      when: formatEventDate(event.date, lang),
+      where: escapeHtml(event.location),
+      needsApproval,
+    });
     await sendEmail({
       to: user.email,
-      subject: `A spot opened up: ${event.title}`,
-      html: renderEmail({
-        heading: needsApproval ? "A spot opened up" : "You're in!",
-        bodyHtml: `
-          <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-          <p style="margin: 0 0 16px;">A spot opened up for <strong>${escapeHtml(event.title)}</strong> and you were next on the waitlist, so ${needsApproval ? "your request to join is now with the organisers, who approve each person. A seat is being held for you and you'll get another email when they decide" : "you're now registered"}.</p>
-          <p style="margin: 0 0 4px;"><strong>When:</strong> ${formatEventDate(event.date)}</p>
-          <p style="margin: 0;"><strong>Where:</strong> ${escapeHtml(event.location)}</p>
-          <p style="margin: 16px 0 0;">Can't make it any more? Unregister from your Dashboard so the next person gets the spot.</p>
-        `,
-      }),
+      subject: mail.subject,
+      html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: lang }),
       icalEvent: buildIcs(event),
     });
   } catch (err) {
@@ -43,7 +45,7 @@ async function promoteFromWaitlist(event) {
     const entry = await WaitlistEntry.findOneAndDelete(
       { event: event._id },
       { sort: { createdAt: 1 } }
-    ).populate("user", "name email");
+    ).populate("user", "name email language");
     if (!entry) break;
     if (!entry.user) continue; // deleted account -- skip, try the next one
 

@@ -357,12 +357,12 @@ async function getEventRegistrations(req, res) {
 
     const [registrations, waitlist] = await Promise.all([
       Registration.find({ event: req.params.id })
-        .populate("user", "name email studentId")
+        .populate("user", "name email studentId language")
         .sort({ createdAt: 1 }),
       // Oldest first -- the order students will be promoted in. Shows organisers
       // how much unmet demand a full event has.
       WaitlistEntry.find({ event: req.params.id })
-        .populate("user", "name email studentId")
+        .populate("user", "name email studentId language")
         .sort({ createdAt: 1 }),
     ]);
 
@@ -391,7 +391,7 @@ async function updateRegistrationAttendance(req, res) {
 
     registration.attended = attended;
     await registration.save();
-    await registration.populate("user", "name email studentId");
+    await registration.populate("user", "name email studentId language");
     res.status(200).json({ message: "Attendance updated", registration });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update attendance") });
@@ -410,7 +410,7 @@ async function decideRegistration(req, res) {
       return res.status(400).json({ message: 'decision must be "approve" or "reject"' });
     }
 
-    const registration = await Registration.findById(req.params.id).populate("user", "name email studentId");
+    const registration = await Registration.findById(req.params.id).populate("user", "name email studentId language");
     if (!registration) return res.status(404).json({ message: "Request not found -- the student may have withdrawn it" });
 
     const event = await Event.findById(registration.event);
