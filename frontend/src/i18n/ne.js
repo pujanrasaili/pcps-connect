@@ -1184,4 +1184,12 @@ export const ne = {
   "You got a seat: {title}": "तपाईंले सिट पाउनुभयो: {title}",
   "{club} declined your request to join": "{club} ले तपाईंको सामेल हुने अनुरोध अस्वीकार गर्‍यो",
   "{club} announced {title}": "{club} ले {title} घोषणा गर्‍यो",
+  "Forgot password": "पासवर्ड बिर्सनुभयो",
+  "Verify email": "इमेल प्रमाणीकरण",
+  "Admin overview": "प्रशासक सारांश",
+  "Manage clubs": "क्लब व्यवस्थापन",
+  "Manage users": "प्रयोगकर्ता व्यवस्थापन",
+  "Activity log": "गतिविधि लग",
+  "PCPS Connect | Club & Event Management": "PCPS Connect | क्लब तथा कार्यक्रम व्यवस्थापन",
+  "Event": "कार्यक्रम",
 };
