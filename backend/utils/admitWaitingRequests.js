@@ -8,7 +8,7 @@ const { notifyStudentOfDecision } = require("./clubJoinNotices");
 // Best-effort: it never throws, so saving the club can't fail because of it.
 async function admitWaitingRequests(club) {
   try {
-    const waiting = await ClubJoinRequest.find({ club: club._id }).populate("user", "name email");
+    const waiting = await ClubJoinRequest.find({ club: club._id }).populate("user", "name email language");
     let admitted = 0;
     for (const request of waiting) {
       try {

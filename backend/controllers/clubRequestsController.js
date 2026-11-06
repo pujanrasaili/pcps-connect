@@ -55,7 +55,7 @@ async function decideClubJoinRequest(req, res) {
     }
 
     // Deleting is the "claim": only one of two leaders pressing at once gets it.
-    const request = await ClubJoinRequest.findOneAndDelete({ _id: req.params.requestId, club: club._id }).populate("user", "name email");
+    const request = await ClubJoinRequest.findOneAndDelete({ _id: req.params.requestId, club: club._id }).populate("user", "name email language");
     if (!request) return res.status(404).json({ message: "That request was already handled" });
 
     const approved = decision === "approve";

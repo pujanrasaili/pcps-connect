@@ -4,6 +4,8 @@ const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { pushNotifications } = require("./inApp");
+const { pickLanguage } = require("./emailText");
+const { clubEmail } = require("./clubEmailText");
 
 // Tells the people who can decide a join request -- the club's leaders and
 // every admin -- that a student is waiting. Best-effort like every other
@@ -35,15 +37,17 @@ async function notifyStudentOfDecision(student, club, approved, reason = "") {
   });
   if (!student.email) return;
   try {
+    const lang = pickLanguage(student.language);
+    const mail = clubEmail(approved ? "approved" : "declined", lang, {
+      name: escapeHtml(student.name),
+      club: escapeHtml(club.name),
+      rawClub: club.name,
+      reason: reason ? escapeHtml(reason) : "",
+    });
     await sendEmail({
       to: student.email,
-      subject: approved ? `Welcome to ${club.name}` : `Your request to join ${club.name}`,
-      html: renderEmail({
-        heading: approved ? "Your request was approved" : "Your request was declined",
-        bodyHtml: approved
-          ? `<p style="margin: 0 0 12px;">Hi ${escapeHtml(student.name)},</p><p style="margin: 0;">The leaders of <strong>${escapeHtml(club.name)}</strong> approved your request. You are now a member, and you will see its events and news.</p>`
-          : `<p style="margin: 0 0 12px;">Hi ${escapeHtml(student.name)},</p><p style="margin: 0;">The leaders of <strong>${escapeHtml(club.name)}</strong> could not accept your request to join this time. You can contact the club if you have questions.</p>${reason ? `<p style="margin: 12px 0 0;"><strong>A note from the club:</strong> ${escapeHtml(reason)}</p>` : ""}`,
-      }),
+      subject: mail.subject,
+      html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: lang }),
     });
   } catch (err) {
     console.error(`Failed to email ${student.email} about a club join decision:`, err.message);
