@@ -110,8 +110,10 @@ the dictionary is only downloaded when Nepali is used. A test fails if a transla
 uses text that is missing from the dictionary. Each account keeps a saved language (`language` on the user, "en" or "ne"), updated
 whenever the student switches language while logged in; the account emails (verify, password
 reset, password changed, account deleted) are written in it, with wording in
-`backend/utils/emailText.js`. Still English: the other emails (event, club and reminder
-emails), the printed certificate, and the Terms of Use and Privacy Policy pages.
+`backend/utils/emailText.js`. The event emails (registration confirmed, request received or
+declined, waitlist spot, event changed or cancelled, organiser message) use the same language,
+with wording in `backend/utils/eventEmailText.js` and Nepali dates from `formatEventDate`.
+Still English: the club and reminder emails, the printed certificate, and the Terms of Use and Privacy Policy pages.
 
 ## Protections worth knowing about
 
