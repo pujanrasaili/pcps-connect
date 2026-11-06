@@ -174,7 +174,7 @@ export default function Settings() {
           />
         </div>
         <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-          {t("Account emails, like password resets, are written in the language you last used on the site.")}
+          {t("Emails from PCPS Connect, like password resets and event reminders, are written in the language you last used on the site.")}
         </p>
       </div>
 
