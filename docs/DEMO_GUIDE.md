@@ -84,7 +84,7 @@ text lives in one dictionary (`frontend/src/i18n/ne.js`) and pages look each sen
 by its English wording; anything missing falls back to English. A test fails if a
 translated page uses a sentence that isn't in the dictionary. Be honest that the Nepali
 was written with AI assistance and has not yet been reviewed by a Nepali speaker, and that
-the account emails (verify, reset, password changed, account deleted) and the event emails (registration, request received or declined, waitlist spot, event changed, cancelled, organiser message) and the club emails (join approved or declined, new club event, club message) and the scheduled emails (event reminder, weekly digest, overdue join-request nudge) follow the student's language; the certificate and legal pages are still English.
+the account emails (verify, reset, password changed, account deleted) and the event emails (registration, request received or declined, waitlist spot, event changed, cancelled, organiser message) and the club emails (join approved or declined, new club event, club message) and the scheduled emails (event reminder, weekly digest, overdue join-request nudge) and the account approval, new club leader and event question emails follow the student's language; the contact-form message to the site owner, the certificate and the legal pages are still English.
 
 **What would you improve with more time?** Real push notifications, a
 student-facing mobile app wrapper, and load testing with real student numbers.

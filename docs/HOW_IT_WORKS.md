@@ -115,7 +115,8 @@ declined, waitlist spot, event changed or cancelled, organiser message) use the 
 with wording in `backend/utils/eventEmailText.js` and Nepali dates from `formatEventDate`.
 The club emails (join approved or declined, new club event, club message) are in
 `backend/utils/clubEmailText.js`, and the scheduled emails (event reminder, weekly digest, join-request nudge)
-are in `backend/utils/reminderEmailText.js`. Still English: the printed certificate, the contact and admin notices, and the Terms of Use and Privacy Policy pages.
+are in `backend/utils/reminderEmailText.js`. The account approval, new club leader and event question emails are in
+`backend/utils/noticeEmailText.js`. Still English: the printed certificate, the contact-form message to the site owner, and the Terms of Use and Privacy Policy pages.
 
 ## Protections worth knowing about
 
