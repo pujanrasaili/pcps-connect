@@ -106,7 +106,7 @@ export default function Home() {
                 <button
                   onClick={() => setLightboxOpen(true)}
                   className="group relative block h-72 w-full shrink-0 bg-slate-900"
-                  aria-label={t("Watch the full PCPS campus reel")}
+                  aria-label={`${reelAutoplay ? t("Playing") : t("Tap to play")}: ${t("Watch the full PCPS campus reel")}`}
                 >
                   <video
                     src="/media/campus-reel.mp4"
