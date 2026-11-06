@@ -98,6 +98,18 @@ Unsubscribe link to Settings. Three GitHub Actions workflows run on a timer:
 the student's clubs, and **join request reminders** that nudge club leaders
 about students who have waited more than 5 days.
 
+## Nepali language
+
+The "नेपाली / English" switch in the top bar changes the whole interface. There is no
+translation service: `frontend/src/i18n/ne.js` is one big dictionary where the English
+sentence is the key and the Nepali sentence is the value. Pages call `t("English text")`
+(from `useLang()`), and if a sentence has no Nepali entry the English shows, so nothing
+is ever blank. Dates use Nepali month and weekday names, bell notifications and server
+error messages are matched against known sentence shapes and translated in the browser, and
+the dictionary is only downloaded when Nepali is used. A test fails if a translated page
+uses text that is missing from the dictionary. Still English on purpose: the emails, the
+printed certificate, and the Terms of Use and Privacy Policy pages.
+
 ## Protections worth knowing about
 
 - Rate limits on login, registration, password and contact routes, designed
@@ -136,6 +148,7 @@ about students who have waited more than 5 days.
 | Database shapes | `backend/models/` |
 | Event and club validation | `backend/utils/eventInput.js`, `clubInput.js` |
 | Emails | `backend/utils/sendEmail.js` and the `notify*` files |
+| Nepali text and the language switch | `frontend/src/i18n/ne.js`, `context/LanguageContext.jsx`, `tests/i18n.test.js` |
 | Event questions, club news, club members | `controllers/eventQuestionController.js`, `clubPostController.js`, `clubMembersController.js` |
 | Offline tickets and install | `frontend/src/services/ticketSync.js`, `public/sw.js`, `utils/installApp.js` |
 | Scheduled jobs | `.github/workflows/` and `backend/scripts/` |
