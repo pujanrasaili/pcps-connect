@@ -107,8 +107,11 @@ sentence is the key and the Nepali sentence is the value. Pages call `t("English
 is ever blank. Dates use Nepali month and weekday names, bell notifications and server
 error messages are matched against known sentence shapes and translated in the browser, and
 the dictionary is only downloaded when Nepali is used. A test fails if a translated page
-uses text that is missing from the dictionary. Still English on purpose: the emails, the
-printed certificate, and the Terms of Use and Privacy Policy pages.
+uses text that is missing from the dictionary. Each account keeps a saved language (`language` on the user, "en" or "ne"), updated
+whenever the student switches language while logged in; the account emails (verify, password
+reset, password changed, account deleted) are written in it, with wording in
+`backend/utils/emailText.js`. Still English: the other emails (event, club and reminder
+emails), the printed certificate, and the Terms of Use and Privacy Policy pages.
 
 ## Protections worth knowing about
 
