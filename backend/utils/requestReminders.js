@@ -1,5 +1,7 @@
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
+const { pickLanguage } = require("./emailText");
+const { text } = require("./reminderEmailText");
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_AGE_DAYS = 5; // a request younger than this is not "overdue" yet
@@ -41,17 +43,19 @@ function buildReminders({ requests, clubs, admins = [], now = new Date(), minAge
 }
 
 function renderReminder({ user, link, items }, origin) {
+  const lang = pickLanguage(user.language);
   const total = items.reduce((sum, i) => sum + i.count, 0);
   const rows = items
     .map(
-      (i) => `<tr><td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><strong>${escapeHtml(i.club)}</strong>: ${i.count} waiting, the longest for ${i.days} days</td></tr>`
+      (i) => `<tr><td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${text(lang, "nudgeRow", { club: escapeHtml(i.club), count: i.count, days: i.days })}</td></tr>`
     )
     .join("");
   return {
-    subject: `${total} ${total === 1 ? "student is" : "students are"} still waiting to join your club`,
+    subject: text(lang, total === 1 ? "nudgeSubjectOne" : "nudgeSubjectMany", { count: total }),
     html: renderEmail({
-      heading: "Students are waiting for your decision",
-      bodyHtml: `<p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p><p style="margin: 0 0 12px;">These students asked to join a club that approves its members and have not heard back yet:</p><table style="width: 100%; border-collapse: collapse; margin: 0 0 12px;">${rows}</table><p style="margin: 0;"><a href="${origin}${link}" style="color: #4F46E5; font-weight: 600;">Open the Members window to approve or decline</a></p>`,
+      heading: text(lang, "nudgeHeading"),
+      language: lang,
+      bodyHtml: `<p style="margin: 0 0 12px;">${text(lang, "hi", { name: escapeHtml(user.name) })}</p><p style="margin: 0 0 12px;">${text(lang, "nudgeIntro")}</p><table style="width: 100%; border-collapse: collapse; margin: 0 0 12px;">${rows}</table><p style="margin: 0;"><a href="${origin}${link}" style="color: #4F46E5; font-weight: 600;">${text(lang, "nudgeLink")}</a></p>`,
     }),
   };
 }

@@ -29,8 +29,8 @@ async function run() {
   let reminders = [];
   if (requests.length) {
     const clubIds = [...new Set(requests.map((r) => String(r.club)))];
-    const clubs = await Club.find({ _id: { $in: clubIds } }).select("name +leaders").populate("leaders", "name email");
-    const admins = await User.find({ role: "admin" }).select("name email");
+    const clubs = await Club.find({ _id: { $in: clubIds } }).select("name +leaders").populate("leaders", "name email language");
+    const admins = await User.find({ role: "admin" }).select("name email language");
     reminders = buildReminders({ requests, clubs, admins });
   }
   console.log(`${reminders.length} ${reminders.length === 1 ? "person" : "people"} to remind.`);
