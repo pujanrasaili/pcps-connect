@@ -54,3 +54,9 @@ test("the Content-Security-Policy blocks other scripts, plugins and framing", ()
   assert.match(csp, /frame-ancestors 'none'/);
   assert.match(csp, /base-uri 'self'/);
 });
+
+test("the Contact page map can be framed, but only from Google, and nothing else can", () => {
+  const csp = headerValue("Content-Security-Policy");
+  assert.match(csp, /frame-src https:\/\/www\.google\.com(;|$)/);
+  assert.doesNotMatch(csp, /frame-src[^;]*\*/);
+});
