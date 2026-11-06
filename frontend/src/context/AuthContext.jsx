@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "./ToastContext";
+import { useLang } from "./LanguageContext";
 import { SESSION_EXPIRED_EVENT, isAuthCheckUnreachable } from "../utils/sessionExpiry";
 import { forgetTickets } from "../services/ticketSync";
 
@@ -14,6 +15,7 @@ export function AuthProvider({ children }) {
   const [authChecked, setAuthChecked] = useState(false);
 
   const toast = useToast();
+  const { lang } = useLang();
 
   // The API says "Not logged in" to a request that needed a login (see
   // utils/sessionExpiry.js). Clearing the local state sends the person to the
@@ -91,7 +93,7 @@ export function AuthProvider({ children }) {
 
   const register = async (data) => {
     try {
-      const res = await api.post("/auth/register", data);
+      const res = await api.post("/auth/register", { ...data, language: lang });
       // No auto-login here -- every fresh account needs email verification
       // (then admin approval) before it can log in, so attempting to log
       // in immediately after registering would always fail.

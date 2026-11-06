@@ -3,6 +3,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { LanguageProvider } from "./context/LanguageContext";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
+import LanguageSync from "./components/LanguageSync";
 import { EventsProvider } from "./context/EventsContext";
 import { ClubsProvider } from "./context/ClubsContext";
 import { RegistrationProvider } from "./context/RegistrationContext";
@@ -17,6 +18,7 @@ export default function App() {
         <LanguageProvider>
         <ToastProvider>
           <AuthProvider>
+            <LanguageSync />
             <EventsProvider>
               <ClubsProvider>
                 <RegistrationProvider>
