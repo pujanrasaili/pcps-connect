@@ -113,7 +113,8 @@ reset, password changed, account deleted) are written in it, with wording in
 `backend/utils/emailText.js`. The event emails (registration confirmed, request received or
 declined, waitlist spot, event changed or cancelled, organiser message) use the same language,
 with wording in `backend/utils/eventEmailText.js` and Nepali dates from `formatEventDate`.
-Still English: the club and reminder emails, the printed certificate, and the Terms of Use and Privacy Policy pages.
+The club emails (join approved or declined, new club event, club message) are in
+`backend/utils/clubEmailText.js`. Still English: the reminder and digest emails, the printed certificate, and the Terms of Use and Privacy Policy pages.
 
 ## Protections worth knowing about
 
