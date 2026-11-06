@@ -8,6 +8,7 @@ const sendEmail = require("../utils/sendEmail");
 const renderEmail = require("../utils/emailTemplate");
 const { safeError } = require("../utils/errorMessage");
 const { escapeHtml } = require("../utils/escapeHtml");
+const { accountEmail, pickLanguage } = require("../utils/emailText");
 const { removeUserAndData } = require("../utils/deleteAccountData");
 const { buildPersonalData } = require("../utils/personalData");
 const Registration = require("../models/Registration");
@@ -52,12 +53,13 @@ function publicUser(user) {
     avatar: user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4F46E5`,
     eventReminders: user.eventReminders !== false,
     clubUpdates: user.clubUpdates !== false,
+    language: pickLanguage(user.language),
   };
 }
 
 const ALLOWED_EMAIL_DOMAIN = "@patancollege.edu.np";
 
-async function sendVerificationEmail(user) {
+async function sendVerificationEmail(user, languageOverride) {
   const verifyToken = jwt.sign(
     { id: user._id, purpose: "email-verify" },
     process.env.JWT_SECRET,
@@ -65,19 +67,11 @@ async function sendVerificationEmail(user) {
   );
   const verifyUrl = `${process.env.CLIENT_ORIGIN}/verify-email?token=${verifyToken}`;
 
+  const mail = accountEmail("verify", pickLanguage(languageOverride, user.language), { name: user.name, escape: escapeHtml });
   await sendEmail({
     to: user.email,
-    subject: "Verify your PCPS Connect account",
-    html: renderEmail({
-      heading: "Verify your email",
-      bodyHtml: `
-        <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-        <p style="margin: 0;">Thanks for registering for PCPS Connect. Click below to verify your email address. This link expires in 24 hours.</p>
-        <p style="margin: 16px 0 0;">After verifying, an admin will need to approve your account before you can log in -- you'll be able to log in as soon as that happens.</p>
-      `,
-      ctaText: "Verify my email",
-      ctaUrl: verifyUrl,
-    }),
+    subject: mail.subject,
+    html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, ctaText: mail.ctaText, ctaUrl: verifyUrl, language: mail.lang }),
   });
 }
 
@@ -89,24 +83,18 @@ async function sendVerificationEmail(user) {
 // wrong, even though they're not logged in to see anything in the app
 // itself. Best-effort, like every other email here.
 async function sendPasswordChangedNotice(user) {
+  const mail = accountEmail("passwordChanged", user.language, { name: user.name, escape: escapeHtml });
   await sendEmail({
     to: user.email,
-    subject: "Your PCPS Connect password was changed",
-    html: renderEmail({
-      heading: "Password changed",
-      bodyHtml: `
-        <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-        <p style="margin: 0;">This is a confirmation that your PCPS Connect password was just changed.</p>
-        <p style="margin: 16px 0 0;">If this was you, no action is needed. If you didn't do this, your account may be compromised -- contact PCPS administration right away.</p>
-      `,
-    }),
+    subject: mail.subject,
+    html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: mail.lang }),
   });
 }
 
 // POST /api/auth/register
 async function register(req, res) {
   try {
-    const { name, email, password, studentId, program, semester, phone } = req.body;
+    const { name, email, password, studentId, program, semester, phone, language } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email, and password are required" });
     }
@@ -160,6 +148,7 @@ async function register(req, res) {
       program: profile.program || "",
       semester: profile.semester || "",
       phone: profile.phone || "",
+      language: pickLanguage(language),
     });
 
     // The account exists either way; if the email can't go out the student is
@@ -387,7 +376,7 @@ async function deleteAccount(req, res) {
       return res.status(400).json({ message: "Password is incorrect" });
     }
 
-    const { name, email } = user;
+    const { name, email, language } = user;
     await removeUserAndData(user);
     await recordAudit({ name }, "user.selfDeleted", `${name} (${email}) deleted their own account`);
 
@@ -398,16 +387,11 @@ async function deleteAccount(req, res) {
     });
 
     try {
+      const mail = accountEmail("accountDeleted", language, { name, escape: escapeHtml });
       await sendEmail({
         to: email,
-        subject: "Your PCPS Connect account was deleted",
-        html: renderEmail({
-          heading: "Account deleted",
-          bodyHtml: `
-            <p style="margin: 0 0 12px;">Hi ${escapeHtml(name)},</p>
-            <p style="margin: 0;">Your PCPS Connect account and its registrations, club memberships and events have been deleted. If this wasn't you, contact the college administration right away.</p>
-          `,
-        }),
+        subject: mail.subject,
+        html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: mail.lang }),
       });
     } catch (emailErr) {
       console.error("Failed to send account-deleted notice:", emailErr.message);
@@ -445,19 +429,11 @@ async function forgotPassword(req, res) {
     const resetUrl = `${process.env.CLIENT_ORIGIN}/reset-password?token=${resetToken}`;
 
     try {
+      const mail = accountEmail("reset", pickLanguage(req.body.language, user.language), { name: user.name, escape: escapeHtml });
       await sendEmail({
         to: user.email,
-        subject: "Reset your PCPS Connect password",
-        html: renderEmail({
-          heading: "Reset your password",
-          bodyHtml: `
-            <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-            <p style="margin: 0;">Someone requested a password reset for your PCPS Connect account. If this was you, click below to set a new password. This link expires in 15 minutes.</p>
-            <p style="margin: 16px 0 0;">If you didn't request this, you can safely ignore this email -- your password won't be changed.</p>
-          `,
-          ctaText: "Reset my password",
-          ctaUrl: resetUrl,
-        }),
+        subject: mail.subject,
+        html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, ctaText: mail.ctaText, ctaUrl: resetUrl, language: mail.lang }),
       });
     } catch (emailErr) {
       console.error("Failed to send password reset email:", emailErr.message);
@@ -601,7 +577,7 @@ async function resendVerification(req, res) {
     if (!user || user.emailVerified) return res.status(200).json(genericResponse);
 
     try {
-      await sendVerificationEmail(user);
+      await sendVerificationEmail(user, req.body.language);
     } catch (emailErr) {
       console.error("Failed to resend verification email:", emailErr.message);
       // Only reached for a real, unverified account (everything else got the
