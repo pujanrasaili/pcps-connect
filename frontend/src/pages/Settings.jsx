@@ -173,6 +173,9 @@ export default function Settings() {
             disabled={savingPref === "clubUpdates"}
           />
         </div>
+        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+          {t("Account emails, like password resets, are written in the language you last used on the site.")}
+        </p>
       </div>
 
       <div className="card-surface p-6">

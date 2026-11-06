@@ -7,7 +7,7 @@ import { useLang } from "../context/LanguageContext";
 import logo from "../assets/images/pcps-shield.webp";
 
 export default function ForgotPassword() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -22,7 +22,7 @@ export default function ForgotPassword() {
     setError("");
     setSubmitting(true);
     try {
-      await api.post("/auth/forgot-password", { email });
+      await api.post("/auth/forgot-password", { email, language: lang });
       setSent(true);
     } catch (err) {
       setError(getErrorMessage(err, t("Something went wrong. Please try again.")));

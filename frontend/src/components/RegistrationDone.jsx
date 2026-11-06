@@ -11,14 +11,14 @@ import { useLang } from "../context/LanguageContext";
 // while the page changed left people unsure whether anything had happened.)
 export default function RegistrationDone({ email, emailSent }) {
   const toast = useToast();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [resending, setResending] = useState(false);
   const [resentOnce, setResentOnce] = useState(false);
 
   const resend = async () => {
     setResending(true);
     try {
-      await api.post("/auth/resend-verification", { email });
+      await api.post("/auth/resend-verification", { email, language: lang });
       setResentOnce(true);
       toast.success(t("Sent again. Check your inbox and your spam folder."));
     } catch (err) {

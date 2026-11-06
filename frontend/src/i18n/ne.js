@@ -1192,4 +1192,5 @@ export const ne = {
   "Activity log": "गतिविधि लग",
   "PCPS Connect | Club & Event Management": "PCPS Connect | क्लब तथा कार्यक्रम व्यवस्थापन",
   "Event": "कार्यक्रम",
+  "Account emails, like password resets, are written in the language you last used on the site.": "पासवर्ड रिसेट जस्ता खाताका इमेलहरू तपाईंले साइटमा पछिल्लो पटक प्रयोग गरेको भाषामा लेखिन्छन्।",
 };
