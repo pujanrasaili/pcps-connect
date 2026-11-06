@@ -21,6 +21,7 @@
     "digest": "node scripts/sendWeeklyDigest.js",
     "request-reminders": "node scripts/sendJoinRequestReminders.js",
     "smoke": "node scripts/smokeTest.js",
+    "review:nepali": "node scripts/exportNepaliReview.js",
     "test": "jest",
     "test:integration": "node --test integration/api.integration.js"
   },
