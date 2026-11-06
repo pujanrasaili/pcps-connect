@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import { useNotifications } from "../hooks/useNotifications";
 import { timeAgo } from "../utils/timeAgo";
+import { translateNotification } from "../utils/translateNotification";
 import { translateAgo } from "../utils/translateAgo";
 import { useLang } from "../context/LanguageContext";
 
@@ -86,7 +87,7 @@ export default function NotificationBell({ className = "" }) {
                   <>
                     <span className="flex items-start gap-2">
                       {newIds.has(n._id) && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary-500" aria-label={t("New")} />}
-                      <span className="min-w-0 text-sm text-slate-700 dark:text-slate-200">{t(n.title)}</span>
+                      <span className="min-w-0 text-sm text-slate-700 dark:text-slate-200">{translateNotification(n.title, t)}</span>
                     </span>
                     <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{translateAgo(timeAgo(n.createdAt), t)}</span>
                   </>
