@@ -2,6 +2,8 @@ const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
 const { formatEventDate } = require("./formatEventDate");
 const { settingsLink } = require("./unsubscribe");
+const { pickLanguage } = require("./emailText");
+const { text, settingsWord } = require("./reminderEmailText");
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_EVENTS = 6; // keep the email short; the rest is "and N more"
@@ -52,29 +54,31 @@ function buildDigests({ events, memberships, registrations }) {
 }
 
 function renderDigest({ user, events, more }, origin) {
+  const lang = pickLanguage(user.language);
   const items = events
     .map(
       (e) => `
         <tr><td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
           <a href="${origin}/events/${encodeURIComponent(e._id)}" style="color: #4F46E5; font-weight: 600; text-decoration: none;">${escapeHtml(e.title)}</a>
-          <div style="font-size: 13px; color: #475569;">${escapeHtml(e.club?.name || "")} &middot; ${formatEventDate(e.date)} &middot; ${escapeHtml(e.location)}</div>
+          <div style="font-size: 13px; color: #475569;">${escapeHtml(e.club?.name || "")} &middot; ${formatEventDate(e.date, lang)} &middot; ${escapeHtml(e.location)}</div>
         </td></tr>`
     )
     .join("");
   const count = events.length + more;
 
   return {
-    subject: count === 1 ? "1 event this week from your clubs" : `${count} events this week from your clubs`,
+    subject: text(lang, count === 1 ? "digestSubjectOne" : "digestSubjectMany", { count }),
     html: renderEmail({
-      heading: "This week from your clubs",
+      heading: text(lang, "digestHeading"),
+      language: lang,
       bodyHtml: `
-        <p style="margin: 0 0 12px;">Hi ${escapeHtml(user.name)},</p>
-        <p style="margin: 0 0 8px;">Here's what your clubs have planned in the next 7 days:</p>
+        <p style="margin: 0 0 12px;">${text(lang, "hi", { name: escapeHtml(user.name) })}</p>
+        <p style="margin: 0 0 8px;">${text(lang, "digestIntro")}</p>
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%">${items}</table>
-        ${more ? `<p style="margin: 12px 0 0;">...and ${more} more on the Events page.</p>` : ""}
-        <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">You're getting this because you joined these clubs. Turn club updates off in ${settingsLink(origin)} to stop these emails.</p>
+        ${more ? `<p style="margin: 12px 0 0;">${text(lang, "digestMore", { more })}</p>` : ""}
+        <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">${text(lang, "digestFooter", { settings: settingsLink(origin, settingsWord(lang)) })}</p>
       `,
-      ctaText: "See all events",
+      ctaText: text(lang, "digestCta"),
       ctaUrl: `${origin}/events`,
     }),
   };
