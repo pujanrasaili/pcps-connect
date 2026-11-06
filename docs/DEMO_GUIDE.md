@@ -79,6 +79,13 @@ timer.
 and `frontend`), integration tests against a real MongoDB, and a GitHub
 Actions pipeline that runs them on every push.
 
+**How does the Nepali option work, and is the translation checked?** The interface
+text lives in one dictionary (`frontend/src/i18n/ne.js`) and pages look each sentence up
+by its English wording; anything missing falls back to English. A test fails if a
+translated page uses a sentence that isn't in the dictionary. Be honest that the Nepali
+was written with AI assistance and has not yet been reviewed by a Nepali speaker, and that
+the emails, certificates and legal pages are still English.
+
 **What would you improve with more time?** Real push notifications, a
 student-facing mobile app wrapper, and load testing with real student numbers.
 
