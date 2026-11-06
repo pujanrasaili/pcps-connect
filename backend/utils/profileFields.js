@@ -7,6 +7,7 @@ const LIMITS = { name: 80, studentId: 30, program: 80, semester: 20, phone: 20 }
 const TEXT_FIELDS = Object.keys(LIMITS);
 const FLAG_FIELDS = ["eventReminders", "clubUpdates"];
 const AVATAR_MAX = 500;
+const LANGUAGES = ["en", "ne"];
 
 const LABELS = {
   name: "Name",
@@ -51,6 +52,11 @@ function cleanProfileFields(input = {}) {
     if (raw === undefined || raw === null) continue;
     if (typeof raw !== "boolean") return { error: "Notification settings must be true or false" };
     values[field] = raw;
+  }
+
+  if (input.language !== undefined && input.language !== null) {
+    if (!LANGUAGES.includes(input.language)) return { error: "Language must be en or ne" };
+    values.language = input.language;
   }
 
   return { values };

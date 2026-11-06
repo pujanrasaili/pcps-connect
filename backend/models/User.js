@@ -47,6 +47,10 @@ const userSchema = new mongoose.Schema(
     // Whether this student wants an email when a club they've joined
     // announces a new event. Defaults true; opt out from Settings.
     clubUpdates: { type: Boolean, default: true },
+
+    // The language this student last used on the site ("en" or "ne"). Account
+    // emails are written in it. Anything else falls back to English.
+    language: { type: String, enum: ["en", "ne"], default: "en" },
   },
   { timestamps: true }
 );
