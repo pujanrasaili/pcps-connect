@@ -50,8 +50,8 @@ export default function EventDetails() {
   const [event, setEvent] = useState(null);
 
   useEffect(() => {
-    document.title = eventTitle(event?.title);
-  }, [event?.title]);
+    document.title = eventTitle(event?.title, t);
+  }, [event?.title, t]);
 
   // The snippet search engines show under the title; the page's usual
   // description comes back when leaving.

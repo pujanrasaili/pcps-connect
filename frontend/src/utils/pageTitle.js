@@ -1,6 +1,6 @@
 const SITE = "PCPS Connect";
 
-const TITLES = {
+export const TITLES = {
   "/": null, // the home page keeps the full default title from index.html
   "/clubs": "Clubs",
   "/events": "Events",
@@ -30,18 +30,19 @@ export const DEFAULT_TITLE = "PCPS Connect | Club & Event Management";
 
 // Title for a path, or undefined when the page sets its own (event details,
 // certificates) -- those must not be overwritten here.
-export function titleForPath(pathname) {
+// `t` is the translate function (the page name is looked up in Nepali when it is on).
+export function titleForPath(pathname, t = (text) => text) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
   if (!(path in TITLES)) {
     if (path.startsWith("/events/") || path.startsWith("/certificate/") || path.startsWith("/verify/")) return undefined;
-    return `Page not found | ${SITE}`;
+    return `${t("Page not found")} | ${SITE}`;
   }
-  const t = TITLES[path];
-  return t ? `${t} | ${SITE}` : DEFAULT_TITLE;
+  const name = TITLES[path];
+  return name ? `${t(name)} | ${SITE}` : t(DEFAULT_TITLE);
 }
 
-export function eventTitle(name) {
-  return name ? `${name} | ${SITE}` : `Event | ${SITE}`;
+export function eventTitle(name, t = (text) => text) {
+  return name ? `${name} | ${SITE}` : `${t("Event")} | ${SITE}`;
 }
 
 export const SITE_ORIGIN = "https://pcps-connect.vercel.app";
