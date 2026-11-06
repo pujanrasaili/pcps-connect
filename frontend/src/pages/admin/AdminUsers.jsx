@@ -156,7 +156,7 @@ export default function AdminUsers() {
   // Exports exactly what the filters/search currently show (all pages, not just
   // the visible one), so "pending students" or "BIT semester 3" can be pulled out.
   const exportCsv = () => {
-    const header = ["Name", "Email", "Student ID", "Program", "Semester", "Phone", "Status", "Role", "Joined"];
+    const header = ["Name", "Email", "Student ID", "Program", "Semester", "Phone", "Status", "Role", "Email language", "Joined"];
     const rows = filteredUsers.map((u) => [
       u.name,
       u.email,
@@ -166,6 +166,7 @@ export default function AdminUsers() {
       u.phone || "",
       u.approvalStatus,
       u.role,
+      u.language === "ne" ? "Nepali" : "English",
       u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "",
     ]);
     downloadCsv("pcps-students.csv", buildCsv(header, rows));
