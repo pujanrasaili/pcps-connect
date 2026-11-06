@@ -8,6 +8,13 @@
 // nobody has to guess.
 const DEFAULT_ZONE = "Asia/Kathmandu";
 
+// Weekday and month names for Nepali emails (digits stay as they are).
+const NE_NAMES = {
+  Sun: "आइत", Mon: "सोम", Tue: "मङ्गल", Wed: "बुध", Thu: "बिहि", Fri: "शुक्र", Sat: "शनि",
+  Jan: "जन", Feb: "फेब्रु", Mar: "मार्च", Apr: "अप्रिल", May: "मे", Jun: "जुन",
+  Jul: "जुलाई", Aug: "अग", Sep: "सेप्ट", Oct: "अक्टो", Nov: "नोभे", Dec: "डिसे",
+};
+
 function eventZone() {
   const zone = process.env.EVENT_TIMEZONE || DEFAULT_ZONE;
   try {
@@ -18,9 +25,9 @@ function eventZone() {
   }
 }
 
-function formatEventDate(date) {
+function formatEventDate(date, language) {
   const zone = eventZone();
-  const text = new Date(date).toLocaleString("en-US", {
+  const options = {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -28,8 +35,17 @@ function formatEventDate(date) {
     hour: "numeric",
     minute: "2-digit",
     timeZone: zone,
-  });
-  return zone === DEFAULT_ZONE ? `${text} (Nepal time)` : text;
+  };
+  const when = new Date(date);
+  let text = when.toLocaleString("en-US", options);
+  if (language === "ne") {
+    text = new Intl.DateTimeFormat("en-US", options)
+      .formatToParts(when)
+      .map((part) => (part.type === "weekday" || part.type === "month" ? NE_NAMES[part.value] || part.value : part.value))
+      .join("");
+  }
+  if (zone !== DEFAULT_ZONE) return text;
+  return language === "ne" ? `${text} (नेपाल समय)` : `${text} (Nepal time)`;
 }
 
 module.exports = { formatEventDate };
