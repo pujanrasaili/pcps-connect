@@ -6,6 +6,8 @@ const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { CLUB_NEWS_FOLDER } = require("../utils/cloudinaryId");
+const ClubMembership = require("../models/ClubMembership");
+const { pushNotifications } = require("../utils/inApp");
 const { destroyClubNewsPhotos } = require("../utils/clubNewsPhotoCleanup");
 
 const PAGE = 20;
@@ -22,6 +24,18 @@ async function getClubPosts(req, res) {
     res.status(200).json({ posts });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch club news") });
+  }
+}
+
+// Puts a short line in the bell of each member of the club (not the author).
+// Best effort: the post is already saved, so a problem here must never fail it.
+async function notifyMembersOfPost(club, author) {
+  try {
+    const members = await ClubMembership.find({ club: club._id }).select("user");
+    const ids = members.map((m) => m.user).filter((u) => String(u) !== String(author._id));
+    await pushNotifications(ids, { type: "club_news", title: `${club.name} shared a news update`, link: `/clubs?club=${club._id}` });
+  } catch (err) {
+    console.error("Failed to notify club members of a news post:", err.message);
   }
 }
 
@@ -45,6 +59,7 @@ async function createClubPost(req, res) {
     }
     const post = await ClubPost.create(fields);
     await recordAudit(req.user, "club.post", `Posted news on "${club.name}"`);
+    await notifyMembersOfPost(club, req.user);
     res.status(201).json({
       message: "Posted",
       post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: null },
