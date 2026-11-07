@@ -21,7 +21,7 @@ plus the questions people usually ask and honest answers. Read
 | 0-1 | Home page, then the Clubs page | Students browse clubs and join with one click; filters live in the URL so a filtered list can be shared. |
 | 1-2 | Sign-up page and the confirmation screen | Only `@patancollege.edu.np` emails work (checked on the server). The account needs email verification and admin approval. |
 | 2-3 | Events page, register for an event | Capacity is checked on the server. If the event is full the student joins a waitlist and is promoted automatically when a seat opens. |
-| 3-4 | Student dashboard | Charts, upcoming events, "Add to calendar", the waitlist card. |
+| 3-4 | Student dashboard | Charts, upcoming events, "Add to calendar", the waitlist card, "News from your clubs". |
 | 4-5 | Admin: create an event | Admins and club leaders manage events. Times typed in Nepal time are stored as exact instants. |
 | 5-6 | Admin: attendee list, QR check-in on the phone | Each student has a signed QR code, so it cannot be forged. Scanning marks them attended. |
 | 6-7 | Certificate and event report | Attended students get a certificate with a QR that anyone can verify. Admins see turnout and ratings. |

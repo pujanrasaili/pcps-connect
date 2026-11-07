@@ -55,6 +55,7 @@ pcps-connect/
 - The Attendees window has a quick search (name, email, student ID) and a "Not yet attended" filter for marking people at the door
 - Post-event feedback: students marked as attended can rate the event 1-5 stars with a comment; the average rating shows on event cards and pages, and admins see each comment in the attendee list and CSV export
 - Waitlist for full events: students queue up, and the first in line is registered and emailed automatically when a seat opens (someone cancels or capacity is raised)
+- The student Dashboard has a "News from your clubs" card: the latest posts (up to 5, from the last 30 days) from the clubs the student has joined, each linking to that club's page; it is hidden when there is none
 - The student Dashboard has an "On the waitlist" card: each full event they are queued for and their place in line ("Next in line", "3rd in line"), linking to the event
 - Each event page also sets its own search-result description (date and place, then the start of the event description) while it is open
 - Each event page carries schema.org "Event" data (name, start and end time, place, organiser, price) so search engines can show it as an event; it is added only for events that have a valid date and is removed when you leave the page
