@@ -9,6 +9,8 @@ const clubPostSchema = new mongoose.Schema(
     author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     authorName: { type: String, required: true },
     body: { type: String, required: true },
+    // Optional photo (a Cloudinary address); empty when the post has none.
+    image: { type: String, default: "" },
   },
   { timestamps: true }
 );

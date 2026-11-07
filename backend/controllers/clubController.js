@@ -3,6 +3,7 @@ const ClubMembership = require("../models/ClubMembership");
 const ClubJoinRequest = require("../models/ClubJoinRequest");
 const { admitWaitingRequests } = require("../utils/admitWaitingRequests");
 const ClubPost = require("../models/ClubPost");
+const { destroyClubNewsPhotos } = require("../utils/clubNewsPhotoCleanup");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
 const { pickClubFields } = require("../utils/clubFields");
@@ -82,7 +83,9 @@ async function deleteClub(req, res) {
     // Clean up so deleting a club doesn't leave dangling references.
     await ClubMembership.deleteMany({ club: club._id });
     await ClubJoinRequest.deleteMany({ club: club._id });
+    const newsPhotos = (await ClubPost.find({ club: club._id }).select("image")).map((p) => p.image);
     await ClubPost.deleteMany({ club: club._id });
+    await destroyClubNewsPhotos(newsPhotos);
     const User = require("../models/User");
     await User.updateMany({ favoriteClub: club._id }, { favoriteClub: null });
     await require("../models/Event").updateMany({ club: club._id }, { club: null });

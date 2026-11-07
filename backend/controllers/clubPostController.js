@@ -4,6 +4,9 @@ const { canManageClub } = require("../utils/clubAccess");
 const { cleanClubPost } = require("../utils/clubPostInput");
 const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
+const { uploadBufferToCloudinary } = require("../middleware/upload");
+const { CLUB_NEWS_FOLDER } = require("../utils/cloudinaryId");
+const { destroyClubNewsPhotos } = require("../utils/clubNewsPhotoCleanup");
 
 const PAGE = 20;
 
@@ -15,7 +18,7 @@ async function getClubPosts(req, res) {
     const posts = await ClubPost.find({ club: req.params.id })
       .sort({ createdAt: -1 })
       .limit(PAGE)
-      .select("body authorName createdAt");
+      .select("body image authorName createdAt");
     res.status(200).json({ posts });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch club news") });
@@ -23,6 +26,7 @@ async function getClubPosts(req, res) {
 }
 
 // POST /api/clubs/:id/posts  (requires login; admin or a leader of this club)
+// JSON {body}, or multipart with the text in "body" and an optional photo in "image".
 async function createClubPost(req, res) {
   try {
     const club = await Club.findById(req.params.id).select("name");
@@ -34,11 +38,16 @@ async function createClubPost(req, res) {
     const { body, error } = cleanClubPost(req.body);
     if (error) return res.status(400).json({ message: error });
 
-    const post = await ClubPost.create({ club: club._id, author: req.user._id, authorName: req.user.name, body });
+    const fields = { club: club._id, author: req.user._id, authorName: req.user.name, body };
+    if (req.file) {
+      const uploaded = await uploadBufferToCloudinary(req.file.buffer, CLUB_NEWS_FOLDER.replace(/\/$/, ""));
+      fields.image = uploaded.secure_url;
+    }
+    const post = await ClubPost.create(fields);
     await recordAudit(req.user, "club.post", `Posted news on "${club.name}"`);
     res.status(201).json({
       message: "Posted",
-      post: { _id: post._id, body: post.body, authorName: post.authorName, createdAt: post.createdAt },
+      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt },
     });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to post") });
@@ -54,6 +63,7 @@ async function deleteClubPost(req, res) {
     // Matching the club too means a leader of one club can't delete another club's post by id.
     const post = await ClubPost.findOneAndDelete({ _id: req.params.postId, club: req.params.id });
     if (!post) return res.status(404).json({ message: "Post not found" });
+    await destroyClubNewsPhotos([post.image]);
     const club = await Club.findById(req.params.id).select("name");
     await recordAudit(req.user, "club.postDeleted", `Deleted a news post on "${club?.name || "a club"}"`);
     res.status(200).json({ message: "Post deleted" });
