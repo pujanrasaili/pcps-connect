@@ -354,6 +354,8 @@ export const ne = {
   "Ask the organisers": "आयोजकलाई सोध्नुहोस्",
   "For example: is food provided, or should I bring a laptop?": "उदाहरण: खाना दिइन्छ कि ल्यापटप ल्याउनुपर्छ?",
   "{n} / {max} · your first name is shown": "{n} / {max} · तपाईंको पहिलो नाम देखिन्छ",
+  "Remove the photo from this post": "यो पोस्टबाट फोटो हटाउनुहोस्",
+  "Open the photo from the post of {date}": "{date} को पोस्टको फोटो खोल्नुहोस्",
   "Posting...": "पोस्ट गर्दै...",
   "Ask": "सोध्नुहोस्",
   "to ask the organisers a question.": "आयोजकलाई प्रश्न सोध्न।",

@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { FaTrash } from "react-icons/fa";
-import { api, getErrorMessage } from "../services/api";
+import { useEffect, useRef, useState } from "react";
+import { FaCamera, FaTimes, FaTrash } from "react-icons/fa";
+import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
 import { formatDate } from "../utils/formatDate";
 import ConfirmDialog from "./ConfirmDialog";
 import Button from "./Button";
+import SafeImage from "./SafeImage";
+import { shrinkImage } from "../utils/resizeImage";
 
 const MAX = 1000;
 
@@ -18,7 +20,9 @@ export default function ClubNews({ clubId, canPost }) {
   const { t } = useLang();
   const [posts, setPosts] = useState(null); // null = still loading
   const [draft, setDraft] = useState("");
+  const [photo, setPhoto] = useState(null); // a picked image file, sent with the post
   const [saving, setSaving] = useState(false);
+  const fileInput = useRef(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -39,9 +43,13 @@ export default function ClubNews({ clubId, canPost }) {
     if (!draft.trim()) return;
     setSaving(true);
     try {
-      const res = await api.post(`/clubs/${clubId}/posts`, { body: draft });
+      const form = new FormData();
+      form.append("body", draft);
+      if (photo) form.append("image", await shrinkImage(photo));
+      const res = await api.post(`/clubs/${clubId}/posts`, form);
       setPosts((prev) => [res.data.post, ...(prev || [])]);
       setDraft("");
+      setPhoto(null);
       toast.success(t("Posted."));
     } catch (err) {
       toast.error(getErrorMessage(err, t("Couldn't post your update")));
@@ -87,9 +95,45 @@ export default function ClubNews({ clubId, canPost }) {
             placeholder={t("Share an update with the club's members and visitors...")}
             className="input-field resize-none"
           />
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <span className="text-xs text-slate-600 dark:text-slate-300">
-              {draft.length} / {MAX}
+          <input
+            ref={fileInput}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={(e) => {
+              setPhoto(e.target.files?.[0] || null);
+              e.target.value = "";
+            }}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+            <span className="flex items-center gap-3">
+              <span className="text-xs text-slate-600 dark:text-slate-300">
+                {draft.length} / {MAX}
+              </span>
+              {photo ? (
+                <span className="inline-flex min-w-0 items-center gap-1 rounded-full bg-slate-100 py-1 pl-3 pr-1 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                  <span className="max-w-[10rem] truncate">{photo.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setPhoto(null)}
+                    aria-label={t("Remove the photo from this post")}
+                    className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-700"
+                  >
+                    <FaTimes className="text-[10px]" aria-hidden="true" />
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  className="inline-flex min-h-[2rem] items-center gap-2 rounded-lg px-2 text-xs font-semibold text-primary-700 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-slate-800"
+                >
+                  <FaCamera className="shrink-0" aria-hidden="true" />
+                  {t("Add photo")}
+                </button>
+              )}
             </span>
             <Button type="submit" disabled={saving || !draft.trim()}>
               {saving ? t("Posting...") : t("Post")}
@@ -103,6 +147,17 @@ export default function ClubNews({ clubId, canPost }) {
           {posts.map((post) => (
             <li key={post._id} className="rounded-xl border border-slate-100 p-3 dark:border-slate-800">
               <p className="whitespace-pre-line break-words text-sm text-slate-700 dark:text-slate-200">{post.body}</p>
+              {post.image && (
+                <a
+                  href={resolveUploadUrl(post.image, 1600)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t("Open the photo from the post of {date}", { date: formatDate(post.createdAt) })}
+                  className="mt-2 block overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800"
+                >
+                  <SafeImage src={resolveUploadUrl(post.image, 800)} alt="" loading="lazy" className="max-h-72 w-full object-cover" />
+                </a>
+              )}
               <div className="mt-2 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300">
                 <span>
                   {post.authorName} · {formatDate(post.createdAt)}
