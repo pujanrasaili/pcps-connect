@@ -59,6 +59,8 @@ export const HELP_TOPICS = [
     question: "Where do I find news from a club?",
     answer: [
       "Open the club from the Clubs page. Its details window shows short updates posted by the club's leaders, newest first, along with the club's next events.",
+      "On your Dashboard, the \"News from your clubs\" card lists the latest posts from the clubs you have joined (up to five, from the last 30 days). Tap one to open the club's page, where the full post and its photo are.",
+      "When a club posts news, a message also appears in your bell. Club leaders and admins can post, edit or delete news, and add a photo, from the club's page.",
     ],
   },
   {
@@ -143,7 +145,7 @@ export const HELP_TOPICS = [
     id: "nepali",
     question: "Can I use the site in Nepali?",
     answer: [
-      'Yes. Press "नेपाली" in the top bar (and "English" to switch back). Every page is translated except the Terms of Use and Privacy Policy, which stay in English for now. Your choice is remembered on this device.',
+      'Yes. Press "नेपाली" in the top bar (and "English" to switch back). Every page is translated except the Terms of Use and Privacy Policy, which stay in English for now. The emails we send you are written in the language you last chose. Your choice is remembered on this device.',
     ],
   },
   {
