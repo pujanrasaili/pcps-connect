@@ -209,10 +209,10 @@ The frontend has zero-dependency unit tests (Node's built-in runner) for its
 shared helpers: CSV export safety, calendar files, page titles and date logic.
 GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests and the
 frontend lint, tests and production build on every push and pull request.
-A separate job opens every public page and the Dashboard in a real Chromium, in
+A separate job opens every public page, the Dashboard, the student pages and every admin page in a real Chromium, in
 English and Nepali, on a phone-sized screen with a mocked API, and fails on page
 errors, sideways scrolling or accessibility violations (`cd frontend && npm run e2e`;
-see `frontend/e2e/smoke.spec.js`).
+see `frontend/e2e/`).
 
 ## Sending email from Render's free tier
 
