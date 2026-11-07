@@ -11,7 +11,7 @@ const { recordAudit } = require("../../utils/audit");
 const { canManageClub } = require("../../utils/clubAccess");
 const { uploadBufferToCloudinary } = require("../../middleware/upload");
 const { destroyClubNewsPhotos } = require("../../utils/clubNewsPhotoCleanup");
-const { getClubPosts, createClubPost, deleteClubPost } = require("../clubPostController");
+const { getClubPosts, createClubPost, updateClubPost, deleteClubPost } = require("../clubPostController");
 
 function mockRes() {
   const res = {};
@@ -35,7 +35,7 @@ describe("getClubPosts", () => {
     expect(ClubPost.find).toHaveBeenCalledWith({ club: CLUB });
     expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
     expect(limit).toHaveBeenCalledWith(20);
-    expect(select).toHaveBeenCalledWith("body image authorName createdAt");
+    expect(select).toHaveBeenCalledWith("body image authorName createdAt editedAt");
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
@@ -139,5 +139,49 @@ describe("club news photos", () => {
     Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ name: "Coding Club" }) });
     await deleteClubPost({ params: { id: CLUB, postId: "p".repeat(24) }, user }, mockRes());
     expect(destroyClubNewsPhotos).toHaveBeenCalledWith(["https://res.cloudinary.com/x/image/upload/pcps-connect/club-news/a.jpg"]);
+  });
+});
+
+describe("updateClubPost", () => {
+  const params = { id: CLUB, postId: "p".repeat(24) };
+  it("refuses someone who doesn't manage the club, before touching the database", async () => {
+    canManageClub.mockResolvedValue(false);
+    const res = mockRes();
+    await updateClubPost({ params, body: { body: "Fixed" }, user }, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(ClubPost.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("rejects empty or over-long text", async () => {
+    canManageClub.mockResolvedValue(true);
+    for (const body of ["  ", "x".repeat(1001), 5]) {
+      const res = mockRes();
+      await updateClubPost({ params, body: { body }, user }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(ClubPost.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("only edits a post of THIS club, trims the text, marks it edited and logs it", async () => {
+    canManageClub.mockResolvedValue(true);
+    ClubPost.findOneAndUpdate.mockResolvedValue({ _id: "p", body: "Fixed", image: "", authorName: "Sita", createdAt: "c", editedAt: "e" });
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ name: "Coding Club" }) });
+    const res = mockRes();
+    await updateClubPost({ params, body: { body: " Fixed " }, user }, res);
+    expect(ClubPost.findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: params.postId, club: CLUB },
+      { body: "Fixed", editedAt: expect.any(Date) },
+      { new: true }
+    );
+    expect(recordAudit).toHaveBeenCalledWith(user, "club.postEdited", 'Edited a news post on "Coding Club"');
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("404s when the post isn't in that club", async () => {
+    canManageClub.mockResolvedValue(true);
+    ClubPost.findOneAndUpdate.mockResolvedValue(null);
+    const res = mockRes();
+    await updateClubPost({ params, body: { body: "Fixed" }, user }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
   });
 });

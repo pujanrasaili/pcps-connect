@@ -585,6 +585,8 @@ test("ticketUrl builds the same check-in link the QR modal uses", () => {
 
 test("club news actions have readable labels in the activity log", () => {
   assert.equal(actionLabel("club.post"), "Club news posted");
+  assert.equal(actionLabel("club.postEdited"), "Club news edited");
+  assert.equal(actionTone("club.postEdited"), "info");
   assert.equal(actionLabel("club.postDeleted"), "Club news deleted");
   assert.equal(actionTone("club.postDeleted"), "danger");
   assert.equal(actionGroup("club.post"), "club");
