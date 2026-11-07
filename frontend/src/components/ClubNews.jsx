@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaCamera, FaTimes, FaTrash } from "react-icons/fa";
+import { FaCamera, FaPen, FaTimes, FaTrash } from "react-icons/fa";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
@@ -23,6 +23,7 @@ export default function ClubNews({ clubId, canPost }) {
   const [photo, setPhoto] = useState(null); // a picked image file, sent with the post
   const [saving, setSaving] = useState(false);
   const fileInput = useRef(null);
+  const [editing, setEditing] = useState(null); // { id, text } while a post is being edited
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -53,6 +54,22 @@ export default function ClubNews({ clubId, canPost }) {
       toast.success(t("Posted."));
     } catch (err) {
       toast.error(getErrorMessage(err, t("Couldn't post your update")));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    if (!editing.text.trim()) return;
+    setSaving(true);
+    try {
+      const res = await api.patch(`/clubs/${clubId}/posts/${editing.id}`, { body: editing.text });
+      setPosts((prev) => (prev || []).map((p) => (p._id === editing.id ? res.data.post : p)));
+      setEditing(null);
+      toast.success(t("Post updated."));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't update the post")));
     } finally {
       setSaving(false);
     }
@@ -146,7 +163,32 @@ export default function ClubNews({ clubId, canPost }) {
         <ul className="mt-3 space-y-3">
           {posts.map((post) => (
             <li key={post._id} className="rounded-xl border border-slate-100 p-3 dark:border-slate-800">
-              <p className="whitespace-pre-line break-words text-sm text-slate-700 dark:text-slate-200">{post.body}</p>
+              {editing?.id === post._id ? (
+                <form onSubmit={handleSaveEdit}>
+                  <label htmlFor={`edit-${post._id}`} className="sr-only">
+                    {t("Edit your update")}
+                  </label>
+                  <textarea
+                    id={`edit-${post._id}`}
+                    rows={3}
+                    maxLength={MAX}
+                    autoFocus
+                    value={editing.text}
+                    onChange={(e) => setEditing({ ...editing, text: e.target.value })}
+                    className="input-field resize-none"
+                  />
+                  <div className="mt-2 flex justify-end gap-2">
+                    <Button type="button" variant="secondary" onClick={() => setEditing(null)}>
+                      {t("Cancel")}
+                    </Button>
+                    <Button type="submit" disabled={saving || !editing.text.trim()}>
+                      {saving ? t("Saving...") : t("Save")}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <p className="whitespace-pre-line break-words text-sm text-slate-700 dark:text-slate-200">{post.body}</p>
+              )}
               {post.image && (
                 <a
                   href={resolveUploadUrl(post.image, 1600)}
@@ -161,8 +203,18 @@ export default function ClubNews({ clubId, canPost }) {
               <div className="mt-2 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300">
                 <span>
                   {post.authorName} · {formatDate(post.createdAt)}
+                  {post.editedAt ? ` · ${t("edited")}` : ""}
                 </span>
                 {canPost && (
+                  <span className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditing({ id: post._id, text: post.body })}
+                    aria-label={t("Edit the post from {date}", { date: formatDate(post.createdAt) })}
+                    className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    <FaPen className="text-xs" aria-hidden="true" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => setDeleteTarget(post)}
@@ -171,6 +223,7 @@ export default function ClubNews({ clubId, canPost }) {
                   >
                     <FaTrash className="text-xs" />
                   </button>
+                  </span>
                 )}
               </div>
             </li>
