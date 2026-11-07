@@ -103,7 +103,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/clubs` | Anyone | List all clubs, with member counts. |
 | GET | `/api/clubs/:id` | Anyone | One club, with its member count. |
 | GET | `/api/clubs/:id/posts` | Anyone | A club's latest news posts (newest first, up to 20). |
-| POST | `/api/clubs/:id/posts` | Logged-in student (rate limited) | Post a short news update on a club (admins and that club's leaders only). |
+| POST | `/api/clubs/:id/posts` | Logged-in student (rate limited; image upload) | Post a short news update on a club (admins and that club's leaders only). |
 | DELETE | `/api/clubs/:id/posts/:postId` | Logged-in student (rate limited) | Delete one news post (admins and that club's leaders only). |
 | POST | `/api/clubs` | Admin only | Create a club. |
 | PUT | `/api/clubs/:id` | Admin only | Edit a club. |
