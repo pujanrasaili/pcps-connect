@@ -21,8 +21,8 @@ const insights = { registrationsByMonth: [{ label: "Aug", count: 4 }, { label: "
 const report = { events: [{ _id: events[2]._id, title: "Photo Walk", date: events[2].date, registered: 20, attended: 15, noShows: 5, attendanceRate: 75, averageRating: 4.2, ratingCount: 6 }], totals: { registered: 20, attended: 15, attendanceRate: 75, averageRating: 4.2, ratingCount: 6 } };
 
 // What the mocked API answers (anything unlisted gets an empty object).
-function answer(path, role) {
-  if (path.endsWith("/auth/me")) return role ? { status: 200, body: { user: role === "admin" ? admin : student } } : { status: 401, body: { message: "Not logged in" } };
+function answer(path, role, lang) {
+  if (path.endsWith("/auth/me")) return role ? { status: 200, body: { user: { ...(role === "admin" ? admin : student), language: lang } } } : { status: 401, body: { message: "Not logged in" } };
   if (path.endsWith("/club-memberships/news")) return { body: { posts: news } };
   if (path.endsWith("/clubs")) return { body: { clubs } };
   if (path.endsWith("/events")) return { body: { events } };
@@ -42,10 +42,11 @@ function answer(path, role) {
 export async function setUp(page, { lang, role = null }) {
   await page.route(/googleapis|gstatic|youtube|google\.com/, (route) => route.fulfill({ status: 200, contentType: "text/html", body: "" }));
   await page.route("**/api/**", (route) => {
-    const { status = 200, body } = answer(new URL(route.request().url()).pathname, role);
+    const { status = 200, body } = answer(new URL(route.request().url()).pathname, role, lang);
     route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
   });
-  await page.addInitScript((l) => localStorage.setItem("pcps_lang", l), lang);
+  // Only the first visit starts in `lang`; a reload keeps whatever the page switched to.
+  await page.addInitScript((l) => { if (!localStorage.getItem("pcps_lang")) localStorage.setItem("pcps_lang", l); }, lang);
   const problems = [];
   page.on("pageerror", (err) => problems.push(`page error: ${err.message}`));
   page.on("console", (msg) => {
