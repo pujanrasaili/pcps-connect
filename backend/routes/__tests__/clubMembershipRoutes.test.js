@@ -9,6 +9,7 @@ jest.mock("../../middleware/rateLimit", () => ({
 }));
 jest.mock("../../controllers/clubMembershipController", () => ({
   getMyMemberships: (req, res) => res.json({ handler: "my" }),
+  getMyClubNews: (req, res) => res.json({ handler: "news" }),
   getMyJoinRequests: (req, res) => res.json({ handler: "requests" }),
   joinClub: (req, res) => res.json({ handler: "join" }),
   leaveClub: (req, res) => res.json({ handler: "leave" }),
@@ -47,6 +48,11 @@ describe("club membership routes", () => {
 
   it("reading your memberships is not limited", async () => {
     expect(await call("GET", "/my")).toEqual({ handler: "my" });
+    expect(calls).toEqual([]);
+  });
+
+  it("the club news feed is a plain read, not limited", async () => {
+    expect(await call("GET", "/news")).toEqual({ handler: "news" });
     expect(calls).toEqual([]);
   });
 });

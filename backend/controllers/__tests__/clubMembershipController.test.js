@@ -1,13 +1,15 @@
 jest.mock("../../models/Club");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/ClubJoinRequest");
+jest.mock("../../models/ClubPost");
 jest.mock("../../utils/clubJoinNotices");
 
 const Club = require("../../models/Club");
 const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const { notifyClubStaffOfRequest } = require("../../utils/clubJoinNotices");
-const { getMyMemberships, joinClub, leaveClub, getMyJoinRequests } = require("../clubMembershipController");
+const ClubPost = require("../../models/ClubPost");
+const { getMyClubNews, getMyMemberships, joinClub, leaveClub, getMyJoinRequests } = require("../clubMembershipController");
 
 function mockRes() {
   const res = {};
@@ -179,5 +181,33 @@ describe("leaveClub / getMyJoinRequests -- failures", () => {
     const res = mockRes();
     await getMyJoinRequests({ user: student }, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("getMyClubNews", () => {
+  it("returns nothing, without querying posts, when the student has joined no clubs", async () => {
+    ClubMembership.find.mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+    const res = mockRes();
+    await getMyClubNews({ user: student }, res);
+    expect(res.json).toHaveBeenCalledWith({ posts: [] });
+    expect(ClubPost.find).not.toHaveBeenCalled();
+  });
+
+  it("returns the newest recent posts of only the clubs they joined", async () => {
+    ClubMembership.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ club: "c1" }, { club: "c2" }]) });
+    const populate = jest.fn().mockResolvedValue([{ body: "Hi" }]);
+    const select = jest.fn().mockReturnValue({ populate });
+    const limit = jest.fn().mockReturnValue({ select });
+    const sort = jest.fn().mockReturnValue({ limit });
+    ClubPost.find.mockReturnValue({ sort });
+    const res = mockRes();
+    await getMyClubNews({ user: student }, res);
+    const filter = ClubPost.find.mock.calls[0][0];
+    expect(filter.club).toEqual({ $in: ["c1", "c2"] });
+    expect(filter.createdAt.$gte.getTime()).toBeLessThan(Date.now() - 29 * 24 * 3600e3);
+    expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
+    expect(limit).toHaveBeenCalledWith(5);
+    expect(populate).toHaveBeenCalledWith("club", "name");
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });
