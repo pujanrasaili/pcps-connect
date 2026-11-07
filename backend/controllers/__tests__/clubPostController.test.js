@@ -2,11 +2,15 @@ jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/clubAccess");
+jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn() }));
+jest.mock("../../utils/clubNewsPhotoCleanup", () => ({ destroyClubNewsPhotos: jest.fn().mockResolvedValue() }));
 
 const Club = require("../../models/Club");
 const ClubPost = require("../../models/ClubPost");
 const { recordAudit } = require("../../utils/audit");
 const { canManageClub } = require("../../utils/clubAccess");
+const { uploadBufferToCloudinary } = require("../../middleware/upload");
+const { destroyClubNewsPhotos } = require("../../utils/clubNewsPhotoCleanup");
 const { getClubPosts, createClubPost, deleteClubPost } = require("../clubPostController");
 
 function mockRes() {
@@ -31,7 +35,7 @@ describe("getClubPosts", () => {
     expect(ClubPost.find).toHaveBeenCalledWith({ club: CLUB });
     expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
     expect(limit).toHaveBeenCalledWith(20);
-    expect(select).toHaveBeenCalledWith("body authorName createdAt");
+    expect(select).toHaveBeenCalledWith("body image authorName createdAt");
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
@@ -103,5 +107,37 @@ describe("deleteClubPost", () => {
     const res = mockRes();
     await deleteClubPost({ params: { id: CLUB, postId: "p".repeat(24) }, user }, res);
     expect(res.status).toHaveBeenCalledWith(404);
+  });
+});
+
+describe("club news photos", () => {
+  it("uploads an attached photo to the club-news folder and saves its address", async () => {
+    canManageClub.mockResolvedValue(true);
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ _id: CLUB, name: "Coding Club" }) });
+    uploadBufferToCloudinary.mockResolvedValue({ secure_url: "https://res.cloudinary.com/x/image/upload/v1/pcps-connect/club-news/a.jpg" });
+    ClubPost.create.mockImplementation(async (f) => ({ _id: "p1", createdAt: "now", ...f }));
+    const res = mockRes();
+    await createClubPost({ params: { id: CLUB }, body: { body: "Look" }, file: { buffer: Buffer.from("x") }, user }, res);
+    expect(uploadBufferToCloudinary).toHaveBeenCalledWith(expect.any(Buffer), "pcps-connect/club-news");
+    expect(ClubPost.create).toHaveBeenCalledWith(expect.objectContaining({ image: expect.stringContaining("/club-news/a.jpg") }));
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it("does not upload anything for a refused or invalid post", async () => {
+    uploadBufferToCloudinary.mockClear();
+    canManageClub.mockResolvedValue(false);
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ _id: CLUB, name: "C" }) });
+    await createClubPost({ params: { id: CLUB }, body: { body: "Hi" }, file: { buffer: Buffer.from("x") }, user }, mockRes());
+    canManageClub.mockResolvedValue(true);
+    await createClubPost({ params: { id: CLUB }, body: { body: "  " }, file: { buffer: Buffer.from("x") }, user }, mockRes());
+    expect(uploadBufferToCloudinary).not.toHaveBeenCalled();
+  });
+
+  it("removes the photo from Cloudinary when its post is deleted", async () => {
+    canManageClub.mockResolvedValue(true);
+    ClubPost.findOneAndDelete.mockResolvedValue({ _id: "p", image: "https://res.cloudinary.com/x/image/upload/pcps-connect/club-news/a.jpg" });
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ name: "Coding Club" }) });
+    await deleteClubPost({ params: { id: CLUB, postId: "p".repeat(24) }, user }, mockRes());
+    expect(destroyClubNewsPhotos).toHaveBeenCalledWith(["https://res.cloudinary.com/x/image/upload/pcps-connect/club-news/a.jpg"]);
   });
 });

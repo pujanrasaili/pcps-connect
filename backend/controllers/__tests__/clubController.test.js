@@ -6,8 +6,10 @@ jest.mock("../../utils/admitWaitingRequests");
 jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../utils/audit");
+jest.mock("../../utils/clubNewsPhotoCleanup", () => ({ destroyClubNewsPhotos: jest.fn().mockResolvedValue() }));
 
 const Club = require("../../models/Club");
+const ClubPost = require("../../models/ClubPost");
 const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const User = require("../../models/User");
@@ -15,6 +17,7 @@ const Event = require("../../models/Event");
 const { recordAudit } = require("../../utils/audit");
 const { getClubs, getClubById, createClub, updateClub, deleteClub } = require("../clubController");
 const { pickClubFields } = require("../../utils/clubFields");
+const { destroyClubNewsPhotos } = require("../../utils/clubNewsPhotoCleanup");
 const { admitWaitingRequests } = require("../../utils/admitWaitingRequests");
 
 function mockRes() {
@@ -136,12 +139,14 @@ describe("deleteClub", () => {
   it("removes memberships, favourites and event links, and logs it", async () => {
     Club.findByIdAndDelete = jest.fn().mockResolvedValue({ _id: "c1", name: "Coding" });
     ClubMembership.deleteMany = jest.fn().mockResolvedValue({});
+    ClubPost.find = jest.fn().mockReturnValue({ select: jest.fn().mockResolvedValue([{ image: "u1" }, { image: "" }]) });
     User.updateMany = jest.fn().mockResolvedValue({});
     Event.updateMany = jest.fn().mockResolvedValue({});
     const res = mockRes();
     await deleteClub({ user: admin, params: { id: "c1" } }, res);
     expect(ClubMembership.deleteMany).toHaveBeenCalledWith({ club: "c1" });
     expect(ClubJoinRequest.deleteMany).toHaveBeenCalledWith({ club: "c1" }); // waiting requests go too
+    expect(destroyClubNewsPhotos).toHaveBeenCalledWith(["u1", ""]); // news photos leave Cloudinary too
     expect(User.updateMany).toHaveBeenCalledWith({ favoriteClub: "c1" }, { favoriteClub: null });
     expect(Event.updateMany).toHaveBeenCalledWith({ club: "c1" }, { club: null });
     expect(recordAudit).toHaveBeenCalledWith(admin, "club.deleted", 'Deleted club "Coding"');
