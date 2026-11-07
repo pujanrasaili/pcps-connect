@@ -1193,6 +1193,7 @@ export const ne = {
   "A seat opened for {title} - your request is waiting for approval": "{title} को लागि सिट खुल्यो - तपाईंको अनुरोध स्वीकृतिको प्रतीक्षामा छ",
   "You got a seat: {title}": "तपाईंले सिट पाउनुभयो: {title}",
   "{club} declined your request to join": "{club} ले तपाईंको सामेल हुने अनुरोध अस्वीकार गर्‍यो",
+  "{club} shared a news update": "{club} ले समाचार अपडेट साझा गर्‍यो",
   "{club} announced {title}": "{club} ले {title} घोषणा गर्‍यो",
   "Forgot password": "पासवर्ड बिर्सनुभयो",
   "Verify email": "इमेल प्रमाणीकरण",
