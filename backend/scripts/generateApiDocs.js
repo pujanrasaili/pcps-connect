@@ -136,6 +136,7 @@ const DESCRIPTIONS = {
   createClubPost: "Post a short news update on a club (admins and that club's leaders only).",
   updateClubPost: "Fix the text of one news post (admins and that club's leaders only).",
   deleteClubPost: "Delete one news post (admins and that club's leaders only).",
+  getMyClubNews: "The latest news posts (up to 5, last 30 days) from the clubs you have joined.",
   getMyMemberships: "The clubs you have joined.",
   joinClub: "Join a club; for clubs that approve their members this sends a request instead (answer 202).",
   leaveClub: "Leave a club, or withdraw a request that is still waiting.",

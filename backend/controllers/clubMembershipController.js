@@ -3,6 +3,7 @@ const ClubJoinRequest = require("../models/ClubJoinRequest");
 const { notifyClubStaffOfRequest } = require("../utils/clubJoinNotices");
 const { isObjectId } = require("../middleware/validateId");
 const Club = require("../models/Club");
+const ClubPost = require("../models/ClubPost");
 const { safeError } = require("../utils/errorMessage");
 
 // GET /api/club-memberships/my  (requires login)
@@ -13,6 +14,28 @@ async function getMyMemberships(req, res) {
     res.status(200).json({ memberships });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch memberships") });
+  }
+}
+
+// GET /api/club-memberships/news  (requires login)
+// The latest news posts from the clubs the student has joined, newest first
+// (a short list for the Dashboard). Only what is public on the club page.
+const NEWS_LIMIT = 5;
+const NEWS_DAYS = 30;
+async function getMyClubNews(req, res) {
+  try {
+    const memberships = await ClubMembership.find({ user: req.user._id }).select("club");
+    const clubIds = memberships.map((m) => m.club);
+    if (clubIds.length === 0) return res.status(200).json({ posts: [] });
+    const since = new Date(Date.now() - NEWS_DAYS * 24 * 60 * 60 * 1000);
+    const posts = await ClubPost.find({ club: { $in: clubIds }, createdAt: { $gte: since } })
+      .sort({ createdAt: -1 })
+      .limit(NEWS_LIMIT)
+      .select("club body image authorName createdAt editedAt")
+      .populate("club", "name");
+    res.status(200).json({ posts });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch club news") });
   }
 }
 
@@ -79,4 +102,4 @@ async function leaveClub(req, res) {
   }
 }
 
-module.exports = { getMyMemberships, getMyJoinRequests, joinClub, leaveClub };
+module.exports = { getMyClubNews, getMyMemberships, getMyJoinRequests, joinClub, leaveClub };
