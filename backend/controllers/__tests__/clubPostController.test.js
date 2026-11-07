@@ -15,7 +15,7 @@ const { recordAudit } = require("../../utils/audit");
 const { canManageClub } = require("../../utils/clubAccess");
 const { uploadBufferToCloudinary } = require("../../middleware/upload");
 const { destroyClubNewsPhotos } = require("../../utils/clubNewsPhotoCleanup");
-const { getClubPosts, createClubPost, updateClubPost, deleteClubPost } = require("../clubPostController");
+const { getClubPosts, createClubPost, updateClubPost, setClubPostPinned, deleteClubPost } = require("../clubPostController");
 
 function mockRes() {
   const res = {};
@@ -37,9 +37,9 @@ describe("getClubPosts", () => {
     const res = mockRes();
     await getClubPosts({ params: { id: CLUB } }, res);
     expect(ClubPost.find).toHaveBeenCalledWith({ club: CLUB });
-    expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
+    expect(sort).toHaveBeenCalledWith({ pinned: -1, createdAt: -1 });
     expect(limit).toHaveBeenCalledWith(20);
-    expect(select).toHaveBeenCalledWith("body image authorName createdAt editedAt");
+    expect(select).toHaveBeenCalledWith("body image authorName createdAt editedAt pinned");
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });
@@ -226,5 +226,63 @@ describe("telling members about a new post", () => {
     const res = mockRes();
     await createClubPost({ params: { id: CLUB }, body: { body: "Hi" }, user }, res);
     expect(res.status).toHaveBeenCalledWith(201);
+  });
+});
+
+describe("setClubPostPinned", () => {
+  const params = { id: CLUB, postId: "p".repeat(24) };
+  const post = () => ({ _id: "p", save: jest.fn().mockResolvedValue(), pinned: false });
+  beforeEach(() => {
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ name: "Coding Club" }) });
+  });
+
+  it("refuses someone who doesn't manage the club, before touching the database", async () => {
+    canManageClub.mockResolvedValue(false);
+    const res = mockRes();
+    await setClubPostPinned({ params, body: { pinned: true }, user }, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(ClubPost.findOne).not.toHaveBeenCalled();
+  });
+
+  it("needs a true or false", async () => {
+    canManageClub.mockResolvedValue(true);
+    const res = mockRes();
+    await setClubPostPinned({ params, body: { pinned: "yes" }, user }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("404s when the post isn't in that club", async () => {
+    canManageClub.mockResolvedValue(true);
+    ClubPost.findOne.mockResolvedValue(null);
+    const res = mockRes();
+    await setClubPostPinned({ params, body: { pinned: true }, user }, res);
+    expect(ClubPost.findOne).toHaveBeenCalledWith({ _id: params.postId, club: CLUB });
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("pinning un-pins the club's other pinned post, saves and logs it", async () => {
+    canManageClub.mockResolvedValue(true);
+    const p = post();
+    ClubPost.findOne.mockResolvedValue(p);
+    ClubPost.updateMany.mockResolvedValue({});
+    const res = mockRes();
+    await setClubPostPinned({ params, body: { pinned: true }, user }, res);
+    expect(ClubPost.updateMany).toHaveBeenCalledWith({ club: CLUB, pinned: true, _id: { $ne: "p" } }, { pinned: false });
+    expect(p.pinned).toBe(true);
+    expect(p.save).toHaveBeenCalled();
+    expect(recordAudit).toHaveBeenCalledWith(user, "club.postPinned", 'Pinned a news post on "Coding Club"');
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("unpinning touches only that post", async () => {
+    canManageClub.mockResolvedValue(true);
+    const p = { ...post(), pinned: true };
+    ClubPost.findOne.mockResolvedValue(p);
+    ClubPost.updateMany.mockClear();
+    const res = mockRes();
+    await setClubPostPinned({ params, body: { pinned: false }, user }, res);
+    expect(ClubPost.updateMany).not.toHaveBeenCalled();
+    expect(p.pinned).toBe(false);
+    expect(recordAudit).toHaveBeenCalledWith(user, "club.postUnpinned", 'Unpinned a news post on "Coding Club"');
   });
 });
