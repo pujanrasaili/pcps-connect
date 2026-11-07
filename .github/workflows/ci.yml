@@ -71,7 +71,9 @@ jobs:
 
   frontend-browser:
     name: Frontend browser tests (every page, English and Nepali)
-    runs-on: ubuntu-latest
+    # Pinned: Playwright's browsers and system packages are not available for
+    # ubuntu-latest's newest release yet. Move to ubuntu-latest once Playwright supports it.
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend
