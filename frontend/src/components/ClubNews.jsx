@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FaCamera, FaPen, FaTimes, FaTrash } from "react-icons/fa";
+import { FaCamera, FaPen, FaThumbtack, FaTimes, FaTrash } from "react-icons/fa";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
@@ -72,6 +72,22 @@ export default function ClubNews({ clubId, canPost }) {
       toast.error(getErrorMessage(err, t("Couldn't update the post")));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePin = async (post) => {
+    const pinned = !post.pinned;
+    try {
+      await api.put(`/clubs/${clubId}/posts/${post._id}/pin`, { pinned });
+      // One pinned post per club, shown first; the rest stay newest first.
+      setPosts((prev) =>
+        (prev || [])
+          .map((p) => ({ ...p, pinned: p._id === post._id ? pinned : pinned ? false : p.pinned }))
+          .sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || new Date(b.createdAt) - new Date(a.createdAt))
+      );
+      toast.success(pinned ? t("Post pinned.") : t("Post unpinned."));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't update the post")));
     }
   };
 
@@ -202,11 +218,26 @@ export default function ClubNews({ clubId, canPost }) {
               )}
               <div className="mt-2 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300">
                 <span>
+                  {post.pinned && (
+                    <span className="mr-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      <FaThumbtack className="text-[10px]" aria-hidden="true" />
+                      {t("Pinned")}
+                    </span>
+                  )}
                   {post.authorName} · {formatDate(post.createdAt)}
                   {post.editedAt ? ` · ${t("edited")}` : ""}
                 </span>
                 {canPost && (
                   <span className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handlePin(post)}
+                    aria-pressed={!!post.pinned}
+                    aria-label={post.pinned ? t("Unpin the post from {date}", { date: formatDate(post.createdAt) }) : t("Pin the post from {date}", { date: formatDate(post.createdAt) })}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${post.pinned ? "text-amber-700 dark:text-amber-300" : "text-slate-600 dark:text-slate-300"}`}
+                  >
+                    <FaThumbtack className="text-xs" aria-hidden="true" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => setEditing({ id: post._id, text: post.body })}

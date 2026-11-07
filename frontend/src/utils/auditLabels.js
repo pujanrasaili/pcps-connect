@@ -18,6 +18,8 @@ const LABELS = {
   "club.announcement": "Club message sent",
   "club.post": "Club news posted",
   "club.postEdited": "Club news edited",
+  "club.postPinned": "Club news pinned",
+  "club.postUnpinned": "Club news unpinned",
   "club.postDeleted": "Club news deleted",
   "event.created": "Event created",
   "event.photoAdded": "Event photo added",
