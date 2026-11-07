@@ -5,7 +5,7 @@ const axeSource = readFileSync(createRequire(import.meta.url).resolve("axe-core/
 
 const DAY = 864e5;
 const club = (i, name) => ({ _id: `c${i}`.padEnd(24, "0"), name, category: "Technology", description: `A club for ${name}`, memberCount: 12 + i, leaders: [] });
-const clubs = [club(1, "Coding Club"), club(2, "Robotics Society")];
+export const clubs = [club(1, "Coding Club"), club(2, "Robotics Society")];
 const ev = (i, title, offset) => ({
   _id: `e${i}`.padEnd(24, "0"), title, description: "An event used by the browser tests.", date: new Date(Date.now() + offset * DAY).toISOString(),
   location: "Main Hall", capacity: 50, registeredCount: 20, category: "Workshop", price: "Free", club: clubs[i % 2], averageRating: 0, ratingCount: 0,
