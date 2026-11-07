@@ -57,7 +57,14 @@ async function createClubPost(req, res) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, CLUB_NEWS_FOLDER.replace(/\/$/, ""));
       fields.image = uploaded.secure_url;
     }
-    const post = await ClubPost.create(fields);
+    let post;
+    try {
+      post = await ClubPost.create(fields);
+    } catch (err) {
+      // The photo is already in Cloudinary; don't leave it there with no post pointing at it.
+      await destroyClubNewsPhotos([fields.image]);
+      throw err;
+    }
     await recordAudit(req.user, "club.post", `Posted news on "${club.name}"`);
     await notifyMembersOfPost(club, req.user);
     res.status(201).json({

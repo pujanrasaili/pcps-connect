@@ -5,6 +5,7 @@ const { recordAudit } = require("../utils/audit");
 const { safeError } = require("../utils/errorMessage");
 const cloudinary = require("../config/cloudinary");
 const { eventPhotoPublicId } = require("../utils/cloudinaryId");
+const { destroyEventPhotos } = require("../utils/eventPhotoCleanup");
 
 const MAX_PHOTOS = 8;
 
@@ -25,7 +26,13 @@ async function addEventPhoto(req, res) {
 
     const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/event-photos");
     event.photos = [...(event.photos || []), uploaded.secure_url];
-    await event.save();
+    try {
+      await event.save();
+    } catch (err) {
+      // Don't leave the new file in Cloudinary with nothing pointing at it.
+      await destroyEventPhotos([uploaded.secure_url]);
+      throw err;
+    }
     await recordAudit(req.user, "event.photoAdded", `Added a photo to "${event.title}"`);
     res.status(201).json({ message: "Photo added", photos: event.photos });
   } catch (err) {
