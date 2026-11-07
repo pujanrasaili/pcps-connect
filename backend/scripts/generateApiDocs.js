@@ -135,6 +135,7 @@ const DESCRIPTIONS = {
   getClubPosts: "A club's latest news posts (newest first, up to 20).",
   createClubPost: "Post a short news update on a club (admins and that club's leaders only).",
   updateClubPost: "Fix the text of one news post (admins and that club's leaders only).",
+  setClubPostPinned: "Pin a news post to the top of the club page, or unpin it (admins and that club's leaders only; one pinned post per club).",
   deleteClubPost: "Delete one news post (admins and that club's leaders only).",
   getMyClubNews: "The latest news posts (up to 5, last 30 days) from the clubs you have joined.",
   getMyMemberships: "The clubs you have joined.",

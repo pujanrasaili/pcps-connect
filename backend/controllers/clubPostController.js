@@ -18,9 +18,9 @@ const PAGE = 20;
 async function getClubPosts(req, res) {
   try {
     const posts = await ClubPost.find({ club: req.params.id })
-      .sort({ createdAt: -1 })
+      .sort({ pinned: -1, createdAt: -1 })
       .limit(PAGE)
-      .select("body image authorName createdAt editedAt");
+      .select("body image authorName createdAt editedAt pinned");
     res.status(200).json({ posts });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch club news") });
@@ -69,10 +69,34 @@ async function createClubPost(req, res) {
     await notifyMembersOfPost(club, req.user);
     res.status(201).json({
       message: "Posted",
-      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: null },
+      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: null, pinned: false },
     });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to post") });
+  }
+}
+
+// PUT /api/clubs/:id/posts/:postId/pin  { pinned: true | false }
+// Keeps one post at the top of the club page. Pinning a post un-pins the club's
+// previous pinned one, so there is never more than one.
+async function setClubPostPinned(req, res) {
+  try {
+    if (!(await canManageClub(req.user, req.params.id))) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    if (typeof req.body?.pinned !== "boolean") return res.status(400).json({ message: "Say whether to pin or unpin the post" });
+    const pinned = req.body.pinned;
+
+    const post = await ClubPost.findOne({ _id: req.params.postId, club: req.params.id });
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    if (pinned) await ClubPost.updateMany({ club: req.params.id, pinned: true, _id: { $ne: post._id } }, { pinned: false });
+    post.pinned = pinned;
+    await post.save();
+    const club = await Club.findById(req.params.id).select("name");
+    await recordAudit(req.user, pinned ? "club.postPinned" : "club.postUnpinned", `${pinned ? "Pinned" : "Unpinned"} a news post on "${club?.name || "a club"}"`);
+    res.status(200).json({ message: pinned ? "Post pinned" : "Post unpinned", postId: post._id, pinned });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to update the post") });
   }
 }
 
@@ -98,7 +122,7 @@ async function updateClubPost(req, res) {
     await recordAudit(req.user, "club.postEdited", `Edited a news post on "${club?.name || "a club"}"`);
     res.status(200).json({
       message: "Post updated",
-      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: post.editedAt },
+      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: post.editedAt, pinned: !!post.pinned },
     });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update post") });
@@ -122,4 +146,4 @@ async function deleteClubPost(req, res) {
   }
 }
 
-module.exports = { getClubPosts, createClubPost, updateClubPost, deleteClubPost };
+module.exports = { getClubPosts, createClubPost, updateClubPost, setClubPostPinned, deleteClubPost };

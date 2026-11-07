@@ -13,6 +13,8 @@ const clubPostSchema = new mongoose.Schema(
     image: { type: String, default: "" },
     // Set when a leader edits the text, so readers can see the post was changed.
     editedAt: { type: Date, default: null },
+    // At most one post per club is pinned; it stays at the top of the club page.
+    pinned: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
