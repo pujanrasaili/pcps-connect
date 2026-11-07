@@ -361,6 +361,7 @@ export const ne = {
   "Post updated.": "पोस्ट अपडेट भयो।",
   "Couldn't update the post": "पोस्ट अपडेट गर्न सकिएन",
   "edited": "सम्पादित",
+  "News from your clubs": "तपाईंका क्लबहरूबाट समाचार",
   "Posting...": "पोस्ट गर्दै...",
   "Ask": "सोध्नुहोस्",
   "to ask the organisers a question.": "आयोजकलाई प्रश्न सोध्न।",

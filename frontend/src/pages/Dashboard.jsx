@@ -20,6 +20,8 @@ import {
 } from "react-icons/fa";
 import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
+import ClubNewsFeedCard from "../components/ClubNewsFeedCard";
+import { useMyClubNews } from "../hooks/useMyClubNews";
 import { useMyWaitlist } from "../hooks/useMyWaitlist";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
@@ -86,6 +88,7 @@ export default function Dashboard() {
   }, [events, memberships, registeredEvents]);
 
   const waitlist = useMyWaitlist();
+  const clubNews = useMyClubNews();
   const { savedIds } = useSavedEvents();
   const savedForLater = useMemo(() => {
     const joined = new Set(registeredEvents.map((r) => r.event._id));
@@ -296,6 +299,8 @@ export default function Dashboard() {
       )}
 
       <WaitlistCard items={waitlist} />
+
+      <ClubNewsFeedCard posts={clubNews} />
 
       {savedForLater.length > 0 && (
         <div className="card-surface min-w-0 p-5">
