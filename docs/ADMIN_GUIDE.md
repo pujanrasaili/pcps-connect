@@ -107,4 +107,4 @@ The settings for each live in that service's dashboard (Render: Environment; Ver
 - `README.md`: overview, features, running locally, tests.
 - `docs/API.md`: every endpoint (generated; `npm run docs:api` in `backend/`).
 - `backend/README.md`: request shapes, models, auth flow.
-- CI (GitHub Actions) runs the backend and frontend tests, lint and build on every push.
+- CI (GitHub Actions) runs the backend and frontend tests, lint and build on every push, plus browser tests that open every page in English and Nepali.
