@@ -127,6 +127,18 @@ describe("club news photos", () => {
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
+  it("removes the uploaded photo again if saving the post fails", async () => {
+    canManageClub.mockResolvedValue(true);
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ _id: CLUB, name: "Coding Club" }) });
+    uploadBufferToCloudinary.mockResolvedValue({ secure_url: "https://res.cloudinary.com/x/image/upload/v1/pcps-connect/club-news/b.jpg" });
+    ClubPost.create.mockRejectedValue(new Error("db down"));
+    destroyClubNewsPhotos.mockClear();
+    const res = mockRes();
+    await createClubPost({ params: { id: CLUB }, body: { body: "Look" }, file: { buffer: Buffer.from("x") }, user }, res);
+    expect(destroyClubNewsPhotos).toHaveBeenCalledWith(["https://res.cloudinary.com/x/image/upload/v1/pcps-connect/club-news/b.jpg"]);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
   it("does not upload anything for a refused or invalid post", async () => {
     uploadBufferToCloudinary.mockClear();
     canManageClub.mockResolvedValue(false);

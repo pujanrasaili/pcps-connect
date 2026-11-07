@@ -71,6 +71,20 @@ describe("addEventPhoto", () => {
     expect(res.json.mock.calls[0][0].photos).toEqual(["https://a/1.jpg", "https://a/2.jpg"]);
   });
 
+  it("removes the uploaded file again if saving the event fails", async () => {
+    const ev = mkEvent();
+    ev.save.mockRejectedValue(new Error("db down"));
+    Event.findById.mockResolvedValue(ev);
+    canManageEvent.mockResolvedValue(true);
+    uploadBufferToCloudinary.mockResolvedValue({
+      secure_url: "https://res.cloudinary.com/x/image/upload/v1/pcps-connect/event-photos/zz.jpg",
+    });
+    const res = mockRes();
+    await addEventPhoto({ params: { id: EV }, user, file }, res);
+    expect(cloudinary.uploader.destroy).toHaveBeenCalledWith("pcps-connect/event-photos/zz", { resource_type: "image" });
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+
   it("500s cleanly when the upload fails", async () => {
     Event.findById.mockResolvedValue(mkEvent());
     canManageEvent.mockResolvedValue(true);
