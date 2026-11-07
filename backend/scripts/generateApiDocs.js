@@ -134,6 +134,7 @@ const DESCRIPTIONS = {
   deleteQuestion: "Delete a question: its asker, or an admin / the event's club leader.",
   getClubPosts: "A club's latest news posts (newest first, up to 20).",
   createClubPost: "Post a short news update on a club (admins and that club's leaders only).",
+  updateClubPost: "Fix the text of one news post (admins and that club's leaders only).",
   deleteClubPost: "Delete one news post (admins and that club's leaders only).",
   getMyMemberships: "The clubs you have joined.",
   joinClub: "Join a club; for clubs that approve their members this sends a request instead (answer 202).",

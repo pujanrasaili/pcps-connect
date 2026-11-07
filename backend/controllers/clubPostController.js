@@ -18,7 +18,7 @@ async function getClubPosts(req, res) {
     const posts = await ClubPost.find({ club: req.params.id })
       .sort({ createdAt: -1 })
       .limit(PAGE)
-      .select("body image authorName createdAt");
+      .select("body image authorName createdAt editedAt");
     res.status(200).json({ posts });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch club news") });
@@ -47,7 +47,7 @@ async function createClubPost(req, res) {
     await recordAudit(req.user, "club.post", `Posted news on "${club.name}"`);
     res.status(201).json({
       message: "Posted",
-      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt },
+      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: null },
     });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to post") });
@@ -55,6 +55,34 @@ async function createClubPost(req, res) {
 }
 
 // DELETE /api/clubs/:id/posts/:postId  (requires login; admin or a leader of this club)
+// PATCH /api/clubs/:id/posts/:postId  { body }
+// Fixes the text of a post (a typo, a changed time). The photo stays as it is.
+async function updateClubPost(req, res) {
+  try {
+    if (!(await canManageClub(req.user, req.params.id))) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    const { body, error } = cleanClubPost(req.body);
+    if (error) return res.status(400).json({ message: error });
+
+    // Matching the club too means a leader of one club can't edit another club's post by id.
+    const post = await ClubPost.findOneAndUpdate(
+      { _id: req.params.postId, club: req.params.id },
+      { body, editedAt: new Date() },
+      { new: true }
+    );
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    const club = await Club.findById(req.params.id).select("name");
+    await recordAudit(req.user, "club.postEdited", `Edited a news post on "${club?.name || "a club"}"`);
+    res.status(200).json({
+      message: "Post updated",
+      post: { _id: post._id, body: post.body, image: post.image || "", authorName: post.authorName, createdAt: post.createdAt, editedAt: post.editedAt },
+    });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to update post") });
+  }
+}
+
 async function deleteClubPost(req, res) {
   try {
     if (!(await canManageClub(req.user, req.params.id))) {
@@ -72,4 +100,4 @@ async function deleteClubPost(req, res) {
   }
 }
 
-module.exports = { getClubPosts, createClubPost, deleteClubPost };
+module.exports = { getClubPosts, createClubPost, updateClubPost, deleteClubPost };

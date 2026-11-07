@@ -11,6 +11,8 @@ const clubPostSchema = new mongoose.Schema(
     body: { type: String, required: true },
     // Optional photo (a Cloudinary address); empty when the post has none.
     image: { type: String, default: "" },
+    // Set when a leader edits the text, so readers can see the post was changed.
+    editedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
