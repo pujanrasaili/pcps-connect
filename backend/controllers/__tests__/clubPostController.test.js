@@ -1,5 +1,7 @@
 jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
+jest.mock("../../models/ClubMembership");
+jest.mock("../../utils/inApp");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/clubAccess");
 jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn() }));
@@ -7,6 +9,8 @@ jest.mock("../../utils/clubNewsPhotoCleanup", () => ({ destroyClubNewsPhotos: je
 
 const Club = require("../../models/Club");
 const ClubPost = require("../../models/ClubPost");
+const ClubMembership = require("../../models/ClubMembership");
+const { pushNotifications } = require("../../utils/inApp");
 const { recordAudit } = require("../../utils/audit");
 const { canManageClub } = require("../../utils/clubAccess");
 const { uploadBufferToCloudinary } = require("../../middleware/upload");
@@ -183,5 +187,32 @@ describe("updateClubPost", () => {
     const res = mockRes();
     await updateClubPost({ params, body: { body: "Fixed" }, user }, res);
     expect(res.status).toHaveBeenCalledWith(404);
+  });
+});
+
+describe("telling members about a new post", () => {
+  it("puts a bell message in each member's inbox except the author's", async () => {
+    canManageClub.mockResolvedValue(true);
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ _id: CLUB, name: "Coding Club" }) });
+    ClubPost.create.mockResolvedValue({ _id: "p1", body: "Hi", createdAt: "now" });
+    ClubMembership.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ user: "u1" }, { user: "m2" }, { user: "m3" }]) });
+    const res = mockRes();
+    await createClubPost({ params: { id: CLUB }, body: { body: "Hi" }, user }, res);
+    expect(pushNotifications).toHaveBeenCalledWith(["m2", "m3"], {
+      type: "club_news",
+      title: "Coding Club shared a news update",
+      link: `/clubs?club=${CLUB}`,
+    });
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it("still saves the post when the notification step fails", async () => {
+    canManageClub.mockResolvedValue(true);
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ _id: CLUB, name: "C" }) });
+    ClubPost.create.mockResolvedValue({ _id: "p1", body: "Hi", createdAt: "now" });
+    ClubMembership.find.mockImplementation(() => { throw new Error("db down"); });
+    const res = mockRes();
+    await createClubPost({ params: { id: CLUB }, body: { body: "Hi" }, user }, res);
+    expect(res.status).toHaveBeenCalledWith(201);
   });
 });
