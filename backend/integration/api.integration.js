@@ -355,3 +355,60 @@ test("a club that stops approving lets the waiting students in", { skip }, async
   assert.equal((await asha.req("GET", "/club-memberships/requests/my")).json.requests.length, 0);
   assert.ok((await asha.req("GET", "/notifications")).json.notifications.some((n) => n.type === "club_join_approved"));
 });
+
+test("club news: post, bell, Dashboard feed, edit and pin", { skip }, async () => {
+  const admin = await makeUser("cna", "admin");
+  const member = await makeUser("cnm");
+  const outsider = await makeUser("cno");
+
+  let r = await admin.req("POST", "/clubs", { name: `News ${stamp}`, description: "A club used by the club news integration test.", category: "Arts" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const clubId = (r.json.club || r.json)._id;
+  assert.equal((await member.req("POST", "/club-memberships/join", { clubId })).status, 201);
+
+  const bellTypes = async (who) => (await who.req("GET", "/notifications")).json.notifications.map((n) => n.type);
+
+  // Only people who run the club can post; the post reaches members' bells and nobody else's.
+  assert.equal((await member.req("POST", `/clubs/${clubId}/posts`, { body: "Not allowed" })).status, 403);
+  r = await admin.req("POST", `/clubs/${clubId}/posts`, { body: "First update" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const first = r.json.post._id;
+  r = await admin.req("POST", `/clubs/${clubId}/posts`, { body: "Second update" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const second = r.json.post._id;
+  assert.equal((await bellTypes(member)).filter((t) => t === "club_news").length, 2);
+  assert.ok(!(await bellTypes(outsider)).includes("club_news"));
+  assert.ok(!(await bellTypes(admin)).includes("club_news"), "the author isn't told about their own post");
+
+  // The Dashboard feed shows a member their club's posts, newest first, and an outsider nothing.
+  const feed = (await member.req("GET", "/club-memberships/news")).json.posts;
+  assert.deepEqual(feed.map((p) => p.body), ["Second update", "First update"]);
+  assert.equal(feed[0].club.name, `News ${stamp}`);
+  assert.deepEqual((await outsider.req("GET", "/club-memberships/news")).json.posts, []);
+
+  // Editing fixes the text and marks it edited; members can't edit or pin.
+  assert.equal((await member.req("PATCH", `/clubs/${clubId}/posts/${first}`, { body: "Hacked" })).status, 403);
+  assert.equal((await member.req("PUT", `/clubs/${clubId}/posts/${first}/pin`, { pinned: true })).status, 403);
+  r = await admin.req("PATCH", `/clubs/${clubId}/posts/${first}`, { body: "First update (fixed)" });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.ok(r.json.post.editedAt);
+
+  // Pinning puts a post first; pinning another moves the pin.
+  assert.equal((await admin.req("PUT", `/clubs/${clubId}/posts/${first}/pin`, { pinned: true })).status, 200);
+  let posts = (await outsider.req("GET", `/clubs/${clubId}/posts`)).json.posts;
+  assert.deepEqual(posts.map((p) => p.body), ["First update (fixed)", "Second update"]);
+  assert.equal(posts[0].pinned, true);
+  assert.equal((await admin.req("PUT", `/clubs/${clubId}/posts/${second}/pin`, { pinned: true })).status, 200);
+  posts = (await outsider.req("GET", `/clubs/${clubId}/posts`)).json.posts;
+  assert.deepEqual(posts.map((p) => [p.body, p.pinned]), [["Second update", true], ["First update (fixed)", false]]);
+
+  // A post can only be changed through its own club.
+  const other = (await admin.req("POST", "/clubs", { name: `Other ${stamp}`, description: "Another club for the news integration test.", category: "Arts" })).json;
+  const otherId = (other.club || other)._id;
+  assert.equal((await admin.req("PATCH", `/clubs/${otherId}/posts/${first}`, { body: "Wrong club" })).status, 404);
+  assert.equal((await admin.req("PUT", `/clubs/${otherId}/posts/${first}/pin`, { pinned: true })).status, 404);
+
+  // Deleting removes it from the page and the feed.
+  assert.equal((await admin.req("DELETE", `/clubs/${clubId}/posts/${second}`)).status, 200);
+  assert.deepEqual((await member.req("GET", "/club-memberships/news")).json.posts.map((p) => p.body), ["First update (fixed)"]);
+});
