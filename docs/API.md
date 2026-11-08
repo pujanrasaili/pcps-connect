@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-90 endpoints.
+93 endpoints.
 
 ## /api/health
 
@@ -107,6 +107,9 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | PATCH | `/api/clubs/:id/posts/:postId` | Logged-in student (rate limited) | Fix the text of one news post (admins and that club's leaders only). |
 | PUT | `/api/clubs/:id/posts/:postId/pin` | Logged-in student (rate limited) | Pin a news post to the top of the club page, or unpin it (admins and that club's leaders only; one pinned post per club). |
 | DELETE | `/api/clubs/:id/posts/:postId` | Logged-in student (rate limited) | Delete one news post (admins and that club's leaders only). |
+| GET | `/api/clubs/:id/ideas` | Logged-in student | Ideas members suggested to a club: the club's leaders and admins see all of them, anyone else sees only their own. |
+| POST | `/api/clubs/:id/ideas` | Logged-in student (rate limited) | Suggest an idea to a club (members only; up to 3 waiting per member, 300 characters). The club's leaders get a bell notification. |
+| DELETE | `/api/clubs/:id/ideas/:ideaId` | Logged-in student (rate limited) | Remove one idea (its author, the club's leaders or an admin). |
 | POST | `/api/clubs` | Admin only | Create a club. |
 | PUT | `/api/clubs/:id` | Admin only | Edit a club. |
 | DELETE | `/api/clubs/:id` | Admin only | Delete a club along with its memberships and event links. |
