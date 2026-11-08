@@ -412,3 +412,76 @@ test("club news: post, bell, Dashboard feed, edit and pin", { skip }, async () =
   assert.equal((await admin.req("DELETE", `/clubs/${clubId}/posts/${second}`)).status, 200);
   assert.deepEqual((await member.req("GET", "/club-memberships/news")).json.posts.map((p) => p.body), ["First update (fixed)"]);
 });
+
+test("club idea box: members suggest, leaders and admins read, and it is cleaned up", { skip }, async () => {
+  const admin = await makeUser("cia", "admin");
+  const leader = await makeUser("cil");
+  const member = await makeUser("cim");
+  const second = await makeUser("cis");
+  const outsider = await makeUser("cio");
+
+  let r = await admin.req("POST", "/clubs", { name: `Ideas ${stamp}`, description: "A club used by the idea box integration test.", category: "Arts" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const clubId = (r.json.club || r.json)._id;
+  assert.equal((await admin.req("PUT", `/admin/clubs/${clubId}/leaders`, { userIds: [leader.id] })).status, 200);
+  assert.equal((await member.req("POST", "/club-memberships/join", { clubId })).status, 201);
+  assert.equal((await second.req("POST", "/club-memberships/join", { clubId })).status, 201);
+
+  const bellTypes = async (who) => (await who.req("GET", "/notifications")).json.notifications.map((n) => n.type);
+  const url = `/clubs/${clubId}/ideas`;
+
+  // Logged-out people get nothing; people who have not joined cannot suggest.
+  assert.equal((await new Client().req("GET", url)).status, 401);
+  assert.equal((await outsider.req("POST", url, { body: "Not a member" })).status, 403);
+
+  // Bad text is refused, including an object slipped in where text belongs.
+  assert.equal((await member.req("POST", url, { body: { $ne: 1 } })).status, 400);
+  assert.equal((await member.req("POST", url, { body: "   " })).status, 400);
+  assert.equal((await member.req("POST", url, { body: "x".repeat(301) })).status, 400);
+
+  // A suggestion reaches the leader's bell, not the author's.
+  r = await member.req("POST", url, { body: "A quiz night" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const mine = r.json.idea._id;
+  assert.ok((await bellTypes(leader)).includes("club_idea"));
+  assert.ok(!(await bellTypes(member)).includes("club_idea"));
+
+  // Three waiting ideas is the limit per member.
+  assert.equal((await member.req("POST", url, { body: "A trip" })).status, 201);
+  assert.equal((await member.req("POST", url, { body: "A workshop" })).status, 201);
+  assert.equal((await member.req("POST", url, { body: "One too many" })).status, 400);
+
+  // The author sees only their own; the leader and the admin see everything.
+  r = await second.req("POST", url, { body: "A film night" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const theirs = r.json.idea._id;
+  let list = (await member.req("GET", url)).json;
+  assert.equal(list.canReadAll, false);
+  assert.equal(list.ideas.length, 3);
+  assert.ok(list.ideas.every((i) => i.mine));
+  list = (await leader.req("GET", url)).json;
+  assert.equal(list.canReadAll, true);
+  assert.equal(list.ideas.length, 4);
+  assert.equal((await admin.req("GET", url)).json.ideas.length, 4);
+  assert.deepEqual((await outsider.req("GET", url)).json.ideas, []);
+
+  // Only the author, a leader or an admin can remove one, and only through its own club.
+  assert.equal((await outsider.req("DELETE", `${url}/${mine}`)).status, 403);
+  assert.equal((await second.req("DELETE", `${url}/${mine}`)).status, 403);
+  const other = (await admin.req("POST", "/clubs", { name: `Ideas other ${stamp}`, description: "Another club for the idea box integration test.", category: "Arts" })).json;
+  assert.equal((await admin.req("DELETE", `/clubs/${(other.club || other)._id}/ideas/${mine}`)).status, 404);
+  assert.equal((await member.req("DELETE", `${url}/${mine}`)).status, 200);
+  assert.equal((await leader.req("DELETE", `${url}/${theirs}`)).status, 200);
+  assert.equal((await member.req("GET", url)).json.ideas.length, 2);
+
+  // Deleting an account takes its ideas along; deleting the club takes the rest.
+  const ideas = mongoose.connection.collection("clubideas");
+  const clubObjectId = new mongoose.Types.ObjectId(clubId);
+  assert.equal((await member.req("DELETE", "/auth/account", { password: PASSWORD })).status, 200);
+  assert.equal(await ideas.countDocuments({ club: clubObjectId }), 0);
+  r = await second.req("POST", url, { body: "Another film night" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  assert.equal(await ideas.countDocuments({ club: clubObjectId }), 1);
+  assert.equal((await admin.req("DELETE", `/clubs/${clubId}`)).status, 200);
+  assert.equal(await ideas.countDocuments({ club: clubObjectId }), 0);
+});
