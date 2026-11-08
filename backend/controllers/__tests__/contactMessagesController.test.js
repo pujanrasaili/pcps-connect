@@ -52,4 +52,39 @@ describe("contact messages (admin inbox)", () => {
     await deleteContactMessage({ params: { id: "1" }, user: { _id: "u" } }, res);
     expect(recordAudit).toHaveBeenCalledWith(expect.anything(), "contact.deleted", expect.stringContaining("Sita"));
   });
+
+  it("400s when the request has no body at all", async () => {
+    const res = mockRes();
+    await setMessageHandled({ params: { id: "1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  describe("when the database fails", () => {
+    const boom = new Error("db down");
+    let spy;
+    beforeEach(() => { spy = jest.spyOn(console, "error").mockImplementation(() => {}); });
+    afterEach(() => spy.mockRestore());
+
+    it("500s when listing", async () => {
+      ContactMessage.find.mockImplementation(() => { throw boom; });
+      const res = mockRes();
+      await getContactMessages({}, res);
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    it("500s when updating", async () => {
+      ContactMessage.findByIdAndUpdate.mockRejectedValue(boom);
+      const res = mockRes();
+      await setMessageHandled({ params: { id: "1" }, body: { handled: true } }, res);
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+
+    it("500s when deleting, and records nothing", async () => {
+      ContactMessage.findByIdAndDelete.mockRejectedValue(boom);
+      const res = mockRes();
+      await deleteContactMessage({ params: { id: "1" }, user: { _id: "u" } }, res);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(recordAudit).not.toHaveBeenCalled();
+    });
+  });
 });
