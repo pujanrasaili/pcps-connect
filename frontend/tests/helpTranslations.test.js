@@ -25,6 +25,12 @@ test("the Nepali interface uses one word for an event", () => {
   assert.doesNotMatch(text, /इभेन्ट/);
 });
 
+test("the Nepali interface spells login and picture one way", () => {
+  const text = Object.values(ne).join(" ");
+  assert.doesNotMatch(text, /लग इन/);
+  assert.doesNotMatch(text, /तस्बिर/);
+});
+
 test("the Nepali interface uses one word for an admin", () => {
   // The navbar and buttons say एडमिन, so messages and help must not switch to प्रशासक.
   const text = Object.values(ne).join(" ");

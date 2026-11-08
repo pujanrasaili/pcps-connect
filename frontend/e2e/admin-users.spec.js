@@ -41,7 +41,7 @@ for (const lang of ["en", "ne"]) {
     await expect(page.getByText("Pending Priya")).toBeVisible();
 
     await row(page, "Pending Priya").getByTitle(en ? "Approve" : "स्वीकृत गर्नुहोस्", { exact: true }).click();
-    await expect(page.getByText(en ? "Pending Priya approved -- they can now log in." : "Pending Priya स्वीकृत भयो -- अब उनीहरू लग इन गर्न सक्छन्।")).toBeVisible();
+    await expect(page.getByText(en ? "Pending Priya approved -- they can now log in." : "Pending Priya स्वीकृत भयो -- अब उनीहरू लगइन गर्न सक्छन्।")).toBeVisible();
     await row(page, "Pending Prakash").getByTitle(en ? "Reject" : "अस्वीकृत गर्नुहोस्", { exact: true }).click();
     await expect(page.getByText(en ? "Pending Prakash's registration was rejected." : "Pending Prakash को दर्ता अस्वीकृत गरियो।")).toBeVisible();
     await expect.poll(() => calls).toEqual(["approved Pending Priya", "rejected Pending Prakash"]);
