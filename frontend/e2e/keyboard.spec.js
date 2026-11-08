@@ -6,6 +6,8 @@ import { setUp, clubs } from "./helpers.js";
 test("the first Tab offers 'Skip to main content' and Enter jumps there", async ({ page }) => {
   await setUp(page, { lang: "en" });
   await page.goto("/");
+  await expect(page.locator("h1").first()).toBeVisible();
+  await page.waitForLoadState("networkidle");
   await page.keyboard.press("Tab");
   const skip = page.getByRole("link", { name: "Skip to main content" });
   await expect(skip).toBeFocused();
@@ -44,6 +46,8 @@ test("the club window can be closed with Escape too", async ({ page }) => {
   await page.goto(`/clubs?club=${clubs[0]._id}`);
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
+  // Wait until the window has taken focus, as a person would, before pressing keys.
+  await expect.poll(() => dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });
