@@ -157,7 +157,7 @@ are in `backend/utils/reminderEmailText.js`. The account approval, new club lead
 | Event and club validation | `backend/utils/eventInput.js`, `clubInput.js` |
 | Emails | `backend/utils/sendEmail.js` and the `notify*` files |
 | Nepali text and the language switch | `frontend/src/i18n/ne.js`, `context/LanguageContext.jsx`, `tests/i18n.test.js` |
-| Event questions, club news, club members | `controllers/eventQuestionController.js`, `clubPostController.js`, `clubMembersController.js` |
+| Event questions, club news, club ideas, club members | `controllers/eventQuestionController.js`, `clubPostController.js`, `clubIdeaController.js`, `clubMembersController.js` |
 | Offline tickets and install | `frontend/src/services/ticketSync.js`, `public/sw.js`, `utils/installApp.js` |
 | Scheduled jobs | `.github/workflows/` and `backend/scripts/` |
 | Tests | `backend/**/__tests__/`, `frontend/tests/` |
