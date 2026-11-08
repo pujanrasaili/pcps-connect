@@ -64,6 +64,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "club-ideas",
+    question: "How can I suggest an idea to a club?",
+    answer: [
+      "Join the club, then open it from the Clubs page. Members see a \"Suggest an idea\" box in the club's details window: write what the club could do (a trip, a workshop, a match), up to 300 characters, and press Send idea.",
+      "Only that club's leaders and the admins can read your idea, and they get a message in their bell. You can have up to 3 ideas waiting at a time and can remove your own whenever you like. Leaders and admins see everyone's ideas in the same box, headed \"Ideas from members\".",
+    ],
+  },
+  {
     id: "club-approval",
     question: "A club says \"Request to join\". What happens?",
     answer: [
