@@ -11,6 +11,10 @@ describe("Nepali wording in emails", () => {
     expect(text).not.toMatch(/प्रशासक/);
   });
 
+  it.each(catalogs)("%s spells login as लगइन", (file) => {
+    expect(fs.readFileSync(path.join(__dirname, "..", file), "utf8")).not.toMatch(/लग इन/);
+  });
+
   it("does not use the transliteration इभेन्ट for an event", () => {
     for (const file of catalogs) {
       expect(fs.readFileSync(path.join(__dirname, "..", file), "utf8")).not.toMatch(/इभेन्ट/);
