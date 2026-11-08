@@ -56,4 +56,14 @@ describe("writeBackup", () => {
     });
     fs.rmSync(folder, { recursive: true, force: true });
   });
+
+  it("names today's backup folder by default, in sortable date-time order", () => {
+    expect(backupFolderName()).toMatch(/^pcps-backup-\d{4}-\d{2}-\d{2}-\d{4}$/);
+  });
+
+  it("keeps backups in the home folder by default, never inside the project", () => {
+    const root = defaultBackupRoot();
+    expect(root).toBe(path.join(os.homedir(), "pcps-backups"));
+    expect(isInsideDirectory(root, path.join(os.homedir(), "projects", "pcps-connect"))).toBe(false);
+  });
 });
