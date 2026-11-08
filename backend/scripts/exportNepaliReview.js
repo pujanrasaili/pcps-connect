@@ -58,18 +58,43 @@ function eventRows() {
   });
 }
 
+// The screens every student sees first. Their text goes at the top of the page,
+// so a reviewer who runs out of time still covers what matters most.
+const START_HERE_FILES = [
+  "components/Navbar.jsx", "components/Footer.jsx", "components/EventCard.jsx", "components/ClubCard.jsx",
+  "components/RegistrationForm.jsx", "pages/Home.jsx", "pages/Login.jsx", "pages/Register.jsx",
+  "pages/Events.jsx", "pages/EventDetails.jsx", "pages/Clubs.jsx", "pages/Dashboard.jsx",
+];
+
+// The English texts those files pass to t("...").
+function startHereKeys(srcDir) {
+  const keys = new Set();
+  for (const file of START_HERE_FILES) {
+    let code;
+    try { code = fs.readFileSync(path.join(srcDir, file), "utf8"); } catch { continue; }
+    for (const m of code.matchAll(/\bt\(\s*"((?:[^"\\]|\\.)*)"/g)) {
+      try { keys.add(JSON.parse(`"${m[1]}"`)); } catch { /* not a plain string */ }
+    }
+  }
+  return keys;
+}
+
 async function main() {
   const neFile = path.join(__dirname, "..", "..", "frontend", "src", "i18n", "ne.js");
   const { ne } = await import(pathToFileURL(neFile).href);
+  const first = startHereKeys(path.join(__dirname, "..", "..", "frontend", "src"));
+  const websiteRows = Object.entries(ne).map(([en, text]) => [en.slice(0, 40), en, text]);
   const sections = [
+    ["Start here: the text students see most", websiteRows.filter(([, en]) => first.has(en))],
     ["Account emails", accountRows()],
     ["Event emails", eventRows()],
     ["Club emails", fromTable(club.T)],
     ["Scheduled emails", fromTable(reminder.T)],
     ["Notice emails", fromTable(notice.T)],
-    ["Website text", Object.entries(ne).map(([en, text]) => [en.slice(0, 40), en, text])],
+    ["More website text", websiteRows.filter(([, en]) => !first.has(en))],
   ];
 
+  const startCount = sections[0][1].length;
   let n = 0;
   const body = sections
     .map(([title, rows]) => {
@@ -86,7 +111,8 @@ async function main() {
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PCPS Connect Nepali review</title>
 <style>body{font:15px/1.5 system-ui,sans-serif;margin:24px auto;max-width:1100px;padding:0 16px;color:#0f172a}table{width:100%;border-collapse:collapse;margin-bottom:32px}th,td{border:1px solid #cbd5e1;padding:8px;vertical-align:top;text-align:left}th{background:#f1f5f9}.en{white-space:pre-line;width:36%}.ne{white-space:pre-line;width:36%}.key{font-size:11px;color:#64748b;margin-top:4px}.note{width:100%;box-sizing:border-box}small{color:#64748b;font-weight:400}button{padding:10px 16px;font-size:15px;cursor:pointer}tr.flag{background:#fef9c3}textarea{width:100%;height:120px}@media print{button,textarea,.note,input{display:none}}</style></head><body>
 <h1>PCPS Connect: Nepali review</h1>
-<p>${n} items. Tick <em>Fix?</em> on any row that reads wrong, and type a better version. Placeholders in {braces} are filled in by the site; leave them as they are. Then press the button and send the copied text back.</p>
+<p><strong>You do not have to do it all.</strong> Start with the first section (${startCount} items, the screens students see most) and the account emails, send your notes, and carry on with the rest whenever you have time. You can press <em>Copy my notes</em> at any point.</p>
+<p>${n} items in total. Tick <em>Fix?</em> on any row that reads wrong, and type a better version. Placeholders in {braces} are filled in by the site; leave them as they are. Then press the button and send the copied text back.</p>
 <p><button id="copy">Copy my notes</button></p><textarea id="out" readonly aria-label="Copied notes"></textarea>
 ${body}
 <script>
