@@ -100,3 +100,15 @@ test("a leader reaches the idea box from My Clubs", async ({ page }) => {
   await expect(page).toHaveURL(new RegExp(`/clubs\\?club=${club._id}`));
   await expect(page.getByRole("region", { name: "Ideas from members" })).toBeVisible();
 });
+
+test("the idea box passes the accessibility checks in dark mode, in Nepali", async ({ page }) => {
+  await setUp(page, { lang: "ne", role: "student" });
+  await page.addInitScript(() => localStorage.setItem("pcps_theme", "dark"));
+  const mine = { _id: "i1", body: "A quiz night", authorName: "Asha", createdAt: new Date().toISOString(), mine: true };
+  await withIdeasApi(page, { member: true, others: [mine] });
+  await page.goto(`/clubs?club=${club._id}`);
+  await expect(page.getByRole("region", { name: label.ne.box })).toBeVisible();
+  await page.waitForLoadState("networkidle");
+  expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(true);
+  expect(await axeViolations(page)).toEqual([]);
+});
