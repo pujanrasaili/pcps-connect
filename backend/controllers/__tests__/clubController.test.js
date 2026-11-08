@@ -1,5 +1,6 @@
 jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
+jest.mock("../../models/ClubIdea");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../utils/admitWaitingRequests");

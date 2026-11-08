@@ -85,6 +85,7 @@ async function deleteClub(req, res) {
     await ClubJoinRequest.deleteMany({ club: club._id });
     const newsPhotos = (await ClubPost.find({ club: club._id }).select("image")).map((p) => p.image);
     await ClubPost.deleteMany({ club: club._id });
+    await require("../models/ClubIdea").deleteMany({ club: club._id });
     await destroyClubNewsPhotos(newsPhotos);
     const User = require("../models/User");
     await User.updateMany({ favoriteClub: club._id }, { favoriteClub: null });

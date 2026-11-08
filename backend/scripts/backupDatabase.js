@@ -31,6 +31,7 @@ const MODELS = [
   require("../models/WaitlistEntry"),
   require("../models/ClubJoinRequest"),
   require("../models/ClubPost"),
+  require("../models/ClubIdea"),
   require("../models/EventQuestion"),
   require("../models/ContactMessage"),
   require("../models/AuditLog"),

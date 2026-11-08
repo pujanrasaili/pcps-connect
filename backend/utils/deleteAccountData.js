@@ -5,6 +5,7 @@ const ClubMembership = require("../models/ClubMembership");
 const ClubJoinRequest = require("../models/ClubJoinRequest");
 const EventQuestion = require("../models/EventQuestion");
 const Club = require("../models/Club");
+const ClubIdea = require("../models/ClubIdea");
 const ClubPost = require("../models/ClubPost");
 const Notification = require("../models/Notification");
 const ContactMessage = require("../models/ContactMessage");
@@ -39,6 +40,8 @@ async function removeUserAndData(user) {
   if (user.email) await ContactMessage.deleteMany({ email: String(user.email).toLowerCase() });
   // Their public questions go too (the answers to them are no use without the question).
   await EventQuestion.deleteMany({ author: user._id });
+  // Ideas they suggested to clubs go with them.
+  await ClubIdea.deleteMany({ author: user._id });
   await ClubMembership.deleteMany({ user: user._id });
   await ClubJoinRequest.deleteMany({ user: user._id });
   await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
