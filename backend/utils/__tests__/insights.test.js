@@ -39,4 +39,18 @@ describe("rankClubs", () => {
       { _id: "c1", name: "Coding", members: 3 },
     ]);
   });
+
+  it("covers the last six months ending this month when no date is given", () => {
+    const { lastMonths, fillMonthly } = require("../insights");
+    const months = lastMonths();
+    expect(months).toHaveLength(6);
+    const now = new Date();
+    expect(months[5].key).toBe(`${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`);
+    expect(fillMonthly([]).map((m) => m.count)).toEqual([0, 0, 0, 0, 0, 0]);
+  });
+
+  it("wraps across a year boundary", () => {
+    const { lastMonths } = require("../insights");
+    expect(lastMonths(new Date(Date.UTC(2027, 1, 10)), 4).map((m) => m.key)).toEqual(["2026-11", "2026-12", "2027-01", "2027-02"]);
+  });
 });
