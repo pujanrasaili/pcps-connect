@@ -17,6 +17,7 @@ export const NOTIFICATION_PATTERNS = [
   [/^A seat opened for (.+) - your request is waiting for approval$/, "A seat opened for {title} - your request is waiting for approval", ["title"]],
   [/^You got a seat: (.+)$/, "You got a seat: {title}", ["title"]],
   [/^(.+) declined your request to join$/, "{club} declined your request to join", ["club"]],
+  [/^New idea for (.+)$/, "New idea for {club}", ["club"]],
   [/^(.+) shared a news update$/, "{club} shared a news update", ["club"]],
   [/^(.+) announced (.+)$/, "{club} announced {title}", ["club", "title"]],
 ];

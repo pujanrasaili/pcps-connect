@@ -32,6 +32,7 @@ const SAMPLES = [
   "You got a seat: Hack Night",
   "Coding Club announced Hack Night",
   "Coding Club shared a news update",
+  "New idea for Coding Club",
 ];
 
 test("known notifications are translated and keep their names", () => {
