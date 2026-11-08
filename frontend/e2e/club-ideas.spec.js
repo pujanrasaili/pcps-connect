@@ -91,3 +91,12 @@ test("a leader reads everyone's ideas, and can remove one", async ({ page }) => 
   await expect(box.getByText("No ideas yet.")).toBeVisible();
   expect(calls).toEqual(["remove i9"]);
 });
+
+test("a leader reaches the idea box from My Clubs", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await withIdeasApi(page, { member: false, leader: true });
+  await page.goto("/admin/my-clubs");
+  await page.getByRole("link", { name: "Ideas" }).first().click();
+  await expect(page).toHaveURL(new RegExp(`/clubs\\?club=${club._id}`));
+  await expect(page.getByRole("region", { name: "Ideas from members" })).toBeVisible();
+});
