@@ -211,7 +211,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs the backend tests and the
 frontend lint, tests and production build on every push and pull request.
 A separate job opens every public page, the Dashboard, the student pages and every admin page in a real Chromium, in
 English and Nepali, on a phone-sized screen with a mocked API, and fails on page
-errors, sideways scrolling or accessibility violations; it also runs the accessibility checks again in dark mode, and walks through the Contact form, the Profile page (editing details, rating an event), the Settings page (email switches, password change, account deletion), an admin creating, editing and deleting events and clubs and approving new sign-ups, joining clubs, finding events with the search and filters, signing up, logging in, resetting a forgotten password, registering for and leaving an event, switching language, and posting, pinning, editing and deleting club news (`cd frontend && npm run e2e`;
+errors, sideways scrolling or accessibility violations; it also runs the accessibility checks again in dark mode, uses the site by keyboard only (skip link, dialogs), and walks through the Contact form, the Profile page (editing details, rating an event), the Settings page (email switches, password change, account deletion), an admin creating, editing and deleting events and clubs and approving new sign-ups, joining clubs, finding events with the search and filters, signing up, logging in, resetting a forgotten password, registering for and leaving an event, switching language, and posting, pinning, editing and deleting club news (`cd frontend && npm run e2e`;
 see `frontend/e2e/`).
 
 ## Sending email from Render's free tier
