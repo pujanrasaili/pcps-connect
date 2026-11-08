@@ -23,6 +23,7 @@ import { useLang } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
+import ClubIdeas from "../components/ClubIdeas";
 import SafeImage from "../components/SafeImage";
 
 const PAGE_SIZE = 9;
@@ -276,6 +277,7 @@ export default function Clubs() {
             )}
 
             <ClubNews clubId={selectedClub._id} canPost={canPostNews(selectedClub._id)} />
+            {user && <ClubIdeas key={selectedClub._id} clubId={selectedClub._id} member={isJoined(selectedClub._id)} staff={canPostNews(selectedClub._id)} />}
 
             <Link
               to={`/events?club=${selectedClub._id}`}
