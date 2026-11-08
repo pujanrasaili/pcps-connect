@@ -35,8 +35,8 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Poppins", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        display: ["Poppins", "Noto Sans Devanagari", "sans-serif"],
+        body: ["Inter", "Noto Sans Devanagari", "sans-serif"],
       },
       boxShadow: {
         soft: "0 4px 20px -2px rgba(79, 70, 229, 0.12)",
