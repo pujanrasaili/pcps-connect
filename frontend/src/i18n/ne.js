@@ -694,6 +694,7 @@ export const ne = {
   "You don't lead any clubs.": "तपाईंले कुनै क्लबको नेतृत्व गर्नुभएको छैन।",
   "View members": "सदस्यहरू हेर्नुहोस्",
   "({n} waiting)": "({n} पर्खँदै)",
+  "Ideas": "विचारहरू",
   "Message members": "सदस्यहरूलाई सन्देश",
   "{name} was already checked in.": "{name} पहिल्यै चेक-इन भइसक्नुभएको थियो।",
   "{name} is checked in.": "{name} चेक-इन भयो।",

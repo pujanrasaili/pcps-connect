@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FaEnvelope, FaUsers } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaEnvelope, FaLightbulb, FaUsers } from "react-icons/fa";
 import { useLedClubs } from "../../hooks/useLedClubs";
 import { useClubs } from "../../context/ClubsContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
@@ -9,7 +10,8 @@ import { useRequestCounts } from "../../hooks/useRequestCounts";
 import { useLang } from "../../context/LanguageContext";
 
 // The clubs this person leads, with the one club-wide action a leader has:
-// seeing and emailing the club's members.
+// seeing and emailing the club's members, and a way to the ideas members
+// have suggested (they are read in the club's own window).
 export default function LeaderClubs() {
   const { t } = useLang();
   const { clubs, loaded, failed, retry } = useLedClubs();
@@ -50,6 +52,10 @@ export default function LeaderClubs() {
               <Button icon={FaUsers} onClick={() => setMembersTarget(club)}>
                 {t("View members")}{counts[club._id] ? ` ${t("({n} waiting)", { n: counts[club._id] })}` : ""}
               </Button>
+              <Link to={`/clubs?club=${club._id}`} className="btn-primary">
+                <FaLightbulb className="text-base" aria-hidden="true" />
+                {t("Ideas")}
+              </Link>
               <Button icon={FaEnvelope} onClick={() => setTarget(club)}>
                 {t("Message members")}
               </Button>
