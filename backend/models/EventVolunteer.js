@@ -9,6 +9,8 @@ const eventVolunteerSchema = new mongoose.Schema(
     event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     role: { type: mongoose.Schema.Types.ObjectId, required: true },
+    // Set once the day-before reminder has been handled (sent, skipped or failed).
+    reminderSent: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

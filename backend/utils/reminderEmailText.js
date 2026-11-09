@@ -13,6 +13,10 @@ const T = {
     reminderHeading: "Your event is coming up",
     reminderBody: "Just a reminder that you're registered for <strong>{title}</strong>, happening soon:",
     seeYou: "See you there!",
+    volSubject: "Reminder: you're helping at {rawTitle}",
+    volHeading: "You're helping at an event soon",
+    volBody: "Thank you for helping! A reminder that you signed up as <strong>{role}</strong> at <strong>{title}</strong>:",
+    volThanks: "The organisers are counting on you. If you can no longer make it, please cancel your sign-up on the event page so someone else can take your place.",
     reminderFooter: "You can turn event reminders off in {settings}.",
     digestSubjectOne: "1 event this week from your clubs",
     digestSubjectMany: "{count} events this week from your clubs",
@@ -37,6 +41,10 @@ const T = {
     reminderHeading: "तपाईंको कार्यक्रम नजिकै छ",
     reminderBody: "तपाईं <strong>{title}</strong> मा दर्ता हुनुभएको छ, जुन चाँडै हुँदैछ भनी सम्झाउन खोजेका हौं:",
     seeYou: "त्यहाँ भेटौंला!",
+    volSubject: "सम्झना: तपाईं {rawTitle} मा सहयोग गर्दै हुनुहुन्छ",
+    volHeading: "तपाईं चाँडै एउटा कार्यक्रममा सहयोग गर्दै हुनुहुन्छ",
+    volBody: "सहयोग गर्नुभएकोमा धन्यवाद! तपाईंले <strong>{title}</strong> मा <strong>{role}</strong> को रूपमा साइन अप गर्नुभएको सम्झाउन खोजेका हौं:",
+    volThanks: "आयोजकहरू तपाईंमा भरोसा गर्छन्। तपाईं आउन सक्ने अवस्था छैन भने कार्यक्रम पेजमा साइन अप रद्द गर्नुहोस्, ताकि अर्कोले तपाईंको ठाउँ लिन सकोस्।",
     reminderFooter: "कार्यक्रमको सम्झना इमेल {settings} मा बन्द गर्न सक्नुहुन्छ।",
     digestSubjectOne: "तपाईंका क्लबबाट यो हप्ता १ कार्यक्रम",
     digestSubjectMany: "तपाईंका क्लबबाट यो हप्ता {count} कार्यक्रम",
@@ -78,4 +86,23 @@ function eventReminderEmail(language, v) {
   };
 }
 
-module.exports = { eventReminderEmail, text, settingsWord, T };
+// { lang, subject, heading, bodyHtml } for the reminder to a student helping at an event.
+function volunteerReminderEmail(language, v) {
+  const lang = pickLanguage(language);
+  const t = T[lang];
+  return {
+    lang,
+    subject: fill(t.volSubject, v),
+    heading: t.volHeading,
+    bodyHtml: `
+              <p style="margin: 0 0 12px;">${fill(t.hi, v)}</p>
+              <p style="margin: 0 0 16px;">${fill(t.volBody, v)}</p>
+              <p style="margin: 0 0 4px;"><strong>${t.when}</strong> ${v.when}</p>
+              <p style="margin: 0;"><strong>${t.where}</strong> ${v.where}</p>
+              <p style="margin: 16px 0 0;">${t.volThanks}</p>
+              <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">${fill(t.reminderFooter, v)}</p>
+            `,
+  };
+}
+
+module.exports = { eventReminderEmail, volunteerReminderEmail, text, settingsWord, T };
