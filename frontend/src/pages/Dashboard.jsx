@@ -20,9 +20,11 @@ import {
 } from "react-icons/fa";
 import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
+import VolunteeringCard from "../components/VolunteeringCard";
 import ClubNewsFeedCard from "../components/ClubNewsFeedCard";
 import { useMyClubNews } from "../hooks/useMyClubNews";
 import { useMyWaitlist } from "../hooks/useMyWaitlist";
+import { useMyVolunteering } from "../hooks/useMyVolunteering";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useLedClubs } from "../hooks/useLedClubs";
@@ -88,6 +90,7 @@ export default function Dashboard() {
   }, [events, memberships, registeredEvents]);
 
   const waitlist = useMyWaitlist();
+  const volunteering = useMyVolunteering();
   const clubNews = useMyClubNews();
   const { savedIds } = useSavedEvents();
   const savedForLater = useMemo(() => {
@@ -299,6 +302,8 @@ export default function Dashboard() {
       )}
 
       <WaitlistCard items={waitlist} />
+
+      <VolunteeringCard items={volunteering} />
 
       <ClubNewsFeedCard posts={clubNews} />
 

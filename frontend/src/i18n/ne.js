@@ -1286,4 +1286,5 @@ export const ne = {
   "How can I help out at an event?": "म कार्यक्रममा कसरी सहयोग गर्न सक्छु?",
   "Some events list helper roles, such as the registration desk or the setup crew, in a \"Help out\" box on the event's page. Log in, then press Sign up to help next to a role that still has a place.": "केही कार्यक्रमले दर्ता डेस्क वा सेटअप टोली जस्ता सहयोगी भूमिकाहरू कार्यक्रम पेजको “सहयोग गर्नुहोस्” बक्समा देखाउँछन्। लगइन गर्नुहोस्, अनि स्थान बाँकी भएको भूमिकाको छेउमा रहेको “सहयोग गर्न साइन अप गर्नुहोस्” थिच्नुहोस्।",
   "You can help in one role per event. To change, press Cancel and pick another. Only the event's organisers and the admins can see who has signed up.": "तपाईं एउटा कार्यक्रममा एउटै भूमिकामा सहयोग गर्न सक्नुहुन्छ। परिवर्तन गर्न “रद्द गर्नुहोस्” थिचेर अर्को छान्नुहोस्। कार्यक्रमका आयोजक र एडमिनले मात्र को साइन अप भए भनेर हेर्न सक्छन्।",
+  "You're helping at": "तपाईं सहयोग गर्दै हुनुभएको कार्यक्रम",
 };
