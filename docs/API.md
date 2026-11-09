@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-97 endpoints.
+98 endpoints.
 
 ## /api/health
 
@@ -42,6 +42,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | POST | `/api/events/:id/questions` | Logged-in student (rate limited) | Ask a public question on an upcoming event (max 3 unanswered per student); the organiser is emailed. |
 | PUT | `/api/events/:id/questions/:questionId/answer` | Admin or club leader (rate limited) | Answer a question on an event (admins and that event's club leaders only); the asker is emailed the first time. |
 | DELETE | `/api/events/:id/questions/:questionId` | Logged-in student (rate limited) | Delete a question: its asker, or an admin / the event's club leader. |
+| GET | `/api/events/volunteering/mine` | Logged-in student | The upcoming events you signed up to help at, with your role, soonest first. |
 | GET | `/api/events/:id/volunteers` | Anyone (logged-in users see more) | The helper roles at an event, how many places are taken and whether you hold one; organisers also see who signed up. |
 | POST | `/api/events/:id/volunteers` | Logged-in student (rate limited) | Sign up to help in one role at an upcoming event (one role per event; a full role is refused). |
 | DELETE | `/api/events/:id/volunteers` | Logged-in student (rate limited) | Cancel your own volunteer sign-up for an event. |

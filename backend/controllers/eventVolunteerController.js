@@ -35,6 +35,24 @@ async function getVolunteers(req, res) {
   }
 }
 
+// GET /api/events/volunteering/mine  (requires login)
+// The upcoming events the student signed up to help at, soonest first.
+async function getMyVolunteering(req, res) {
+  try {
+    const rows = await EventVolunteer.find({ user: req.user._id }).populate("event", "title date location volunteerRoles");
+    const items = rows
+      .filter((r) => r.event && new Date(r.event.date) >= new Date())
+      .map((r) => ({
+        event: { _id: r.event._id, title: r.event.title, date: r.event.date, location: r.event.location },
+        role: (r.event.volunteerRoles || []).find((x) => String(x._id) === String(r.role))?.name || "",
+      }))
+      .sort((a, b) => new Date(a.event.date) - new Date(b.event.date));
+    res.status(200).json({ volunteering: items });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to load your volunteer roles") });
+  }
+}
+
 // POST /api/events/:id/volunteers  { role }  (requires login)
 async function signUp(req, res) {
   try {
@@ -115,4 +133,4 @@ async function setRoles(req, res) {
   }
 }
 
-module.exports = { getVolunteers, signUp, cancelSignUp, setRoles };
+module.exports = { getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles };
