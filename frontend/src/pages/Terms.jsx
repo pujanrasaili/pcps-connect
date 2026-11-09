@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
+import { useLang } from "../context/LanguageContext";
+import LegalNe from "../components/LegalNe";
+import { termsNe } from "../i18n/legalNe";
 
 export default function Terms() {
+  const { lang } = useLang();
+  if (lang === "ne") return <LegalNe doc={termsNe} />;
   return (
     <div className="section-y">
       <div className="container-page max-w-3xl">
