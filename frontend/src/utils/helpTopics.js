@@ -72,6 +72,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "volunteer-roles",
+    question: "How can I help out at an event?",
+    answer: [
+      "Some events list helper roles, such as the registration desk or the setup crew, in a \"Help out\" box on the event's page. Log in, then press Sign up to help next to a role that still has a place.",
+      "You can help in one role per event. To change, press Cancel and pick another. Only the event's organisers and the admins can see who has signed up.",
+    ],
+  },
+  {
     id: "club-approval",
     question: "A club says \"Request to join\". What happens?",
     answer: [
