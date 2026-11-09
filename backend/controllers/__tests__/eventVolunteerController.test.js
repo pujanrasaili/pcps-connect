@@ -165,3 +165,15 @@ describe("setRoles", () => {
     expect(EventVolunteer.deleteMany).toHaveBeenCalledWith({ _id: { $in: ["b"] } });
   });
 });
+
+describe("getMyVolunteering", () => {
+  const { getMyVolunteering } = require("../eventVolunteerController");
+  it("lists only upcoming events, soonest first, with the role name", async () => {
+    const mk = (id, days, roleName) => ({ role: "r1", event: id ? { _id: id, title: id, date: new Date(Date.now() + days * 86400000), location: "Hall", volunteerRoles: [{ _id: "r1", name: roleName }] } : null });
+    EventVolunteer.find.mockReturnValue({ populate: () => Promise.resolve([mk("later", 9, "Desk"), mk("past", -2, "Desk"), mk(null), mk("soon", 2, "Setup")]) });
+    const res = mockRes();
+    await getMyVolunteering({ user: student }, res);
+    expect(EventVolunteer.find).toHaveBeenCalledWith({ user: "u1" });
+    expect(res.json.mock.calls[0][0].volunteering.map((v) => [v.event._id, v.role])).toEqual([["soon", "Setup"], ["later", "Desk"]]);
+  });
+});
