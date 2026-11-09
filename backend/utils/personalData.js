@@ -3,7 +3,7 @@
 // free of database calls so it's easy to test.
 const iso = (d) => (d ? new Date(d).toISOString() : null);
 
-function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [], joinRequests = [], questions = [], contactMessages = [], clubIdeas = [] }, now = new Date()) {
+function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [], joinRequests = [], questions = [], contactMessages = [], clubIdeas = [], volunteering = [] }, now = new Date()) {
   return {
     exportedAt: now.toISOString(),
     profile: {
@@ -55,6 +55,15 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
     clubIdeas: clubIdeas
       .filter((i) => i.club)
       .map((i) => ({ club: i.club.name, idea: i.body, sentAt: iso(i.createdAt) })),
+    // Volunteer roles they signed up for at events.
+    volunteering: volunteering
+      .filter((v) => v.event)
+      .map((v) => ({
+        event: v.event.title,
+        eventDate: iso(v.event.date),
+        role: (v.event.volunteerRoles || []).find((r) => String(r._id) === String(v.role))?.name || "",
+        signedUpAt: iso(v.createdAt),
+      })),
     // Messages sent through the Contact form from this account's email address.
     contactMessages: contactMessages.map((m) => ({
       subject: m.subject || "",

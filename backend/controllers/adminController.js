@@ -10,6 +10,7 @@ const { notifyClubAnnouncement } = require("../utils/notifyClubMembers");
 const { canManageEvent, canManageClub, isAdmin, ledClubs } = require("../utils/clubAccess");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const EventQuestion = require("../models/EventQuestion");
+const EventVolunteer = require("../models/EventVolunteer");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const AuditLog = require("../models/AuditLog");
 const { recordAudit } = require("../utils/audit");
@@ -335,6 +336,7 @@ async function deleteEventAdmin(req, res) {
     await Registration.deleteMany({ event: event._id });
     await WaitlistEntry.deleteMany({ event: event._id });
     await EventQuestion.deleteMany({ event: event._id });
+    await EventVolunteer.deleteMany({ event: event._id });
     await destroyEventPhotos(event.photos);
     await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
     res.status(200).json({ message: "Event deleted" });

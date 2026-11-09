@@ -3,6 +3,7 @@ const { destroyEventPhotos } = require("../utils/eventPhotoCleanup");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const EventQuestion = require("../models/EventQuestion");
+const EventVolunteer = require("../models/EventVolunteer");
 const Club = require("../models/Club");
 const { recordAudit } = require("../utils/audit");
 const { ratingSummary } = require("../utils/ratingSummary");
@@ -294,6 +295,7 @@ async function deleteEvent(req, res) {
     await Registration.deleteMany({ event: event._id });
     await WaitlistEntry.deleteMany({ event: event._id });
     await EventQuestion.deleteMany({ event: event._id });
+    await EventVolunteer.deleteMany({ event: event._id });
     await destroyEventPhotos(event.photos);
     await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
 

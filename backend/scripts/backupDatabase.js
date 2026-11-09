@@ -33,6 +33,7 @@ const MODELS = [
   require("../models/ClubPost"),
   require("../models/ClubIdea"),
   require("../models/EventQuestion"),
+  require("../models/EventVolunteer"),
   require("../models/ContactMessage"),
   require("../models/AuditLog"),
   require("../models/SiteNotice"),

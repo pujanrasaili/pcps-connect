@@ -4,6 +4,7 @@ const WaitlistEntry = require("../models/WaitlistEntry");
 const ClubMembership = require("../models/ClubMembership");
 const ClubJoinRequest = require("../models/ClubJoinRequest");
 const EventQuestion = require("../models/EventQuestion");
+const EventVolunteer = require("../models/EventVolunteer");
 const Club = require("../models/Club");
 const ClubIdea = require("../models/ClubIdea");
 const ClubPost = require("../models/ClubPost");
@@ -31,6 +32,7 @@ async function removeUserAndData(user) {
     await Registration.deleteMany({ event: { $in: upcomingIds } });
     await WaitlistEntry.deleteMany({ event: { $in: upcomingIds } });
     await EventQuestion.deleteMany({ event: { $in: upcomingIds } });
+    await EventVolunteer.deleteMany({ event: { $in: upcomingIds } });
     await Event.deleteMany({ _id: { $in: upcomingIds } });
   }
   await Registration.deleteMany({ user: user._id });
@@ -40,6 +42,8 @@ async function removeUserAndData(user) {
   if (user.email) await ContactMessage.deleteMany({ email: String(user.email).toLowerCase() });
   // Their public questions go too (the answers to them are no use without the question).
   await EventQuestion.deleteMany({ author: user._id });
+  // Their volunteer sign-ups too.
+  await EventVolunteer.deleteMany({ user: user._id });
   // Ideas they suggested to clubs go with them.
   await ClubIdea.deleteMany({ author: user._id });
   await ClubMembership.deleteMany({ user: user._id });
