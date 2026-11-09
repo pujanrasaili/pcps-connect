@@ -71,4 +71,15 @@ describe("buildPersonalData", () => {
     expect(d.eventQuestions).toEqual([]);
     expect(d.contactMessages).toEqual([]);
   });
+
+  it("lists volunteer roles, skipping events that no longer exist", () => {
+    const out = buildPersonalData({
+      user: { name: "S", email: "s@x" },
+      volunteering: [
+        { event: { title: "Fest", date: "2026-12-01T00:00:00Z", volunteerRoles: [{ _id: "r1", name: "Desk" }] }, role: "r1", createdAt: "2026-10-06T00:00:00Z" },
+        { event: null, role: "r9" },
+      ],
+    });
+    expect(out.volunteering).toEqual([{ event: "Fest", eventDate: "2026-12-01T00:00:00.000Z", role: "Desk", signedUpAt: "2026-10-06T00:00:00.000Z" }]);
+  });
 });

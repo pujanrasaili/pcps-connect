@@ -10,6 +10,7 @@ jest.mock("../../models/Club");
 jest.mock("../../models/Notification");
 jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../models/EventQuestion");
+jest.mock("../../models/EventVolunteer");
 jest.mock("../../models/ClubIdea");
 jest.mock("../../models/ContactMessage");
 
@@ -22,6 +23,7 @@ const Notification = require("../../models/Notification");
 const sendEmail = require("../../utils/sendEmail");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const EventQuestion = require("../../models/EventQuestion");
+const EventVolunteer = require("../../models/EventVolunteer");
 const ClubIdea = require("../../models/ClubIdea");
 const ContactMessage = require("../../models/ContactMessage");
 const { register, login, forgotPassword, resendVerification, resetPassword, changePassword, updateProfile, deleteAccount, exportMyData } = require("../authController");
@@ -371,6 +373,7 @@ describe("exportMyData", () => {
     Notification.find.mockReturnValue(chain([{ title: "Hack Night was updated", read: false, createdAt: "2026-10-01T00:00:00Z" }]));
     ClubJoinRequest.find.mockReturnValue(chain([{ club: { name: "Robotics" }, createdAt: "2026-10-03T00:00:00Z" }]));
     EventQuestion.find.mockReturnValue(chain([{ event: { title: "Hack Night" }, question: "Is food free?", answer: "Yes", createdAt: "2026-10-04T00:00:00Z" }]));
+    EventVolunteer.find.mockReturnValue(chain([{ event: { title: "Hack Night", date: "2026-12-01T00:00:00Z", volunteerRoles: [{ _id: "r1", name: "Registration desk" }] }, role: "r1", createdAt: "2026-10-06T00:00:00Z" }]));
     ContactMessage.find.mockReturnValue(chain([{ subject: "Hi", message: "Question", createdAt: "2026-10-05T00:00:00Z" }]));
     ClubIdea.find.mockReturnValue(chain([{ club: { name: "Robotics" }, body: "A drone day", createdAt: "2026-10-06T00:00:00Z" }]));
     const res = mockRes();
@@ -381,6 +384,7 @@ describe("exportMyData", () => {
     expect(ClubIdea.find).toHaveBeenCalledWith({ author: "s1" });
     const out = res.json.mock.calls[0][0];
     expect(out.clubJoinRequests).toEqual([{ club: "Robotics", requestedAt: "2026-10-03T00:00:00.000Z" }]);
+    expect(out.volunteering).toEqual([{ event: "Hack Night", eventDate: "2026-12-01T00:00:00.000Z", role: "Registration desk", signedUpAt: "2026-10-06T00:00:00.000Z" }]);
     expect(out.eventQuestions).toEqual([{ event: "Hack Night", question: "Is food free?", answer: "Yes", askedAt: "2026-10-04T00:00:00.000Z" }]);
     expect(out.clubIdeas).toEqual([{ club: "Robotics", idea: "A drone day", sentAt: "2026-10-06T00:00:00.000Z" }]);
     expect(out.contactMessages).toEqual([{ subject: "Hi", message: "Question", sentAt: "2026-10-05T00:00:00.000Z" }]);

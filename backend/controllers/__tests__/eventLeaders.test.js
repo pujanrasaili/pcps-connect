@@ -3,6 +3,7 @@ jest.mock("../../models/Club");
 jest.mock("../../models/Registration");
 jest.mock("../../models/WaitlistEntry");
 jest.mock("../../models/EventQuestion");
+jest.mock("../../models/EventVolunteer");
 jest.mock("../../utils/notifyClubMembers");
 jest.mock("../../utils/notifyRegistrants");
 jest.mock("../../utils/waitlist");
