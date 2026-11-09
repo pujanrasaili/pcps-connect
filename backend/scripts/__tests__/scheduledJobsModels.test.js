@@ -22,6 +22,12 @@ describe("scheduled email jobs register the models they populate", () => {
 });
 
 describe("event reminders also reach the notification bell", () => {
+  it("sendEventReminders.js also reminds the students helping at each event", () => {
+    const source = fs.readFileSync(path.join(__dirname, "..", "sendEventReminders.js"), "utf8");
+    expect(source).toMatch(/remindVolunteers\(event\)/);
+    const helper = fs.readFileSync(path.join(__dirname, "..", "..", "utils", "volunteerReminders.js"), "utf8");
+    expect(helper).toMatch(/type: "volunteer_reminder"/);
+  });
   it("sendEventReminders.js pushes an event_reminder notification", () => {
     const source = fs.readFileSync(path.join(__dirname, "..", "sendEventReminders.js"), "utf8");
     expect(source).toMatch(/require\("\.\.\/utils\/inApp"\)/);
