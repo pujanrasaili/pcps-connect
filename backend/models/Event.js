@@ -13,6 +13,12 @@ const eventSchema = new mongoose.Schema(
     // controllers/eventPhotosController.js).
     photos: { type: [String], default: [] },
     capacity: { type: Number, default: 100, min: 1 },
+    // Optional helper roles students can sign up for (see
+    // controllers/eventVolunteerController.js). At most 5, set by the organisers.
+    volunteerRoles: {
+      type: [{ name: { type: String, required: true, trim: true, maxlength: 40 }, slots: { type: Number, required: true, min: 1, max: 50 } }],
+      default: [],
+    },
     // Optional: after this time nobody new can register or join the waitlist
     // (see utils/registrationDeadline.js).
     registrationDeadline: { type: Date, default: null },

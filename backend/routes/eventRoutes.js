@@ -9,6 +9,7 @@ const {
 const { addEventPhoto, removeEventPhoto } = require("../controllers/eventPhotosController");
 const { getCalendarFeed } = require("../controllers/calendarFeedController");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
+const { getVolunteers, signUp, cancelSignUp, setRoles } = require("../controllers/eventVolunteerController");
 const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const upload = require("../middleware/upload");
@@ -31,6 +32,12 @@ router.get("/:id/questions", optionalAuth, getQuestions);
 router.post("/:id/questions", protect, actionLimiter, askQuestion);
 router.put("/:id/questions/:questionId/answer", protect, staffOnly, actionLimiter, answerQuestion);
 router.delete("/:id/questions/:questionId", protect, actionLimiter, deleteQuestion);
+// Helper roles at an event: anyone can look, students sign up and cancel their own,
+// organisers set the roles (the controller checks the club).
+router.get("/:id/volunteers", optionalAuth, getVolunteers);
+router.post("/:id/volunteers", protect, actionLimiter, signUp);
+router.delete("/:id/volunteers", protect, actionLimiter, cancelSignUp);
+router.put("/:id/volunteer-roles", protect, staffOnly, actionLimiter, setRoles);
 // Event management is for admins and club leaders only -- the frontend never
 // exposes event creation to regular students, so without this check anyone
 // calling the API directly could post arbitrary public "events" to the site.
