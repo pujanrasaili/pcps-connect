@@ -10,13 +10,14 @@ const quiet = (problems) => problems.filter((p) => !/status of (401|500)/.test(p
 const ev = (n, title, offsetDays, extra = {}) => ({ _id: `d${n}`.padEnd(24, "0"), title, description: "x", date: new Date(Date.now() + offsetDays * DAY).toISOString(), location: "Main Hall", capacity: 50, registeredCount: 10, category: "Workshop", price: "Free", club: clubs[0], averageRating: 0, ratingCount: 0, ...extra });
 const reg = (n, event, extra = {}) => ({ _id: `r${n}`.padEnd(24, "0"), status: "confirmed", attended: false, createdAt: new Date().toISOString(), event, ...extra });
 
-async function load(page, { lang = "en", registrations = [], events = [], memberships = [], favoriteClub, led = [], failRegs = false } = {}) {
+async function load(page, { lang = "en", registrations = [], events = [], memberships = [], favoriteClub, led = [], failRegs = false, volunteering = [] } = {}) {
   const problems = await setUp(page, { lang, role: "student" });
   const calls = [];
   let regs = registrations;
   await page.route("**/api/auth/me", (route) => reply(route, { user: { ...student, language: lang, favoriteClub } }));
   await page.route("**/api/events", (route) => reply(route, { events }));
   await page.route("**/api/club-memberships/my", (route) => reply(route, { memberships }));
+  await page.route("**/api/events/volunteering/mine", (route) => reply(route, { volunteering }));
   await page.route("**/api/leader/clubs", (route) => reply(route, { clubs: led }));
   await page.route("**/api/registrations/my", (route) => (failRegs ? reply(route, { message: "down" }, 500) : reply(route, { registrations: regs })));
   await page.route(/\/api\/registrations\/r[^/]+$/, (route) => {
@@ -172,4 +173,30 @@ test("if registrations can't be loaded, the page says the numbers may be incompl
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Unregister from Hack Night" })).toBeVisible();
+});
+
+for (const lang of ["en", "ne"]) {
+  const en = lang === "en";
+  test(`the Dashboard lists the events I signed up to help at, with my role (${lang})`, async ({ page }) => {
+    const e1 = ev(1, "Open Mic", 5);
+    const { problems } = await load(page, { lang, volunteering: [{ event: { _id: e1._id, title: e1.title, date: e1.date, location: "Main Hall" }, role: "Registration desk" }] });
+    await page.goto("/dashboard");
+    const card = page.locator("div.card-surface", { has: page.getByRole("heading", { name: en ? "You're helping at" : "तपाईं सहयोग गर्दै हुनुभएको कार्यक्रम" }) });
+    await expect(card.getByRole("link", { name: /Open Mic/ })).toHaveAttribute("href", `/events/${e1._id}`);
+    await expect(card.getByText("Registration desk")).toBeVisible();
+    await page.waitForTimeout(600);
+    expect(await axeViolations(page)).toEqual([]);
+    expect(quiet(problems)).toEqual([]);
+  });
+}
+
+test("with no volunteer sign-ups, or a failed request, the Dashboard has no helping card", async ({ page }) => {
+  await load(page);
+  await page.goto("/dashboard");
+  await expect(page.getByRole("heading", { level: 1, name: "Welcome back, Asha" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You're helping at" })).toHaveCount(0);
+  await page.route("**/api/events/volunteering/mine", (route) => reply(route, { message: "down" }, 500));
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: "Welcome back, Asha" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You're helping at" })).toHaveCount(0);
 });
