@@ -1,10 +1,29 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import { HELP_TOPICS } from "../utils/helpTopics";
 import { useLang } from "../context/LanguageContext";
 
 export default function Help() {
   const { t } = useLang();
+  const { hash } = useLocation();
+
+  // An address like /help#club-ideas opens that question and brings it into view.
+  // The browser's own jump happens before this page is drawn, so it is done here.
+  useEffect(() => {
+    let id = "";
+    try {
+      id = decodeURIComponent(hash.slice(1));
+    } catch {
+      return;
+    }
+    const topic = id ? document.getElementById(id) : null;
+    if (topic instanceof HTMLDetailsElement) {
+      topic.open = true;
+      topic.scrollIntoView({ block: "start" });
+    }
+  }, [hash]);
+
   return (
     <div className="section-y">
       <div className="container-page max-w-3xl">
