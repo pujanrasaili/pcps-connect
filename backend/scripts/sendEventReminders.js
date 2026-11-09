@@ -36,6 +36,7 @@ const { getReminderWindow } = require("../utils/reminderWindow");
 const { pushNotifications } = require("../utils/inApp");
 const { pickLanguage } = require("../utils/emailText");
 const { eventReminderEmail, settingsWord } = require("../utils/reminderEmailText");
+const { remindVolunteers } = require("../utils/volunteerReminders");
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
@@ -106,6 +107,11 @@ async function run() {
       registration.reminderSent = true;
       await registration.save();
     }
+
+    // Students helping at the event get their own reminder, naming their role.
+    const helpers = await remindVolunteers(event);
+    sent += helpers.sent;
+    failed += helpers.failed;
   }
 
   console.log(`Done. Sent ${sent} reminder(s), ${failed} failed.`);
