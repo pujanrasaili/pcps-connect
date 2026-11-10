@@ -185,9 +185,9 @@ test("an organiser can download the helpers as a CSV (formula-looking names are 
   // The file starts with a byte-order mark so Excel shows Nepali names correctly.
   expect(body.startsWith("\uFEFF")).toBe(true);
   expect(body.slice(1).split("\r\n")).toEqual([
-    '"Role","Name","Email"',
-    '"Registration desk","Ram Thapa","ram@x.np"',
-    `"Registration desk","'=HYPERLINK(""http://evil"")","e@x.np"`,
+    '"Role","Name","Email","Helped"',
+    '"Registration desk","Ram Thapa","ram@x.np","No"',
+    `"Registration desk","'=HYPERLINK(""http://evil"")","e@x.np","No"`,
   ]);
 });
 
