@@ -17,6 +17,7 @@ jest.mock("../../utils/audit");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/notifyRegistrants");
 jest.mock("../../models/Notification");
+jest.mock("../../models/PushSubscription");
 jest.mock("../../models/ContactMessage");
 jest.mock("../../utils/inApp");
 jest.mock("../../utils/eventPhotoCleanup");

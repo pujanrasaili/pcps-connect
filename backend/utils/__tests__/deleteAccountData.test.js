@@ -9,6 +9,7 @@ jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
 jest.mock("../../models/ClubIdea");
 jest.mock("../../models/Notification");
+jest.mock("../../models/PushSubscription");
 jest.mock("../../models/ContactMessage");
 jest.mock("../notifyRegistrants");
 

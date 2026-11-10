@@ -1,11 +1,28 @@
 jest.mock("../../models/Notification");
 jest.mock("../../models/User");
+jest.mock("../webPush");
 
 const Notification = require("../../models/Notification");
 const User = require("../../models/User");
+const { sendPush } = require("../webPush");
 const { pushNotifications, notifyAdmins } = require("../inApp");
 
 afterEach(() => jest.resetAllMocks());
+
+describe("pushNotifications -- phone/browser alerts", () => {
+  it("also sends a push alert to the same students, with a site-only link", async () => {
+    Notification.insertMany.mockResolvedValue([]);
+    await pushNotifications(["u1", "u2"], { type: "t", title: "Event moved", link: "/events/1" });
+    expect(sendPush).toHaveBeenCalledWith(["u1", "u2"], { title: "Event moved", link: "/events/1" });
+    sendPush.mockClear();
+    await pushNotifications(["u1"], { type: "t", title: "x", link: "https://evil.example" });
+    expect(sendPush).toHaveBeenCalledWith(["u1"], { title: "x", link: "" });
+  });
+  it("sends nothing when nothing was stored", async () => {
+    await pushNotifications([], { type: "t", title: "x" });
+    expect(sendPush).not.toHaveBeenCalled();
+  });
+});
 
 describe("pushNotifications", () => {
   it("stores one message per distinct user", async () => {
