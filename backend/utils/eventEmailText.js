@@ -94,41 +94,41 @@ const MAIL = {
     en: (v) => ({
       heading: `Event updated: ${v.rawTitle}`,
       bodyHtml: `${hi("en", v)}
-      ${p(`An event you're registered for -- <strong>${v.title}</strong> -- has changed:`)}
+      ${p(`${v.helper ? "An event you're helping at" : "An event you're registered for"} -- <strong>${v.title}</strong> -- has changed:`)}
       ${changes("en", v)}
-      ${p("If the new details don't work for you, you can cancel anytime from your Dashboard.", "16px 0 0")}`,
+      ${p(v.helper ? "If the new details don't work for you, you can cancel your sign-up on the event page." : "If the new details don't work for you, you can cancel anytime from your Dashboard.", "16px 0 0")}`,
     }),
     ne: (v) => ({
       heading: `कार्यक्रम अपडेट: ${v.rawTitle}`,
       bodyHtml: `${hi("ne", v)}
-      ${p(`तपाईं दर्ता भएको कार्यक्रम -- <strong>${v.title}</strong> -- बदलिएको छ:`)}
+      ${p(`${v.helper ? "तपाईं सहयोग गर्दै हुनुभएको कार्यक्रम" : "तपाईं दर्ता भएको कार्यक्रम"} -- <strong>${v.title}</strong> -- बदलिएको छ:`)}
       ${changes("ne", v)}
-      ${p("नयाँ विवरण मिलेन भने जुनसुकै बेला ड्यासबोर्डबाट रद्द गर्न सक्नुहुन्छ।", "16px 0 0")}`,
+      ${p(v.helper ? "नयाँ विवरण मिलेन भने कार्यक्रम पेजमा आफ्नो साइन-अप रद्द गर्न सक्नुहुन्छ।" : "नयाँ विवरण मिलेन भने जुनसुकै बेला ड्यासबोर्डबाट रद्द गर्न सक्नुहुन्छ।", "16px 0 0")}`,
     }),
   },
   cancelled: {
     en: (v) => ({
       heading: `Event cancelled: ${v.rawTitle}`,
       bodyHtml: `${hi("en", v)}
-      ${p(`<strong>${v.title}</strong>, scheduled for ${v.when}, has been cancelled. You don't need to do anything -- your registration has been removed automatically.`, "0")}`,
+      ${p(`<strong>${v.title}</strong>, scheduled for ${v.when}, has been cancelled. You don't need to do anything -- your ${v.helper ? "volunteer sign-up" : "registration"} has been removed automatically.`, "0")}`,
     }),
     ne: (v) => ({
       heading: `कार्यक्रम रद्द: ${v.rawTitle}`,
       bodyHtml: `${hi("ne", v)}
-      ${p(`<strong>${v.title}</strong>, जुन ${v.when} मा तय भएको थियो, रद्द गरिएको छ। तपाईंले केही गर्नुपर्दैन -- तपाईंको दर्ता आफैं हटाइएको छ।`, "0")}`,
+      ${p(`<strong>${v.title}</strong>, जुन ${v.when} मा तय भएको थियो, रद्द गरिएको छ। तपाईंले केही गर्नुपर्दैन -- ${v.helper ? "तपाईंको स्वयंसेवक साइन-अप" : "तपाईंको दर्ता"} आफैं हटाइएको छ।`, "0")}`,
     }),
   },
   announcement: {
     en: (v) => ({
       heading: `Message about ${v.rawTitle}`,
       bodyHtml: `${hi("en", v)}
-      ${p(`The organisers of <strong>${v.title}</strong> (${v.when}, ${v.where}) have sent a message to everyone registered:`)}
+      ${p(`The organisers of <strong>${v.title}</strong> (${v.when}, ${v.where}) have sent a message to everyone registered${v.helper ? " or helping" : ""}:`)}
       <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${v.messageHtml}</div>`,
     }),
     ne: (v) => ({
       heading: `${v.rawTitle} बारे सन्देश`,
       bodyHtml: `${hi("ne", v)}
-      ${p(`<strong>${v.title}</strong> (${v.when}, ${v.where}) का आयोजकहरूले दर्ता भएका सबैलाई सन्देश पठाएका छन्:`)}
+      ${p(`<strong>${v.title}</strong> (${v.when}, ${v.where}) का आयोजकहरूले ${v.helper ? "दर्ता भएका वा सहयोग गर्ने सबैलाई" : "दर्ता भएका सबैलाई"} सन्देश पठाएका छन्:`)}
       <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${v.messageHtml}</div>`,
     }),
   },

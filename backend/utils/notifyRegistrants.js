@@ -33,7 +33,7 @@ async function notifyRegistrants(eventId, { heading, bodyHtml, app }) {
   try {
     const helpers = await EventVolunteer.find({ event: eventId }).populate("user", "name email language");
     const known = new Set(registrants.map((r) => String(r.user?._id)));
-    registrants = [...registrants, ...helpers.filter((h) => h.user && !known.has(String(h.user._id)))];
+    registrants = [...registrants, ...helpers.filter((h) => h.user && !known.has(String(h.user._id))).map((h) => ({ user: h.user, helper: true }))];
   } catch (err) {
     console.error("Failed to look up volunteers to notify:", err.message);
   }
@@ -46,7 +46,7 @@ async function notifyRegistrants(eventId, { heading, bodyHtml, app }) {
         subject: heading(pickLanguage(r.user.language)),
         html: renderEmail({
           heading: heading(pickLanguage(r.user.language)),
-          bodyHtml: bodyHtml(r.user, pickLanguage(r.user.language)),
+          bodyHtml: bodyHtml(r.user, pickLanguage(r.user.language), !!r.helper),
           language: pickLanguage(r.user.language),
         }),
       }).catch((err) => {
@@ -60,7 +60,8 @@ async function notifyRegistrants(eventId, { heading, bodyHtml, app }) {
   return sends.length;
 }
 
-const base = (user, event, lang) => ({
+const base = (user, event, lang, helper = false) => ({
+  helper,
   name: escapeHtml(user.name),
   title: escapeHtml(event.title),
   rawTitle: event.title,
@@ -79,9 +80,9 @@ async function notifyEventRescheduled(event, { oldDate, oldLocation }) {
   await notifyRegistrants(event._id, {
     heading: (lang) => eventEmail("rescheduled", lang, { name: "", title: "", rawTitle: event.title }).heading,
     app: { type: "event_changed", title: `${event.title} was updated (new time or place)`, link: `/events/${event._id}` },
-    bodyHtml: (user, lang) =>
+    bodyHtml: (user, lang, helper) =>
       eventEmail("rescheduled", lang, {
-        ...base(user, event, lang),
+        ...base(user, event, lang, helper),
         dateChanged,
         locationChanged,
         oldWhen: formatEventDate(oldDate, lang),
@@ -94,7 +95,7 @@ async function notifyEventCancelled(event) {
   await notifyRegistrants(event._id, {
     heading: (lang) => eventEmail("cancelled", lang, { name: "", title: "", rawTitle: event.title }).heading,
     app: { type: "event_cancelled", title: `${event.title} was cancelled`, link: "/events" },
-    bodyHtml: (user, lang) => eventEmail("cancelled", lang, base(user, event, lang)).bodyHtml,
+    bodyHtml: (user, lang, helper) => eventEmail("cancelled", lang, base(user, event, lang, helper)).bodyHtml,
   });
 }
 
@@ -107,7 +108,7 @@ async function notifyEventAnnouncement(event, message) {
   return notifyRegistrants(event._id, {
     heading: (lang) => eventEmail("announcement", lang, { name: "", title: "", rawTitle: event.title, messageHtml: "" }).heading,
     app: { type: "event_message", title: `New message about ${event.title}`, link: `/events/${event._id}` },
-    bodyHtml: (user, lang) => eventEmail("announcement", lang, { ...base(user, event, lang), messageHtml }).bodyHtml,
+    bodyHtml: (user, lang, helper) => eventEmail("announcement", lang, { ...base(user, event, lang, helper), messageHtml }).bodyHtml,
   });
 }
 
