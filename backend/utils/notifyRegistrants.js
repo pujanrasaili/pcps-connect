@@ -1,4 +1,5 @@
 const Registration = require("../models/Registration");
+const EventVolunteer = require("../models/EventVolunteer");
 const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
@@ -26,6 +27,15 @@ async function notifyRegistrants(eventId, { heading, bodyHtml, app }) {
   } catch (err) {
     console.error("Failed to look up registrants to notify:", err.message);
     return 0;
+  }
+
+  // Students signed up to help at the event are told too (once, even if they are also registered).
+  try {
+    const helpers = await EventVolunteer.find({ event: eventId }).populate("user", "name email language");
+    const known = new Set(registrants.map((r) => String(r.user?._id)));
+    registrants = [...registrants, ...helpers.filter((h) => h.user && !known.has(String(h.user._id)))];
+  } catch (err) {
+    console.error("Failed to look up volunteers to notify:", err.message);
   }
 
   const sends = registrants
