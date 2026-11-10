@@ -107,3 +107,58 @@ test("the form refuses to send an event with no title", async ({ page }) => {
   await expect(page.locator("#ev-title")).toBeVisible();
   expect(calls).toEqual([]);
 });
+
+// Duplicating an event can carry over its volunteer roles (names and places only).
+async function seedEvents(page, events) {
+  const calls = [];
+  const reply = (route, body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events/create", (route) => {
+    const raw = route.request().postDataBuffer().toString("utf8");
+    calls.push({ title: field(raw, "title"), roles: field(raw, "volunteerRoles"), copyRoles: field(raw, "copyRoles") });
+    return reply(route, { message: "Created", createdCount: 1 }, 201);
+  });
+  return calls;
+}
+const source = (roles) => ({ _id: "s1".padEnd(24, "0"), title: "Open Mic", description: "Songs.", date: new Date(Date.now() + 5 * 864e5).toISOString(), location: "Hall", capacity: 40, category: "Social", price: "Free", club: clubs[0], registeredCount: 3, pendingCount: 0, volunteerRoles: roles });
+
+test("duplicating an event offers to copy its volunteer roles and sends them along", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const calls = await seedEvents(page, [source([{ _id: "r1".padEnd(24, "0"), name: "Registration desk", slots: 2 }, { _id: "r2".padEnd(24, "0"), name: "Setup crew", slots: 3 }])]);
+  await page.goto("/admin/events");
+  await page.getByRole("button", { name: "Duplicate Open Mic" }).click();
+  const box = page.getByRole("checkbox", { name: /Copy the volunteer roles/ });
+  await expect(box).toBeChecked();
+  await expect(page.getByText("Registration desk, Setup crew come across with the same number of places and no sign-ups.")).toBeVisible();
+  await page.locator("#ev-date").fill("2030-05-10T10:00");
+  await page.getByRole("button", { name: "Create event", exact: true }).click();
+  await expect(page.getByText("Event created.")).toBeVisible();
+  expect(calls).toHaveLength(1);
+  expect(JSON.parse(calls[0].roles)).toEqual([{ name: "Registration desk", slots: 2 }, { name: "Setup crew", slots: 3 }]);
+  expect(calls[0].copyRoles).toBeUndefined();
+});
+
+test("unticking the box sends no roles, and an event with no roles shows no box", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const calls = await seedEvents(page, [source([{ _id: "r1".padEnd(24, "0"), name: "Desk", slots: 2 }]), { ...source([]), _id: "s2".padEnd(24, "0"), title: "Plain Event" }]);
+  await page.goto("/admin/events");
+  await page.getByRole("button", { name: "Duplicate Open Mic" }).click();
+  await page.getByRole("checkbox", { name: /Copy the volunteer roles/ }).uncheck();
+  await page.locator("#ev-date").fill("2030-05-10T10:00");
+  await page.getByRole("button", { name: "Create event", exact: true }).click();
+  await expect(page.getByText("Event created.")).toBeVisible();
+  expect(calls[0].roles).toBeUndefined();
+
+  await page.getByRole("button", { name: "Duplicate Plain Event" }).click();
+  await expect(page.locator("#ev-title")).toHaveValue("Plain Event");
+  await expect(page.getByRole("checkbox", { name: /Copy the volunteer roles/ })).toHaveCount(0);
+});
+
+test("Nepali: the copy-roles box is translated", async ({ page }) => {
+  await setUp(page, { lang: "ne", role: "admin" });
+  await seedEvents(page, [source([{ _id: "r1".padEnd(24, "0"), name: "Desk", slots: 2 }])]);
+  await page.goto("/admin/events");
+  await page.getByRole("button", { name: "Open Mic को प्रतिलिपि बनाउनुहोस्" }).click();
+  await expect(page.getByRole("checkbox", { name: /स्वयंसेवक भूमिकाहरू कपी गर्नुहोस्/ })).toBeChecked();
+  await expect(page.getByText("Desk उही स्थान सङ्ख्यासहित आउँछन्, साइन-अप बिना।")).toBeVisible();
+});
