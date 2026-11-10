@@ -1,8 +1,10 @@
 jest.mock("../../models/Registration");
+jest.mock("../../models/EventVolunteer");
 jest.mock("../sendEmail");
 jest.mock("../inApp");
 
 const Registration = require("../../models/Registration");
+const EventVolunteer = require("../../models/EventVolunteer");
 const sendEmail = require("../sendEmail");
 const { pushNotifications } = require("../inApp");
 const { notifyEventRescheduled, notifyEventCancelled, notifyEventAnnouncement } = require("../notifyRegistrants");
@@ -16,6 +18,11 @@ function mockRegistrants(registrants) {
     populate: jest.fn().mockResolvedValue(registrants),
   });
 }
+
+// No one signed up to help, unless a test says so.
+beforeEach(() => {
+  EventVolunteer.find.mockReturnValue({ populate: jest.fn().mockResolvedValue([]) });
+});
 
 function fakeEvent(overrides = {}) {
   return {
@@ -182,3 +189,32 @@ describe("in-app notifications alongside the emails", () => {
     expect(pushNotifications).not.toHaveBeenCalled();
   });
 });
+
+describe("students helping at the event are told too", () => {
+  afterEach(() => jest.clearAllMocks());
+
+  it("emails and rings the bell for a helper who is not registered, and only once for one who is", async () => {
+    sendEmail.mockResolvedValue();
+    mockRegistrants([{ user: { _id: "u1", name: "Asha", email: "asha@patancollege.edu.np" } }]);
+    EventVolunteer.find.mockReturnValue({
+      populate: jest.fn().mockResolvedValue([
+        { user: { _id: "u1", name: "Asha", email: "asha@patancollege.edu.np" } },
+        { user: { _id: "u2", name: "Ram", email: "ram@patancollege.edu.np" } },
+        { user: null },
+      ]),
+    });
+    await notifyEventCancelled(fakeEvent());
+    expect(sendEmail.mock.calls.map((c) => c[0].to).sort()).toEqual(["asha@patancollege.edu.np", "ram@patancollege.edu.np"]);
+    expect(pushNotifications.mock.calls[0][0]).toEqual(["u1", "u2"]);
+  });
+
+  it("still notifies the registrants if the volunteer lookup fails", async () => {
+    sendEmail.mockResolvedValue();
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    mockRegistrants([{ user: { _id: "u1", name: "Asha", email: "asha@patancollege.edu.np" } }]);
+    EventVolunteer.find.mockReturnValue({ populate: jest.fn().mockRejectedValue(new Error("db")) });
+    await notifyEventCancelled(fakeEvent());
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+});
+
