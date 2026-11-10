@@ -1,10 +1,12 @@
 process.env.JWT_SECRET = "test-secret";
 
 jest.mock("../../models/Registration");
+jest.mock("../../models/EventVolunteer");
 
 const Registration = require("../../models/Registration");
+const EventVolunteer = require("../../models/EventVolunteer");
 const { verifyCertificate } = require("../certificateController");
-const { createCertificateCode } = require("../../utils/certificateCode");
+const { createCertificateCode, createVolunteerCertificateCode } = require("../../utils/certificateCode");
 const { createCheckInCode } = require("../../utils/checkInCode");
 
 const REG_ID = "a".repeat(24);
@@ -65,3 +67,44 @@ describe("verifyCertificate", () => {
     expect((await call(createCertificateCode(REG_ID))).status).toHaveBeenCalledWith(404);
   });
 });
+
+describe("verifyCertificate -- volunteering certificates", () => {
+  afterEach(() => jest.clearAllMocks());
+  const helper = (over = {}) => ({
+    attended: true,
+    role: "r1",
+    user: { name: "Ram" },
+    event: { title: "Open Mic", date: new Date("2027-01-01"), volunteerRoles: [{ _id: "r1", name: "Registration desk" }] },
+    ...over,
+  });
+
+  it("confirms a genuine one and shows the role", async () => {
+    EventVolunteer.findById.mockReturnValue(populated(helper()));
+    const res = await call(createVolunteerCertificateCode(REG_ID));
+    expect(res.status).not.toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      valid: true,
+      student: { name: "Ram" },
+      event: { title: "Open Mic", date: new Date("2027-01-01") },
+      volunteerRole: "Registration desk",
+    });
+  });
+  it("rejects one whose helper was never marked as helped, or that no longer exists", async () => {
+    EventVolunteer.findById.mockReturnValue(populated(helper({ attended: false })));
+    expect((await call(createVolunteerCertificateCode(REG_ID))).status).toHaveBeenCalledWith(404);
+    EventVolunteer.findById.mockReturnValue(populated(null));
+    expect((await call(createVolunteerCertificateCode(REG_ID))).status).toHaveBeenCalledWith(404);
+  });
+  it("keeps the two kinds apart: an attendance code is not a volunteering code and vice versa", async () => {
+    EventVolunteer.findById.mockReturnValue(populated(helper()));
+    Registration.findById.mockReturnValue(populated(attended()));
+    expect(EventVolunteer.findById).not.toHaveBeenCalled();
+    const asVolunteer = await call(createCertificateCode(REG_ID));
+    expect(asVolunteer.json).toHaveBeenCalledWith(expect.not.objectContaining({ volunteerRole: expect.anything() }));
+    EventVolunteer.findById.mockClear();
+    Registration.findById.mockClear();
+    await call(createVolunteerCertificateCode(REG_ID));
+    expect(Registration.findById).not.toHaveBeenCalled();
+  });
+});
+

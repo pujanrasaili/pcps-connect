@@ -9,7 +9,7 @@ const EventVolunteer = require("../../models/EventVolunteer");
 const { pushNotifications } = require("../../utils/inApp");
 const { recordAudit } = require("../../utils/audit");
 const { canManageEvent } = require("../../utils/clubAccess");
-const { getVolunteers, signUp, cancelSignUp, setRoles } = require("../eventVolunteerController");
+const { setHelperAttended, getMyCertificate, getVolunteers, signUp, cancelSignUp, setRoles } = require("../eventVolunteerController");
 
 function mockRes() {
   const res = {};
@@ -43,7 +43,7 @@ describe("getVolunteers", () => {
     EventVolunteer.find.mockReturnValue(populated([{ role: "r1", user: { _id: "u2", name: "Ram", email: "r@x" } }]));
     const res = mockRes();
     await getVolunteers({ params: { id: EV }, user: { _id: "org" } }, res);
-    expect(res.json.mock.calls[0][0].roles[0].volunteers).toEqual([{ name: "Ram", email: "r@x" }]);
+    expect(res.json.mock.calls[0][0].roles[0].volunteers).toEqual([{ userId: "u2", name: "Ram", email: "r@x", attended: false }]);
     EventVolunteer.find.mockReturnValue(populated([]));
     const res2 = mockRes();
     await getVolunteers({ params: { id: EV } }, res2);
@@ -195,3 +195,67 @@ describe("getMyVolunteering", () => {
     expect(res.json.mock.calls[0][0].volunteering.map((v) => [v.event._id, v.role])).toEqual([["soon", "Setup"], ["later", "Desk"]]);
   });
 });
+
+describe("setHelperAttended", () => {
+  const past = () => event({ date: new Date(Date.now() - 86400000) });
+  const call = async (body, ev = past(), user = { _id: "org" }) => {
+    Event.findById.mockReturnValue(selectOf(ev));
+    const res = mockRes();
+    await setHelperAttended({ params: { id: EV, userId: "u9" }, body, user }, res);
+    return res;
+  };
+  it("lets an organiser mark a helper once the event has started", async () => {
+    canManageEvent.mockResolvedValue(true);
+    EventVolunteer.findOneAndUpdate.mockResolvedValue({ attended: true });
+    const res = await call({ attended: true });
+    expect(EventVolunteer.findOneAndUpdate).toHaveBeenCalledWith({ event: EV, user: "u9" }, { attended: true }, { new: true });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+  it("refuses non-organisers, a non-boolean, a future event and an unknown helper", async () => {
+    canManageEvent.mockResolvedValue(false);
+    expect((await call({ attended: true })).status).toHaveBeenCalledWith(403);
+    canManageEvent.mockResolvedValue(true);
+    expect((await call({ attended: "yes" })).status).toHaveBeenCalledWith(400);
+    expect((await call({ attended: true }, event())).status).toHaveBeenCalledWith(400);
+    EventVolunteer.findOneAndUpdate.mockResolvedValue(null);
+    expect((await call({ attended: true })).status).toHaveBeenCalledWith(404);
+  });
+});
+
+describe("getMyCertificate", () => {
+  process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret";
+  const row = (over = {}) => ({
+    _id: "a".repeat(24),
+    attended: true,
+    role: "r1",
+    user: { name: "Ram", studentId: "S1", program: "BIT" },
+    event: { title: "Open Mic", date: new Date("2027-01-01"), location: "Hall", club: { name: "Music Club" }, volunteerRoles: [{ _id: "r1", name: "Desk" }] },
+    ...over,
+  });
+  const chain = (doc) => {
+    const q = { populate: jest.fn() };
+    q.populate.mockReturnValue(q);
+    q.then = (resolve) => resolve(doc);
+    return q;
+  };
+  it("returns the certificate with the role and a signed code once marked as helped", async () => {
+    EventVolunteer.findOne.mockReturnValue(chain(row()));
+    const res = mockRes();
+    await getMyCertificate({ params: { id: EV }, user: student }, res);
+    expect(EventVolunteer.findOne).toHaveBeenCalledWith({ event: EV, user: "u1" });
+    const c = res.json.mock.calls[0][0].certificate;
+    expect(c).toMatchObject({ studentName: "Ram", eventTitle: "Open Mic", clubName: "Music Club", role: "Desk" });
+    expect(c.code).toMatch(/^[a-f0-9]{24}\./);
+  });
+  it("refuses when not signed up (404) or not marked as helped (400)", async () => {
+    EventVolunteer.findOne.mockReturnValue(chain(null));
+    let res = mockRes();
+    await getMyCertificate({ params: { id: EV }, user: student }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    EventVolunteer.findOne.mockReturnValue(chain(row({ attended: false })));
+    res = mockRes();
+    await getMyCertificate({ params: { id: EV }, user: student }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+});
+
