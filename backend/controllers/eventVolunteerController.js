@@ -3,6 +3,7 @@ const EventVolunteer = require("../models/EventVolunteer");
 const { canManageEvent } = require("../utils/clubAccess");
 const { cleanRoles } = require("../utils/volunteerInput");
 const { recordAudit } = require("../utils/audit");
+const { pushNotifications } = require("../utils/inApp");
 const { safeError } = require("../utils/errorMessage");
 
 const isPast = (event) => new Date(event.date) < new Date();
@@ -56,7 +57,7 @@ async function getMyVolunteering(req, res) {
 // POST /api/events/:id/volunteers  { role }  (requires login)
 async function signUp(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title date volunteerRoles");
+    const event = await Event.findById(req.params.id).select("title date createdBy volunteerRoles");
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (isPast(event)) return res.status(400).json({ message: "This event has already taken place" });
     const role = (event.volunteerRoles || []).find((r) => String(r._id) === String(req.body?.role));
@@ -80,6 +81,18 @@ async function signUp(req, res) {
     if ((await EventVolunteer.countDocuments({ event: event._id, role: role._id })) > role.slots) {
       await EventVolunteer.deleteOne({ event: event._id, user: req.user._id });
       return res.status(400).json({ message: "This role is full" });
+    }
+    // The organiser hears when a role fills up (not for every sign-up, which would be noise).
+    // Best effort: pushNotifications never throws.
+    if (
+      String(event.createdBy) !== String(req.user._id) &&
+      (await EventVolunteer.countDocuments({ event: event._id, role: role._id })) === role.slots
+    ) {
+      await pushNotifications([event.createdBy], {
+        type: "volunteer_role_full",
+        title: `All places are taken for "${role.name}" at ${event.title}`,
+        link: `/events/${event._id}`,
+      });
     }
     res.status(201).json({ message: "You're signed up to help!" });
   } catch (err) {
