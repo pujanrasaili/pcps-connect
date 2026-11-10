@@ -47,6 +47,7 @@ const LeaderClubs = lazy(() => import("../pages/admin/LeaderClubs"));
 const AdminCheckIn = lazy(() => import("../pages/admin/AdminCheckIn"));
 const Certificate = lazy(() => import("../pages/Certificate"));
 const ActivityRecord = lazy(() => import("../pages/ActivityRecord"));
+const EventPoster = lazy(() => import("../pages/EventPoster"));
 const VerifyCertificate = lazy(() => import("../pages/VerifyCertificate"));
 
 // Shown briefly while a lazy-loaded page's chunk downloads -- only happens
@@ -94,6 +95,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/events/:id/poster" element={<EventPoster />} />
 
       <Route
         path="/record"

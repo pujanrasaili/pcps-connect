@@ -1365,4 +1365,9 @@ export const ne = {
   "Can I get a printed record of my activities?": "के म आफ्ना गतिविधिहरूको छापिएको विवरण पाउन सक्छु?",
   "Yes. On your Profile, press \"Activity record\". It lists the events you attended, the events you helped at and your clubs, ready to print or save as a PDF.": "सक्नुहुन्छ। आफ्नो प्रोफाइलमा “गतिविधि विवरण” थिच्नुहोस्। त्यसमा तपाईं सहभागी भएका कार्यक्रम, सहयोग गरेका कार्यक्रम र तपाईंका क्लबहरू छन्, छाप्न वा PDF को रूपमा सुरक्षित गर्न तयार।",
   "Only attendance that an event organiser confirmed is listed. For proof of a single event, use that event's certificate, which has a code anyone can check.": "आयोजकले पुष्टि गरेको सहभागिता मात्र देखिन्छ। एउटा कार्यक्रमको प्रमाणका लागि त्यही कार्यक्रमको प्रमाणपत्र प्रयोग गर्नुहोस्, जसको कोड जसले पनि जाँच्न सक्छ।",
+  "Print a poster": "पोस्टर छाप्नुहोस्",
+  "Couldn't open this poster": "यो पोस्टर खोल्न सकिएन",
+  "Loading the poster": "पोस्टर लोड हुँदैछ",
+  "QR code that opens this event's page": "यो कार्यक्रमको पेज खोल्ने QR कोड",
+  "Scan to see details and register": "विवरण हेर्न र दर्ता गर्न स्क्यान गर्नुहोस्",
 };
