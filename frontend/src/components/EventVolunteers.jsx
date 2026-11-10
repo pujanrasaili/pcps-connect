@@ -4,6 +4,7 @@ import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
 import Button from "./Button";
+import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 
 const MAX_ROLES = 5;
 const MAX_NAME = 40;
@@ -15,7 +16,7 @@ const shape = (d) => ({ roles: Array.isArray(d?.roles) ? d.roles : [], mine: d?.
 // students sign up for, one role per event. The event's organisers (`canManage`)
 // also see who signed up and can edit the roles. The server enforces all of
 // this again, so hiding controls here is only convenience.
-export default function EventVolunteers({ eventId, eventOver, canManage, isAuthenticated }) {
+export default function EventVolunteers({ eventId, eventTitle, eventOver, canManage, isAuthenticated }) {
   const toast = useToast();
   const { t } = useLang();
   const [data, setData] = useState(null); // null = loading
@@ -71,6 +72,13 @@ export default function EventVolunteers({ eventId, eventOver, canManage, isAuthe
     }
   };
 
+  // Organisers can take the list of helpers away as a spreadsheet.
+  const exportCsv = () => {
+    const rows = data.roles.flatMap((r) => (r.volunteers || []).map((v) => [r.name, v.name, v.email]));
+    downloadCsv(`${slugify(eventTitle, "event")}-volunteers.csv`, buildCsv(["Role", "Name", "Email"], rows));
+  };
+  const hasVolunteers = data.roles.some((r) => (r.volunteers || []).length > 0);
+
   const startEdit = () => {
     setDraft(data.roles.map((r) => ({ _id: r._id, name: r.name, slots: String(r.slots) })));
     setEditing(true);
@@ -104,9 +112,16 @@ export default function EventVolunteers({ eventId, eventOver, canManage, isAuthe
           {t("Help out")}
         </h2>
         {canManage && !editing && (
-          <Button variant="outline" onClick={startEdit}>
-            {data.roles.length ? t("Edit roles") : t("Add volunteer roles")}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {hasVolunteers && (
+              <Button variant="outline" onClick={exportCsv}>
+                {t("Export CSV")}
+              </Button>
+            )}
+            <Button variant="outline" onClick={startEdit}>
+              {data.roles.length ? t("Edit roles") : t("Add volunteer roles")}
+            </Button>
+          </div>
         )}
       </div>
 

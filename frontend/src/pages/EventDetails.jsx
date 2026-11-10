@@ -302,7 +302,7 @@ export default function EventDetails() {
 
           <EventPhotos key={event._id} eventId={event._id} title={event.title} initialPhotos={event.photos || []} canManage={canAnswerQuestions} onChange={refreshEvents} />
 
-          <EventVolunteers eventId={event._id} eventOver={eventOver} canManage={canAnswerQuestions} isAuthenticated={isAuthenticated} />
+          <EventVolunteers eventId={event._id} eventTitle={event.title} eventOver={eventOver} canManage={canAnswerQuestions} isAuthenticated={isAuthenticated} />
 
           <EventQuestions
             eventId={event._id}
