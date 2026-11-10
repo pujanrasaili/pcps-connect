@@ -37,6 +37,7 @@ const EMPTY_FORM = {
   registrationDeadline: "",
   repeat: "none",
   repeatCount: 4,
+  copyRoles: false,
 };
 
 export default function AdminEvents() {
@@ -129,6 +130,7 @@ export default function AdminEvents() {
       registrationDeadline: "",
       repeat: "none",
       repeatCount: 4,
+      copyRoles: (event.volunteerRoles || []).length > 0,
     });
     setImageFile(null);
     setFormOpen(true);
@@ -164,9 +166,17 @@ export default function AdminEvents() {
     Object.entries(form).forEach(([key, value]) => {
       // Repeating only applies to creating; an edit changes this one event.
       if ((key === "repeat" || key === "repeatCount") && (editingEvent || form.repeat === "none")) return;
+      if (key === "copyRoles") return; // sent below as the list itself
       // Times go to the server as exact instants (see utils/dateTimeInput.js).
       formData.append(key, key === "date" || key === "endDate" || key === "registrationDeadline" ? localInputToIso(value) : value);
     });
+    // A duplicate can carry over the roles volunteers sign up for (names and places only).
+    if (!editingEvent && duplicatedFrom && form.copyRoles) {
+      formData.append(
+        "volunteerRoles",
+        JSON.stringify((duplicatedFrom.volunteerRoles || []).map((r) => ({ name: r.name, slots: r.slots })))
+      );
+    }
     // Big phone photos are shrunk first so they fit the server's 5 MB limit.
     if (imageFile) formData.append("image", await shrinkImage(imageFile));
 
@@ -467,6 +477,23 @@ export default function AdminEvents() {
               </span>
             </span>
           </label>
+          {!editingEvent && duplicatedFrom && (duplicatedFrom.volunteerRoles || []).length > 0 && (
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
+              <input
+                type="checkbox"
+                name="copyRoles"
+                checked={form.copyRoles}
+                onChange={handleChange}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary-500"
+              />
+              <span className="text-sm">
+                <span className="font-medium text-slate-800 dark:text-slate-100">{t("Copy the volunteer roles")}</span>
+                <span className="block text-slate-500 dark:text-slate-400">
+                  {t("{roles} come across with the same number of places and no sign-ups.", { roles: duplicatedFrom.volunteerRoles.map((r) => r.name).join(", ") })}
+                </span>
+              </span>
+            </label>
+          )}
           <div>
             <label className="label-field" htmlFor="ev-club">{leaderMode ? t("Hosting club") : t("Hosting club (optional)")}</label>
             <select id="ev-club" name="club" className="input-field" value={form.club} onChange={handleChange} required={leaderMode}>
