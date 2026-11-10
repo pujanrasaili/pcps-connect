@@ -9,6 +9,7 @@ const Club = require("../models/Club");
 const ClubIdea = require("../models/ClubIdea");
 const ClubPost = require("../models/ClubPost");
 const Notification = require("../models/Notification");
+const PushSubscription = require("../models/PushSubscription");
 const ContactMessage = require("../models/ContactMessage");
 const { notifyEventCancelled } = require("./notifyRegistrants");
 
@@ -38,6 +39,7 @@ async function removeUserAndData(user) {
   await Registration.deleteMany({ user: user._id });
   await WaitlistEntry.deleteMany({ user: user._id });
   await Notification.deleteMany({ user: user._id });
+  await PushSubscription.deleteMany({ user: user._id });
   // Contact-form messages they sent from their account address.
   if (user.email) await ContactMessage.deleteMany({ email: String(user.email).toLowerCase() });
   // Their public questions go too (the answers to them are no use without the question).

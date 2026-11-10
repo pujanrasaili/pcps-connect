@@ -1,5 +1,6 @@
 const Notification = require("../models/Notification");
 const User = require("../models/User");
+const { sendPush } = require("./webPush");
 
 // Adds the same short in-app message for each of the given users. Always
 // best-effort: a problem here is logged and swallowed, because it must never
@@ -12,6 +13,8 @@ async function pushNotifications(userIds, { type, title, link = "" }) {
     // Links are paths on this site only.
     const safeLink = typeof link === "string" && link.startsWith("/") && !link.startsWith("//") ? link : "";
     await Notification.insertMany(ids.map((user) => ({ user, type, title: String(title).slice(0, 200), link: safeLink })));
+    // Also pop up on the devices they turned alerts on for (a no-op unless the server has the keys).
+    await sendPush(ids, { title, link: safeLink });
     return ids.length;
   } catch (err) {
     console.error("Failed to store in-app notification:", err.message);
