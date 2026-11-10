@@ -151,3 +151,31 @@ test("Nepali: the row and its messages are translated, and the page is accessibl
   await toggle.click();
   await expect(page.getByText("यो उपकरणमा अलर्ट खुल्यो।")).toBeVisible();
 });
+
+test("with alerts on, 'Send a test alert' asks the server and shows its answer; it is hidden while off", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await fakeBrowser(page, { permission: "granted", subscribed: true });
+  await serverKey(page);
+  let posted = 0;
+  await page.route("**/api/push/test", (route) => {
+    posted += 1;
+    return reply(route, { message: "Test alert sent. It should pop up in a moment." });
+  });
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Send a test alert" }).click();
+  await expect(page.getByText("Test alert sent. It should pop up in a moment.")).toBeVisible();
+  expect(posted).toBe(1);
+  await page.route("**/api/push/subscribe", (route) => reply(route, {}));
+  await SWITCH(page).click();
+  await expect(page.getByRole("button", { name: "Send a test alert" })).toHaveCount(0);
+});
+
+test("a test alert with no device on shows the server's message, in Nepali too", async ({ page }) => {
+  await setUp(page, { lang: "ne", role: "student" });
+  await fakeBrowser(page, { permission: "granted", subscribed: true });
+  await serverKey(page);
+  await page.route("**/api/push/test", (route) => reply(route, { message: "No device has alerts switched on yet" }, 404));
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "परीक्षण अलर्ट पठाउनुहोस्" }).click();
+  await expect(page.getByText("कुनै उपकरणमा अझै अलर्ट खोलिएको छैन")).toBeVisible();
+});
