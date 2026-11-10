@@ -3,7 +3,7 @@ import { setUp, axeViolations } from "./helpers.js";
 
 // The Help & FAQ page: 22 questions that open and close, a link to Contact,
 // the footer link to the page, and an address like /help#club-ideas that jumps to one.
-const TOPICS = 25;
+const TOPICS = 26;
 
 for (const lang of ["en", "ne"]) {
   const en = lang === "en";
