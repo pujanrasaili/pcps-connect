@@ -3,7 +3,8 @@ jest.mock("../../utils/webPush");
 
 const PushSubscription = require("../../models/PushSubscription");
 const { publicKey } = require("../../utils/webPush");
-const { getKey, subscribe, unsubscribe } = require("../pushController");
+const { sendPush } = require("../../utils/webPush");
+const { getKey, subscribe, unsubscribe, sendTest } = require("../pushController");
 
 const mockRes = () => {
   const res = {};
@@ -79,5 +80,34 @@ describe("unsubscribe", () => {
     const res = mockRes();
     await unsubscribe({ user, body: {} }, res);
     expect(res.status).toHaveBeenCalledWith(400);
+  });
+});
+
+describe("sendTest", () => {
+  it("sends a test alert to the student's own devices only", async () => {
+    publicKey.mockReturnValue("PUB");
+    sendPush.mockResolvedValue(2);
+    const res = mockRes();
+    await sendTest({ user }, res);
+    expect(sendPush).toHaveBeenCalledWith(["u1"], expect.objectContaining({ link: "/settings" }));
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+  it("says so when no device has alerts on, or the server has them off", async () => {
+    publicKey.mockReturnValue("PUB");
+    sendPush.mockResolvedValue(0);
+    let res = mockRes();
+    await sendTest({ user }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    publicKey.mockReturnValue(null);
+    res = mockRes();
+    await sendTest({ user }, res);
+    expect(res.status).toHaveBeenCalledWith(503);
+  });
+  it("reports a failure", async () => {
+    publicKey.mockReturnValue("PUB");
+    sendPush.mockRejectedValue(new Error("boom"));
+    const res = mockRes();
+    await sendTest({ user }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
