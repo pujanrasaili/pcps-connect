@@ -33,6 +33,35 @@ beforeEach(() => {
 });
 afterEach(() => jest.resetAllMocks());
 
+describe("createEvent -- copied volunteer roles", () => {
+  beforeEach(() => {
+    Event.insertMany.mockImplementation(async (docs) => docs.map((d, i) => ({ _id: `ev${i}`, ...d })));
+  });
+  const roles = JSON.stringify([{ _id: "old1", name: " Desk ", slots: "2" }, { name: "Setup", slots: 3 }]);
+
+  it("gives a new event a clean copy of the roles (names and places only)", async () => {
+    await createEvent({ body: { ...baseBody, volunteerRoles: roles }, user: admin }, mockRes());
+    expect(Event.create.mock.calls[0][0].volunteerRoles).toEqual([{ name: "Desk", slots: 2 }, { name: "Setup", slots: 3 }]);
+  });
+  it("gives every event of a repeating series the roles", async () => {
+    await createEvent({ body: { ...baseBody, volunteerRoles: roles, repeat: "weekly", repeatCount: 2 }, user: admin }, mockRes());
+    const docs = Event.insertMany.mock.calls[0][0];
+    expect(docs).toHaveLength(2);
+    expect(docs.every((d) => d.volunteerRoles.length === 2)).toBe(true);
+  });
+  it("creates no roles by default, and refuses a bad list", async () => {
+    await createEvent({ body: baseBody, user: admin }, mockRes());
+    expect(Event.create.mock.calls[0][0].volunteerRoles).toEqual([]);
+    for (const bad of ["not json", JSON.stringify([{ name: "", slots: 1 }]), JSON.stringify("x")]) {
+      Event.create.mockClear();
+      const res = mockRes();
+      await createEvent({ body: { ...baseBody, volunteerRoles: bad }, user: admin }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(Event.create).not.toHaveBeenCalled();
+    }
+  });
+});
+
 describe("createEvent -- repeating series", () => {
   beforeEach(() => {
     Event.insertMany.mockImplementation(async (docs) => docs.map((d, i) => ({ _id: `ev${i}`, ...d })));
