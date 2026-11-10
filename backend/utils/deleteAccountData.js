@@ -7,6 +7,7 @@ const EventQuestion = require("../models/EventQuestion");
 const EventVolunteer = require("../models/EventVolunteer");
 const Club = require("../models/Club");
 const ClubIdea = require("../models/ClubIdea");
+const BoardPost = require("../models/BoardPost");
 const ClubPost = require("../models/ClubPost");
 const Notification = require("../models/Notification");
 const PushSubscription = require("../models/PushSubscription");
@@ -48,6 +49,7 @@ async function removeUserAndData(user) {
   await EventVolunteer.deleteMany({ user: user._id });
   // Ideas they suggested to clubs go with them.
   await ClubIdea.deleteMany({ author: user._id });
+  await BoardPost.deleteMany({ author: user._id });
   await ClubMembership.deleteMany({ user: user._id });
   await ClubJoinRequest.deleteMany({ user: user._id });
   await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
