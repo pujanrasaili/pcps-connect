@@ -13,6 +13,7 @@ import {
   FaCalendarPlus,
   FaQrcode,
   FaShareAlt,
+  FaPrint,
   FaBookmark,
   FaRegBookmark,
 } from "react-icons/fa";
@@ -357,6 +358,14 @@ export default function EventDetails() {
             >
               <FaShareAlt className="text-xs" /> {t("Share this event")}
             </button>
+            {canAnswerQuestions && !isPast && (
+              <Link
+                to={`/events/${event._id}/poster`}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
+              >
+                <FaPrint className="text-xs" /> {t("Print a poster")}
+              </Link>
+            )}
             <button
               type="button"
               onClick={() => toggleSaved(event._id)}
