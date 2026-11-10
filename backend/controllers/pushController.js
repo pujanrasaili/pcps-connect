@@ -1,5 +1,5 @@
 const PushSubscription = require("../models/PushSubscription");
-const { publicKey } = require("../utils/webPush");
+const { publicKey, sendPush } = require("../utils/webPush");
 const { safeError } = require("../utils/errorMessage");
 
 // A student can have alerts on a handful of devices, not thousands.
@@ -49,4 +49,17 @@ async function unsubscribe(req, res) {
   }
 }
 
-module.exports = { getKey, subscribe, unsubscribe };
+// POST /api/push/test  -- send a test alert to the student's own devices, so
+// they can see that alerts work.
+async function sendTest(req, res) {
+  try {
+    if (!publicKey()) return res.status(503).json({ message: "Alerts aren't switched on for this site" });
+    const sent = await sendPush([req.user._id], { title: "Test alert from PCPS Connect. Alerts are working!", link: "/settings" });
+    if (!sent) return res.status(404).json({ message: "No device has alerts switched on yet" });
+    res.status(200).json({ message: "Test alert sent. It should pop up in a moment." });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to send a test alert") });
+  }
+}
+
+module.exports = { getKey, subscribe, unsubscribe, sendTest };

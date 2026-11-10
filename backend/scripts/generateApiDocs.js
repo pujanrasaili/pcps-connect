@@ -129,6 +129,7 @@ const DESCRIPTIONS = {
   getKey: "The public key a browser needs to turn on phone/browser alerts, or enabled:false when the server isn't set up for them.",
   subscribe: "Turn on phone/browser alerts for this device (up to 10 devices per student).",
   unsubscribe: "Turn off phone/browser alerts for one device.",
+  sendTest: "Send a test alert to the logged-in student's own devices.",
   setHelperAttended: "Mark that a volunteer really helped at an event (admins and the event's club leaders; only once the event has started).",
   getMyCertificate: "Your volunteering certificate for an event, once an organiser has marked that you helped.",
   getMyVolunteering: "The upcoming events you signed up to help at, with your role, soonest first.",

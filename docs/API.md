@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-103 endpoints.
+104 endpoints.
 
 ## /api/health
 
@@ -178,6 +178,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/push/key` | Logged-in student | The public key a browser needs to turn on phone/browser alerts, or enabled:false when the server isn't set up for them. |
 | POST | `/api/push/subscribe` | Logged-in student (rate limited) | Turn on phone/browser alerts for this device (up to 10 devices per student). |
 | DELETE | `/api/push/subscribe` | Logged-in student (rate limited) | Turn off phone/browser alerts for one device. |
+| POST | `/api/push/test` | Logged-in student (rate limited) | Send a test alert to the logged-in student's own devices. |
 
 ## /api/certificates
 
