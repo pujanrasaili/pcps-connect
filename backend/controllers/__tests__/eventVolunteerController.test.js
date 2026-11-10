@@ -2,9 +2,11 @@ jest.mock("../../models/Event");
 jest.mock("../../models/EventVolunteer");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/clubAccess");
+jest.mock("../../utils/inApp");
 
 const Event = require("../../models/Event");
 const EventVolunteer = require("../../models/EventVolunteer");
+const { pushNotifications } = require("../../utils/inApp");
 const { recordAudit } = require("../../utils/audit");
 const { canManageEvent } = require("../../utils/clubAccess");
 const { getVolunteers, signUp, cancelSignUp, setRoles } = require("../eventVolunteerController");
@@ -68,6 +70,22 @@ describe("signUp", () => {
     await signUp({ params: { id: EV }, body: { role: "r1" }, user: student }, res);
     expect(EventVolunteer.create).toHaveBeenCalledWith({ event: EV, user: "u1", role: "r1" });
     expect(res.status).toHaveBeenCalledWith(201);
+  });
+  it("tells the organiser when the last place of a role is taken, but not for other sign-ups or their own", async () => {
+    Event.findById.mockReturnValue(selectOf(event({ createdBy: "org" })));
+    EventVolunteer.countDocuments.mockResolvedValueOnce(1).mockResolvedValueOnce(2).mockResolvedValueOnce(2);
+    await signUp({ params: { id: EV }, body: { role: "r1" }, user: student }, mockRes());
+    expect(pushNotifications).toHaveBeenCalledWith(["org"], expect.objectContaining({ type: "volunteer_role_full", link: `/events/${EV}` }));
+    expect(pushNotifications.mock.calls[0][1].title).toBe('All places are taken for "Desk" at Fest');
+
+    pushNotifications.mockClear();
+    EventVolunteer.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(1).mockResolvedValueOnce(1);
+    await signUp({ params: { id: EV }, body: { role: "r1" }, user: student }, mockRes());
+    expect(pushNotifications).not.toHaveBeenCalled();
+
+    EventVolunteer.countDocuments.mockResolvedValueOnce(1).mockResolvedValueOnce(2).mockResolvedValueOnce(2);
+    await signUp({ params: { id: EV }, body: { role: "r1" }, user: { _id: "org" } }, mockRes());
+    expect(pushNotifications).not.toHaveBeenCalled();
   });
   it("refuses a past event, an unknown role, a second role and a full role", async () => {
     Event.findById.mockReturnValue(selectOf(event({ date: new Date(Date.now() - 1000) })));
