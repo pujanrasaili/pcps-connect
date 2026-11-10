@@ -170,3 +170,40 @@ test("the Help out box, including its edit form, passes the accessibility checks
   await page.waitForTimeout(600);
   expect(await axeViolations(page)).toEqual([]);
 });
+
+test("an organiser can download the helpers as a CSV (formula-looking names are made safe)", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await withVolunteerApi(page, {
+    staff: true,
+    roles: [role(1, "Registration desk", 2, 2, [{ name: "Ram Thapa", email: "ram@x.np" }, { name: '=HYPERLINK("http://evil")', email: "e@x.np" }]), role(2, "Setup crew", 3, 0, [])],
+  });
+  await page.goto(`/events/${ID}`);
+  const section = page.getByRole("region", { name: "Help out" });
+  const [download] = await Promise.all([page.waitForEvent("download"), section.getByRole("button", { name: "Export CSV" }).click()]);
+  expect(download.suggestedFilename()).toBe("open-mic-volunteers.csv");
+  const body = await (await import("node:fs/promises")).readFile(await download.path(), "utf8");
+  // The file starts with a byte-order mark so Excel shows Nepali names correctly.
+  expect(body.startsWith("\uFEFF")).toBe(true);
+  expect(body.slice(1).split("\r\n")).toEqual([
+    '"Role","Name","Email"',
+    '"Registration desk","Ram Thapa","ram@x.np"',
+    `"Registration desk","'=HYPERLINK(""http://evil"")","e@x.np"`,
+  ]);
+});
+
+test("the CSV button only appears for organisers when someone has signed up", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await withVolunteerApi(page, { staff: true, roles: [role(1, "Desk", 2, 0, [])] });
+  await page.goto(`/events/${ID}`);
+  const section = page.getByRole("region", { name: "Help out" });
+  await expect(section.getByRole("button", { name: "Edit roles" })).toBeVisible();
+  await expect(section.getByRole("button", { name: "Export CSV" })).toHaveCount(0);
+});
+
+test("a student never sees the CSV button", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await withVolunteerApi(page);
+  await page.goto(`/events/${ID}`);
+  await expect(page.getByRole("region", { name: "Help out" }).getByText("Registration desk")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Export CSV" })).toHaveCount(0);
+});
