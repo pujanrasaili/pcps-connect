@@ -16,6 +16,7 @@ export const TITLES = {
   "/dashboard": "Dashboard",
   "/profile": "Profile",
   "/settings": "Settings",
+  "/board": "Notice board",
   "/admin": "Admin overview",
   "/admin/clubs": "Manage clubs",
   "/admin/events": "Manage events",

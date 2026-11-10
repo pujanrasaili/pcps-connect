@@ -72,6 +72,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "notice-board",
+    question: "How does the notice board work?",
+    answer: [
+      "Open Notice board in the menu after you log in. You can post something you lost, something you found, or a short notice for the campus, with an optional phone number or Instagram name so people can reach you.",
+      "Posts disappear after 14 days, each student can have 3 posts up at a time, and only your first name is shown. You can remove your own post any time; admins can remove posts that don't belong.",
+    ],
+  },
+  {
     id: "phone-alerts",
     question: "How do I get alerts on my phone?",
     answer: [

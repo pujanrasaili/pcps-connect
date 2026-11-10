@@ -5,6 +5,7 @@ import {
   FaCog,
   FaCalendarAlt,
   FaUsers,
+  FaClipboardList,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
@@ -15,6 +16,7 @@ const LINKS = [
   { to: "/profile", label: "Profile", icon: FaUserCircle },
   { to: "/events", label: "Events", icon: FaCalendarAlt },
   { to: "/clubs", label: "Clubs", icon: FaUsers },
+  { to: "/board", label: "Notice board", icon: FaClipboardList },
   { to: "/settings", label: "Settings", icon: FaCog },
 ];
 

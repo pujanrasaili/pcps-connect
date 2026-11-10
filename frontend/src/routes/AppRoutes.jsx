@@ -36,6 +36,7 @@ const NotFound = lazy(() => import("../pages/NotFound"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Profile = lazy(() => import("../pages/Profile"));
 const Settings = lazy(() => import("../pages/Settings"));
+const Board = lazy(() => import("../pages/Board"));
 const AdminOverview = lazy(() => import("../pages/admin/AdminOverview"));
 const AdminClubs = lazy(() => import("../pages/admin/AdminClubs"));
 const AdminEvents = lazy(() => import("../pages/admin/AdminEvents"));
@@ -116,6 +117,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/board"
+          element={
+            <ProtectedRoute>
+              <Board />
             </ProtectedRoute>
           }
         />
