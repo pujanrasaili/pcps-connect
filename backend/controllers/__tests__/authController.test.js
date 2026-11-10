@@ -12,6 +12,7 @@ jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../models/EventQuestion");
 jest.mock("../../models/EventVolunteer");
 jest.mock("../../models/ClubIdea");
+jest.mock("../../models/BoardPost");
 jest.mock("../../models/ContactMessage");
 
 process.env.JWT_SECRET = "test-secret";
