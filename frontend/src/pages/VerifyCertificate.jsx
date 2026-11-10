@@ -46,7 +46,9 @@ export default function VerifyCertificate() {
                 {t("Genuine certificate")}
               </h1>
               <p className="mt-4 text-xl font-semibold text-slate-800 dark:text-slate-100">{state.data.student.name}</p>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("attended")}</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {state.data.volunteerRole ? t("volunteered as {role} at", { role: state.data.volunteerRole }) : state.data.volunteerRole === "" ? t("volunteered at") : t("attended")}
+              </p>
               <p className="mt-1 font-medium text-slate-700 dark:text-slate-200">{state.data.event.title}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">{formatDate(state.data.event.date)}</p>
             </div>

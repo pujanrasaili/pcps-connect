@@ -1289,4 +1289,11 @@ export const ne = {
   "You're helping at": "तपाईं सहयोग गर्दै हुनुभएको कार्यक्रम",
   "Copy the volunteer roles": "स्वयंसेवक भूमिकाहरू कपी गर्नुहोस्",
   "{roles} come across with the same number of places and no sign-ups.": "{roles} उही स्थान सङ्ख्यासहित आउँछन्, साइन-अप बिना।",
+  "Helped": "सहयोग गर्नुभयो",
+  "Volunteer certificate": "स्वयंसेवक प्रमाणपत्र",
+  "Back to the event": "कार्यक्रममा फर्कनुहोस्",
+  "Couldn't update this helper": "यो सहयोगीलाई अपडेट गर्न सकिएन",
+  "The event hasn't started yet": "कार्यक्रम अहिलेसम्म सुरु भएको छैन",
+  "volunteered as {role} at": "{role} को रूपमा स्वयंसेवा गर्नुभयो",
+  "volunteered at": "स्वयंसेवा गर्नुभयो",
 };

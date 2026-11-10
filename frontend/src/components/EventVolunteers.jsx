@@ -10,7 +10,7 @@ const MAX_ROLES = 5;
 const MAX_NAME = 40;
 
 // Whatever the server (or a proxy error page) sends back, the page gets a list of roles.
-const shape = (d) => ({ roles: Array.isArray(d?.roles) ? d.roles : [], mine: d?.mine ?? null, past: !!d?.past });
+const shape = (d) => ({ roles: Array.isArray(d?.roles) ? d.roles : [], mine: d?.mine ?? null, mineAttended: !!d?.mineAttended, past: !!d?.past });
 
 // "Help out" on an event page: helper roles (registration desk, setup...) that
 // students sign up for, one role per event. The event's organisers (`canManage`)
@@ -74,10 +74,24 @@ export default function EventVolunteers({ eventId, eventTitle, eventOver, canMan
 
   // Organisers can take the list of helpers away as a spreadsheet.
   const exportCsv = () => {
-    const rows = data.roles.flatMap((r) => (r.volunteers || []).map((v) => [r.name, v.name, v.email]));
-    downloadCsv(`${slugify(eventTitle, "event")}-volunteers.csv`, buildCsv(["Role", "Name", "Email"], rows));
+    const rows = data.roles.flatMap((r) => (r.volunteers || []).map((v) => [r.name, v.name, v.email, v.attended ? "Yes" : "No"]));
+    downloadCsv(`${slugify(eventTitle, "event")}-volunteers.csv`, buildCsv(["Role", "Name", "Email", "Helped"], rows));
   };
   const hasVolunteers = data.roles.some((r) => (r.volunteers || []).length > 0);
+
+  // Organisers tick who actually helped (possible once the event has started);
+  // only those students can download a volunteering certificate.
+  const markHelped = async (userId, attended) => {
+    setBusy(true);
+    try {
+      await api.put(`/events/${eventId}/volunteers/${userId}/attended`, { attended });
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't update this helper")));
+    } finally {
+      await load();
+      setBusy(false);
+    }
+  };
 
   const startEdit = () => {
     setDraft(data.roles.map((r) => ({ _id: r._id, name: r.name, slots: String(r.slots) })));
@@ -190,6 +204,14 @@ export default function EventVolunteers({ eventId, eventTitle, eventOver, canMan
                   {mine ? (
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t("You're helping here")}</span>
+                      {data.mineAttended && (
+                        <Link
+                          to={`/volunteer-certificate/${eventId}`}
+                          className="text-sm font-semibold text-primary-600 underline underline-offset-2 dark:text-primary-300"
+                        >
+                          {t("Volunteer certificate")}
+                        </Link>
+                      )}
                       {!eventOver && (
                         <Button variant="outline" onClick={leave} disabled={busy}>
                           {t("Cancel")}
@@ -204,11 +226,30 @@ export default function EventVolunteers({ eventId, eventTitle, eventOver, canMan
                     </Button>
                   ) : null}
                 </div>
-                {canManage && (
-                  <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">
-                    {role.volunteers?.length ? role.volunteers.map((v) => v.name).join(", ") : t("No one yet.")}
-                  </p>
-                )}
+                {canManage &&
+                  (!role.volunteers?.length ? (
+                    <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">{t("No one yet.")}</p>
+                  ) : data.past ? (
+                    <ul className="mt-2 space-y-1">
+                      {role.volunteers.map((v) => (
+                        <li key={v.userId}>
+                          <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+                            <input
+                              type="checkbox"
+                              checked={!!v.attended}
+                              disabled={busy}
+                              onChange={(e) => markHelped(v.userId, e.target.checked)}
+                              className="h-4 w-4 rounded border-slate-300 text-primary-500"
+                            />
+                            <span>{v.name}</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">{t("Helped")}</span>
+                          </label>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">{role.volunteers.map((v) => v.name).join(", ")}</p>
+                  ))}
               </li>
             );
           })}

@@ -93,6 +93,15 @@ export default function AppRoutes() {
         }
       />
 
+      <Route
+        path="/volunteer-certificate/:id"
+        element={
+          <ProtectedRoute>
+            <Certificate volunteer />
+          </ProtectedRoute>
+        }
+      />
+
       <Route element={<DashboardLayout />}>
         <Route
           path="/dashboard"

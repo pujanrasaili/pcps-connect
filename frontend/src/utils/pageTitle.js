@@ -34,7 +34,7 @@ export const DEFAULT_TITLE = "PCPS Connect | Club & Event Management";
 export function titleForPath(pathname, t = (text) => text) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
   if (!(path in TITLES)) {
-    if (path.startsWith("/events/") || path.startsWith("/certificate/") || path.startsWith("/verify/")) return undefined;
+    if (path.startsWith("/events/") || path.startsWith("/certificate/") || path.startsWith("/volunteer-certificate/") || path.startsWith("/verify/")) return undefined;
     return `${t("Page not found")} | ${SITE}`;
   }
   const name = TITLES[path];

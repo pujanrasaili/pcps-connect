@@ -12,7 +12,7 @@ import { useLang } from "../context/LanguageContext";
 // light-on-white regardless of the dark-mode setting, since it's meant for
 // paper. The QR points at the public verify page, so anyone holding a printout
 // can confirm it's genuine.
-export default function Certificate() {
+export default function Certificate({ volunteer = false }) {
   const { t } = useLang();
   const { id } = useParams();
   const [certificate, setCertificate] = useState(null);
@@ -21,21 +21,21 @@ export default function Certificate() {
   useEffect(() => {
     let cancelled = false;
     api
-      .get(`/registrations/${id}/certificate`)
+      .get(volunteer ? `/events/${id}/volunteers/certificate` : `/registrations/${id}/certificate`)
       .then((res) => !cancelled && setCertificate(res.data.certificate))
       .catch((err) => !cancelled && setError(getErrorMessage(err, t("Couldn't load this certificate"))));
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, volunteer]);
 
   if (error) {
     return (
       <main className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">{t("Couldn't open this certificate")}</h1>
         <p role="alert" className="mt-2 font-medium text-rose-700 dark:text-rose-400">{error}</p>
-        <Link to="/profile" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
-          <FaArrowLeft className="text-xs" /> {t("Back to profile")}
+        <Link to={volunteer ? `/events/${id}` : "/profile"} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
+          <FaArrowLeft className="text-xs" /> {volunteer ? t("Back to the event") : t("Back to profile")}
         </Link>
       </main>
     );
@@ -58,8 +58,8 @@ export default function Certificate() {
       <style>{"@media print { @page { size: A4 landscape; margin: 0; } }"}</style>
 
       <div className="mx-auto mb-6 flex max-w-4xl items-center justify-between print:hidden">
-        <Link to="/profile" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline">
-          <FaArrowLeft className="text-xs" /> {t("Back to profile")}
+        <Link to={volunteer ? `/events/${id}` : "/profile"} className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:underline">
+          <FaArrowLeft className="text-xs" /> {volunteer ? t("Back to the event") : t("Back to profile")}
         </Link>
         <button
           onClick={() => window.print()}
@@ -84,7 +84,7 @@ export default function Certificate() {
 
           <div>
             <h1 className="font-display text-3xl font-bold uppercase tracking-wide text-primary-600 sm:text-5xl">
-              Certificate of Attendance
+              {volunteer ? "Certificate of Volunteering" : "Certificate of Attendance"}
             </h1>
             <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">This is to certify that</p>
             <p className="mt-2 border-b border-slate-300 px-6 pb-2 font-display text-3xl font-bold sm:text-4xl">
@@ -95,7 +95,7 @@ export default function Certificate() {
                 {[certificate.program, certificate.studentId && `ID ${certificate.studentId}`].filter(Boolean).join(" · ")}
               </p>
             )}
-            <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">attended</p>
+            <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">{volunteer ? `volunteered${certificate.role ? ` as ${certificate.role} at` : " at"}` : "attended"}</p>
             <p className="mt-1 text-xl font-semibold sm:text-2xl">{certificate.eventTitle}</p>
             <p className="mt-1 text-sm text-slate-600">
               {formatDate(certificate.eventDate)}
