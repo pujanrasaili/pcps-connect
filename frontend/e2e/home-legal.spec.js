@@ -137,3 +137,13 @@ test("the Nepali Privacy Policy links to Settings", async ({ page }) => {
   await page.getByRole("main").getByRole("link", { name: "सेटिङ पेज" }).click();
   await expect(page).toHaveURL(/\/settings/);
 });
+
+test("the Nepali Privacy page passes the accessibility checks in dark mode", async ({ page }) => {
+  await setUp(page, { lang: "ne", role: "student" });
+  await page.addInitScript(() => localStorage.setItem("pcps_theme", "dark"));
+  await page.goto("/privacy");
+  await expect(page.getByRole("heading", { level: 1, name: "गोपनीयता नीति" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(true);
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+});

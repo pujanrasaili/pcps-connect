@@ -154,3 +154,19 @@ test("Nepali: headings, counts and the sign-up pop-up are translated, and the pa
   await expect(page.getByText("तपाईं सहयोग गर्न साइन अप हुनुभयो!").first()).toBeVisible();
   await expect(section.getByText("तपाईं यहाँ सहयोग गर्दै हुनुहुन्छ")).toBeVisible();
 });
+
+test("the Help out box, including its edit form, passes the accessibility checks in dark mode", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await page.addInitScript(() => localStorage.setItem("pcps_theme", "dark"));
+  await withVolunteerApi(page, { staff: true, roles: [role(1, "Registration desk", 2, 1, [{ name: "Ram Thapa", email: "ram@x.np" }]), role(2, "Setup crew", 1, 1, [{ name: "Gita K", email: "g@x.np" }])] });
+  await page.goto(`/events/${ID}`);
+  const section = page.getByRole("region", { name: "Help out" });
+  await expect(section.getByText("Ram Thapa")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(true);
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+  await section.getByRole("button", { name: "Edit roles" }).click();
+  await expect(section.getByLabel("Role name").first()).toBeVisible();
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+});

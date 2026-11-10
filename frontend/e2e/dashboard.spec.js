@@ -200,3 +200,14 @@ test("with no volunteer sign-ups, or a failed request, the Dashboard has no help
   await expect(page.getByRole("heading", { level: 1, name: "Welcome back, Asha" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "You're helping at" })).toHaveCount(0);
 });
+
+test("the helping card passes the accessibility checks in dark mode", async ({ page }) => {
+  const e1 = ev(1, "Open Mic", 5);
+  await load(page, { volunteering: [{ event: { _id: e1._id, title: e1.title, date: e1.date, location: "Main Hall" }, role: "Registration desk" }] });
+  await page.addInitScript(() => localStorage.setItem("pcps_theme", "dark"));
+  await page.goto("/dashboard");
+  await expect(page.getByRole("heading", { name: "You're helping at" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.classList.contains("dark"))).toBe(true);
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+});
