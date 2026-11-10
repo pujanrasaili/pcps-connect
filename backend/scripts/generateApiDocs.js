@@ -126,6 +126,8 @@ const DESCRIPTIONS = {
   decideClubJoinRequest: "Approve or decline a student's request to join a club; approving makes them a member and both outcomes notify them (a decline can carry a short note of up to 300 characters for the email); admins and that club's leaders only.",
   getClubMembers: "List who joined a club (name, email, student ID, join date), newest first; admins and that club's leaders only.",
   addWalkIn: "Add a student who turned up without registering (by exact email or student ID) as registered and attended; admins and that event's club leaders only.",
+  setHelperAttended: "Mark that a volunteer really helped at an event (admins and the event's club leaders; only once the event has started).",
+  getMyCertificate: "Your volunteering certificate for an event, once an organiser has marked that you helped.",
   getMyVolunteering: "The upcoming events you signed up to help at, with your role, soonest first.",
   getVolunteers: "The helper roles at an event, how many places are taken and whether you hold one; organisers also see who signed up.",
   signUp: "Sign up to help in one role at an upcoming event (one role per event; a full role is refused).",

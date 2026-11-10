@@ -6,4 +6,8 @@ const { createSignedCode, verifySignedCode } = require("./signedCode");
 const createCertificateCode = (registrationId) => createSignedCode("certificate", registrationId);
 const verifyCertificateCode = (code) => verifySignedCode("certificate", code);
 
-module.exports = { createCertificateCode, verifyCertificateCode };
+// The same idea for a volunteering certificate; its own purpose so the two kinds can't be swapped.
+const createVolunteerCertificateCode = (volunteerId) => createSignedCode("volunteer-certificate", volunteerId);
+const verifyVolunteerCertificateCode = (code) => verifySignedCode("volunteer-certificate", code);
+
+module.exports = { createCertificateCode, verifyCertificateCode, createVolunteerCertificateCode, verifyVolunteerCertificateCode };

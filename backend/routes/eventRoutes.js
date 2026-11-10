@@ -9,7 +9,7 @@ const {
 const { addEventPhoto, removeEventPhoto } = require("../controllers/eventPhotosController");
 const { getCalendarFeed } = require("../controllers/calendarFeedController");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
-const { getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles } = require("../controllers/eventVolunteerController");
+const { setHelperAttended, getMyCertificate, getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles } = require("../controllers/eventVolunteerController");
 const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
 const upload = require("../middleware/upload");
@@ -20,6 +20,7 @@ const { validateIdParam } = require("../middleware/validateId");
 const router = express.Router();
 router.param("id", validateIdParam);
 router.param("questionId", validateIdParam);
+router.param("userId", validateIdParam);
 
 
 router.get("/", getEvents);
@@ -37,6 +38,8 @@ router.delete("/:id/questions/:questionId", protect, actionLimiter, deleteQuesti
 router.get("/volunteering/mine", protect, getMyVolunteering);
 router.get("/:id/volunteers", optionalAuth, getVolunteers);
 router.post("/:id/volunteers", protect, actionLimiter, signUp);
+router.get("/:id/volunteers/certificate", protect, actionLimiter, getMyCertificate);
+router.put("/:id/volunteers/:userId/attended", protect, staffOnly, actionLimiter, setHelperAttended);
 router.delete("/:id/volunteers", protect, actionLimiter, cancelSignUp);
 router.put("/:id/volunteer-roles", protect, staffOnly, actionLimiter, setRoles);
 // Event management is for admins and club leaders only -- the frontend never

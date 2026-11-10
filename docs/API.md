@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-98 endpoints.
+100 endpoints.
 
 ## /api/health
 
@@ -45,6 +45,8 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/events/volunteering/mine` | Logged-in student | The upcoming events you signed up to help at, with your role, soonest first. |
 | GET | `/api/events/:id/volunteers` | Anyone (logged-in users see more) | The helper roles at an event, how many places are taken and whether you hold one; organisers also see who signed up. |
 | POST | `/api/events/:id/volunteers` | Logged-in student (rate limited) | Sign up to help in one role at an upcoming event (one role per event; a full role is refused). |
+| GET | `/api/events/:id/volunteers/certificate` | Logged-in student (rate limited) | Your volunteering certificate for an event, once an organiser has marked that you helped. |
+| PUT | `/api/events/:id/volunteers/:userId/attended` | Admin or club leader (rate limited) | Mark that a volunteer really helped at an event (admins and the event's club leaders; only once the event has started). |
 | DELETE | `/api/events/:id/volunteers` | Logged-in student (rate limited) | Cancel your own volunteer sign-up for an event. |
 | PUT | `/api/events/:id/volunteer-roles` | Admin or club leader (rate limited) | Set the volunteer roles of an event (up to 5, with a name and places each); admins and the event's club leaders only. A role left out is removed with its sign-ups. |
 | POST | `/api/events/create` | Admin or club leader (rate limited; image upload) | Create an event (admins, or a leader for their own club), with an optional image. Send repeat (weekly or biweekly) and repeatCount (2 to 12) to create a series of separate events. An optional endDate (after the start, at most 7 days long) sets when it ends. |

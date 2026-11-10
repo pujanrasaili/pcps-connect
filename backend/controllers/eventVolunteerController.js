@@ -3,6 +3,7 @@ const EventVolunteer = require("../models/EventVolunteer");
 const { canManageEvent } = require("../utils/clubAccess");
 const { cleanRoles } = require("../utils/volunteerInput");
 const { recordAudit } = require("../utils/audit");
+const { createVolunteerCertificateCode } = require("../utils/certificateCode");
 const { pushNotifications } = require("../utils/inApp");
 const { safeError } = require("../utils/errorMessage");
 
@@ -16,10 +17,13 @@ async function describe(event, viewer, withNames) {
     roles: (event.volunteerRoles || []).map((role) => {
       const taken = rows.filter((r) => String(r.role) === String(role._id));
       const item = { _id: role._id, name: role.name, slots: role.slots, filled: taken.length };
-      if (withNames) item.volunteers = taken.map((r) => ({ name: r.user?.name || "", email: r.user?.email || "" }));
+      if (withNames) {
+        item.volunteers = taken.map((r) => ({ userId: String(r.user?._id || ""), name: r.user?.name || "", email: r.user?.email || "", attended: !!r.attended }));
+      }
       return item;
     }),
     mine: mine ? String(mine.role) : null,
+    mineAttended: !!(mine && mine.attended),
     past: isPast(event),
   };
 }
@@ -33,6 +37,56 @@ async function getVolunteers(req, res) {
     res.status(200).json(await describe(event, req.user, staff));
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch volunteer roles") });
+  }
+}
+
+// PUT /api/events/:id/volunteers/:userId/attended  { attended: boolean }  (organisers)
+// Marks that a volunteer really helped; only then can they download the certificate.
+async function setHelperAttended(req, res) {
+  try {
+    const event = await Event.findById(req.params.id).select("title date club createdBy");
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!(await canManageEvent(req.user, event))) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    if (typeof req.body?.attended !== "boolean") return res.status(400).json({ message: "attended must be true or false" });
+    if (new Date(event.date) > new Date()) return res.status(400).json({ message: "The event hasn't started yet" });
+    const row = await EventVolunteer.findOneAndUpdate(
+      { event: event._id, user: req.params.userId },
+      { attended: req.body.attended },
+      { new: true }
+    );
+    if (!row) return res.status(404).json({ message: "That student isn't signed up to help at this event" });
+    res.status(200).json({ message: req.body.attended ? "Marked as helped" : "Marked as not helped", attended: row.attended });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to update") });
+  }
+}
+
+// GET /api/events/:id/volunteers/certificate  (requires login; your own, once marked as helped)
+async function getMyCertificate(req, res) {
+  try {
+    const row = await EventVolunteer.findOne({ event: req.params.id, user: req.user._id })
+      .populate("user", "name studentId program")
+      .populate({ path: "event", select: "title date location club volunteerRoles", populate: { path: "club", select: "name" } });
+    if (!row || !row.event) return res.status(404).json({ message: "You didn't sign up to help at this event" });
+    if (!row.attended) return res.status(400).json({ message: "Certificates are only available for events where you helped" });
+    const role = (row.event.volunteerRoles || []).find((r) => String(r._id) === String(row.role));
+    res.status(200).json({
+      certificate: {
+        studentName: row.user.name,
+        studentId: row.user.studentId || "",
+        program: row.user.program || "",
+        eventTitle: row.event.title,
+        eventDate: row.event.date,
+        eventLocation: row.event.location,
+        clubName: row.event.club?.name || "",
+        role: role ? role.name : "",
+        code: createVolunteerCertificateCode(row._id),
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to load certificate") });
   }
 }
 
@@ -146,4 +200,4 @@ async function setRoles(req, res) {
   }
 }
 
-module.exports = { getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles };
+module.exports = { setHelperAttended, getMyCertificate, getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles };
