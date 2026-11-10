@@ -72,6 +72,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "phone-alerts",
+    question: "How do I get alerts on my phone?",
+    answer: [
+      "Open Settings and switch on \"Alerts on this device\". Your browser asks for permission once. After that, bell messages such as event changes, request approvals and reminders pop up on that phone or computer, even when the site is closed.",
+      "Each device is switched on separately, and you can switch it off again at any time. If you don't see the switch, your browser may not support alerts yet or the site hasn't turned them on.",
+    ],
+  },
+  {
     id: "volunteer-roles",
     question: "How can I help out at an event?",
     answer: [

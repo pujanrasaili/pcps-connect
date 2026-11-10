@@ -10,6 +10,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import { api, getErrorMessage } from "../services/api";
 import { downloadJson } from "../utils/downloadJson";
+import { usePushAlerts } from "../hooks/usePushAlerts";
 
 export default function Settings() {
   const { theme, toggleTheme } = useTheme();
@@ -23,6 +24,20 @@ export default function Settings() {
   const [pwForm, setPwForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
   const [pwError, setPwError] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
+
+  const push = usePushAlerts();
+  const handlePushToggle = async () => {
+    if (push.on) {
+      const result = await push.turnOff();
+      if (result === "error") toast.error(t("Couldn't turn off alerts on this device"));
+      else toast.success(t("Alerts are off for this device."));
+      return;
+    }
+    const result = await push.turnOn();
+    if (result === "on") toast.success(t("Alerts are on for this device."));
+    else if (result === "blocked") toast.error(t("Alerts are blocked in your browser's settings for this site."));
+    else toast.error(t("Couldn't turn on alerts on this device"));
+  };
 
   const [exporting, setExporting] = useState(false);
   const handleExport = async () => {
@@ -172,6 +187,16 @@ export default function Settings() {
             onChange={() => handleTogglePref("clubUpdates")}
             disabled={savingPref === "clubUpdates"}
           />
+          {push.available && (
+            <PrefRow
+              icon={FaBell}
+              title="Alerts on this device"
+              desc="Pop up bell messages (event changes, approvals, reminders) on this phone or browser, even when the site is closed. Each device is switched on separately."
+              checked={push.on}
+              onChange={handlePushToggle}
+              disabled={push.busy}
+            />
+          )}
         </div>
         <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
           {t("Emails from PCPS Connect, like password resets and event reminders, are written in the language you last used on the site.")}
