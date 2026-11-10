@@ -1,7 +1,7 @@
 import LoadFailedBanner from "../components/LoadFailedBanner";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode, FaCertificate } from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaIdBadge, FaGraduationCap, FaEdit, FaHeart, FaTimes, FaQrcode, FaCertificate, FaClipboardList } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
 import { useRegistrations } from "../context/RegistrationContext";
@@ -109,9 +109,14 @@ export default function Profile() {
               </p>
             </div>
           </div>
-          <Button variant="outline" icon={FaEdit} onClick={() => setEditOpen(true)}>
-            {t("Edit profile")}
-          </Button>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Link to="/record" className="btn-secondary inline-flex items-center gap-2">
+              <FaClipboardList /> {t("Activity record")}
+            </Link>
+            <Button variant="outline" icon={FaEdit} onClick={() => setEditOpen(true)}>
+              {t("Edit profile")}
+            </Button>
+          </div>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -72,6 +72,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "activity-record",
+    question: "Can I get a printed record of my activities?",
+    answer: [
+      "Yes. On your Profile, press \"Activity record\". It lists the events you attended, the events you helped at and your clubs, ready to print or save as a PDF.",
+      "Only attendance that an event organiser confirmed is listed. For proof of a single event, use that event's certificate, which has a code anyone can check.",
+    ],
+  },
+  {
     id: "notice-board",
     question: "How does the notice board work?",
     answer: [

@@ -4,6 +4,7 @@ Disallow: /dashboard
 Disallow: /profile
 Disallow: /settings
 Disallow: /board
+Disallow: /record
 Disallow: /certificate/
 Allow: /
 
