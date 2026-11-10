@@ -84,6 +84,7 @@ const DESCRIPTIONS = {
   deleteEvent: "Delete an event; registered students are emailed the cancellation.",
   registerForEvent: "Register for an event (or request to join, if the event needs approval).",
   getMyRegistrations: "Your own registrations.",
+  getMyRecord: "Your own activity record: events you attended and helped at (confirmed by organisers) and your clubs, for printing.",
   getCheckInCode: "The signed code shown as a QR at the door (your own registration only).",
   getCertificate: "Your attendance certificate (only if you were marked as attended).",
   submitFeedback: "Rate an event 1-5 with an optional comment (only if you attended).",
