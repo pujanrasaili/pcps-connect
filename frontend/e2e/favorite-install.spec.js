@@ -47,7 +47,10 @@ test("choosing a different club moves the heart, and the Dashboard shows it", as
   await withFavorites(page, "en", { start: clubs[0]._id });
   await page.goto("/clubs");
   await expect(page.getByRole("button", { name: "Remove from favorite club" })).toHaveCount(1);
+  // Wait for the save itself: the "Remove" heart count is already 1 before the tap.
+  const saved = page.waitForResponse((r) => r.url().includes("/api/auth/favorite-club"));
   await page.getByRole("button", { name: "Set as favorite club" }).click();
+  await saved;
   await expect(page.getByRole("button", { name: "Remove from favorite club" })).toHaveCount(1);
   await page.goto("/dashboard");
   const value = page.getByText("Favorite Club", { exact: true }).first().locator("xpath=preceding-sibling::p[1]");
