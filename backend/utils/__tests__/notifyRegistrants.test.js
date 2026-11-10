@@ -208,6 +208,25 @@ describe("students helping at the event are told too", () => {
     expect(pushNotifications.mock.calls[0][0]).toEqual(["u1", "u2"]);
   });
 
+  it("words the email for a helper as a volunteer sign-up, and for a registrant as a registration", async () => {
+    sendEmail.mockResolvedValue();
+    mockRegistrants([{ user: { _id: "u1", name: "Asha", email: "asha@patancollege.edu.np" } }]);
+    EventVolunteer.find.mockReturnValue({ populate: jest.fn().mockResolvedValue([{ user: { _id: "u2", name: "Ram", email: "ram@patancollege.edu.np" } }]) });
+    await notifyEventCancelled(fakeEvent());
+    const html = (to) => sendEmail.mock.calls.find((c) => c[0].to === to)[0].html;
+    expect(html("ram@patancollege.edu.np")).toContain("volunteer sign-up has been removed");
+    expect(html("asha@patancollege.edu.np")).toContain("registration has been removed");
+
+    sendEmail.mockClear();
+    await notifyEventAnnouncement(fakeEvent(), "Bring ID");
+    expect(html("ram@patancollege.edu.np")).toContain("registered or helping");
+    expect(html("asha@patancollege.edu.np")).not.toContain("or helping");
+
+    sendEmail.mockClear();
+    await notifyEventRescheduled(fakeEvent({ date: new Date("2026-12-05T18:00:00Z") }), { oldDate: new Date("2026-12-01T18:00:00Z"), oldLocation: "Lab 3" });
+    expect(html("ram@patancollege.edu.np")).toContain("An event you're helping at");
+  });
+
   it("still notifies the registrants if the volunteer lookup fails", async () => {
     sendEmail.mockResolvedValue();
     jest.spyOn(console, "error").mockImplementation(() => {});
