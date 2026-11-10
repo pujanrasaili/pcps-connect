@@ -13,6 +13,7 @@ const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
+const { cleanRoles } = require("../utils/volunteerInput");
 const { validateEventFields, cleanCategory } = require("../utils/eventInput");
 const { planOccurrences } = require("../utils/recurrence");
 const { parseEndDate, shiftedEnd } = require("../utils/eventEnd");
@@ -131,6 +132,21 @@ async function createEvent(req, res) {
     const plan = planOccurrences(date, req.body.repeat, req.body.repeatCount);
     if (plan.error) return res.status(400).json({ message: plan.error });
 
+    // Volunteer roles copied from the event this one was duplicated from (a JSON list).
+    // Each new event gets its own copy of the roles, with no sign-ups.
+    let volunteerRoles = [];
+    if (req.body.volunteerRoles) {
+      let parsed;
+      try {
+        parsed = JSON.parse(req.body.volunteerRoles);
+      } catch {
+        return res.status(400).json({ message: "Roles must be a list" });
+      }
+      const cleaned = cleanRoles({ roles: parsed });
+      if (cleaned.error) return res.status(400).json({ message: cleaned.error });
+      volunteerRoles = cleaned.value.map(({ name, slots }) => ({ name, slots }));
+    }
+
     let image = null;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
@@ -148,6 +164,7 @@ async function createEvent(req, res) {
       image,
       club: club ? club._id : null,
       createdBy: req.user._id,
+      volunteerRoles,
     };
 
     let event;
