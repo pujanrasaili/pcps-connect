@@ -39,6 +39,19 @@ export default function Settings() {
     else toast.error(t("Couldn't turn on alerts on this device"));
   };
 
+  const [testing, setTesting] = useState(false);
+  const handleTestAlert = async () => {
+    setTesting(true);
+    try {
+      const { data } = await api.post("/push/test");
+      toast.success(t(data?.message || "Test alert sent. It should pop up in a moment."));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't send a test alert")));
+    } finally {
+      setTesting(false);
+    }
+  };
+
   const [exporting, setExporting] = useState(false);
   const handleExport = async () => {
     setExporting(true);
@@ -196,6 +209,13 @@ export default function Settings() {
               onChange={handlePushToggle}
               disabled={push.busy}
             />
+          )}
+          {push.available && push.on && (
+            <div className="px-1">
+              <Button type="button" variant="secondary" onClick={handleTestAlert} disabled={testing}>
+                {t("Send a test alert")}
+              </Button>
+            </div>
           )}
         </div>
         <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">

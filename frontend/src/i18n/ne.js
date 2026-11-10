@@ -1309,4 +1309,8 @@ export const ne = {
   "How do I get alerts on my phone?": "म आफ्नो फोनमा अलर्ट कसरी पाउन सक्छु?",
   "Open Settings and switch on \"Alerts on this device\". Your browser asks for permission once. After that, bell messages such as event changes, request approvals and reminders pop up on that phone or computer, even when the site is closed.": "सेटिङ खोलेर “यो उपकरणमा अलर्ट” खोल्नुहोस्। तपाईंको ब्राउजरले एक पटक अनुमति सोध्छ। त्यसपछि कार्यक्रम परिवर्तन, अनुरोध स्वीकृति र सम्झना जस्ता घण्टीका सन्देशहरू साइट बन्द हुँदा पनि त्यो फोन वा कम्प्युटरमा देखिन्छन्।",
   "Each device is switched on separately, and you can switch it off again at any time. If you don't see the switch, your browser may not support alerts yet or the site hasn't turned them on.": "प्रत्येक उपकरण छुट्टाछुट्टै खोल्नुपर्छ, र जुनसुकै बेला फेरि बन्द गर्न सकिन्छ। स्विच नदेखिए तपाईंको ब्राउजरले अहिलेसम्म अलर्ट समर्थन नगरेको वा साइटले खोलेको छैन।",
+  "Send a test alert": "परीक्षण अलर्ट पठाउनुहोस्",
+  "Couldn't send a test alert": "परीक्षण अलर्ट पठाउन सकिएन",
+  "Test alert sent. It should pop up in a moment.": "परीक्षण अलर्ट पठाइयो। केही क्षणमै देखिनुपर्छ।",
+  "No device has alerts switched on yet": "कुनै उपकरणमा अझै अलर्ट खोलिएको छैन",
 };
