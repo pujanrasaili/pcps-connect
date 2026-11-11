@@ -38,7 +38,7 @@ export default function Sidebar({ className = "" }) {
         </div>
       </div>
 
-      <nav aria-label={t("Dashboard menu")} className="flex flex-wrap gap-1 lg:flex-col">
+      <nav aria-label={t("Dashboard menu")} className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden">
         {LINKS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
