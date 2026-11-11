@@ -112,3 +112,39 @@ test("Nepali: the page is translated and passes the accessibility checks", async
   await expect(page.getByText("कालो छाता")).toHaveCount(0); // posts are the students' own words, never translated
   expect(await axeViolations(page)).toEqual([]);
 });
+
+test("a student can report someone else's post once; their own post has no Report button", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.route("**/api/board", (route) => reply(route, { posts: POSTS }));
+  let reports = 0;
+  await page.route("**/api/board/p2/report", (route) => {
+    reports += 1;
+    return reply(route, { message: "Thanks, an admin will take a look." });
+  });
+  await page.goto("/board");
+  await expect(page.getByRole("button", { name: /^Report the post/ })).toHaveCount(2); // p2 and p3, not their own p1
+  await page.getByRole("button", { name: "Report the post Blue keyring" }).click();
+  await expect(page.getByText("Thanks, an admin will take a look.").first()).toBeVisible();
+  await expect(page.getByText("You reported this post")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Report the post Blue keyring" })).toHaveCount(0);
+  expect(reports).toBe(1);
+});
+
+test("an already-reported post shows that, and a failed report says so", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.route("**/api/board", (route) => reply(route, { posts: [{ ...post("p2", "found", "Blue keyring"), reported: true }, post("p3", "notice", "Study group")] }));
+  await page.route("**/api/board/p3/report", (route) => reply(route, { message: "boom" }, 500));
+  await page.goto("/board");
+  await expect(page.getByText("You reported this post")).toBeVisible();
+  await page.getByRole("button", { name: "Report the post Study group" }).click();
+  await expect(page.getByText("boom").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Report the post Study group" })).toBeVisible();
+});
+
+test("an admin sees the report count and no Report button", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await page.route("**/api/board", (route) => reply(route, { posts: [{ ...post("p2", "found", "Blue keyring"), reportCount: 3 }] }));
+  await page.goto("/board");
+  await expect(page.getByText("Reported 3 times")).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Report the post/ })).toHaveCount(0);
+});
