@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-108 endpoints.
+109 endpoints.
 
 ## /api/health
 
@@ -188,6 +188,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/board` | Logged-in student | The live notice-board posts (lost, found, notices), newest first; optional ?category=lost\|found\|notice. Logged-in students only. |
 | POST | `/api/board` | Logged-in student (rate limited) | Post on the notice board (title up to 80, details up to 300, optional contact up to 60). Up to 3 posts per student; each disappears after 14 days. |
 | DELETE | `/api/board/:id` | Logged-in student (rate limited) | Remove a notice-board post (its author or an admin; an admin's removal is logged). |
+| POST | `/api/board/:id/report` | Logged-in student (rate limited) | Report a notice-board post to the admins (once per student, not your own). Three reports hide it from students until an admin removes it. |
 
 ## /api/certificates
 

@@ -14,6 +14,8 @@ const boardPostSchema = new mongoose.Schema(
     // Optional: how to reach the poster (a phone number, an Instagram name, a room).
     contact: { type: String, default: "" },
     expiresAt: { type: Date, required: true },
+    // Students who reported the post. Enough reports hide it until an admin looks.
+    reports: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

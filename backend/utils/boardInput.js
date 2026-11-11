@@ -8,6 +8,9 @@ const MAX_CONTACT = 60;
 const DAYS_UP = 14;
 // Each student can have this many posts up at once, so nobody fills the board.
 const MAX_PER_STUDENT = 3;
+// A post is hidden from students once this many different students report it
+// (admins still see it, to remove it or keep it).
+const HIDE_AT_REPORTS = 3;
 
 function cleanBoardPost(input = {}) {
   const category = typeof input.category === "string" ? input.category : "";
@@ -23,4 +26,4 @@ function cleanBoardPost(input = {}) {
   return { category, title, body, contact };
 }
 
-module.exports = { cleanBoardPost, CATEGORIES, MAX_TITLE, MAX_BODY, MAX_CONTACT, DAYS_UP, MAX_PER_STUDENT };
+module.exports = { cleanBoardPost, CATEGORIES, MAX_TITLE, MAX_BODY, MAX_CONTACT, DAYS_UP, MAX_PER_STUDENT, HIDE_AT_REPORTS };
