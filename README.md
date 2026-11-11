@@ -262,11 +262,13 @@ npm run backup                      # saves to ~/pcps-backups/pcps-backup-<date-
 npm run backup -- --out D:\backups  # or choose the folder
 ```
 
-It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, club join requests, club news posts, event questions, activity log, contact messages, site notice) plus a `manifest.json` with the counts. To restore a collection, load its file back with MongoDB's `mongoimport`:
+It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, club join requests, club news posts, event questions, event volunteers, activity log, contact messages, site notice) plus a `manifest.json` with the counts. To restore, use the restore script. Point `MONGO_URI` (in `backend/.env`) at a new, empty database (for example a fresh cluster or database name in Atlas) and run:
 
 ```bash
-mongoimport --uri "<MONGO_URI>" --collection users --file users.json --jsonArray
+npm run restore -- "D:\backups\pcps-backup-2026-11-11-0700"
 ```
+
+It first checks every file against `manifest.json` (a damaged backup changes nothing), shows the database name and asks you to type it to continue (`--yes` skips the question), then fills only collections that are empty: nothing is overwritten or deleted. Ids, dates and password hashes come back exactly as saved. After restoring, point the live backend's `MONGO_URI` (Render → Environment) at that database. Practise it once on a spare database before you ever need it.
 
 A backup contains students' personal details and password hashes, so keep it private. The script refuses to write inside the project folder, because the GitHub repository is public.
 

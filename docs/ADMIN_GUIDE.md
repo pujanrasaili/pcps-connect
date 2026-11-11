@@ -101,7 +101,7 @@ The settings for each live in that service's dashboard (Render: Environment; Ver
 | Someone cannot log in | Their email may be unverified or the account still pending: Users, then check status. Passwords can be reset by the student from the login page |
 | Locked out after many wrong attempts | The limit clears by itself after 15 minutes |
 | A bad change was deployed | In Vercel or Render, redeploy the previous successful deployment; in GitHub, revert the commit |
-| Data was deleted by mistake | Restore from the latest backup (README, Backups) |
+| Data was deleted by mistake | Restore from the latest backup into a new, empty database with `npm run restore` (README, Backups) |
 
 ## For developers
 
