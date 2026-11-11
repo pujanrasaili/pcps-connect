@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { api, getErrorMessage } from "../services/api";
+import { forgetPushOnThisDevice } from "../utils/pushLogout";
 import { useToast } from "./ToastContext";
 import { useLang } from "./LanguageContext";
 import { SESSION_EXPIRED_EVENT, isAuthCheckUnreachable } from "../utils/sessionExpiry";
@@ -104,6 +105,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    await forgetPushOnThisDevice(); // while the session is still valid
     try {
       await api.post("/auth/logout");
     } catch {
