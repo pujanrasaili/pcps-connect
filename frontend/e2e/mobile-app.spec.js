@@ -90,3 +90,45 @@ test("the search window opens as a full bottom sheet, not squashed into the top 
     return box.y >= 0 && Math.round(box.y + box.height) === 844;
   }).toBe(true);
 });
+
+// The Register button is pinned above the tab bar on a phone, because the real
+// one sits far down the event page.
+const EVENT_ID = "e90000000000000000000000";
+const eventBody = (over = {}) => ({ event: { _id: EVENT_ID, title: "Robot Demo", description: "Watch robots race.", date: new Date(Date.now() + 9 * 864e5).toISOString(), location: "Main Hall", capacity: 50, registeredCount: 20, category: "Workshop", price: "Free", club: { _id: "c1".padEnd(24, "0"), name: "Robotics Society" }, ...over } });
+const openEvent = async (page, role, over) => {
+  await setUp(page, { lang: "en", role });
+  await noLed(page);
+  await page.route(`**/api/events/${EVENT_ID}`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(eventBody(over)) }));
+  await page.goto(`/events/${EVENT_ID}`);
+  await expect(page.getByRole("heading", { name: "Robot Demo", level: 1 })).toBeVisible();
+};
+const pinned = (page) => page.locator("div[aria-hidden='true'].fixed button, div[aria-hidden='true'].fixed a");
+
+test("a student sees a pinned Register button that opens the sign-up form", async ({ page }) => {
+  await openEvent(page, "student");
+  await expect(pinned(page)).toBeVisible();
+  await expect(pinned(page)).toHaveText("Register now");
+  await pinned(page).click();
+  await expect(page.getByRole("dialog", { name: "Register for this event" })).toBeVisible();
+});
+
+test("a visitor who is not logged in gets a pinned Log in to register link", async ({ page }) => {
+  await openEvent(page, undefined);
+  await expect(pinned(page)).toHaveText("Log in to register");
+});
+
+test("the pinned button is not shown for a full or finished event, or on a computer", async ({ page }) => {
+  await openEvent(page, "student", { registeredCount: 50 });
+  await expect(pinned(page)).toHaveCount(0);
+  await page.unroute(`**/api/events/${EVENT_ID}`);
+  await page.route(`**/api/events/${EVENT_ID}`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(eventBody({ date: new Date(Date.now() - 3 * 864e5).toISOString() })) }));
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Robot Demo", level: 1 })).toBeVisible();
+  await expect(pinned(page)).toHaveCount(0);
+  await page.unroute(`**/api/events/${EVENT_ID}`);
+  await page.route(`**/api/events/${EVENT_ID}`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(eventBody()) }));
+  await page.reload();
+  await expect(pinned(page)).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(pinned(page)).toBeHidden();
+});
