@@ -5,7 +5,7 @@ jest.mock("../../utils/inApp");
 const BoardPost = require("../../models/BoardPost");
 const { recordAudit } = require("../../utils/audit");
 const { notifyAdmins } = require("../../utils/inApp");
-const { getBoard, createBoardPost, deleteBoardPost, reportBoardPost } = require("../boardController");
+const { getBoard, createBoardPost, deleteBoardPost, reportBoardPost, resolveBoardPost } = require("../boardController");
 
 const mockRes = () => {
   const res = {};
@@ -167,5 +167,50 @@ describe("reporting", () => {
     await reportBoardPost({ user: student, params: { id: "p1" } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
     expect(BoardPost.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+});
+
+describe("resolveBoardPost", () => {
+  const mk = (over = {}) => ({ author: "u1", category: "lost", resolved: false, expiresAt: new Date(Date.now() + 10 * 86400000), save: jest.fn(), ...over });
+  it("marks the author's lost post resolved and shortens its life to 2 days", async () => {
+    const p = mk();
+    BoardPost.findById.mockResolvedValue(p);
+    const res = mockRes();
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(p.resolved).toBe(true);
+    expect((p.expiresAt - Date.now()) / 86400000).toBeLessThanOrEqual(2);
+    expect(p.save).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+  it("never makes a post last longer than it already would", async () => {
+    const soon = new Date(Date.now() + 3600000);
+    const p = mk({ expiresAt: soon });
+    BoardPost.findById.mockResolvedValue(p);
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, mockRes());
+    expect(p.expiresAt).toBe(soon);
+  });
+  it("is a no-op the second time", async () => {
+    const p = mk({ resolved: true });
+    BoardPost.findById.mockResolvedValue(p);
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, mockRes());
+    expect(p.save).not.toHaveBeenCalled();
+  });
+  it("refuses other people, general notices, and missing or expired posts", async () => {
+    BoardPost.findById.mockResolvedValue(mk({ author: "u2" }));
+    let res = mockRes();
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    BoardPost.findById.mockResolvedValue(mk({ category: "notice" }));
+    res = mockRes();
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    BoardPost.findById.mockResolvedValue(mk({ expiresAt: new Date(Date.now() - 1000) }));
+    res = mockRes();
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    BoardPost.findById.mockResolvedValue(null);
+    res = mockRes();
+    await resolveBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
   });
 });
