@@ -23,6 +23,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import EventQuestions from "../components/EventQuestions";
 import EventVolunteers from "../components/EventVolunteers";
+import EventJoinLink from "../components/EventJoinLink";
 import EventPhotos from "../components/EventPhotos";
 import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
@@ -302,6 +303,8 @@ export default function EventDetails() {
           )}
 
           <EventPhotos key={event._id} eventId={event._id} title={event.title} initialPhotos={event.photos || []} canManage={canAnswerQuestions} onChange={refreshEvents} />
+
+          <EventJoinLink eventId={event._id} registered={confirmedHere} canManage={canAnswerQuestions} eventOver={eventOver} />
 
           <EventVolunteers eventId={event._id} eventTitle={event.title} eventOver={eventOver} canManage={canAnswerQuestions} isAuthenticated={isAuthenticated} />
 
