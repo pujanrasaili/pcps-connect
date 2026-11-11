@@ -19,7 +19,7 @@ for (const path of PUBLIC_PAGES) {
   });
 }
 
-for (const [role, path] of [["student", "/dashboard"], ["student", "/profile"], ["student", "/settings"], ["student", "/board"], ["admin", "/admin"], ["admin", "/admin/events"], ["admin", "/admin/users"]]) {
+for (const [role, path] of [["student", "/dashboard"], ["student", "/profile"], ["student", "/settings"], ["student", "/board"], ["admin", "/admin"], ["admin", "/admin/events"], ["admin", "/admin/users"], ["student", "/record"], ["student", "/tickets"], ["admin", "/admin/clubs"], ["admin", "/admin/activity"], ["admin", "/admin/messages"], ["admin", "/admin/check-in"], ["admin", "/admin/my-clubs"]]) {
   test(`${path} (${role}) passes the accessibility checks in dark mode`, async ({ page }) => {
     const problems = await setUp(page, { lang: "ne", role });
     await dark(page);
