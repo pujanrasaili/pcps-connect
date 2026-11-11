@@ -1,5 +1,6 @@
 const webpush = require("web-push");
 const PushSubscription = require("../models/PushSubscription");
+const { isPushServiceEndpoint } = require("./pushEndpoint");
 
 // Browser/phone alerts for bell messages. Switched off (and harmless) until
 // VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are set; see .env.example.
@@ -30,6 +31,12 @@ async function sendPush(userIds, { title, link = "" }) {
     let sent = 0;
     await Promise.all(
       subs.map(async (sub) => {
+        // Defence in depth: never call an address that isn't a real push service
+        // (the subscribe route already refuses them) -- and forget it.
+        if (!isPushServiceEndpoint(sub.endpoint)) {
+          await PushSubscription.deleteOne({ _id: sub._id });
+          return;
+        }
         try {
           await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, payload, { TTL: 86400 });
           sent += 1;

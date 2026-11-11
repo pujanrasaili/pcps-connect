@@ -1,6 +1,7 @@
 const PushSubscription = require("../models/PushSubscription");
 const { publicKey, sendPush } = require("../utils/webPush");
 const { safeError } = require("../utils/errorMessage");
+const { isPushServiceEndpoint } = require("../utils/pushEndpoint");
 
 // A student can have alerts on a handful of devices, not thousands.
 const MAX_DEVICES = 10;
@@ -20,7 +21,7 @@ async function subscribe(req, res) {
     const endpoint = typeof s?.endpoint === "string" ? s.endpoint : "";
     const p256dh = s?.keys?.p256dh;
     const auth = s?.keys?.auth;
-    if (!/^https:\/\//.test(endpoint) || endpoint.length > 1000 || typeof p256dh !== "string" || typeof auth !== "string") {
+    if (!isPushServiceEndpoint(endpoint) || typeof p256dh !== "string" || typeof auth !== "string") {
       return res.status(400).json({ message: "That isn't a valid alert subscription" });
     }
     const mine = await PushSubscription.countDocuments({ user: req.user._id, endpoint: { $ne: endpoint } });
