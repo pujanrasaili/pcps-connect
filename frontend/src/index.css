@@ -12,6 +12,19 @@
   scroll-behavior: smooth;
 }
 
+/* Feels like an app on a phone: no grey flash or double-tap delay on taps, and no
+   pull-down bounce that reloads or tugs the page. */
+html {
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+a,
+button,
+summary,
+[role="button"] {
+  touch-action: manipulation;
+}
+
 html,
 body {
   @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100;
@@ -45,6 +58,19 @@ h1, h2, h3, h4, h5, h6 {
   @apply bg-white dark:bg-slate-900 rounded-2xl shadow-card border border-slate-100 dark:border-slate-800;
 }
 
+/* Cards that are tapped (not just read) dip slightly under a finger, like app
+   list items. Only on touch screens, and only for cards that are links. */
+@media (hover: none) {
+  a.card-surface,
+  a:has(> .card-surface) {
+    transition: transform 0.12s ease-out;
+  }
+  a.card-surface:active,
+  a:active > .card-surface {
+    transform: scale(0.985);
+  }
+}
+
 .btn-primary {
   @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-5 py-2.5 font-semibold text-white shadow-soft transition-all duration-200 hover:bg-primary-600 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0;
 }
@@ -73,7 +99,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input-field {
-  @apply w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-800 transition-all;
+  @apply w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 text-base md:py-2.5 md:text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:focus:ring-primary-800 transition-all;
 }
 
 /* Neutralize the browser's built-in autofill styling (the yellow/blue tint
