@@ -1370,4 +1370,12 @@ export const ne = {
   "Loading the poster": "पोस्टर लोड हुँदैछ",
   "QR code that opens this event's page": "यो कार्यक्रमको पेज खोल्ने QR कोड",
   "Scan to see details and register": "विवरण हेर्न र दर्ता गर्न स्क्यान गर्नुहोस्",
+  "Reported {n} times": "{n} पटक रिपोर्ट गरिएको",
+  "You reported this post": "तपाईंले यो पोस्ट रिपोर्ट गर्नुभयो",
+  "Report": "रिपोर्ट गर्नुहोस्",
+  "Report the post {title}": "{title} पोस्ट रिपोर्ट गर्नुहोस्",
+  "Couldn't report the post": "पोस्ट रिपोर्ट गर्न सकिएन",
+  "Thanks, an admin will take a look.": "धन्यवाद, एडमिनले हेर्नेछन्।",
+  "You can't report your own post": "तपाईं आफ्नै पोस्ट रिपोर्ट गर्न सक्नुहुन्न",
+  "Failed to report the post": "पोस्ट रिपोर्ट गर्न सकिएन",
 };

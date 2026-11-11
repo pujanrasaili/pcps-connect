@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaFlag } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -85,6 +85,16 @@ export default function Board() {
     }
   };
 
+  const handleReport = async (post) => {
+    try {
+      const res = await api.post(`/board/${post._id}/report`);
+      setPosts((prev) => prev.map((p) => (p._id === post._id ? { ...p, reported: true } : p)));
+      toast.success(t(res.data?.message || "Thanks, an admin will take a look."));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't report the post")));
+    }
+  };
+
   const shown = (posts || []).filter((p) => filter === "all" || p.category === filter);
 
   return (
@@ -161,6 +171,23 @@ export default function Board() {
                   <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">
                     {t("Posted by {name}", { name: p.authorName })} · {formatDate(p.createdAt)}
                   </p>
+                  {user?.role === "admin" && p.reportCount > 0 && (
+                    <p className="mt-1 text-xs font-semibold text-rose-700 dark:text-rose-300">{t("Reported {n} times", { n: p.reportCount })}</p>
+                  )}
+                  {!p.mine && user?.role !== "admin" && (
+                    p.reported ? (
+                      <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">{t("You reported this post")}</p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleReport(p)}
+                        aria-label={t("Report the post {title}", { title: p.title })}
+                        className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-rose-700 dark:text-slate-300 dark:hover:text-rose-300"
+                      >
+                        <FaFlag /> {t("Report")}
+                      </button>
+                    )
+                  )}
                 </div>
                 {(p.mine || user?.role === "admin") && (
                   <button
