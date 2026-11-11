@@ -25,6 +25,7 @@ import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
 import ClubIdeas from "../components/ClubIdeas";
 import SafeImage from "../components/SafeImage";
+import CardSkeletons from "../components/CardSkeletons";
 
 const PAGE_SIZE = 9;
 
@@ -180,9 +181,7 @@ export default function Clubs() {
         </div>
 
         {loading ? (
-          <div className="mt-16 flex justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
-          </div>
+          <CardSkeletons label="Loading clubs" />
         ) : error ? (
           <div className="mt-16 text-center text-rose-700 dark:text-rose-400">
             <p className="font-medium">Couldn't load clubs.</p>
