@@ -45,7 +45,7 @@ Create an event for tomorrow, register **S** for it and, if you like, also add S
 
 ## 6. Nepali pages (10 min)
 
-Switch the site to Nepali and open: Privacy, Terms, an event with volunteer roles, the Dashboard, Help. Anything that is English where it should be Nepali, or Nepali that reads wrong, write down or screenshot and send to Claude. The review sheet `nepali-review.html` lists the strings to check, starting with its "Start here" section.
+Switch the site to Nepali and open: Privacy, Terms, an event with volunteer roles, the Dashboard, Help. Anything that is English where it should be Nepali, or Nepali that reads wrong, write down or screenshot and send to Claude. The review sheet `nepali-review.html` lists the strings to check, starting with its "Start here" section, then "New features" (alerts, notice board, activity record, poster, online link, volunteers).
 
 ## When something fails
 
