@@ -132,3 +132,24 @@ test("the pinned button is not shown for a full or finished event, or on a compu
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect(pinned(page)).toBeHidden();
 });
+
+test("the dashboard and admin menus are one swipeable row, opened on the current page", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await noLed(page);
+  await page.goto("/settings");
+  const menu = page.getByRole("navigation", { name: "Dashboard menu" });
+  await expect(menu).toBeVisible();
+  const rows = await menu.getByRole("link").evaluateAll((els) => new Set(els.map((e) => Math.round(e.getBoundingClientRect().top))).size);
+  expect(rows, "all the buttons sit on one line").toBe(1);
+  // Settings is the last button, so the row has scrolled to bring it into view.
+  await expect(menu.getByRole("link", { name: "Settings" })).toBeInViewport();
+});
+
+test("the admin menu opens scrolled to the current page", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await page.goto("/admin/activity");
+  const menu = page.getByRole("navigation", { name: "Admin menu" });
+  await expect(menu.getByRole("link", { name: "Activity" })).toBeInViewport();
+  const rows = await menu.getByRole("link").evaluateAll((els) => new Set(els.map((e) => Math.round(e.getBoundingClientRect().top))).size);
+  expect(rows).toBe(1);
+});
