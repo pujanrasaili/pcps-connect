@@ -166,6 +166,7 @@ const DESCRIPTIONS = {
   submitContactForm: "Send a message to the PCPS Connect team by email.",
   getPublicStats: "Totals shown on the home page (students, clubs, events, registrations).",
   getNotice: "The current site-wide announcement, if any.",
+  getClubStats: "One-club summary for its leaders and admins: members and new joiners, events, turnout and ratings (counts only).",
   getMyLedClubs: "The clubs you are a leader of.",
   getWaitlistStatus: "Whether you are on an event's waitlist, and where.",
   getMyWaitlist: "The upcoming events you are waitlisted for, with your place in line.",
