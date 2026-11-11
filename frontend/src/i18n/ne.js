@@ -1414,4 +1414,6 @@ export const ne = {
   "No ratings yet": "अहिलेसम्म मूल्याङ्कन छैन",
   "Latest events": "पछिल्ला कार्यक्रमहरू",
   "Quick menu": "छिटो मेनु",
+  "Loading events": "कार्यक्रमहरू लोड हुँदैछ",
+  "Loading clubs": "क्लबहरू लोड हुँदैछ",
 };
