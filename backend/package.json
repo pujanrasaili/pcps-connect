@@ -12,6 +12,7 @@
     "dev": "nodemon index.js",
     "seed": "node seed.js",
     "backup": "node scripts/backupDatabase.js",
+    "restore": "node scripts/restoreDatabase.js",
     "make-admin": "node scripts/makeAdmin.js",
     "docs:api": "node scripts/generateApiDocs.js",
     "backfill": "node scripts/backfillVerification.js",
