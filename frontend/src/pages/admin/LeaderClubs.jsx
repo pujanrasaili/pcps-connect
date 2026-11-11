@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaEnvelope, FaLightbulb, FaUsers } from "react-icons/fa";
+import { FaChartBar, FaEnvelope, FaLightbulb, FaUsers } from "react-icons/fa";
 import { useLedClubs } from "../../hooks/useLedClubs";
 import { useClubs } from "../../context/ClubsContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
 import ClubMembersModal from "../../components/ClubMembersModal";
+import ClubStatsModal from "../../components/ClubStatsModal";
 import Button from "../../components/Button";
 import { useRequestCounts } from "../../hooks/useRequestCounts";
 import { useLang } from "../../context/LanguageContext";
@@ -19,6 +20,7 @@ export default function LeaderClubs() {
   const { clubs: allClubs } = useClubs();
   const [target, setTarget] = useState(null);
   const [membersTarget, setMembersTarget] = useState(null);
+  const [statsTarget, setStatsTarget] = useState(null);
   const { counts, reload } = useRequestCounts();
 
   return (
@@ -52,6 +54,9 @@ export default function LeaderClubs() {
               <Button icon={FaUsers} onClick={() => setMembersTarget(club)}>
                 {t("View members")}{counts[club._id] ? ` ${t("({n} waiting)", { n: counts[club._id] })}` : ""}
               </Button>
+              <Button icon={FaChartBar} onClick={() => setStatsTarget(club)}>
+                {t("Stats")}
+              </Button>
               <Link to={`/clubs?club=${club._id}`} className="btn-primary">
                 <FaLightbulb className="text-base" aria-hidden="true" />
                 {t("Ideas")}
@@ -64,6 +69,7 @@ export default function LeaderClubs() {
         ))}
       </div>
       <ClubMembersModal club={membersTarget} onClose={() => { setMembersTarget(null); reload(); }} />
+      <ClubStatsModal club={statsTarget} onClose={() => setStatsTarget(null)} />
       <ClubMessageModal
         club={target}
         memberCount={target ? allClubs.find((c) => c._id === target._id)?.memberCount : undefined}
