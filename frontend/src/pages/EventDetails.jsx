@@ -195,6 +195,7 @@ export default function EventDetails() {
   // "Registered" in the UI means confirmed: a request still waiting for the
   // organisers gets its own state (no QR code, no calendar links yet).
   const pendingHere = isPending(event._id);
+  const showStickyRegister = !registered && !pendingHere && !isPast && !registrationClosed && !isFull;
   const confirmedHere = registered && !pendingHere;
 
   const handleJoinWaitlist = async () => {
@@ -263,7 +264,7 @@ export default function EventDetails() {
         </div>
       </div>
 
-      <div className="container-page grid grid-cols-1 gap-8 py-10 lg:grid-cols-[1fr_340px]">
+      <div className={`container-page grid grid-cols-1 gap-8 py-10 lg:grid-cols-[1fr_340px] ${showStickyRegister ? "pb-24 lg:pb-10" : ""}`}>
         <div className="space-y-8">
           <div className="card-surface p-6">
             <h2 className="font-display text-xl font-semibold text-slate-800 dark:text-slate-100">
@@ -496,6 +497,24 @@ export default function EventDetails() {
             ))}
           </div>
         </section>
+      )}
+
+      {/* On a phone the Register card sits far down the page, so the main action is
+          also pinned above the tab bar, like the buy button in a shopping app. It is a
+          touch shortcut only (hidden from screen readers and the Tab key, which use the
+          real button in the card) and never shows on a computer. */}
+      {showStickyRegister && (
+        <div aria-hidden="true" className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur dark:border-white/10 dark:bg-slate-950/95 lg:hidden print:hidden">
+          {isAuthenticated ? (
+            <button type="button" tabIndex={-1} onClick={handleRegisterClick} className="btn-primary w-full">
+              {event.requiresApproval ? t("Request to join") : t("Register now")}
+            </button>
+          ) : (
+            <Link to="/login" tabIndex={-1} state={{ from: `/events/${event._id}` }} className="btn-primary w-full">
+              {t("Log in to register")}
+            </Link>
+          )}
+        </div>
       )}
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={event.requiresApproval ? t("Request to join this event") : t("Register for this event")}>
