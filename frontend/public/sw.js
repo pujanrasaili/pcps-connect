@@ -6,7 +6,7 @@
 //  * Page loads: network first (so a new deploy shows up immediately); the
 //    last good copy of the app shell is kept and used only if the network fails.
 //  * /assets/*: file names contain a content hash, so a cached copy is always
-//    the right one -- cache first.
+//    the right one -- cache first. Only the newest 200 are kept.
 //  * Everything else (the API, fonts and images on other sites, ...): untouched.
 const CACHE = "pcps-shell-v1";
 const SHELL = "/index.html";
@@ -37,6 +37,19 @@ async function pageLoad(request) {
   }
 }
 
+// Each deploy has new hashed file names, and old ones would pile up on a
+// student's phone forever. Keep the newest MAX_ASSETS (a deploy is far fewer);
+// the cache lists files oldest first. Tidying must never break loading a file.
+const MAX_ASSETS = 200;
+async function trimAssets(cache) {
+  try {
+    const assets = (await cache.keys()).filter((r) => new URL(r.url).pathname.startsWith("/assets/"));
+    for (const old of assets.slice(0, Math.max(0, assets.length - MAX_ASSETS))) await cache.delete(old);
+  } catch {
+    // Leave the cache as it is.
+  }
+}
+
 async function hashedAsset(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -44,6 +57,7 @@ async function hashedAsset(request) {
   if (response.ok) {
     const cache = await caches.open(CACHE);
     await cache.put(request, response.clone());
+    await trimAssets(cache);
   }
   return response;
 }
