@@ -179,3 +179,36 @@ test("a test alert with no device on shows the server's message, in Nepali too",
   await page.getByRole("button", { name: "परीक्षण अलर्ट पठाउनुहोस्" }).click();
   await expect(page.getByText("कुनै उपकरणमा अझै अलर्ट खोलिएको छैन")).toBeVisible();
 });
+
+test("logging out removes this device's alerts, so a shared phone doesn't show the last student's messages", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await setUp(page, { lang: "en", role: "student" });
+  await fakeBrowser(page, { permission: "granted", subscribed: true });
+  await serverKey(page);
+  let removed = null;
+  await page.route("**/api/push/subscribe", (route) => {
+    if (route.request().method() === "DELETE") removed = route.request().postDataJSON().endpoint;
+    return reply(route, { message: "ok" });
+  });
+  await page.route("**/api/auth/logout", (route) => reply(route, { message: "Logged out" }));
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Asha" }).click();
+  await page.getByRole("button", { name: "Log out" }).click();
+  await expect.poll(() => removed).toBe(ENDPOINT);
+  expect(await page.evaluate(() => window.__push.unsubscribed)).toBe(1);
+});
+
+test("logging out works normally on a device with no alerts", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await setUp(page, { lang: "en", role: "student" });
+  await fakeBrowser(page, { hasWorker: false });
+  let loggedOut = 0;
+  await page.route("**/api/auth/logout", (route) => {
+    loggedOut += 1;
+    return reply(route, { message: "Logged out" });
+  });
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Asha" }).click();
+  await page.getByRole("button", { name: "Log out" }).click();
+  await expect.poll(() => loggedOut).toBe(1);
+});
