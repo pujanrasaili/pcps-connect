@@ -1413,4 +1413,5 @@ export const ne = {
   "Average rating": "औसत मूल्याङ्कन",
   "No ratings yet": "अहिलेसम्म मूल्याङ्कन छैन",
   "Latest events": "पछिल्ला कार्यक्रमहरू",
+  "Quick menu": "छिटो मेनु",
 };
