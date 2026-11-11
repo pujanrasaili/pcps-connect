@@ -1,5 +1,5 @@
 const BoardPost = require("../models/BoardPost");
-const { cleanBoardPost, CATEGORIES, DAYS_UP, MAX_PER_STUDENT, HIDE_AT_REPORTS } = require("../utils/boardInput");
+const { cleanBoardPost, CATEGORIES, DAYS_UP, MAX_PER_STUDENT, HIDE_AT_REPORTS, RESOLVED_DAYS_LEFT } = require("../utils/boardInput");
 const { notifyAdmins } = require("../utils/inApp");
 const { isAdmin } = require("../utils/clubAccess");
 const { recordAudit } = require("../utils/audit");
@@ -14,6 +14,7 @@ const shape = (p, userId, admin = false) => ({
   title: p.title,
   body: p.body,
   contact: p.contact || "",
+  resolved: !!p.resolved,
   authorName: p.authorName,
   createdAt: p.createdAt,
   expiresAt: p.expiresAt,
@@ -77,6 +78,27 @@ async function deleteBoardPost(req, res) {
   }
 }
 
+// PATCH /api/board/:id/resolve  (the author only)
+// "It's been found / returned": the post is labelled Resolved and now expires
+// in a couple of days instead of waiting out its full 14.
+async function resolveBoardPost(req, res) {
+  try {
+    const post = await BoardPost.findById(req.params.id);
+    if (!post || post.expiresAt <= new Date()) return res.status(404).json({ message: "Post not found" });
+    if (String(post.author) !== String(req.user._id)) return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    if (post.category === "notice") return res.status(400).json({ message: "Only lost and found posts can be marked as resolved" });
+    if (!post.resolved) {
+      post.resolved = true;
+      const soon = new Date(Date.now() + RESOLVED_DAYS_LEFT * DAY_MS);
+      if (soon < post.expiresAt) post.expiresAt = soon;
+      await post.save();
+    }
+    res.status(200).json({ message: "Marked as resolved. It will disappear in 2 days.", post: shape(post, req.user._id) });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to mark the post as resolved") });
+  }
+}
+
 // POST /api/board/:id/report  (requires login)
 // A student flags a post for the admins. Reporting twice does nothing; you
 // can't report your own post. Admins are told on the first report and when the
@@ -105,4 +127,4 @@ async function reportBoardPost(req, res) {
   }
 }
 
-module.exports = { getBoard, createBoardPost, deleteBoardPost, reportBoardPost };
+module.exports = { getBoard, createBoardPost, deleteBoardPost, reportBoardPost, resolveBoardPost };

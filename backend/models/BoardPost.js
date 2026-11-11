@@ -14,6 +14,8 @@ const boardPostSchema = new mongoose.Schema(
     // Optional: how to reach the poster (a phone number, an Instagram name, a room).
     contact: { type: String, default: "" },
     expiresAt: { type: Date, required: true },
+    // The author marked a lost/found post as sorted out; it then expires soon.
+    resolved: { type: Boolean, default: false },
     // Students who reported the post. Enough reports hide it until an admin looks.
     reports: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
