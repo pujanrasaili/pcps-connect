@@ -33,7 +33,16 @@ async function writeBackup(models, folder, EJSON, now = new Date()) {
   const counts = {};
   for (const Model of models) {
     const name = Model.collection.name;
-    const docs = await Model.find({}).lean();
+    // Fields hidden from ordinary queries (select: false) -- password hashes,
+    // club leader lists, event join links -- are part of the data too, so ask
+    // for them by name; a plain find() would silently leave them out.
+    const hidden = Object.entries(Model.schema?.paths || {})
+      .filter(([, p]) => p.options?.select === false)
+      .map(([key]) => `+${key}`)
+      .join(" ");
+    const query = Model.find({});
+    if (hidden) query.select(hidden);
+    const docs = await query.lean();
     fs.writeFileSync(path.join(folder, `${name}.json`), EJSON.stringify(docs, { relaxed: false }, 2));
     counts[name] = docs.length;
   }

@@ -57,6 +57,20 @@ describe("writeBackup", () => {
     fs.rmSync(folder, { recursive: true, force: true });
   });
 
+  it("also saves fields hidden from ordinary queries (password hashes, club leaders, join links)", async () => {
+    const folder = fs.mkdtempSync(path.join(os.tmpdir(), "pcps-backup-test-"));
+    const selects = [];
+    const model = {
+      collection: { name: "users" },
+      schema: { paths: { name: { options: {} }, password: { options: { select: false } }, joinLink: { options: { select: false } } } },
+      find: () => ({ select: (s) => selects.push(s), lean: async () => [{ name: "Sita", password: "hash" }] }),
+    };
+    await writeBackup([model], path.join(folder, "run"), EJSON);
+    expect(selects).toEqual(["+password +joinLink"]);
+    expect(fs.readFileSync(path.join(folder, "run", "users.json"), "utf8")).toContain("hash");
+    fs.rmSync(folder, { recursive: true, force: true });
+  });
+
   it("names today's backup folder by default, in sortable date-time order", () => {
     expect(backupFolderName()).toMatch(/^pcps-backup-\d{4}-\d{2}-\d{2}-\d{4}$/);
   });
