@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import MobileTabBar from "../components/MobileTabBar";
 import SkipLink from "../components/SkipLink";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
@@ -9,7 +10,7 @@ import SiteNoticeBanner from "../components/SiteNoticeBanner";
 
 export default function MainLayout() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
       <ScrollToTop />
       <SkipLink />
       <Navbar />
@@ -20,6 +21,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <MobileTabBar />
     </div>
   );
 }
