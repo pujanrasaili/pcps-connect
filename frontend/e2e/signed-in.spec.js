@@ -2,8 +2,8 @@ import { test, expect } from "@playwright/test";
 import { setUp, axeViolations } from "./helpers.js";
 
 // Pages that need an account: what a student sees, then what an admin sees.
-const STUDENT_PAGES = ["/profile", "/settings", "/events"];
-const ADMIN_PAGES = ["/admin", "/admin/clubs", "/admin/events", "/admin/users", "/admin/activity", "/admin/messages", "/admin/check-in"];
+const STUDENT_PAGES = ["/profile", "/settings", "/events", "/dashboard", "/board", "/record", "/tickets"];
+const ADMIN_PAGES = ["/admin", "/admin/clubs", "/admin/events", "/admin/users", "/admin/activity", "/admin/messages", "/admin/check-in", "/admin/my-clubs"];
 
 for (const lang of ["en", "ne"]) {
   for (const [role, paths] of [["student", STUDENT_PAGES], ["admin", ADMIN_PAGES]]) {
