@@ -17,6 +17,7 @@ import EventCalendar from "../components/EventCalendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { isPastEvent } from "../utils/formatDate";
 import { hasOpenSpots, isFreeEvent, isThisWeek, readEventFilters, withEventFilters } from "../utils/eventFilters";
+import CardSkeletons from "../components/CardSkeletons";
 
 const PAGE_SIZE = 9;
 
@@ -213,9 +214,7 @@ export default function Events() {
         )}
 
         {loading ? (
-          <div className="mt-16 flex justify-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
-          </div>
+          <CardSkeletons label="Loading events" />
         ) : error ? (
           <div className="mt-16 text-center text-rose-700 dark:text-rose-400">
             <p className="font-medium">Couldn't load events.</p>
