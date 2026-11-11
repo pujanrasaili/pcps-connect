@@ -1,5 +1,6 @@
 import { useLang } from "../context/LanguageContext";
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { FaTimes } from "react-icons/fa";
 
 const FOCUSABLE_SELECTOR =
@@ -80,9 +81,12 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
     lg: "max-w-2xl",
   };
 
-  return (
+  // Drawn straight into <body>: inside the top bar (whose blurred background makes a
+  // "fixed" box fit the bar instead of the screen) the search window was squashed
+  // into the bar's 64px and pushed off the top of the page.
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-end justify-center animate-fade-in sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -94,9 +98,11 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`relative w-full ${sizes[size]} card-surface max-h-[90vh] overflow-y-auto animate-slide-up outline-none`}
+        className={`relative w-full ${sizes[size]} card-surface max-h-[92dvh] overflow-y-auto overscroll-contain rounded-b-none rounded-t-3xl pb-[env(safe-area-inset-bottom)] outline-none max-sm:animate-sheet-up sm:max-h-[90vh] sm:rounded-2xl sm:pb-0 sm:animate-slide-up`}
       >
-        <div className="sticky top-0 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur px-6 py-4 rounded-t-2xl">
+        <div className="sticky top-0 z-10 border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-t-3xl sm:rounded-t-2xl">
+          <span aria-hidden="true" className="mx-auto mt-2 block h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700 sm:hidden" />
+          <div className="flex items-center justify-between px-6 py-3 sm:py-4">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
             {title}
           </h2>
@@ -107,9 +113,11 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
           >
             <FaTimes />
           </button>
+          </div>
         </div>
         <div className="px-6 py-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
