@@ -148,3 +148,29 @@ test("an admin sees the report count and no Report button", async ({ page }) => 
   await expect(page.getByText("Reported 3 times")).toBeVisible();
   await expect(page.getByRole("button", { name: /^Report the post/ })).toHaveCount(0);
 });
+
+test("the author can mark a lost post as resolved; notices and other people's posts have no such button", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.route("**/api/board", (route) => reply(route, { posts: [post("p1", "lost", "Black umbrella", true), post("p4", "notice", "My notice", true), post("p2", "found", "Blue keyring")] }));
+  let patched = 0;
+  await page.route("**/api/board/p1/resolve", (route) => {
+    patched += 1;
+    return reply(route, { message: "Marked as resolved. It will disappear in 2 days." });
+  });
+  await page.goto("/board");
+  await expect(page.getByRole("button", { name: "Mark as resolved" })).toHaveCount(1);
+  await page.getByRole("button", { name: "Mark as resolved" }).click();
+  await expect(page.getByText("Marked as resolved. It will disappear in 2 days.").first()).toBeVisible();
+  await expect(page.getByText("Resolved", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Mark as resolved" })).toHaveCount(0);
+  expect(patched).toBe(1);
+});
+
+test("Nepali: Resolved and Mark as resolved are translated", async ({ page }) => {
+  await setUp(page, { lang: "ne", role: "student" });
+  await page.route("**/api/board", (route) => reply(route, { posts: [post("p1", "lost", "Black umbrella", true), { ...post("p2", "found", "Keys", true), resolved: true }] }));
+  await page.goto("/board");
+  await expect(page.getByRole("button", { name: "समाधान भयो भनी चिन्ह लगाउनुहोस्" })).toHaveCount(1);
+  await expect(page.getByText("समाधान भयो", { exact: true })).toBeVisible();
+  expect(await axeViolations(page)).toEqual([]);
+});
