@@ -195,7 +195,8 @@ test("logging out removes this device's alerts, so a shared phone doesn't show t
   await page.getByRole("button", { name: "Asha" }).click();
   await page.getByRole("button", { name: "Log out" }).click();
   await expect.poll(() => removed).toBe(ENDPOINT);
-  expect(await page.evaluate(() => window.__push.unsubscribed)).toBe(1);
+  // The browser-side unsubscribe finishes a moment after the server was told.
+  await expect.poll(() => page.evaluate(() => window.__push.unsubscribed)).toBe(1);
 });
 
 test("logging out works normally on a device with no alerts", async ({ page }) => {
