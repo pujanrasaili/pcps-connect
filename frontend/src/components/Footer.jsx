@@ -25,7 +25,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
-      <div className="container-page grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="container-page grid grid-cols-1 gap-6 py-8 sm:grid-cols-2 sm:gap-10 sm:py-14 lg:grid-cols-4">
         <div>
           <img src={logo} alt="PCPS College" className="h-10 w-auto" />
           <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
@@ -47,7 +47,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div>
+        <div className="hidden sm:block">
           <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
             {t("Quick Links")}
           </h2>
@@ -68,7 +68,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
+        <div className="hidden sm:block">
           <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
             {t("Account")}
           </h2>
@@ -91,6 +91,23 @@ export default function Footer() {
             ))}
           </ul>
         </div>
+
+        {/* On a phone the tab bar already reaches the main pages, so the footer is
+            cut down to the few links people actually look for down here. */}
+        <ul className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-600 dark:text-slate-300 sm:hidden">
+          {[
+            ["Help & FAQ", "/help"],
+            ["Contact", "/contact"],
+            ["Terms of Use", "/terms"],
+            ["Privacy Policy", "/privacy"],
+          ].map(([label, to]) => (
+            <li key={to}>
+              <Link to={to} className="inline-flex min-h-10 items-center">
+                {t(label)}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
         <div>
           <h2 className="font-display font-semibold text-slate-800 dark:text-slate-100">
