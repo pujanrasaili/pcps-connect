@@ -1,9 +1,11 @@
 jest.mock("../../models/BoardPost");
 jest.mock("../../utils/audit");
+jest.mock("../../utils/inApp");
 
 const BoardPost = require("../../models/BoardPost");
 const { recordAudit } = require("../../utils/audit");
-const { getBoard, createBoardPost, deleteBoardPost } = require("../boardController");
+const { notifyAdmins } = require("../../utils/inApp");
+const { getBoard, createBoardPost, deleteBoardPost, reportBoardPost } = require("../boardController");
 
 const mockRes = () => {
   const res = {};
@@ -106,5 +108,64 @@ describe("deleteBoardPost", () => {
     res = mockRes();
     await deleteBoardPost({ user: student, params: { id: "p1" } }, res);
     expect(res.status).toHaveBeenCalledWith(404);
+  });
+});
+
+describe("reporting", () => {
+  const find = (rows) => ({ sort: () => ({ limit: () => ({ lean: async () => rows }) }) });
+  const future = new Date(Date.now() + 86400000);
+  const live = (author) => ({ _id: "p1", author, title: "Keys", expiresAt: future });
+  it("hides heavily reported posts from students but not from admins, who also see the count", async () => {
+    BoardPost.find.mockReturnValue(find([{ _id: "p1", author: "u2", authorName: "Ram", category: "found", title: "t", body: "b", reports: ["a", "b"] }]));
+    await getBoard({ user: student, query: {} }, mockRes());
+    expect(BoardPost.find.mock.calls[0][0].$expr).toBeDefined();
+    const res = mockRes();
+    await getBoard({ user: admin, query: {} }, res);
+    expect(BoardPost.find.mock.calls[1][0].$expr).toBeUndefined();
+    expect(res.json.mock.calls[0][0].posts[0].reportCount).toBe(2);
+    const studentRes = mockRes();
+    await getBoard({ user: student, query: {} }, studentRes);
+    expect(studentRes.json.mock.calls[0][0].posts[0].reportCount).toBeUndefined();
+  });
+  it("records a first report and tells the admins", async () => {
+    BoardPost.findById.mockResolvedValue(live("u2"));
+    BoardPost.findOneAndUpdate.mockResolvedValue({ reports: ["u1"] });
+    const res = mockRes();
+    await reportBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(BoardPost.findOneAndUpdate.mock.calls[0][0].reports).toEqual({ $ne: "u1" });
+    expect(notifyAdmins).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+  it("stays quiet on a second report, and tells the admins again when the post gets hidden", async () => {
+    BoardPost.findById.mockResolvedValue(live("u2"));
+    BoardPost.findOneAndUpdate.mockResolvedValue({ reports: ["a", "u1"] });
+    await reportBoardPost({ user: student, params: { id: "p1" } }, mockRes());
+    expect(notifyAdmins).not.toHaveBeenCalled();
+    BoardPost.findOneAndUpdate.mockResolvedValue({ reports: ["a", "b", "u1"] });
+    await reportBoardPost({ user: student, params: { id: "p1" } }, mockRes());
+    expect(notifyAdmins).toHaveBeenCalledTimes(1);
+  });
+  it("does nothing when this student already reported it", async () => {
+    BoardPost.findById.mockResolvedValue(live("u2"));
+    BoardPost.findOneAndUpdate.mockResolvedValue(null);
+    const res = mockRes();
+    await reportBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(notifyAdmins).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+  it("refuses your own post and answers 404 for a missing or expired one", async () => {
+    BoardPost.findById.mockResolvedValue(live("u1"));
+    let res = mockRes();
+    await reportBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    BoardPost.findById.mockResolvedValue({ ...live("u2"), expiresAt: new Date(Date.now() - 1000) });
+    res = mockRes();
+    await reportBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    BoardPost.findById.mockResolvedValue(null);
+    res = mockRes();
+    await reportBoardPost({ user: student, params: { id: "p1" } }, res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(BoardPost.findOneAndUpdate).not.toHaveBeenCalled();
   });
 });
