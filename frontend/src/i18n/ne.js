@@ -1378,4 +1378,10 @@ export const ne = {
   "Thanks, an admin will take a look.": "धन्यवाद, एडमिनले हेर्नेछन्।",
   "You can't report your own post": "तपाईं आफ्नै पोस्ट रिपोर्ट गर्न सक्नुहुन्न",
   "Failed to report the post": "पोस्ट रिपोर्ट गर्न सकिएन",
+  "Resolved": "समाधान भयो",
+  "Mark as resolved": "समाधान भयो भनी चिन्ह लगाउनुहोस्",
+  "Marked as resolved. It will disappear in 2 days.": "समाधान भयो भनी चिन्ह लगाइयो। यो २ दिनमा हट्नेछ।",
+  "Couldn't mark the post as resolved": "पोस्टलाई समाधान भयो भनी चिन्ह लगाउन सकिएन",
+  "Failed to mark the post as resolved": "पोस्टलाई समाधान भयो भनी चिन्ह लगाउन सकिएन",
+  "Only lost and found posts can be marked as resolved": "हराएको र भेटिएको पोस्टलाई मात्र समाधान भयो भनी चिन्ह लगाउन सकिन्छ",
 };

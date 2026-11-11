@@ -85,6 +85,16 @@ export default function Board() {
     }
   };
 
+  const handleResolve = async (post) => {
+    try {
+      const res = await api.patch(`/board/${post._id}/resolve`);
+      setPosts((prev) => prev.map((p) => (p._id === post._id ? { ...p, resolved: true } : p)));
+      toast.success(t(res.data?.message || "Marked as resolved. It will disappear in 2 days."));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't mark the post as resolved")));
+    }
+  };
+
   const handleReport = async (post) => {
     try {
       const res = await api.post(`/board/${post._id}/report`);
@@ -163,6 +173,9 @@ export default function Board() {
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${TAG[p.category] || TAG.notice}`}>
                     {t(CATEGORIES.find((c) => c.id === p.category)?.label || "Notice")}
                   </span>
+                  {p.resolved && (
+                    <span className="ml-2 rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-800 dark:bg-slate-700 dark:text-slate-100">{t("Resolved")}</span>
+                  )}
                   <p className="mt-2 break-words font-semibold text-slate-800 dark:text-slate-100">{p.title}</p>
                   <p className="mt-1 whitespace-pre-line break-words text-sm text-slate-700 dark:text-slate-200">{p.body}</p>
                   {p.contact && (
@@ -171,6 +184,15 @@ export default function Board() {
                   <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">
                     {t("Posted by {name}", { name: p.authorName })} · {formatDate(p.createdAt)}
                   </p>
+                  {p.mine && !p.resolved && p.category !== "notice" && (
+                    <button
+                      type="button"
+                      onClick={() => handleResolve(p)}
+                      className="mt-2 mr-3 text-xs font-semibold text-primary-700 hover:underline dark:text-primary-300"
+                    >
+                      {t("Mark as resolved")}
+                    </button>
+                  )}
                   {user?.role === "admin" && p.reportCount > 0 && (
                     <p className="mt-1 text-xs font-semibold text-rose-700 dark:text-rose-300">{t("Reported {n} times", { n: p.reportCount })}</p>
                   )}
