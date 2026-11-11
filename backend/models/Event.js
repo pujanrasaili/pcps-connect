@@ -9,6 +9,10 @@ const eventSchema = new mongoose.Schema(
     endDate: { type: Date, default: null },
     location: { type: String, required: true },
     image: { type: String, default: null },
+    // Online meeting link (Zoom, Meet...). Hidden from every ordinary query; only
+    // controllers/eventJoinLinkController.js hands it out, to registered students
+    // and the event's organisers.
+    joinLink: { type: String, default: "", select: false, maxlength: 300 },
     // Photos from the event itself, added by its organisers (at most 8; see
     // controllers/eventPhotosController.js).
     photos: { type: [String], default: [] },

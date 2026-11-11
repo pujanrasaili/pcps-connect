@@ -151,6 +151,8 @@ const DESCRIPTIONS = {
   getBoard: "The live notice-board posts (lost, found, notices), newest first; optional ?category=lost|found|notice. Logged-in students only.",
   createBoardPost: "Post on the notice board (title up to 80, details up to 300, optional contact up to 60). Up to 3 posts per student; each disappears after 14 days.",
   resolveBoardPost: "Mark your own lost/found post as resolved; it then disappears in 2 days.",
+  getJoinLink: "An event's online meeting link, for its organisers and students with a confirmed registration.",
+  setJoinLink: "Set or remove an event's online meeting link (organisers only; https links only).",
   reportBoardPost: "Report a notice-board post to the admins (once per student, not your own). Three reports hide it from students until an admin removes it.",
   deleteBoardPost: "Remove a notice-board post (its author or an admin; an admin's removal is logged).",
   getClubIdeas: "Ideas members suggested to a club: the club's leaders and admins see all of them, anyone else sees only their own.",

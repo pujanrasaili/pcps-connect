@@ -9,6 +9,7 @@ const {
 const { addEventPhoto, removeEventPhoto } = require("../controllers/eventPhotosController");
 const { getCalendarFeed } = require("../controllers/calendarFeedController");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
+const { getJoinLink, setJoinLink } = require("../controllers/eventJoinLinkController");
 const { setHelperAttended, getMyCertificate, getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles } = require("../controllers/eventVolunteerController");
 const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
@@ -36,6 +37,8 @@ router.delete("/:id/questions/:questionId", protect, actionLimiter, deleteQuesti
 // Helper roles at an event: anyone can look, students sign up and cancel their own,
 // organisers set the roles (the controller checks the club).
 router.get("/volunteering/mine", protect, getMyVolunteering);
+router.get("/:id/join-link", protect, getJoinLink);
+router.put("/:id/join-link", protect, actionLimiter, setJoinLink);
 router.get("/:id/volunteers", optionalAuth, getVolunteers);
 router.post("/:id/volunteers", protect, actionLimiter, signUp);
 router.get("/:id/volunteers/certificate", protect, actionLimiter, getMyCertificate);
