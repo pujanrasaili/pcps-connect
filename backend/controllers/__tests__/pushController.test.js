@@ -13,7 +13,7 @@ const mockRes = () => {
   return res;
 };
 const user = { _id: "u1" };
-const sub = { endpoint: "https://fcm.example/abc", keys: { p256dh: "k", auth: "a" } };
+const sub = { endpoint: "https://fcm.googleapis.com/fcm/send/abc", keys: { p256dh: "k", auth: "a" } };
 afterEach(() => jest.resetAllMocks());
 
 describe("getKey", () => {
@@ -53,8 +53,10 @@ describe("subscribe", () => {
   it.each([
     [undefined],
     [{ endpoint: "http://insecure/x", keys: { p256dh: "k", auth: "a" } }],
-    [{ endpoint: "https://x/y", keys: { p256dh: "k" } }],
-    [{ endpoint: "https://x/" + "a".repeat(1000), keys: { p256dh: "k", auth: "a" } }],
+    [{ endpoint: "https://fcm.googleapis.com/y", keys: { p256dh: "k" } }],
+    [{ endpoint: "https://internal.service.local/hook", keys: { p256dh: "k", auth: "a" } }],
+    [{ endpoint: "https://169.254.169.254/latest", keys: { p256dh: "k", auth: "a" } }],
+    [{ endpoint: "https://fcm.googleapis.com/" + "a".repeat(1000), keys: { p256dh: "k", auth: "a" } }],
   ])("rejects a bad subscription %j", async (bad) => {
     const res = mockRes();
     await subscribe({ user, body: { subscription: bad } }, res);
