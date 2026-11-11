@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode, FaEnvelope } from "react-icons/fa";
 import Navbar from "../components/Navbar";
+import MobileTabBar from "../components/MobileTabBar";
 import SlowServerNotice from "../components/SlowServerNotice";
 import SkipLink from "../components/SkipLink";
 import Footer from "../components/Footer";
@@ -69,7 +70,7 @@ export default function AdminLayout() {
   const badges = { pending: pendingCount, messages: messageCount };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
       <ScrollToTop />
       <SkipLink />
       <Navbar />
@@ -115,6 +116,7 @@ export default function AdminLayout() {
         </div>
       </main>
       <Footer />
+      <MobileTabBar />
     </div>
   );
 }
