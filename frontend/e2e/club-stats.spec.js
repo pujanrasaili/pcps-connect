@@ -66,7 +66,7 @@ test("Nepali: the Stats window is translated and accessible", async ({ page }) =
   await leader(page, "ne");
   await page.getByRole("button", { name: "तथ्यांक" }).click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText("पछिल्ला ३० दिनमा सामेल भएका")).toBeVisible();
+  await expect(dialog.getByText("पछिल्ला 30 दिनमा सामेल भएका")).toBeVisible();
   await expect(dialog.getByText("दर्ता भएका 30 मध्ये 20 विद्यार्थी आए")).toBeVisible();
   await page.waitForTimeout(500);
   expect(await axeViolations(page)).toEqual([]);

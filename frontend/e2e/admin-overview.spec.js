@@ -29,7 +29,7 @@ for (const lang of ["en", "ne"]) {
     await expect(page.getByRole("heading", { level: 1, name: en ? "Admin Overview" : "एडमिन सारांश" })).toBeVisible();
     // Counters animate up to their value.
     await expect(page.getByText("Total Clubs").or(page.getByText("कुल क्लब")).first()).toBeVisible();
-    const week7 = page.getByRole("region", { name: en ? "Last 7 days" : "पछिल्ला ७ दिन" });
+    const week7 = page.getByRole("region", { name: en ? "Last 7 days" : "पछिल्ला 7 दिन" });
     await expect(week7).toContainText("5");
     await expect(week7).toContainText("9");
     await expect(page.getByRole("heading", { name: en ? "Insights" : "अन्तर्दृष्टि" })).toBeVisible();
