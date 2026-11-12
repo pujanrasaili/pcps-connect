@@ -81,7 +81,7 @@ export default function AdminActivity() {
               type="button"
               onClick={() => setGroup(value)}
               aria-pressed={group === value}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full px-3 py-3 text-xs font-semibold transition-colors sm:py-1.5 ${
                 group === value
                   ? "bg-primary-500 text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
