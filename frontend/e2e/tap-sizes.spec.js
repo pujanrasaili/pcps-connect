@@ -32,3 +32,17 @@ test("admin user status filters are easy to tap", async ({ page }) => {
   await tall(page.getByRole("button", { name: /^pending/ }));
   expect(problems).toEqual([]);
 });
+
+test("Board and admin activity filters are easy to tap", async ({ page }) => {
+  let problems = await setUp(page, { role: "student" });
+  await page.goto("/board");
+  await tall(page.getByRole("button", { name: "Lost", exact: true }));
+  expect(problems).toEqual([]);
+});
+
+test("admin activity filters are easy to tap", async ({ page }) => {
+  const problems = await setUp(page, { role: "admin" });
+  await page.goto("/admin/activity");
+  await tall(page.getByRole("button", { name: "People", exact: true }));
+  expect(problems).toEqual([]);
+});
