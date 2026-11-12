@@ -150,7 +150,7 @@ export default function AdminOverview() {
         <div className="card-surface p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold text-slate-800 dark:text-slate-100">{t("Coming Up")}</h2>
-            <Link to="/admin/events" className="text-xs font-semibold text-primary-600 dark:text-primary-300">
+            <Link to="/admin/events" className="hit-v text-xs font-semibold text-primary-600 dark:text-primary-300">
               {t("View all")}
             </Link>
           </div>
