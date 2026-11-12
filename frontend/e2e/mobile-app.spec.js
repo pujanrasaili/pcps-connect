@@ -241,3 +241,14 @@ test.describe("pull to refresh", () => {
     expect(calls.events).toBe(before);
   });
 });
+
+test("the phone's status bar colour follows light and dark mode", async ({ page }) => {
+  const color = () => page.evaluate(() => document.querySelector('meta[name="theme-color"]').content);
+  await setUp(page, { lang: "en" });
+  await page.addInitScript(() => { if (!localStorage.getItem("pcps_theme")) localStorage.setItem("pcps_theme", "dark"); });
+  await page.goto("/");
+  await expect.poll(color).toBe("#020617");
+  await page.evaluate(() => localStorage.setItem("pcps_theme", "light"));
+  await page.reload();
+  await expect.poll(color).toBe("#4F46E5");
+});
