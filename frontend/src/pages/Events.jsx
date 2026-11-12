@@ -122,14 +122,14 @@ export default function Events() {
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
             {t("Events")}
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-slate-500 dark:text-slate-400">
+          <p className="mx-auto mt-3 hidden max-w-xl text-slate-500 dark:text-slate-400 sm:block">
             {t("Workshops, contests, and seminars hosted by PCPS clubs — register in a couple of clicks.")}
           </p>
         </div>
 
         <CalendarSubscribe clubId={clubFilter || ""} clubName={clubFilterName || ""} />
 
-        <div className="mx-auto mt-8 flex max-w-4xl flex-wrap items-center justify-center gap-3">
+        <div className="mx-auto mt-5 flex max-w-4xl flex-wrap items-center justify-center gap-3 sm:mt-8">
           {view === "list" && (
           <div className="inline-flex max-w-full overflow-x-auto rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
             {[
@@ -174,7 +174,7 @@ export default function Events() {
           </div>
         </div>
 
-        <div className="mx-auto mt-5 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto mt-4 flex max-w-4xl flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
             <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, place or club...")} />
           </div>
@@ -227,7 +227,7 @@ export default function Events() {
         ) : filteredEvents.length > 0 ? (
           <>
             <h2 className="sr-only">{t("Event list")}</h2>
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {pagedEvents.map((event, i) => (
                 <Reveal key={event._id} delay={(i % 6) * 80}>
                   <EventCard event={event} />
