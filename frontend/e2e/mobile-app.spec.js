@@ -61,6 +61,7 @@ test("a pop-up is a bottom sheet on a phone and a centred window on a computer",
     const box = await sheet.boundingBox();
     return Math.round(box.y + box.height);
   }, "sits on the bottom edge").toBe(844);
+  await page.waitForTimeout(700); // let the fade-in finish so colours are read at full strength
   expect(await axeViolations(page)).toEqual([]);
   await page.setViewportSize({ width: 1280, height: 900 });
   await expect.poll(async () => {
@@ -152,4 +153,40 @@ test("the admin menu opens scrolled to the current page", async ({ page }) => {
   await expect(menu.getByRole("link", { name: "Activity" })).toBeInViewport();
   const rows = await menu.getByRole("link").evaluateAll((els) => new Set(els.map((e) => Math.round(e.getBoundingClientRect().top))).size);
   expect(rows).toBe(1);
+});
+
+// Swiping the top of a bottom sheet down closes it, like in a phone app.
+test.describe("swipe a sheet down", () => {
+  test.use({ hasTouch: true });
+  const swipe = async (page, from, to) => {
+    const cdp = await page.context().newCDPSession(page);
+    const point = (y) => [{ x: 195, y, id: 1 }];
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: point(from) });
+    for (let y = from; y <= to; y += 20) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: point(y) });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  };
+  const open = async (page) => {
+    await setUp(page, { lang: "en" });
+    await page.goto("/clubs");
+    await page.getByRole("button", { name: "View" }).first().click();
+    const sheet = page.getByRole("dialog").locator("[tabindex='-1']");
+    await expect(sheet).toBeVisible();
+    await expect.poll(async () => Math.round((await sheet.boundingBox()).y + (await sheet.boundingBox()).height)).toBe(844);
+    return sheet;
+  };
+
+  test("a long swipe down on the handle closes it", async ({ page }) => {
+    const sheet = await open(page);
+    const top = Math.round((await sheet.boundingBox()).y);
+    await swipe(page, top + 14, top + 300);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
+  test("a short swipe snaps back and the sheet stays open", async ({ page }) => {
+    const sheet = await open(page);
+    const top = Math.round((await sheet.boundingBox()).y);
+    await swipe(page, top + 14, top + 60);
+    await expect(page.getByRole("dialog")).toHaveCount(1);
+    await expect.poll(async () => Math.round((await sheet.boundingBox()).y)).toBe(top);
+  });
 });
