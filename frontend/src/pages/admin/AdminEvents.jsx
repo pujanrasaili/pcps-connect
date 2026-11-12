@@ -253,7 +253,7 @@ export default function AdminEvents() {
               key={value}
               onClick={() => setTab(value)}
               aria-pressed={tab === value}
-              className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+              className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors sm:py-1.5 ${
                 tab === value
                   ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
                   : "text-slate-600 dark:text-slate-400"
