@@ -143,7 +143,7 @@ export default function Profile() {
                       <FaHeart className="shrink-0 text-xs text-rose-500" title={t("Favorite club")} />
                     )}
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{m.club?.category}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t(m.club?.category)}</p>
                 </div>
                 <button
                   onClick={() => handleLeaveClub(m.club._id)}
