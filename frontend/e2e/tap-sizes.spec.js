@@ -46,3 +46,16 @@ test("admin activity filters are easy to tap", async ({ page }) => {
   await tall(page.getByRole("button", { name: "People", exact: true }));
   expect(problems).toEqual([]);
 });
+
+test("Events checkboxes, Clubs sort and admin tabs are easy to tap", async ({ page }) => {
+  let problems = await setUp(page, { role: "admin" });
+  await page.goto("/events");
+  await tall(page.getByText("Free events only"));
+  await page.goto("/clubs");
+  await tall(page.getByLabel("Sort by"));
+  await page.goto("/admin/events");
+  await tall(page.getByRole("button", { name: /^Upcoming/ }));
+  await page.goto("/admin/users");
+  await tall(page.getByRole("button", { name: /^Export CSV/ }));
+  expect(problems).toEqual([]);
+});
