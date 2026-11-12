@@ -39,12 +39,12 @@ export default function InsightsCard({ insights }) {
                       className="w-full rounded-t-md bg-primary-500 dark:bg-primary-400"
                       style={{ height: `${Math.max(m.count ? 4 : 0, (m.count / maxMonth) * 100)}%` }}
                     />
-                    <span className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{m.label}</span>
+                    <span className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{t(m.label)}</span>
                   </li>
                 ))}
               </ol>
               <p className="sr-only">
-                {registrationsByMonth.map((m) => `${m.label}: ${t(m.count === 1 ? "{n} registration" : "{n} registrations", { n: m.count })}`).join(". ")}
+                {registrationsByMonth.map((m) => `${t(m.label)}: ${t(m.count === 1 ? "{n} registration" : "{n} registrations", { n: m.count })}`).join(". ")}
               </p>
             </>
           )}

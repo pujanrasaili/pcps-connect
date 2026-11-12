@@ -23,11 +23,11 @@ export function MonthBars({ data }) {
               className="w-full max-w-[4.5rem] self-center rounded-t-md bg-primary-500 dark:bg-primary-400"
               style={{ height: `${Math.max(4, (d.count / max) * 80)}%` }}
             />
-            <span className="mt-1.5 truncate text-xs text-slate-500 dark:text-slate-400">{d.month}</span>
+            <span className="mt-1.5 truncate text-xs text-slate-500 dark:text-slate-400">{t(d.month)}</span>
           </li>
         ))}
       </ol>
-      <p className="sr-only">{data.map((d) => `${d.month}: ${eventCount(t, d.count)}`).join(". ")}</p>
+      <p className="sr-only">{data.map((d) => `${t(d.month)}: ${eventCount(t, d.count)}`).join(". ")}</p>
     </>
   );
 }
@@ -41,7 +41,7 @@ export function CategoryBars({ data }) {
       {data.map((d, i) => (
         <li key={d.name}>
           <div className="flex items-baseline justify-between gap-3 text-sm">
-            <span className="min-w-0 truncate text-slate-700 dark:text-slate-200">{d.name}</span>
+            <span className="min-w-0 truncate text-slate-700 dark:text-slate-200">{t(d.name)}</span>
             <span className="shrink-0 text-xs text-slate-500 dark:text-slate-400">{eventCount(t, d.value)}</span>
           </div>
           <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800" aria-hidden="true">
