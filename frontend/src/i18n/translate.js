@@ -9,7 +9,9 @@ export function translate(dictionary, lang, text) {
 
 // Fills {name}-style placeholders: format("{n} spots left", { n: 3 }).
 export function format(template, values = {}) {
-  return String(template).replace(/\{(\w+)\}/g, (match, key) => (key in values ? String(values[key]) : match));
+  // A missing value (an event with no category, say) stays missing rather than turning into the word "undefined".
+  if (typeof template !== "string") return template;
+  return template.replace(/\{(\w+)\}/g, (match, key) => (key in values ? String(values[key]) : match));
 }
 
 export const SUPPORTED_LANGS = ["en", "ne"];
