@@ -138,12 +138,12 @@ export default function Clubs() {
           <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
             {t("Explore PCPS Clubs")}
           </h1>
-          <p className="mx-auto mt-3 max-w-xl text-slate-500 dark:text-slate-400">
+          <p className="mx-auto mt-3 hidden max-w-xl text-slate-500 dark:text-slate-400 sm:block">
             {t("Find your community — from coding sprints to sports leagues and creative pursuits.")}
           </p>
         </div>
 
-        <div className="mx-auto mt-8 flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto mt-5 flex max-w-4xl flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
             <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, topic or category...")} />
           </div>
@@ -165,7 +165,7 @@ export default function Clubs() {
             <span />
           )}
           <label className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-            {t("Sort by")}
+            <span className="sr-only sm:not-sr-only">{t("Sort by")}</span>
             <select
               value={sort}
               onChange={(e) => setFilter("sort", e.target.value, "default")}
@@ -190,7 +190,7 @@ export default function Clubs() {
         ) : filteredClubs.length > 0 ? (
           <>
             <h2 className="sr-only">{t("Club list")}</h2>
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:mt-10 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {pagedClubs.map((club, i) => (
                 <Reveal key={club._id} delay={(i % 6) * 80}>
                   <ClubCard club={club} onView={setSelectedClub} />
