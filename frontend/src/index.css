@@ -51,7 +51,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-y {
-  @apply py-14 md:py-20;
+  @apply py-8 sm:py-14 md:py-20;
 }
 
 .card-surface {
