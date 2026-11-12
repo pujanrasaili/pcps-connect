@@ -49,7 +49,7 @@ export default function EventCard({ event }) {
         </div>
         {event.category && (
           <span className="badge absolute right-3 top-3 bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200">
-            {event.category}
+            {t(event.category)}
           </span>
         )}
         {isPast && (
@@ -100,7 +100,7 @@ export default function EventCard({ event }) {
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-3">
             <span className="text-sm font-semibold text-primary-600 dark:text-primary-300">
-              {event.price || t("Free")}
+              {t(event.price || "Free")}
             </span>
             {registered && (
               isPending(event._id) ? (
