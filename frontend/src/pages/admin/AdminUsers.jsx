@@ -208,7 +208,7 @@ export default function AdminUsers() {
             type="button"
             onClick={() => setStatusFilter(status)}
             aria-pressed={statusFilter === status}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
+            className={`rounded-full px-3 py-3 text-xs font-semibold capitalize transition-colors sm:py-1.5 ${
               statusFilter === status
                 ? "bg-primary-500 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -271,7 +271,7 @@ export default function AdminUsers() {
                     <button
                       onClick={() => setVerifyTarget(u)}
                       aria-label={t("Mark {name}'s email as verified", { name: u.name })}
-                      className="rounded-full px-2 py-0.5 text-xs font-semibold text-primary-600 underline underline-offset-2 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/30"
+                      className="hit-v rounded-full px-2 py-0.5 text-xs font-semibold text-primary-600 underline underline-offset-2 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-primary-900/30"
                     >
                       {t("Mark verified")}
                     </button>
