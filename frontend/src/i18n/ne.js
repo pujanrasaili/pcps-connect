@@ -1416,4 +1416,5 @@ export const ne = {
   "Quick menu": "छिटो मेनु",
   "Loading events": "कार्यक्रमहरू लोड हुँदैछ",
   "Loading clubs": "क्लबहरू लोड हुँदैछ",
+  "Refreshing...": "रिफ्रेस हुँदैछ...",
 };
