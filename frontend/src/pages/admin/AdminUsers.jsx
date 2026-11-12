@@ -230,7 +230,7 @@ export default function AdminUsers() {
           type="button"
           onClick={exportCsv}
           disabled={filteredUsers.length === 0}
-          className={`${statusFilter === "pending" && filteredUsers.length > 0 ? "" : "ml-auto "}flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50`}
+          className={`${statusFilter === "pending" && filteredUsers.length > 0 ? "" : "ml-auto "}flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-3 text-xs sm:py-1.5 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50`}
         >
           <FaFileCsv /> {t("Export CSV")} ({filteredUsers.length})
         </button>
