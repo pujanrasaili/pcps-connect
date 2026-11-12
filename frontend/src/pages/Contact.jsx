@@ -125,7 +125,7 @@ export default function Contact() {
                     aria-invalid={errors.email ? "true" : undefined}
                     aria-describedby={errors.email ? "c-email-error" : undefined}
                     name="email"
-                    type="email"
+                    type="email" autoComplete="email" autoCapitalize="none" spellCheck={false}
                     className="input-field"
                     value={form.email}
                     onChange={handleChange}
