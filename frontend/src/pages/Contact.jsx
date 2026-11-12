@@ -112,6 +112,7 @@ export default function Contact() {
                     aria-invalid={errors.name ? "true" : undefined}
                     aria-describedby={errors.name ? "c-name-error" : undefined}
                     name="name"
+                    autoComplete="name"
                     className="input-field"
                     value={form.name}
                     onChange={handleChange}
