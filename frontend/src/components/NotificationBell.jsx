@@ -57,7 +57,7 @@ export default function NotificationBell({ className = "" }) {
         aria-label={unread > 0 ? t("Notifications, {n} unread", { n: unread }) : t("Notifications")}
         aria-expanded={open}
         aria-haspopup="true"
-        className="relative rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+        className="relative rounded-full p-2 text-slate-500 max-md:flex max-md:h-11 max-md:w-10 max-md:items-center max-md:justify-center max-md:p-0 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
       >
         <FaBell />
         {unread > 0 && (
