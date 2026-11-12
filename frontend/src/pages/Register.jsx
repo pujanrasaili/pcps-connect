@@ -114,7 +114,7 @@ export default function Register() {
                 id="reg-email" aria-invalid={errors.email ? "true" : undefined} aria-describedby={errors.email ? "reg-email-error" : undefined}
                 name="email"
                 autoComplete="email"
-                type="email"
+                type="email" autoCapitalize="none" spellCheck={false}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
                 placeholder="you@patancollege.edu.np"
@@ -136,6 +136,9 @@ export default function Register() {
               <input
                 id="reg-id" aria-invalid={errors.studentId ? "true" : undefined} aria-describedby={errors.studentId ? "reg-id-error" : undefined}
                 name="studentId"
+                autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
                 maxLength={30}
                 className="input-field"
                 style={{ paddingLeft: "2.75rem" }}
