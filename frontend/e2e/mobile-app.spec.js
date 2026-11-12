@@ -190,3 +190,54 @@ test.describe("swipe a sheet down", () => {
     await expect.poll(async () => Math.round((await sheet.boundingBox()).y)).toBe(top);
   });
 });
+
+// Pulling the page down from the top reloads events, clubs and registrations.
+test.describe("pull to refresh", () => {
+  test.use({ hasTouch: true });
+  const drag = async (page, from, to, x = 195) => {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x, y: from, id: 1 }] });
+    for (let y = from; y <= to; y += 20) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y, id: 1 }] });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  };
+  const watch = async (page) => {
+    const calls = { events: 0, clubs: 0 };
+    await page.route("**/api/events", (route) => { calls.events += 1; return route.fallback(); });
+    await page.route("**/api/clubs", (route) => { calls.clubs += 1; return route.fallback(); });
+    return calls;
+  };
+
+  test("a long pull from the top reloads the lists", async ({ page }) => {
+    await setUp(page, { lang: "en", role: "student" });
+    const calls = await watch(page);
+    await page.goto("/events");
+    await expect(page.getByRole("heading", { name: "Robot Demo" }).first()).toBeVisible();
+    const before = { ...calls };
+    await drag(page, 200, 520);
+    await expect.poll(() => calls.events).toBeGreaterThan(before.events);
+    await expect.poll(() => calls.clubs).toBeGreaterThan(before.clubs);
+    await expect(page.getByRole("heading", { name: "Robot Demo" }).first()).toBeVisible();
+  });
+
+  test("a short pull, a pull while scrolled down, a sideways swipe and a pull with a pop-up open do nothing", async ({ page }) => {
+    await setUp(page, { lang: "en", role: "student" });
+    const calls = await watch(page);
+    await page.goto("/events");
+    await expect(page.getByRole("heading", { name: "Robot Demo" }).first()).toBeVisible();
+    const before = calls.events;
+    await drag(page, 200, 260); // too short
+    await page.evaluate(() => window.scrollTo(0, 400));
+    await drag(page, 200, 520); // not at the top
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: 340, y: 300, id: 1 }] });
+    // leftwards, because a rightwards swipe is the browser's own "go back" gesture
+    for (let i = 1; i <= 16; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: 340 - i * 18, y: 300 + i * 8, id: 1 }] });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] }); // mostly sideways
+    await page.getByRole("button", { name: "Search clubs and events" }).first().click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await drag(page, 120, 440); // a pop-up is open
+    await page.waitForTimeout(1000);
+    expect(calls.events).toBe(before);
+  });
+});
