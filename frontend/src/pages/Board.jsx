@@ -149,7 +149,7 @@ export default function Board() {
             type="button"
             aria-pressed={filter === c.id}
             onClick={() => setFilter(c.id)}
-            className={`rounded-full border px-4 py-1.5 text-sm font-medium ${
+            className={`rounded-full border px-4 py-2.5 text-sm font-medium sm:py-1.5 ${
               filter === c.id
                 ? "border-primary-600 bg-primary-600 text-white"
                 : "border-slate-300 text-slate-700 dark:border-slate-600 dark:text-slate-200"
