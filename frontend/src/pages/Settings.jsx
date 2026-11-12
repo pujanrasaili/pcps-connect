@@ -355,7 +355,7 @@ function ToggleSwitch({ checked, onChange, label, disabled }) {
       aria-label={label}
       onClick={onChange}
       disabled={disabled}
-      className={`relative h-7 w-[52px] shrink-0 rounded-full border transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
+      className={`hit-v relative h-7 w-[52px] shrink-0 rounded-full border transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
         checked
           ? "border-primary-500 bg-primary-500"
           : "border-slate-300 bg-slate-200 dark:border-slate-600 dark:bg-slate-700"
