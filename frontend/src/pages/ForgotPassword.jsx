@@ -66,7 +66,7 @@ export default function ForgotPassword() {
                     id="fp-email"
                     aria-invalid={error ? "true" : undefined}
                     aria-describedby={error ? "fp-email-error" : undefined}
-                    type="email"
+                    type="email" autoComplete="email" autoCapitalize="none" spellCheck={false}
                     className="input-field" style={{ paddingLeft: "2.75rem" }}
                     placeholder="you@patancollege.edu.np"
                     value={email}
