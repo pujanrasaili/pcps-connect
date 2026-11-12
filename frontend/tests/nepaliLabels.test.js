@@ -27,3 +27,10 @@ test("recent server messages have a Nepali translation", async () => {
     assert.notEqual(translate(ne, "ne", message), message, `${message} has no Nepali entry`);
   }
 });
+
+test("Nepali text uses the same Latin digits as the rest of the site", async () => {
+  const { ne } = await import("../src/i18n/ne.js");
+  const legal = await import("../src/i18n/legalNe.js");
+  const text = JSON.stringify(ne) + JSON.stringify(legal);
+  assert.equal(/[०-९]/.test(text), false, "found a Devanagari digit; use 0-9 so numbers match the rest of the site");
+});
