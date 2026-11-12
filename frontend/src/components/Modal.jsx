@@ -9,6 +9,7 @@ const FOCUSABLE_SELECTOR =
 export default function Modal({ isOpen, onClose, title, children, size = "md" }) {
   const { t } = useLang();
   const dialogRef = useRef(null);
+  const drag = useRef(null);
 
   // Callers usually pass an inline arrow function for onClose, which is a
   // brand-new function on every render. If the effect below depended on it
@@ -73,6 +74,34 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
     };
   }, [isOpen]);
 
+
+  // Swipe the top of the sheet down to close it, the way a phone app's sheet works.
+  // It only follows the finger on a phone, and snaps back if the swipe was short.
+  // (The panel is moved with the separate "translate" property because its slide-in
+  // animation already owns "transform".)
+  const isPhone = () => window.matchMedia("(max-width: 639px)").matches;
+  const dragStart = (e) => {
+    if (!isPhone()) return;
+    drag.current = { from: e.touches[0].clientY, dy: 0 };
+    if (dialogRef.current) dialogRef.current.style.transition = "none";
+  };
+  const dragMove = (e) => {
+    if (!drag.current || !dialogRef.current) return;
+    drag.current.dy = Math.max(0, e.touches[0].clientY - drag.current.from);
+    dialogRef.current.style.translate = `0 ${drag.current.dy}px`;
+  };
+  const dragEnd = () => {
+    const d = drag.current;
+    drag.current = null;
+    if (!d || !dialogRef.current) return;
+    if (d.dy > 110) {
+      onCloseRef.current();
+      return;
+    }
+    dialogRef.current.style.transition = "translate 0.2s ease-out";
+    dialogRef.current.style.translate = "0 0";
+  };
+
   if (!isOpen) return null;
 
   const sizes = {
@@ -100,7 +129,7 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
         tabIndex={-1}
         className={`relative w-full ${sizes[size]} card-surface max-h-[92dvh] overflow-y-auto overscroll-contain rounded-b-none rounded-t-3xl pb-[env(safe-area-inset-bottom)] outline-none max-sm:animate-sheet-up sm:max-h-[90vh] sm:rounded-2xl sm:pb-0 sm:animate-slide-up`}
       >
-        <div className="sticky top-0 z-10 border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-t-3xl sm:rounded-t-2xl">
+        <div onTouchStart={dragStart} onTouchMove={dragMove} onTouchEnd={dragEnd} onTouchCancel={dragEnd} className="sticky top-0 z-10 max-sm:touch-none border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-t-3xl sm:rounded-t-2xl">
           <span aria-hidden="true" className="mx-auto mt-2 block h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700 sm:hidden" />
           <div className="flex items-center justify-between px-6 py-3 sm:py-4">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
