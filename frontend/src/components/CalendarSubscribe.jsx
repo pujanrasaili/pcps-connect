@@ -28,7 +28,7 @@ export default function CalendarSubscribe({ clubId = "", clubName = "" }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
+        className="hit-v inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
       >
         <FaCalendarPlus aria-hidden="true" /> {open ? t("Hide calendar subscription") : clubName ? t("Subscribe to {name}", { name: clubName }) : t("Subscribe in your calendar")}
       </button>
