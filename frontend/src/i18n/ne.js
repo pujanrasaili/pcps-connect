@@ -1440,4 +1440,11 @@ export const ne = {
   "Environment": "वातावरण",
   "Volunteering": "स्वयंसेवा",
   "Hackathon": "ह्याकाथन",
+  "Idea sent to the club's leaders": "विचार क्लबका नेतृत्वकर्ताहरूलाई पठाइयो",
+  "Idea removed": "विचार हटाइयो",
+  "Post updated": "पोस्ट अद्यावधिक गरियो",
+  "That student isn't signed up to help at this event": "यो विद्यार्थीले यस कार्यक्रममा सहयोग गर्न साइन अप गरेका छैनन्",
+  "You didn't sign up to help at this event": "तपाईंले यस कार्यक्रममा सहयोग गर्न साइन अप गर्नुभएको छैन",
+  "Certificates are only available for events where you helped": "प्रमाणपत्र तपाईंले सहयोग गरेका कार्यक्रमका लागि मात्र उपलब्ध हुन्छ",
+  "title, description, date, and location are required": "शीर्षक, विवरण, मिति र स्थान आवश्यक छन्",
 };
