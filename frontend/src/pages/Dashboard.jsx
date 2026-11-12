@@ -337,6 +337,16 @@ export default function Dashboard() {
         </div>
       )}
 
+      {monthlyData.length === 0 && categoryData.length === 0 && (
+        <div className="card-surface p-6">
+          <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
+            {t("Your activity")}
+          </h2>
+          <EmptyChart />
+        </div>
+      )}
+
+      {(monthlyData.length > 0 || categoryData.length > 0) && (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card-surface p-6">
           <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
@@ -364,6 +374,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      )}
 
       <div className="card-surface p-6">
         <div className="flex items-center justify-between">
