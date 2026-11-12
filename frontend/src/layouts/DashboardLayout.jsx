@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import MobileTabBar from "../components/MobileTabBar";
+import PullToRefresh from "../components/PullToRefresh";
 import SkipLink from "../components/SkipLink";
 import Footer from "../components/Footer";
 import Sidebar from "../components/Sidebar";
@@ -24,6 +25,7 @@ export default function DashboardLayout() {
         </div>
       </main>
       <Footer />
+      <PullToRefresh />
       <MobileTabBar />
     </div>
   );
