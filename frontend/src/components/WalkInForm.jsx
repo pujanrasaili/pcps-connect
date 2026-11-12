@@ -59,6 +59,8 @@ export default function WalkInForm({ eventId, onAdded }) {
           placeholder={t("Their PCPS email or student ID")}
           className="input-field min-w-0 flex-1 basis-56"
           autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
         />
         <Button type="submit" disabled={saving || identifier.trim().length < 3}>
           {saving ? t("Adding...") : t("Add and check in")}
