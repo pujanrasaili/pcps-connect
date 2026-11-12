@@ -116,7 +116,7 @@ export default function Login() {
           <div>
             <div className="flex items-center justify-between">
               <label htmlFor="login-password" className="label-field">{t("Password")}</label>
-              <Link to="/forgot-password" className="text-xs font-medium text-primary-600 dark:text-primary-300">
+              <Link to="/forgot-password" className="hit-v text-xs font-medium text-primary-600 dark:text-primary-300">
                 {t("Forgot password?")}
               </Link>
             </div>
@@ -180,7 +180,7 @@ export default function Login() {
 
           <p className="text-center text-sm text-slate-500 dark:text-slate-400">
             {t("Don't have an account?")}{" "}
-            <Link to="/register" className="font-semibold text-primary-600 dark:text-primary-300">
+            <Link to="/register" className="hit-v font-semibold text-primary-600 dark:text-primary-300">
               {t("Sign up")}
             </Link>
           </p>
