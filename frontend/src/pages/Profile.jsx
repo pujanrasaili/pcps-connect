@@ -265,11 +265,11 @@ export default function Profile() {
         <form onSubmit={handleSave} className="space-y-4">
           <div>
             <label className="label-field" htmlFor="edit-name">{t("Full name")}</label>
-            <input data-autofocus id="edit-name" name="name" maxLength={80} className="input-field" value={form.name} onChange={handleChange} />
+            <input data-autofocus id="edit-name" name="name" autoComplete="name" maxLength={80} className="input-field" value={form.name} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-studentId">{t("Student ID")}</label>
-            <input id="edit-studentId" name="studentId" maxLength={30} className="input-field" value={form.studentId} onChange={handleChange} />
+            <input id="edit-studentId" name="studentId" maxLength={30} autoComplete="off" autoCapitalize="characters" spellCheck={false} className="input-field" value={form.studentId} onChange={handleChange} />
           </div>
           <div>
             <label className="label-field" htmlFor="edit-program">{t("Program")}</label>
@@ -281,7 +281,7 @@ export default function Profile() {
           </div>
           <div>
             <label className="label-field" htmlFor="edit-phone">{t("Phone number")}</label>
-            <input id="edit-phone" name="phone" maxLength={20} className="input-field" value={form.phone} onChange={handleChange} />
+            <input id="edit-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" maxLength={20} className="input-field" value={form.phone} onChange={handleChange} />
           </div>
           <Button type="submit" className="w-full" disabled={saving}>
             {saving ? t("Saving...") : t("Save changes")}
