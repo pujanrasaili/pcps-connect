@@ -1447,4 +1447,5 @@ export const ne = {
   "You didn't sign up to help at this event": "तपाईंले यस कार्यक्रममा सहयोग गर्न साइन अप गर्नुभएको छैन",
   "Certificates are only available for events where you helped": "प्रमाणपत्र तपाईंले सहयोग गरेका कार्यक्रमका लागि मात्र उपलब्ध हुन्छ",
   "title, description, date, and location are required": "शीर्षक, विवरण, मिति र स्थान आवश्यक छन्",
+  "Your activity": "तपाईंको गतिविधि",
 };
