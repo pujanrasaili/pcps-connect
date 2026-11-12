@@ -176,7 +176,7 @@ export default function Home() {
                 {t("Featured Clubs")}
               </h2>
             </div>
-            <Link to="/clubs" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
+            <Link to="/clubs" className="hit-v flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
               {t("View all clubs")} <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
@@ -202,7 +202,7 @@ export default function Home() {
                 {t("Upcoming Events")}
               </h2>
             </div>
-            <Link to="/events" className="flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
+            <Link to="/events" className="hit-v flex items-center gap-1 font-semibold text-primary-600 dark:text-primary-300">
               {t("View all events")} <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
