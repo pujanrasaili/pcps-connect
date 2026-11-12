@@ -182,7 +182,7 @@ export default function Events() {
         </div>
 
         <div className="mx-auto mt-4 flex max-w-4xl flex-wrap gap-x-6 gap-y-2">
-          <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+          <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 max-sm:py-2.5 dark:text-slate-300">
             <input
               type="checkbox"
               checked={openOnly}
@@ -191,7 +191,7 @@ export default function Events() {
             />
             {t("Only events with spots left")}
           </label>
-          <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+          <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 max-sm:py-2.5 dark:text-slate-300">
             <input
               type="checkbox"
               checked={freeOnly}
