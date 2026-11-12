@@ -239,7 +239,7 @@ export default function AdminClubs() {
                   <Icon className="shrink-0 text-primary-500" />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{club.category}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{t(club.category)}</p>
                   </div>
                 </div>
                 <div className="flex w-full shrink-0 items-center justify-end gap-1 sm:w-auto">

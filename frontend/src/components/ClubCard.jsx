@@ -38,7 +38,7 @@ export default function ClubCard({ club, onView }) {
           <Icon className="text-xl" />
         </div>
         <span className="badge absolute left-3 top-3 bg-white/95 dark:bg-slate-900/95 text-slate-700 dark:text-slate-200">
-          {club.category}
+          {t(club.category)}
         </span>
         <button
           onClick={(e) => {
@@ -61,7 +61,7 @@ export default function ClubCard({ club, onView }) {
         </p>
         <div className="mt-4 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <FaUsers className="shrink-0 text-primary-500" /> {typeof club.memberCount === "number" ? (club.memberCount === 1 ? t("1 member") : t("{n} members", { n: club.memberCount })) : club.category}
+            <FaUsers className="shrink-0 text-primary-500" /> {typeof club.memberCount === "number" ? (club.memberCount === 1 ? t("1 member") : t("{n} members", { n: club.memberCount })) : t(club.category)}
           </span>
           <button
             onClick={() => onView?.(club)}

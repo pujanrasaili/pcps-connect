@@ -58,7 +58,7 @@ export default function SearchDialog({ isOpen, onClose }) {
                     <FaUsers className="shrink-0 text-primary-500" aria-hidden="true" />
                     <span className="min-w-0">
                       <span className="block truncate font-medium text-slate-800 dark:text-slate-100">{club.name}</span>
-                      {club.category && <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{club.category}</span>}
+                      {club.category && <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{t(club.category)}</span>}
                     </span>
                   </Link>
                 </li>
