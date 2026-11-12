@@ -13,7 +13,7 @@ export default function LanguageToggle({ className = "" }) {
       onClick={() => setLang(next)}
       lang={next}
       title={next === "ne" ? "Switch to Nepali" : t("Switch to English")}
-      className={`rounded-full px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 ${className}`}
+      className={`rounded-full px-2.5 py-1.5 max-md:flex max-md:h-11 max-md:items-center max-md:px-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 ${className}`}
     >
       {next === "ne" ? "नेपाली" : "English"}
     </button>
