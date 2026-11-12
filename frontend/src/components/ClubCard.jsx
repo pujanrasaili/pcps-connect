@@ -47,7 +47,7 @@ export default function ClubCard({ club, onView }) {
           }}
           aria-label={favorite ? t("Remove from favorite club") : t("Set as favorite club")}
           aria-pressed={favorite}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 dark:bg-slate-900/95 text-rose-500 shadow-md transition-transform hover:scale-110"
+          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 dark:bg-slate-900/95 text-rose-500 shadow-md transition-transform hover:scale-110"
         >
           {favorite ? <FaHeart /> : <FaRegHeart />}
         </button>
@@ -65,7 +65,7 @@ export default function ClubCard({ club, onView }) {
           </span>
           <button
             onClick={() => onView?.(club)}
-            className="flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300 hover:gap-2 transition-all"
+            className="hit-v flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-300 hover:gap-2 transition-all"
           >
             {t("View")} <FaArrowRight className="text-xs" />
           </button>
