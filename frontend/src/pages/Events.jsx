@@ -142,7 +142,7 @@ export default function Events() {
               <button
                 key={value}
                 onClick={() => setWhen(value)}
-                className={`whitespace-nowrap rounded-lg px-2 py-1.5 text-[13px] font-semibold transition-colors sm:px-4 sm:text-sm ${
+                className={`whitespace-nowrap rounded-lg px-2 py-2.5 text-[13px] font-semibold transition-colors sm:px-4 sm:py-1.5 sm:text-sm ${
                   when === value
                     ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
                     : "text-slate-600 dark:text-slate-400"
@@ -162,7 +162,7 @@ export default function Events() {
                 key={value}
                 onClick={() => update({ view: value })}
                 aria-pressed={view === value}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors sm:py-1.5 ${
                   view === value
                     ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
                     : "text-slate-600 dark:text-slate-400"
