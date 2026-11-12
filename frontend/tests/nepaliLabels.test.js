@@ -20,3 +20,10 @@ test("text with no entry stays as written, and a missing value stays missing", (
   assert.equal(format(null), null);
   assert.equal(format("{n} spots", { n: 3 }), "3 spots");
 });
+
+test("recent server messages have a Nepali translation", async () => {
+  const { ne } = await import("../src/i18n/ne.js");
+  for (const message of ["Idea sent to the club's leaders", "Idea removed", "Post updated", "That student isn't signed up to help at this event", "You didn't sign up to help at this event", "Certificates are only available for events where you helped"]) {
+    assert.notEqual(translate(ne, "ne", message), message, `${message} has no Nepali entry`);
+  }
+});
