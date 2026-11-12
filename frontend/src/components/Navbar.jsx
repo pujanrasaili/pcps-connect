@@ -199,11 +199,11 @@ export default function Navbar() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center md:hidden">
           <button
             onClick={() => setSearchOpen(true)}
             aria-label={t("Search clubs and events")}
-            className="rounded-full p-2 text-slate-500 dark:text-slate-400"
+            className="flex h-11 w-10 items-center justify-center rounded-full text-slate-500 dark:text-slate-400"
           >
             <FaSearch />
           </button>
@@ -212,7 +212,7 @@ export default function Navbar() {
           <button
             onClick={toggleTheme}
             aria-label={t("Toggle dark mode")}
-            className="rounded-full p-2 text-slate-500 dark:text-slate-400"
+            className="flex h-11 w-10 items-center justify-center rounded-full text-slate-500 dark:text-slate-400"
           >
             {theme === "dark" ? <FaSun /> : <FaMoon />}
           </button>
@@ -220,7 +220,7 @@ export default function Navbar() {
             onClick={() => setOpen((o) => !o)}
             aria-label={t("Toggle navigation menu")}
             aria-expanded={open}
-            className="rounded-full p-2 text-slate-600 dark:text-slate-300"
+            className="flex h-11 w-10 items-center justify-center rounded-full text-slate-600 dark:text-slate-300"
           >
             {open ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
           </button>
