@@ -217,7 +217,7 @@ export default function Dashboard() {
                 {t("{n} waiting to join", { n: waitingOnMyClubs })} <FaArrowRight className="inline text-xs" />
               </Link>
             )}
-            <Link to="/admin/events" className="text-sm font-semibold text-primary-600 dark:text-primary-300">
+            <Link to="/admin/events" className="hit-v text-sm font-semibold text-primary-600 dark:text-primary-300">
               {t("Manage events")} <FaArrowRight className="inline text-xs" />
             </Link>
           </div>
