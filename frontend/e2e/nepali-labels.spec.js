@@ -19,7 +19,7 @@ for (const [lang, free, workshop, tech] of [["en", "Free", "Workshop", "Technolo
 test("Nepali cards no longer show the English price or category", async ({ page }) => {
   await setUp(page, { lang: "ne" });
   await page.goto("/events");
-  await expect(page.getByText("कार्यशाला").first()).toBeVisible();
+  await expect(page.locator("div.card-surface").getByText("कार्यशाला").first()).toBeVisible();
   await expect(page.locator("div.card-surface").filter({ hasText: /\bWorkshop\b/ })).toHaveCount(0);
   await expect(page.locator("div.card-surface").filter({ hasText: /\bFree\b/ })).toHaveCount(0);
 });
