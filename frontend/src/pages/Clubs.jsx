@@ -169,7 +169,7 @@ export default function Clubs() {
             <select
               value={sort}
               onChange={(e) => setFilter("sort", e.target.value, "default")}
-              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700 max-sm:py-2.5 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
             >
               {CLUB_SORTS.map(([value, label]) => (
                 <option key={value} value={value}>
