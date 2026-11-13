@@ -53,8 +53,11 @@ test("a notification with a link opens that page and closes the panel", async ({
   await withBell(page, [note(1, "You got a seat: Hack Night", false, "/events/e1"), note(2, "Welcome to PCPS Connect", true)]);
   await page.goto("/");
   await bell(page, /^Notifications/).click();
-  await page.getByRole("link", { name: /You got a seat: Hack Night/ }).click();
-  await expect(page).toHaveURL(/\/events\/e1/);
+  const link = page.getByRole("link", { name: /You got a seat: Hack Night/ });
+  // Check where the link goes, then follow it: this mock has no event e1, so the page would
+  // bounce to "not found" and race with a URL check on a slow machine.
+  await expect(link).toHaveAttribute("href", "/events/e1");
+  await link.click();
   await expect(page.getByRole("region", { name: "Notifications" })).toHaveCount(0);
 });
 
