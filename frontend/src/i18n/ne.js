@@ -1454,4 +1454,6 @@ export const ne = {
   "Scan to see the club and join": "क्लब हेर्न र सामेल हुन स्क्यान गर्नुहोस्",
   "QR code that opens this club's page": "यस क्लबको पेज खोल्ने QR कोड",
   "Print a club poster": "क्लबको पोस्टर छाप्नुहोस्",
+  "Co-hosting clubs (optional, up to 2)": "सह-आयोजक क्लबहरू (ऐच्छिक, बढीमा 2)",
+  "Their leaders can manage this event too.": "तिनका नेताहरूले पनि यो कार्यक्रम व्यवस्थापन गर्न सक्छन्।",
 };

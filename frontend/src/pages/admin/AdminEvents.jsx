@@ -33,6 +33,7 @@ const EMPTY_FORM = {
   category: "",
   price: "Free",
   club: "",
+  coHosts: [],
   requiresApproval: false,
   registrationDeadline: "",
   repeat: "none",
@@ -76,7 +77,7 @@ export default function AdminEvents() {
   }, [leaderMode, ledClubs.length]);
 
   const visibleEvents = useMemo(
-    () => (leaderMode ? events.filter((e) => ledIds.has(e.club?._id || e.club)) : events),
+    () => (leaderMode ? events.filter((e) => [e.club, ...(e.coHosts || [])].some((c) => ledIds.has(c?._id || c))) : events),
     [events, leaderMode, ledIds]
   );
 
@@ -126,6 +127,7 @@ export default function AdminEvents() {
       category: event.category || "",
       price: event.price || "Free",
       club: event.club?._id || event.club || "",
+      coHosts: (event.coHosts || []).map((c) => c?._id || c),
       requiresApproval: !!event.requiresApproval,
       registrationDeadline: "",
       repeat: "none",
@@ -149,6 +151,7 @@ export default function AdminEvents() {
       category: event.category || "",
       price: event.price || "Free",
       club: event.club?._id || event.club || "",
+      coHosts: (event.coHosts || []).map((c) => c?._id || c),
       requiresApproval: !!event.requiresApproval,
       registrationDeadline: isoToLocalInput(event.registrationDeadline),
       repeat: "none",
@@ -167,6 +170,11 @@ export default function AdminEvents() {
       // Repeating only applies to creating; an edit changes this one event.
       if ((key === "repeat" || key === "repeatCount") && (editingEvent || form.repeat === "none")) return;
       if (key === "copyRoles") return; // sent below as the list itself
+      if (key === "coHosts") {
+        // Only an admin names co-hosting clubs; the server ignores anyone else.
+        if (!leaderMode) formData.append("coHosts", JSON.stringify(value.filter((id) => id !== form.club)));
+        return;
+      }
       // Times go to the server as exact instants (see utils/dateTimeInput.js).
       formData.append(key, key === "date" || key === "endDate" || key === "registrationDeadline" ? localInputToIso(value) : value);
     });
@@ -498,10 +506,40 @@ export default function AdminEvents() {
             <label className="label-field" htmlFor="ev-club">{leaderMode ? t("Hosting club") : t("Hosting club (optional)")}</label>
             <select id="ev-club" name="club" className="input-field" value={form.club} onChange={handleChange} required={leaderMode}>
               {!leaderMode && <option value="">{t("No club")}</option>}
-              {clubs.map((c) => (
+              {/* A co-host's leader editing the event still sees the main club it belongs to. */}
+              {(leaderMode && form.club && !clubs.some((c) => c._id === form.club)
+                ? [...clubs, ...allClubs.filter((c) => c._id === form.club)]
+                : clubs
+              ).map((c) => (
                 <option key={c._id} value={c._id}>{c.name}</option>
               ))}
             </select>
+            {!leaderMode && form.club && (
+              <fieldset className="mt-3">
+                <legend className="label-field">{t("Co-hosting clubs (optional, up to 2)")}</legend>
+                <div className="mt-1 grid gap-1 sm:grid-cols-2">
+                  {allClubs
+                    .filter((c) => c._id !== form.club)
+                    .map((c) => {
+                      const checked = form.coHosts.includes(c._id);
+                      return (
+                        <label key={c._id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={!checked && form.coHosts.length >= 2}
+                            onChange={() =>
+                              setForm((f) => ({ ...f, coHosts: checked ? f.coHosts.filter((id) => id !== c._id) : [...f.coHosts, c._id] }))
+                            }
+                          />
+                          {c.name}
+                        </label>
+                      );
+                    })}
+                </div>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">{t("Their leaders can manage this event too.")}</p>
+              </fieldset>
+            )}
             {!editingEvent && form.club && (
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
                 {t("Members of this club will be emailed when you create the event.")}

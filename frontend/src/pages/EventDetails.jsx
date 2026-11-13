@@ -276,7 +276,7 @@ export default function EventDetails() {
           <div className="flex flex-wrap gap-2">
             {event.category && <span className="badge bg-white/20 backdrop-blur">{event.category}</span>}
             {event.club?.name && (
-              <span className="badge max-w-full bg-white/20 backdrop-blur">{t("Hosted by {name}", { name: event.club.name })}</span>
+              <span className="badge max-w-full bg-white/20 backdrop-blur">{t("Hosted by {name}", { name: [event.club.name, ...(event.coHosts || []).map((c) => c.name)].filter(Boolean).join(" + ") })}</span>
             )}
             {isPast && <span className="badge bg-slate-700/60 backdrop-blur">{t("Past event")}</span>}
           </div>
