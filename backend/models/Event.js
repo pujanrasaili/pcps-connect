@@ -34,6 +34,9 @@ const eventSchema = new mongoose.Schema(
     // Optional: the club hosting this event. Members of that club get an email
   // when it's announced (see utils/notifyClubMembers.js).
   club: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: null, index: true },
+  // Optional: up to two more clubs running the event together with `club`. Only an
+  // admin sets these. Their leaders can manage the event too (utils/clubAccess.js).
+  coHosts: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Club" }], default: [], index: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   },
   { timestamps: true }

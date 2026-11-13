@@ -39,7 +39,7 @@ async function getClubStats(req, res) {
       ClubMembership.countDocuments({ club: req.params.id }),
       ClubMembership.countDocuments({ club: req.params.id, createdAt: { $gte: month } }),
       ClubMembership.countDocuments({ club: req.params.id, createdAt: { $gte: twoMonths, $lt: month } }),
-      Event.find({ club: req.params.id }).select("title date").sort({ date: -1 }).lean(),
+      Event.find({ $or: [{ club: req.params.id }, { coHosts: req.params.id }] }).select("title date").sort({ date: -1 }).lean(),
     ]);
 
     const past = events.filter((e) => new Date(e.date) < now);

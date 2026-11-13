@@ -112,3 +112,104 @@ describe("event rules for club leaders", () => {
     expect(destroyEventPhotos).toHaveBeenCalledWith(ev.photos);
   });
 });
+
+describe("co-hosted events", () => {
+  const ADMIN = { _id: "admin1", role: "admin" };
+  const C = "c".repeat(24);
+  const D = "d".repeat(24);
+  const E = "e".repeat(24);
+  const existing = (club, coHosts = []) => ({ _id: "ev1", club, coHosts, save: jest.fn().mockResolvedValue(), deleteOne: jest.fn().mockResolvedValue() });
+
+  it("a leader of a co-hosting club can edit the event", async () => {
+    const ev = existing(B, [A]);
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { title: "Joint" }, user: LEADER }, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(ev.title).toBe("Joint");
+  });
+
+  it("a co-host leader sending the unchanged main club is not refused", async () => {
+    const ev = existing(B, [A]);
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { club: B, title: "Joint" }, user: LEADER }, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("a co-host leader still cannot move the event to a club they don't lead", async () => {
+    const ev = existing(B, [A]);
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { club: C }, user: LEADER }, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(ev.save).not.toHaveBeenCalled();
+  });
+
+  it("a leader cannot add co-hosts themselves", async () => {
+    const ev = existing(A);
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { coHosts: JSON.stringify([B]) }, user: LEADER }, res);
+    expect(ev.coHosts).toEqual([]);
+  });
+
+  it("a leader's create ignores co-hosts", async () => {
+    const res = mockRes();
+    await createEvent({ body: { ...body, club: A, coHosts: JSON.stringify([B]) }, user: LEADER }, res);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(Event.create.mock.calls[0][0].coHosts).toBeUndefined();
+  });
+
+  it("an admin can set co-hosts on create and update", async () => {
+    Club.countDocuments.mockResolvedValue(2);
+    const res = mockRes();
+    await createEvent({ body: { ...body, club: A, coHosts: JSON.stringify([B, C]) }, user: ADMIN }, res);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(Event.create.mock.calls[0][0].coHosts).toEqual([B, C]);
+
+    const ev = existing(A);
+    Event.findById.mockResolvedValue(ev);
+    Club.countDocuments.mockResolvedValue(1);
+    const res2 = mockRes();
+    await updateEvent({ params: { id: "ev1" }, body: { coHosts: [D] }, user: ADMIN }, res2);
+    expect(ev.coHosts).toEqual([D]);
+  });
+
+  it("drops the main club and repeats from the list, and an empty list clears it", async () => {
+    const ev = existing(A, [B]);
+    Event.findById.mockResolvedValue(ev);
+    Club.countDocuments.mockResolvedValue(1);
+    await updateEvent({ params: { id: "ev1" }, body: { coHosts: JSON.stringify([A, C, C]) }, user: ADMIN }, mockRes());
+    expect(ev.coHosts).toEqual([C]);
+    await updateEvent({ params: { id: "ev1" }, body: { coHosts: "" }, user: ADMIN }, mockRes());
+    expect(ev.coHosts).toEqual([]);
+  });
+
+  it.each([
+    ["more than two", JSON.stringify([B, C, D])],
+    ["not a list", JSON.stringify({ a: 1 })],
+    ["not JSON", "{oops"],
+    ["bad ids", JSON.stringify(["nope"])],
+  ])("400 for co-hosts that are %s", async (_l, coHosts) => {
+    const res = mockRes();
+    await createEvent({ body: { ...body, club: A, coHosts }, user: ADMIN }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+
+  it("400 when a co-host club doesn't exist", async () => {
+    Club.countDocuments.mockResolvedValue(0);
+    const res = mockRes();
+    await createEvent({ body: { ...body, club: A, coHosts: JSON.stringify([E]) }, user: ADMIN }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it("a leader of a co-hosting club can delete the event", async () => {
+    const ev = existing(B, [A]);
+    Event.findById.mockResolvedValue(ev);
+    const res = mockRes();
+    await deleteEvent({ params: { id: "ev1" }, user: LEADER }, res);
+    expect(ev.deleteOne).toHaveBeenCalled();
+  });
+});

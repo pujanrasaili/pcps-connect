@@ -71,11 +71,36 @@ async function resolveClub(value) {
   return { club };
 }
 
+const MAX_CO_HOSTS = 2;
+
+// Reads the optional `coHosts` field (a JSON list of club ids, or an array) into
+// { ids } -- at most two other clubs that exist, without repeats and without the
+// main club -- or { error }. { skip: true } when the request didn't send it.
+async function resolveCoHosts(value, mainClubId) {
+  if (value === undefined) return { skip: true };
+  let list = value;
+  if (typeof list === "string") {
+    if (list.trim() === "") return { ids: [] };
+    try {
+      list = JSON.parse(list);
+    } catch {
+      return { error: "Invalid co-hosts" };
+    }
+  }
+  if (list === null) return { ids: [] };
+  if (!Array.isArray(list)) return { error: "Invalid co-hosts" };
+  if (list.some((id) => typeof id !== "string" || !/^[a-f\d]{24}$/i.test(id))) return { error: "Invalid co-hosts" };
+  const ids = [...new Set(list)].filter((id) => String(id) !== String(mainClubId || ""));
+  if (ids.length > MAX_CO_HOSTS) return { error: `An event can have at most ${MAX_CO_HOSTS} co-hosting clubs` };
+  if (ids.length > 0 && (await Club.countDocuments({ _id: { $in: ids } })) !== ids.length) return { error: "Co-host club not found" };
+  return { ids };
+}
+
 // GET /api/events  (public)
 async function getEvents(req, res) {
   try {
     // Only the organiser's name: cards never need their email, and this list is public.
-    const events = await Event.find().populate("createdBy", "name").populate("club", "name").sort({ date: 1 });
+    const events = await Event.find().populate("createdBy", "name").populate("club", "name").populate("coHosts", "name").sort({ date: 1 });
     res.status(200).json({ events: await withRegisteredCount(events) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch events") });
@@ -85,7 +110,7 @@ async function getEvents(req, res) {
 // GET /api/events/:id  (public)
 async function getEventById(req, res) {
   try {
-    const event = await Event.findById(req.params.id).populate("createdBy", "name email").populate("club", "name");
+    const event = await Event.findById(req.params.id).populate("createdBy", "name email").populate("club", "name").populate("coHosts", "name");
     if (!event) return res.status(404).json({ message: "Event not found" });
     // The organiser's email is shown to logged-in students only.
     res.status(200).json({ event: hideOrganiserEmail(await withRegisteredCount(event), req.user) });
@@ -126,6 +151,10 @@ async function createEvent(req, res) {
       return res.status(403).json({ message: "You can only create events for a club you lead" });
     }
 
+    // Co-hosting clubs are an admin's call: only an admin can name them.
+    const coHosts = isAdmin(req.user) ? await resolveCoHosts(req.body.coHosts, club && club._id) : { skip: true };
+    if (coHosts.error) return res.status(400).json({ message: coHosts.error });
+
     // A repeating series ("every Thursday for 8 weeks") is several ordinary
     // events, one per date. Checked before the image upload so a bad request
     // doesn't leave a stray file behind.
@@ -163,6 +192,7 @@ async function createEvent(req, res) {
       requiresApproval: parseFlag(req.body.requiresApproval) === true,
       image,
       club: club ? club._id : null,
+      ...(coHosts.ids ? { coHosts: coHosts.ids } : {}),
       createdBy: req.user._id,
       volunteerRoles,
     };
@@ -240,10 +270,19 @@ async function updateEvent(req, res) {
       if (clubError) return res.status(400).json({ message: clubError });
       // A leader can move an event between clubs they lead, but not hand it
       // to someone else's club or detach it from any club.
-      if (!isAdmin(req.user) && !(club && (await leadsClub(req.user, club._id)))) {
+      // Sending back the club it already has (a co-host's leader editing the form) is fine.
+      const unchanged = String(club ? club._id : "") === String(event.club?._id || event.club || "");
+      if (!unchanged && !isAdmin(req.user) && !(club && (await leadsClub(req.user, club._id)))) {
         return res.status(403).json({ message: "You can only assign events to a club you lead" });
       }
       event.club = club ? club._id : null;
+    }
+
+    if (isAdmin(req.user)) {
+      const coHosts = await resolveCoHosts(req.body.coHosts, event.club?._id || event.club);
+      if (coHosts.error) return res.status(400).json({ message: coHosts.error });
+      if (coHosts.ids) event.coHosts = coHosts.ids;
+      else if (event.coHosts?.length) event.coHosts = event.coHosts.filter((c) => String(c) !== String(event.club?._id || event.club || ""));
     }
 
     const allowedFields = ["title", "description", "date", "location", "category", "price"];
