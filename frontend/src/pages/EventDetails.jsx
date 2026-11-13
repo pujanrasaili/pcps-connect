@@ -250,7 +250,7 @@ export default function EventDetails() {
         <SafeImage src={resolveUploadUrl(event.image, 1600)} alt={event.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/55 to-slate-900/15" />
         <div className="container-page absolute inset-x-0 bottom-6 text-white">
-          <Link to="/events" className="mb-3 flex w-fit items-center gap-1.5 text-sm text-white hover:underline">
+          <Link to="/events" className="hit-v mb-3 flex w-fit items-center gap-1.5 text-sm text-white hover:underline">
             <FaArrowLeft className="text-xs" /> {t("Back to events")}
           </Link>
           <div className="flex flex-wrap gap-2">
@@ -317,7 +317,7 @@ export default function EventDetails() {
           />
         </div>
 
-        <aside className="h-fit space-y-4 lg:sticky lg:top-24">
+        <aside className="h-fit space-y-4 max-lg:order-first lg:sticky lg:top-24">
           <div className="card-surface p-6">
             <ul className="space-y-4 text-sm">
               <li className="flex items-center gap-3">
@@ -392,7 +392,7 @@ export default function EventDetails() {
                 <button
                   onClick={handleUnregister}
                   disabled={unregistering}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-xs" /> {unregistering ? t("Withdrawing...") : t("Withdraw request")}
                 </button>
@@ -429,7 +429,7 @@ export default function EventDetails() {
                 <button
                   onClick={handleUnregister}
                   disabled={unregistering}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-xs" /> {unregistering ? t("Unregistering...") : t("Unregister")}
                 </button>
@@ -450,7 +450,7 @@ export default function EventDetails() {
                 <button
                   onClick={handleLeaveWaitlist}
                   disabled={waitlistBusy}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-500 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-700 disabled:opacity-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-rose-900/20"
                 >
                   <FaTimes className="text-xs" /> {waitlistBusy ? t("Leaving...") : t("Leave waitlist")}
                 </button>
