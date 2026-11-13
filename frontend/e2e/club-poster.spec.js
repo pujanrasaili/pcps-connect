@@ -32,6 +32,8 @@ test("the club poster reads in Nepali", async ({ page }) => {
 
 test("a student does not see the poster link", async ({ page }) => {
   await setUp(page, { lang: "en", role: "student" });
+  // This student leads no club (the default answer would list every club).
+  await page.route("**/api/leader/clubs", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ clubs: [] }) }));
   await page.goto(`/clubs?club=${club._id}`);
   await expect(page.getByRole("dialog", { name: club.name })).toBeVisible();
   await expect(page.getByRole("button", { name: "Share this club" })).toBeVisible();
