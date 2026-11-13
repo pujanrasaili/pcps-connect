@@ -37,7 +37,7 @@ async function run() {
 
   let digests = [];
   if (events.length) {
-    const clubIds = [...new Set(events.map((e) => String(e.club._id)))];
+    const clubIds = [...new Set(events.flatMap((e) => [e.club._id, ...(e.coHosts || [])].map(String)))];
     const memberships = await ClubMembership.find({ club: { $in: clubIds } }).populate("user", "name email clubUpdates language");
     const registrations = await Registration.find({ event: { $in: events.map((e) => e._id) }, status: { $ne: "cancelled" } }).select("user event");
     digests = buildDigests({ events, memberships, registrations });

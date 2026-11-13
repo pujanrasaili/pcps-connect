@@ -17,6 +17,13 @@ describe("digestWindow", () => {
 });
 
 describe("buildDigests", () => {
+  it("members of a co-hosting club hear about the event, once", () => {
+    const events = [ev("e1", "c1", 20, { coHosts: [club("c2")] })];
+    const out = buildDigests({ events, memberships: [member("u1", "c2"), member("u2", "c1"), member("u2", "c2")], registrations: [] });
+    expect(out.map((d) => d.user._id).sort()).toEqual(["u1", "u2"]);
+    expect(out.find((d) => d.user._id === "u2").events).toHaveLength(1);
+  });
+
   it("lists events from clubs the student joined, soonest first", () => {
     const out = buildDigests({ events: [ev("e2", "c1", 22), ev("e1", "c1", 20), ev("e3", "c2", 21)], memberships: [member("u1", "c1")], registrations: [] });
     expect(out).toHaveLength(1);

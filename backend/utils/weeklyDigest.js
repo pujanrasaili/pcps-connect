@@ -26,10 +26,13 @@ const isFull = (event) => (event.capacity ?? 100) - (event.registeredCount ?? 0)
 function buildDigests({ events, memberships, registrations }) {
   const byClub = new Map();
   for (const event of events) {
-    const clubId = String(event.club?._id || event.club || "");
-    if (!clubId || isFull(event)) continue;
-    if (!byClub.has(clubId)) byClub.set(clubId, []);
-    byClub.get(clubId).push(event);
+    if (isFull(event)) continue;
+    // Members of any hosting club hear about it, once.
+    const hosts = new Set([event.club, ...(event.coHosts || [])].map((c) => String(c?._id || c || "")).filter(Boolean));
+    for (const clubId of hosts) {
+      if (!byClub.has(clubId)) byClub.set(clubId, []);
+      byClub.get(clubId).push(event);
+    }
   }
 
   const registered = new Set(registrations.map((r) => `${r.user}:${r.event}`));
@@ -41,6 +44,7 @@ function buildDigests({ events, memberships, registrations }) {
     const clubEvents = byClub.get(String(m.club)) || [];
     for (const event of clubEvents) {
       if (registered.has(`${user._id}:${event._id}`)) continue;
+      if (perUser.get(String(user._id))?.events.some((e) => String(e._id) === String(event._id))) continue;
       const entry = perUser.get(String(user._id)) || { user, events: [] };
       entry.events.push(event);
       perUser.set(String(user._id), entry);
