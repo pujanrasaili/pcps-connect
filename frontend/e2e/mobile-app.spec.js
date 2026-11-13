@@ -105,11 +105,11 @@ const openEvent = async (page, role, over) => {
 };
 const pinned = (page) => page.locator("div[aria-hidden='true'].fixed button, div[aria-hidden='true'].fixed a");
 // The pinned bar only shows once the real Register button has scrolled out of sight.
-// It keeps scrolling until the bar shows, so a slow page load cannot make it miss.
+// It keeps scrolling until the bar is on screen, so a slow page load cannot make it miss.
 const scrollPastButton = (page) =>
   expect(async () => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(pinned(page)).toHaveCount(1, { timeout: 500 });
+    await expect(pinned(page)).toBeVisible({ timeout: 500 });
   }).toPass({ timeout: 8000 });
 
 test("the pinned Register bar stays hidden while the real button is on screen", async ({ page }) => {
