@@ -22,7 +22,12 @@ export default function EventPoster() {
   useEffect(() => {
     let cancelled = false;
     getEventById(id)
-      .then((e) => !cancelled && (e ? setEvent(e) : setFailed(true)))
+      .then((e) => {
+        if (cancelled) return;
+        // The lookup runs again when the events list arrives, so a miss that came first must not stick.
+        setFailed(!e);
+        if (e) setEvent(e);
+      })
       .catch(() => !cancelled && setFailed(true));
     return () => {
       cancelled = true;
