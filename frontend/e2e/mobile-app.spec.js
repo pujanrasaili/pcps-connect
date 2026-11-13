@@ -104,9 +104,20 @@ const openEvent = async (page, role, over) => {
   await expect(page.getByRole("heading", { name: "Robot Demo", level: 1 })).toBeVisible();
 };
 const pinned = (page) => page.locator("div[aria-hidden='true'].fixed button, div[aria-hidden='true'].fixed a");
+// The pinned bar only shows once the real Register button has scrolled out of sight.
+const scrollPastButton = (page) => page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+test("the pinned Register bar stays hidden while the real button is on screen", async ({ page }) => {
+  await openEvent(page, "student");
+  await expect(page.getByRole("button", { name: "Register now" })).toBeVisible();
+  await expect(pinned(page)).toHaveCount(0);
+  await scrollPastButton(page);
+  await expect(pinned(page)).toBeVisible();
+});
 
 test("a student sees a pinned Register button that opens the sign-up form", async ({ page }) => {
   await openEvent(page, "student");
+  await scrollPastButton(page);
   await expect(pinned(page)).toBeVisible();
   await expect(pinned(page)).toHaveText("Register now");
   await pinned(page).click();
@@ -115,6 +126,7 @@ test("a student sees a pinned Register button that opens the sign-up form", asyn
 
 test("a visitor who is not logged in gets a pinned Log in to register link", async ({ page }) => {
   await openEvent(page, undefined);
+  await scrollPastButton(page);
   await expect(pinned(page)).toHaveText("Log in to register");
 });
 
