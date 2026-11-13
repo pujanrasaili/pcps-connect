@@ -105,7 +105,12 @@ const openEvent = async (page, role, over) => {
 };
 const pinned = (page) => page.locator("div[aria-hidden='true'].fixed button, div[aria-hidden='true'].fixed a");
 // The pinned bar only shows once the real Register button has scrolled out of sight.
-const scrollPastButton = (page) => page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+// It keeps scrolling until the bar shows, so a slow page load cannot make it miss.
+const scrollPastButton = (page) =>
+  expect(async () => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(pinned(page)).toHaveCount(1, { timeout: 500 });
+  }).toPass({ timeout: 8000 });
 
 test("the pinned Register bar stays hidden while the real button is on screen", async ({ page }) => {
   await openEvent(page, "student");
@@ -141,6 +146,7 @@ test("the pinned button is not shown for a full or finished event, or on a compu
   await page.unroute(`**/api/events/${EVENT_ID}`);
   await page.route(`**/api/events/${EVENT_ID}`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(eventBody()) }));
   await page.reload();
+  await scrollPastButton(page);
   await expect(pinned(page)).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect(pinned(page)).toBeHidden();
