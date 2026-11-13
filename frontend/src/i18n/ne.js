@@ -1448,4 +1448,6 @@ export const ne = {
   "Certificates are only available for events where you helped": "प्रमाणपत्र तपाईंले सहयोग गरेका कार्यक्रमका लागि मात्र उपलब्ध हुन्छ",
   "title, description, date, and location are required": "शीर्षक, विवरण, मिति र स्थान आवश्यक छन्",
   "Your activity": "तपाईंको गतिविधि",
+  "Most active clubs": "सबैभन्दा सक्रिय क्लबहरू",
+  "Ranked by events held in the last {days} days.": "पछिल्लो {days} दिनमा भएका कार्यक्रमका आधारमा क्रमबद्ध।",
 };
