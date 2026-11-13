@@ -23,7 +23,12 @@ export default function ClubPoster() {
   useEffect(() => {
     let cancelled = false;
     getClubById(id)
-      .then((c) => !cancelled && (c ? setClub(c) : setFailed(true)))
+      .then((c) => {
+        if (cancelled) return;
+        // The lookup runs again when the clubs list arrives, so a miss that came first must not stick.
+        setFailed(!c);
+        if (c) setClub(c);
+      })
       .catch(() => !cancelled && setFailed(true));
     return () => {
       cancelled = true;
