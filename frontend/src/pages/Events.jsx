@@ -16,6 +16,7 @@ import Pagination from "../components/Pagination";
 import EventCalendar from "../components/EventCalendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { isPastEvent } from "../utils/formatDate";
+import { hostClubs, hostNames, isHostedBy } from "../utils/eventHosts";
 import { hasOpenSpots, isFreeEvent, isThisWeek, readEventFilters, withEventFilters } from "../utils/eventFilters";
 import CardSkeletons from "../components/CardSkeletons";
 
@@ -49,7 +50,7 @@ export default function Events() {
   }, [debouncedQuery]);
 
   const clubFilterName = useMemo(
-    () => events.find((e) => e.club?._id === clubFilter)?.club?.name,
+    () => events.flatMap(hostClubs).find((c) => c._id === clubFilter)?.name,
     [events, clubFilter]
   );
   const clearClubFilter = () => setSearchParams((prev) => { const n = new URLSearchParams(prev); n.delete("club"); return n; }, { replace: true });
@@ -75,12 +76,12 @@ export default function Events() {
                   ? isThisWeek(event.date)
                   : isPast;
         const matchesCategory = category === "All" || event.category === category;
-        const matchesClub = !clubFilter || event.club?._id === clubFilter;
+        const matchesClub = !clubFilter || isHostedBy(event, clubFilter);
         const matchesSpots = (!openOnly || hasOpenSpots(event)) && (!freeOnly || isFreeEvent(event));
         // Search the fields students actually think in: the event name, where
         // it is, and which club is hosting it.
         const needle = debouncedQuery.toLowerCase();
-        const matchesQuery = [event.title, event.location, event.club?.name]
+        const matchesQuery = [event.title, event.location, ...hostNames(event)]
           .filter(Boolean)
           .some((field) => field.toLowerCase().includes(needle));
         return matchesWhen && matchesCategory && matchesQuery && matchesClub && matchesSpots;
@@ -103,10 +104,10 @@ export default function Events() {
     return events.filter(
       (event) =>
         (category === "All" || event.category === category) &&
-        (!clubFilter || event.club?._id === clubFilter) &&
+        (!clubFilter || isHostedBy(event, clubFilter)) &&
         (!openOnly || hasOpenSpots(event)) &&
         (!freeOnly || isFreeEvent(event)) &&
-        [event.title, event.location, event.club?.name].filter(Boolean).some((field) => field.toLowerCase().includes(needle))
+        [event.title, event.location, ...hostNames(event)].filter(Boolean).some((field) => field.toLowerCase().includes(needle))
     );
   }, [events, debouncedQuery, category, clubFilter, openOnly, freeOnly]);
 

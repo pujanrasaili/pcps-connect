@@ -24,6 +24,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
 import ClubLeaderboard from "../components/ClubLeaderboard";
+import { isHostedBy } from "../utils/eventHosts";
 import ClubIdeas from "../components/ClubIdeas";
 import SafeImage from "../components/SafeImage";
 import CardSkeletons from "../components/CardSkeletons";
@@ -70,7 +71,7 @@ export default function Clubs() {
     () =>
       selectedClub
         ? events
-            .filter((e) => (e.club?._id || e.club) === selectedClub._id && isUpcoming(e.date))
+            .filter((e) => isHostedBy(e, selectedClub._id) && isUpcoming(e.date))
             .sort((a, b) => new Date(a.date) - new Date(b.date))
         : [],
     [events, selectedClub]

@@ -50,3 +50,18 @@ test("the event page names every hosting club", async ({ page }) => {
   await expect(page.getByText(`Hosted by ${clubs[0].name} + ${clubs[1].name}`)).toBeVisible();
   expect(problems).toEqual([]);
 });
+
+test("a club's events filter and the search also find events it co-hosts", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en", role: "student" });
+  const future = new Date(Date.now() + 6 * 864e5).toISOString();
+  const joint = { _id: EVENT_ID, title: "Joint Night", description: "d", date: future, location: "Hall", capacity: 50, registeredCount: 1, club: clubs[0], coHosts: [clubs[1]], category: "General", price: "Free" };
+  const solo = { ...joint, _id: "e2".padEnd(24, "0"), title: "Solo Night", club: clubs[0], coHosts: [] };
+  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [joint, solo] }) }));
+  await page.goto(`/events?club=${clubs[1]._id}`);
+  await expect(page.getByRole("heading", { name: "Joint Night" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Solo Night" })).toHaveCount(0);
+  await page.goto(`/events?q=${encodeURIComponent(clubs[1].name)}`);
+  await expect(page.getByRole("heading", { name: "Joint Night" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Solo Night" })).toHaveCount(0);
+  expect(problems).toEqual([]);
+});
