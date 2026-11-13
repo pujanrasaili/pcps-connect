@@ -74,7 +74,7 @@ test("a member of a co-hosting club sees the event under 'From your clubs'", asy
   // Joined the co-host (Robotics Society), not the main club.
   await page.route("**/api/club-memberships/my", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ memberships: [{ _id: "m1", club: clubs[1] }] }) }));
   await page.goto("/dashboard");
-  await expect(page.getByRole("heading", { name: "From your clubs" })).toBeVisible();
-  await expect(page.locator("div.card-surface", { has: page.getByRole("heading", { name: "From your clubs" }) }).getByText("Joint Night")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "From your clubs", exact: true })).toBeVisible();
+  await expect(page.locator("div.card-surface", { has: page.getByRole("heading", { name: "From your clubs", exact: true }) }).getByText("Joint Night")).toBeVisible();
   expect(problems).toEqual([]);
 });
