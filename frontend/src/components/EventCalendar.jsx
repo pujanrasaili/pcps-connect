@@ -132,7 +132,7 @@ export default function EventCalendar({ events, registeredIds }) {
                     <span className="block truncate font-medium text-slate-800 dark:text-slate-100">{e.title}</span>
                     <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
                       {timeOf(e.date)} · {e.location}
-                      {e.club?.name ? ` · ${e.club.name}` : ""}
+                      {e.club?.name ? ` · ${[e.club.name, ...(e.coHosts || []).map((c) => c.name)].filter(Boolean).join(" + ")}` : ""}
                     </span>
                   </span>
                   {registeredIds.has(e._id) ? (

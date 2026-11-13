@@ -4,7 +4,7 @@ import { setUp, clubs, axeViolations } from "./helpers.js";
 // The printable event poster: opened by organisers from the event page,
 // showing the title, time, place and a QR code that opens the event.
 const ID = "q1".padEnd(24, "0");
-const event = (daysAhead = 6) => ({ _id: ID, title: "Open Mic", description: "Bring a song.", date: new Date(Date.now() + daysAhead * 864e5).toISOString(), location: "Main Hall", capacity: 60, registeredCount: 10, category: "Social", price: "Free", club: clubs[0], photos: [], averageRating: 0, ratingCount: 0 });
+const event = (daysAhead = 6) => ({ _id: ID, title: "Open Mic", description: "Bring a song.", date: new Date(Date.now() + daysAhead * 864e5).toISOString(), location: "Main Hall", capacity: 60, registeredCount: 10, category: "Social", price: "Free", club: clubs[0], coHosts: [clubs[1]], photos: [], averageRating: 0, ratingCount: 0 });
 const reply = (route, body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 const quiet = (problems) => problems.filter((p) => !/status of (400|401|403|404|500)/.test(p));
 
@@ -23,6 +23,7 @@ test("an admin opens the poster from an upcoming event and sees the details and 
   const poster = page.getByRole("article");
   await expect(poster.getByRole("heading", { name: "Open Mic" })).toBeVisible();
   await expect(poster.getByText("Main Hall")).toBeVisible();
+  await expect(poster.getByText(`${clubs[0].name} + ${clubs[1].name}`)).toBeVisible();
   await expect(poster.getByText("Scan to see details and register")).toBeVisible();
   await expect(page.getByText(`/events/${ID}`).first()).toBeVisible();
   await expect(page.locator("svg[role='img']").first()).toBeVisible();

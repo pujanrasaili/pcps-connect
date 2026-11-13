@@ -77,7 +77,7 @@ export default function EventPoster() {
         <header className="flex flex-col items-center">
           <img src={logo} alt="" className="h-14 w-14 object-contain" />
           <p className="mt-2 text-xs font-semibold uppercase tracking-[0.25em] text-slate-600">Patan College of Professional Studies</p>
-          {event.club?.name && <p className="mt-1 text-sm font-semibold text-primary-700">{event.club.name}</p>}
+          {event.club?.name && <p className="mt-1 text-sm font-semibold text-primary-700">{[event.club.name, ...(event.coHosts || []).map((c) => c.name)].filter(Boolean).join(" + ")}</p>}
         </header>
 
         {image && <img src={image} alt="" className="max-h-64 w-full rounded-xl object-cover" />}
