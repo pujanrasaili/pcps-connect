@@ -38,7 +38,10 @@ async function getClubLeaderboard(req, res) {
     const since = new Date(now.getTime() - LEADERBOARD_DAYS * 86400000);
     const held = await Event.aggregate([
       { $match: { club: { $ne: null }, date: { $gte: since, $lte: now } } },
-      { $group: { _id: "$club", eventsHeld: { $sum: 1 } } },
+      // A co-hosted event counts for every club that ran it.
+      { $project: { hosts: { $setUnion: [["$club"], { $ifNull: ["$coHosts", []] }] } } },
+      { $unwind: "$hosts" },
+      { $group: { _id: "$hosts", eventsHeld: { $sum: 1 } } },
       { $sort: { eventsHeld: -1 } },
       { $limit: 50 },
     ]);

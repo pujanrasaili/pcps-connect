@@ -43,6 +43,11 @@ describe("getClubLeaderboard", () => {
     // Only events from the last 90 days that already happened count.
     const match = Event.aggregate.mock.calls[0][0][0].$match;
     expect(match.date.$lte.getTime() - match.date.$gte.getTime()).toBe(90 * 86400000);
+    // Co-hosted events count for every hosting club (main club + coHosts, no double count).
+    const stages = JSON.stringify(Event.aggregate.mock.calls[0][0]);
+    expect(stages).toContain("$coHosts");
+    expect(stages).toContain("$setUnion");
+    expect(stages).toContain("$unwind");
   });
 
   it("keeps the top five and treats a club with no members as zero", async () => {
