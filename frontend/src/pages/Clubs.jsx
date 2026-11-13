@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { joinButtonState } from "../utils/clubJoinState";
 import { Link, useSearchParams } from "react-router-dom";
-import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers } from "react-icons/fa";
+import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers, FaPrint } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -308,6 +308,15 @@ export default function Clubs() {
                 >
                   <FaShareAlt />
                 </button>
+                {canPostNews(selectedClub._id) && (
+                  <Link
+                    to={`/clubs/${selectedClub._id}/poster`}
+                    aria-label={t("Print a club poster")}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
+                  >
+                    <FaPrint />
+                  </Link>
+                )}
                 <button
                   onClick={() => requireAuth(() => toggleFavorite(selectedClub._id))}
                   aria-pressed={isFavorite(selectedClub._id)}
