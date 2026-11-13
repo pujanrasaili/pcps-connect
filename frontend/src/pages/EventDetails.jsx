@@ -46,15 +46,21 @@ import SafeImage from "../components/SafeImage";
 // The pinned Register bar is only needed once the real button in the details card has
 // scrolled out of sight (the 120px margin counts the part hidden behind the bars).
 function StickyRegister({ children }) {
-  const [hidden, setHidden] = useState(false);
+  // Starts hidden, so it never flashes on while the page loads; it only shows once the
+  // real button is confirmed to be out of view. (No observer support: just show it.)
+  const [visible, setVisible] = useState(() => !("IntersectionObserver" in window));
   useEffect(() => {
+    if (!("IntersectionObserver" in window)) return undefined;
     const el = document.querySelector("[data-register-cta]");
-    if (!el || !("IntersectionObserver" in window)) return undefined;
-    const observer = new IntersectionObserver(([entry]) => setHidden(entry.isIntersecting), { rootMargin: "0px 0px -120px 0px" });
+    if (!el) {
+      const frame = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    const observer = new IntersectionObserver(([entry]) => setVisible(!entry.isIntersecting), { rootMargin: "0px 0px -120px 0px" });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  return hidden ? null : children;
+  return visible ? children : null;
 }
 
 export default function EventDetails() {
