@@ -1,4 +1,5 @@
 import { isPastEvent } from "./formatDate.js";
+import { hostNames } from "./eventHosts.js";
 
 // How well `text` matches `needle`: 3 = starts with it, 2 = a word in it starts
 // with it, 1 = contains it somewhere, 0 = no match.
@@ -34,7 +35,7 @@ export function searchSite(events, clubs, query, limit = 5) {
   const matchedEvents = events
     .map((event) => ({
       event,
-      score: bestScore(event.title, [event.club?.name, event.location, event.category], needle),
+      score: bestScore(event.title, [...hostNames(event), event.location, event.category], needle),
       past: isPastEvent(event.date),
     }))
     .filter((r) => r.score > 0)

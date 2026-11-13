@@ -1,6 +1,7 @@
 // schema.org "Event" data for an event's page, so search engines can show it
 // as an event (date, place, price) in results. Returns null when the event
 // lacks what search engines require (a name and a valid start date).
+import { hostNames } from "./eventHosts.js";
 
 const ADDRESS = "Patan College of Professional Studies, Kandevatasthan, Lalitpur, Nepal";
 
@@ -39,7 +40,8 @@ export function eventJsonLd(event, origin) {
     .filter((u) => typeof u === "string" && /^https?:\/\//.test(u))
     .slice(0, 6);
   if (images.length) data.image = images;
-  if (event.club?.name) data.organizer = { "@type": "Organization", name: event.club.name };
+  const hosts = hostNames(event).map((name) => ({ "@type": "Organization", name }));
+  if (hosts.length) data.organizer = hosts.length === 1 ? hosts[0] : hosts;
   const price = priceNumber(event.price);
   if (price !== null) data.offers = { "@type": "Offer", price, priceCurrency: "NPR", url: data.url };
   return data;

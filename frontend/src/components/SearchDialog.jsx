@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { hostNames } from "../utils/eventHosts";
 import { Link } from "react-router-dom";
 import { FaSearch, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import Modal from "./Modal";
@@ -79,7 +80,7 @@ export default function SearchDialog({ isOpen, onClose }) {
                       <span className="block truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</span>
                       <span className="block truncate text-xs text-slate-500 dark:text-slate-400">
                         {formatDateAndTime(event.date)}
-                        {event.club?.name ? ` · ${event.club.name}` : ""}
+                        {event.club?.name ? ` · ${hostNames(event).join(" + ")}` : ""}
                       </span>
                     </span>
                   </Link>
