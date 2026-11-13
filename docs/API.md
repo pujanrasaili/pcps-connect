@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-113 endpoints.
+114 endpoints.
 
 ## /api/health
 
@@ -145,6 +145,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | Method | Path | Who | What it does |
 |---|---|---|---|
 | GET | `/api/stats` | Anyone | Totals shown on the home page (students, clubs, events, registrations). |
+| GET | `/api/stats/clubs` | Anyone | The five most active clubs in the last 90 days (events held, members) for the Clubs page. |
 
 ## /api/notice
 

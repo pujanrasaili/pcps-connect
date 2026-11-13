@@ -165,6 +165,7 @@ const DESCRIPTIONS = {
   leaveClub: "Leave a club, or withdraw a request that is still waiting.",
   submitContactForm: "Send a message to the PCPS Connect team by email.",
   getPublicStats: "Totals shown on the home page (students, clubs, events, registrations).",
+  getClubLeaderboard: "The five most active clubs in the last 90 days (events held, members) for the Clubs page.",
   getNotice: "The current site-wide announcement, if any.",
   getClubStats: "One-club summary for its leaders and admins: members and new joiners, events, turnout and ratings (counts only).",
   getMyLedClubs: "The clubs you are a leader of.",
