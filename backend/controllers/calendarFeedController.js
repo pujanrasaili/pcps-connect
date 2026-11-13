@@ -37,7 +37,8 @@ async function getCalendarFeed(req, res) {
       if (typeof req.query.club !== "string" || !isObjectId(req.query.club)) return res.status(404).json({ message: "Club not found" });
       const club = await Club.findById(req.query.club).select("name");
       if (!club) return res.status(404).json({ message: "Club not found" });
-      filter.club = club._id;
+      // Events it co-hosts belong in its feed too.
+      filter.$or = [{ club: club._id }, { coHosts: club._id }];
       name = `${club.name} events`;
     }
 

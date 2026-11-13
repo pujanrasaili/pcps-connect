@@ -41,7 +41,8 @@ describe("getCalendarFeed", () => {
     Event.find.mockReturnValue(query(sample));
     const res = mockRes();
     await getCalendarFeed({ query: { club: CLUB_ID } }, res);
-    expect(Event.find.mock.calls[0][0].club).toBe(CLUB_ID);
+    // A club's feed carries events it hosts and events it co-hosts.
+    expect(Event.find.mock.calls[0][0].$or).toEqual([{ club: CLUB_ID }, { coHosts: CLUB_ID }]);
     expect(res.send.mock.calls[0][0]).toContain("X-WR-CALNAME:Coding Club events");
   });
 
