@@ -18,6 +18,7 @@ import { isUpcoming } from "../utils/formatDate";
 import campusEvent from "../assets/images/campus-event.webp";
 import reelPoster from "../assets/images/campus-reel-poster.webp";
 import SafeImage from "../components/SafeImage";
+import ClubLeaderboard from "../components/ClubLeaderboard";
 import { useLang } from "../context/LanguageContext";
 
 export default function Home() {
@@ -187,6 +188,7 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          <ClubLeaderboard />
         </div>
       </section>
 

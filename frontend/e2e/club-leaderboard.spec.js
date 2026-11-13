@@ -52,3 +52,23 @@ test("nothing is shown when no club has held an event, or the request fails", as
   await expect(page.getByText(clubs[0].name).first()).toBeVisible();
   await expect(page.getByRole("region", { name: "Most active clubs" })).toHaveCount(0);
 });
+
+test("the home page shows the leaderboard under the featured clubs", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en" });
+  await mockBoard(page, board(ROWS));
+  await page.goto("/");
+  const section = page.getByRole("region", { name: "Most active clubs" });
+  await section.scrollIntoViewIfNeeded();
+  await expect(section.getByRole("listitem")).toHaveCount(2);
+  await section.getByRole("link", { name: /Robotics Society/ }).click();
+  await expect(page).toHaveURL(new RegExp(`/clubs\\?club=${clubs[1]._id}`));
+  expect(problems).toEqual([]);
+});
+
+test("the home page has no leaderboard until a club has held an event", async ({ page }) => {
+  await setUp(page, { lang: "en" });
+  await mockBoard(page, board([]));
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Upcoming Events" }).or(page.getByText("View all clubs")).first()).toBeVisible();
+  await expect(page.getByRole("region", { name: "Most active clubs" })).toHaveCount(0);
+});
