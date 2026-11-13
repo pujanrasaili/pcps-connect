@@ -95,8 +95,9 @@ for (const lang of ["en", "ne"]) {
     await expect(card.getByText("Packed Workshop")).toBeVisible();
     await expect(card.getByText(en ? "Next in line" : "अर्को पालो")).toBeVisible();
     await expect(card.getByText(en ? "5 in line" : "लाइनमा 5 नम्बरमा")).toBeVisible();
-    await card.getByRole("link", { name: /Sold Out Talk/ }).click();
-    await expect(page).toHaveURL(/\/events\/w4/);
+    // Check where the link goes instead of following it: this mock has no such event, so the
+    // page would bounce to "not found" and race with the check on a slow machine.
+    await expect(card.getByRole("link", { name: /Sold Out Talk/ })).toHaveAttribute("href", /\/events\/w4/);
     expect(quiet(problems)).toEqual([]);
   });
 }
