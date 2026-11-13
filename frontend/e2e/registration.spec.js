@@ -34,8 +34,9 @@ async function withRegistrationApi(page) {
 
 test("a visitor is asked to log in before registering", async ({ page }) => {
   await setUp(page, { lang: "en" });
+  await page.route(`**/api/events/${EVENT_ID}`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ event }) }));
   await page.goto(`/events/${EVENT_ID}`);
-  await expect(page.getByRole("link", { name: "Log in to register" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Log in to register" }).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Register now" })).toHaveCount(0);
 });
 
