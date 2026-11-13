@@ -31,6 +31,7 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 import { formatDate, formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, hasOpenDeadline } from "../utils/registrationDeadline";
+import { isHostedBy } from "../utils/eventHosts";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadIcs, googleCalendarUrl } from "../utils/calendar";
@@ -164,8 +165,7 @@ export default function EventDetails() {
   const eventFull = event ? (event.capacity ?? 100) - (event.registeredCount ?? 0) <= 0 : false;
   const eventOver = event ? isPastEvent(event.date) : false;
   // Admins can answer on any event; a club leader only on their own club's.
-  const eventClubId = event?.club?._id || event?.club || null;
-  const canAnswerQuestions = user?.role === "admin" || (!!eventClubId && ledClubs.some((c) => c._id === eventClubId));
+  const canAnswerQuestions = user?.role === "admin" || ledClubs.some((c) => isHostedBy(event, c._id));
   const waitlistRelevant = isAuthenticated && eventFull && !registeredHere && !eventOver;
 
   useEffect(() => {

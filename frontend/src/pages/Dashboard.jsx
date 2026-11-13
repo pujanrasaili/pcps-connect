@@ -34,6 +34,7 @@ import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { formatDate, formatDateAndTime, isUpcoming, relativeDay } from "../utils/formatDate";
+import { hostIds } from "../utils/eventHosts";
 import { resolveUploadUrl } from "../services/api";
 import { downloadIcsAll } from "../utils/calendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
@@ -85,7 +86,7 @@ export default function Dashboard() {
     const joinedIds = new Set(memberships.map((m) => m.club?._id).filter(Boolean));
     const registeredIds = new Set(registeredEvents.map((r) => r.event._id));
     return events
-      .filter((e) => e.club && joinedIds.has(e.club._id || e.club) && isUpcoming(e.date) && !registeredIds.has(e._id))
+      .filter((e) => hostIds(e).some((id) => joinedIds.has(id)) && isUpcoming(e.date) && !registeredIds.has(e._id))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [events, memberships, registeredEvents]);
 

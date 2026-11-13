@@ -65,3 +65,16 @@ test("a club's events filter and the search also find events it co-hosts", async
   await expect(page.getByRole("heading", { name: "Solo Night" })).toHaveCount(0);
   expect(problems).toEqual([]);
 });
+
+test("a member of a co-hosting club sees the event under 'From your clubs'", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en", role: "student" });
+  const future = new Date(Date.now() + 6 * 864e5).toISOString();
+  const joint = { _id: EVENT_ID, title: "Joint Night", description: "d", date: future, location: "Hall", capacity: 50, registeredCount: 1, club: clubs[0], coHosts: [clubs[1]], category: "General", price: "Free" };
+  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [joint] }) }));
+  // Joined the co-host (Robotics Society), not the main club.
+  await page.route("**/api/club-memberships/my", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ memberships: [{ _id: "m1", club: clubs[1] }] }) }));
+  await page.goto("/dashboard");
+  await expect(page.getByRole("heading", { name: "From your clubs" })).toBeVisible();
+  await expect(page.locator("div.card-surface", { has: page.getByRole("heading", { name: "From your clubs" }) }).getByText("Joint Night")).toBeVisible();
+  expect(problems).toEqual([]);
+});
