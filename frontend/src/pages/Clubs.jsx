@@ -23,6 +23,7 @@ import { useLang } from "../context/LanguageContext";
 import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
+import ClubLeaderboard from "../components/ClubLeaderboard";
 import ClubIdeas from "../components/ClubIdeas";
 import SafeImage from "../components/SafeImage";
 import CardSkeletons from "../components/CardSkeletons";
@@ -214,6 +215,8 @@ export default function Clubs() {
             )}
           </div>
         )}
+
+        <ClubLeaderboard />
       </div>
 
       <Modal isOpen={!!selectedClub} onClose={() => setSelectedClub(null)} title={selectedClub?.name} size="lg">
