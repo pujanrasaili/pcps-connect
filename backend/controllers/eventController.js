@@ -218,7 +218,18 @@ async function createEvent(req, res) {
 
     // Members hear about the first date only, so a club with a weekly series
     // doesn't get a dozen emails at once.
-    if (club) await notifyNewClubEvent(event, club);
+    if (club) {
+      await notifyNewClubEvent(event, club);
+      // Members of co-hosting clubs hear about it too (once, even if they joined both).
+      if (coHosts.ids?.length) {
+        try {
+          const others = (await Club.find({ _id: { $in: coHosts.ids } })) || [];
+          for (const other of others) await notifyNewClubEvent(event, other, { exceptMembersOf: club._id });
+        } catch (err) {
+          console.error("Failed to notify co-hosting clubs:", err.message);
+        }
+      }
+    }
     await recordAudit(
       req.user,
       "event.created",

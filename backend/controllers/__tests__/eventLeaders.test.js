@@ -198,6 +198,17 @@ describe("co-hosted events", () => {
     expect(Event.create).not.toHaveBeenCalled();
   });
 
+  it("co-hosting clubs' members are notified after the main club", async () => {
+    const { notifyNewClubEvent } = require("../../utils/notifyClubMembers");
+    Club.countDocuments.mockResolvedValue(1);
+    Club.find.mockResolvedValue([{ _id: B, name: "B" }]);
+    const res = mockRes();
+    await createEvent({ body: { ...body, club: A, coHosts: JSON.stringify([B]) }, user: ADMIN }, res);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(notifyNewClubEvent).toHaveBeenCalledTimes(2);
+    expect(notifyNewClubEvent.mock.calls[1][2]).toEqual({ exceptMembersOf: A });
+  });
+
   it("400 when a co-host club doesn't exist", async () => {
     Club.countDocuments.mockResolvedValue(0);
     const res = mockRes();

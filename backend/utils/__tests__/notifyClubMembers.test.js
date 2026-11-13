@@ -26,6 +26,16 @@ describe("notifyNewClubEvent", () => {
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np" }));
   });
 
+  it("a co-host club skips members who already heard from the main club", async () => {
+    ClubMembership.find
+      .mockReturnValueOnce({ populate: jest.fn().mockResolvedValue([member(1, { _id: "u1" }), member(2, { _id: "u2" })]) })
+      .mockReturnValueOnce({ select: jest.fn().mockResolvedValue([{ user: "u2" }]) });
+    expect(await notifyNewClubEvent(event, club, { exceptMembersOf: "main" })).toBe(1);
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+    expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np" }));
+    expect(ClubMembership.find).toHaveBeenLastCalledWith({ club: "main" });
+  });
+
   it("lets members opt out: List-Unsubscribe header and a Settings link in the email", async () => {
     members([member(1)]);
     await notifyNewClubEvent(event, club);

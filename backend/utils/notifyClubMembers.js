@@ -13,10 +13,15 @@ const { clubEmail, settingsWord } = require("./clubEmailText");
 // other notification emails: one bounced address never blocks the rest, and
 // nothing here is allowed to turn a successful "event created" into a 500.
 // Returns how many emails were attempted.
-async function notifyNewClubEvent(event, club) {
+async function notifyNewClubEvent(event, club, { exceptMembersOf } = {}) {
   let memberships;
   try {
     memberships = await ClubMembership.find({ club: club._id }).populate("user", "name email clubUpdates language");
+    // A co-host club's members who already heard from the main club aren't told twice.
+    if (exceptMembersOf) {
+      const already = new Set((await ClubMembership.find({ club: exceptMembersOf }).select("user")).map((m) => String(m.user)));
+      memberships = memberships.filter((m) => !already.has(String(m.user?._id || m.user)));
+    }
   } catch (err) {
     console.error("Failed to look up club members to notify:", err.message);
     return 0;
