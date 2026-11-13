@@ -43,6 +43,20 @@ import { relatedEvents } from "../utils/relatedEvents";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import SafeImage from "../components/SafeImage";
 
+// The pinned Register bar is only needed once the real button in the details card has
+// scrolled out of sight (the 120px margin counts the part hidden behind the bars).
+function StickyRegister({ children }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const el = document.querySelector("[data-register-cta]");
+    if (!el || !("IntersectionObserver" in window)) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setHidden(entry.isIntersecting), { rootMargin: "0px 0px -120px 0px" });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return hidden ? null : children;
+}
+
 export default function EventDetails() {
   const { id } = useParams();
   const { t } = useLang();
@@ -473,12 +487,12 @@ export default function EventDetails() {
                   {t("Registration closes {when}", { when: formatDateTime(event.registrationDeadline) })}
                 </p>
               )}
-              <Button className="mt-5 w-full" onClick={handleRegisterClick}>
+              <Button data-register-cta className="mt-5 w-full" onClick={handleRegisterClick}>
                 {event.requiresApproval ? t("Request to join") : t("Register now")}
               </Button>
               </>
             ) : (
-              <Link to="/login" state={{ from: `/events/${event._id}` }} className="btn-primary mt-5 w-full">
+              <Link data-register-cta to="/login" state={{ from: `/events/${event._id}` }} className="btn-primary mt-5 w-full">
                 {t("Log in to register")}
               </Link>
             )}
@@ -504,6 +518,7 @@ export default function EventDetails() {
           touch shortcut only (hidden from screen readers and the Tab key, which use the
           real button in the card) and never shows on a computer. */}
       {showStickyRegister && (
+        <StickyRegister>
         <div aria-hidden="true" className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur dark:border-white/10 dark:bg-slate-950/95 lg:hidden print:hidden">
           {isAuthenticated ? (
             <button type="button" tabIndex={-1} onClick={handleRegisterClick} className="btn-primary w-full">
@@ -515,6 +530,7 @@ export default function EventDetails() {
             </Link>
           )}
         </div>
+        </StickyRegister>
       )}
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={event.requiresApproval ? t("Request to join this event") : t("Register for this event")}>
