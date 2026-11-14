@@ -1460,4 +1460,5 @@ export const ne = {
   "Get a bell message when a new event in one of these topics is announced. Pick up to {n}.": "यी विषयमा नयाँ कार्यक्रम घोषणा हुँदा घण्टी सन्देश पाउनुहोस्। बढीमा {n} वटा छान्नुहोस्।",
   "In topics you follow": "तपाईंले पछ्याएका विषयमा",
   "Change your topics": "विषयहरू परिवर्तन गर्नुहोस्",
+  "My topics": "मेरा विषयहरू",
 };

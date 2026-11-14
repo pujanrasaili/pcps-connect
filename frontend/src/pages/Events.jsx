@@ -1,5 +1,5 @@
 import CalendarSubscribe from "../components/CalendarSubscribe";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FaTimes, FaList, FaRegCalendarAlt } from "react-icons/fa";
 import EventCard from "../components/EventCard";
@@ -22,10 +22,11 @@ import CardSkeletons from "../components/CardSkeletons";
 
 const PAGE_SIZE = 9;
 
+const MY_TOPICS = "My topics";
 export default function Events() {
   const { t } = useLang();
   const { events, loading, error } = useEvents();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { registrations } = useRegistrations();
   const registeredIds = useMemo(
     () => new Set(isAuthenticated ? registrations.map((r) => r.event?._id).filter(Boolean) : []),
@@ -55,9 +56,20 @@ export default function Events() {
   );
   const clearClubFilter = () => setSearchParams((prev) => { const n = new URLSearchParams(prev); n.delete("club"); return n; }, { replace: true });
 
+  // "My topics" shows events in the categories the student follows (Settings);
+  // it is only offered, and only applied, when they follow at least one.
+  const myTopics = useMemo(() => new Set(isAuthenticated ? user?.interests || [] : []), [isAuthenticated, user?.interests]);
+  const inCategory = useCallback(
+    (event) => {
+      if (category === "All") return true;
+      if (category === MY_TOPICS) return myTopics.size === 0 || myTopics.has(String(event.category || "").trim().toLowerCase());
+      return event.category === category;
+    },
+    [category, myTopics]
+  );
   const categories = useMemo(
-    () => ["All", ...new Set(events.map((e) => e.category).filter(Boolean))],
-    [events]
+    () => ["All", ...(myTopics.size > 0 ? [MY_TOPICS] : []), ...new Set(events.map((e) => e.category).filter(Boolean))],
+    [events, myTopics]
   );
 
   const filteredEvents = useMemo(() => {
@@ -75,7 +87,7 @@ export default function Events() {
                 : when === "week"
                   ? isThisWeek(event.date)
                   : isPast;
-        const matchesCategory = category === "All" || event.category === category;
+        const matchesCategory = inCategory(event);
         const matchesClub = !clubFilter || isHostedBy(event, clubFilter);
         const matchesSpots = (!openOnly || hasOpenSpots(event)) && (!freeOnly || isFreeEvent(event));
         // Search the fields students actually think in: the event name, where
@@ -95,7 +107,7 @@ export default function Events() {
         const newestFirst = when === "past" || (mixed && pastA);
         return newestFirst ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
       });
-  }, [events, debouncedQuery, category, when, clubFilter, registeredIds, savedIds, openOnly, freeOnly]);
+  }, [events, debouncedQuery, inCategory, when, clubFilter, registeredIds, savedIds, openOnly, freeOnly]);
 
   // The calendar shows every month, so it ignores the Upcoming/Past/Registered
   // tabs but keeps the category, search, club and spots-left filters.
@@ -103,13 +115,13 @@ export default function Events() {
     const needle = debouncedQuery.toLowerCase();
     return events.filter(
       (event) =>
-        (category === "All" || event.category === category) &&
+        inCategory(event) &&
         (!clubFilter || isHostedBy(event, clubFilter)) &&
         (!openOnly || hasOpenSpots(event)) &&
         (!freeOnly || isFreeEvent(event)) &&
         [event.title, event.location, ...hostNames(event)].filter(Boolean).some((field) => field.toLowerCase().includes(needle))
     );
-  }, [events, debouncedQuery, category, clubFilter, openOnly, freeOnly]);
+  }, [events, debouncedQuery, inCategory, clubFilter, openOnly, freeOnly]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
