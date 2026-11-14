@@ -2,6 +2,7 @@ const Registration = require("../models/Registration");
 const { isObjectId } = require("../middleware/validateId");
 const { registrationClosed } = require("../utils/registrationDeadline");
 const Event = require("../models/Event");
+const User = require("../models/User");
 const { safeError } = require("../utils/errorMessage");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const { sendRegistrationConfirmation, sendRequestReceived } = require("../utils/registrationEmails");
@@ -91,11 +92,16 @@ async function registerForEvent(req, res) {
     if (!registration) return res.status(400).json({ message: "This event is full" });
 
     if (registration.status === "pending") {
-      await notifyAdmins({
-        type: "join_request",
-        title: `${req.user.name} asked to join ${event.title}`,
-        link: "/admin/events",
-      });
+      const message = { type: "join_request", title: `${req.user.name} asked to join ${event.title}`, link: "/admin/events" };
+      await notifyAdmins(message);
+      // The hosting clubs' leaders approve these too (admins were told above).
+      try {
+        const ids = (await organiserIds(event)).filter((id) => id !== String(req.user._id));
+        const leaders = await User.find({ _id: { $in: ids }, role: { $ne: "admin" } }).select("_id");
+        if (leaders.length) await pushNotifications(leaders.map((l) => l._id), message);
+      } catch (err) {
+        console.error("Failed to notify event leaders of a join request:", err.message);
+      }
       await sendRequestReceived(req.user, event);
       return res.status(201).json({ message: "Request sent -- the organisers will review it", registration });
     }
