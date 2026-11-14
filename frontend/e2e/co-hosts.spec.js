@@ -33,6 +33,8 @@ test("an admin picks co-hosting clubs, at most two", async ({ page }) => {
   await group.getByLabel(more[2].name).check();
   const rest = group.getByRole("checkbox", { disabled: true });
   expect(await rest.count()).toBeGreaterThan(0); // a third is not allowed
+  // The form slides and fades in; scan it only once every animation has finished.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running"));
   expect(await axeViolations(page)).toEqual([]);
 
   await page.getByRole("button", { name: "Create event", exact: true }).click();
