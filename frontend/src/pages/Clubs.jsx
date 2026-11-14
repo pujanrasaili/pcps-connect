@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { joinButtonState } from "../utils/clubJoinState";
 import { Link, useSearchParams } from "react-router-dom";
-import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers, FaPrint, FaClock } from "react-icons/fa";
+import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers, FaPrint, FaClock, FaPen } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -26,6 +26,7 @@ import ClubNews from "../components/ClubNews";
 import ClubLeaderboard from "../components/ClubLeaderboard";
 import { isHostedBy } from "../utils/eventHosts";
 import ClubIdeas from "../components/ClubIdeas";
+import ClubDetailsDialog from "../components/ClubDetailsDialog";
 import SafeImage from "../components/SafeImage";
 import CardSkeletons from "../components/CardSkeletons";
 
@@ -33,7 +34,7 @@ const PAGE_SIZE = 9;
 
 export default function Clubs() {
   const { t } = useLang();
-  const { clubs, loading, error } = useClubs();
+  const { clubs, loading, error, refreshClubs } = useClubs();
   const [params, setParams] = useSearchParams();
   const toast = useToast();
   // The open club lives in the URL (?club=<id>) so a club can be linked to and
@@ -94,6 +95,7 @@ export default function Clubs() {
   const { isAuthenticated, user } = useAuth();
   // Admins can post on any club; a leader only on the clubs they lead.
   const { clubs: ledClubs } = useLedClubs();
+  const [editingClub, setEditingClub] = useState(null);
   const canPostNews = (id) => user?.role === "admin" || ledClubs.some((c) => c._id === id);
   // "Only my clubs" needs a login, so the link is ignored for visitors.
   const mineOnly = isAuthenticated && params.get("mine") === "1";
@@ -220,6 +222,7 @@ export default function Clubs() {
         <ClubLeaderboard />
       </div>
 
+      {editingClub && <ClubDetailsDialog club={editingClub} onClose={() => setEditingClub(null)} onSaved={refreshClubs} />}
       <Modal isOpen={!!selectedClub} onClose={() => setSelectedClub(null)} title={selectedClub?.name} size="lg">
         {selectedClub && (
           <div>
@@ -314,6 +317,16 @@ export default function Clubs() {
                 >
                   <FaShareAlt />
                 </button>
+                {canPostNews(selectedClub._id) && (
+                  <button
+                    type="button"
+                    onClick={() => { setEditingClub(selectedClub); setSelectedClub(null); }}
+                    aria-label={t("Edit club details")}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
+                  >
+                    <FaPen />
+                  </button>
+                )}
                 {canPostNews(selectedClub._id) && (
                   <Link
                     to={`/clubs/${selectedClub._id}/poster`}

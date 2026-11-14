@@ -795,6 +795,9 @@ export const ne = {
   "Contact email": "सम्पर्क इमेल",
   "Founded year": "स्थापना वर्ष",
   "Regular meetings": "नियमित बैठक",
+  "Edit club details": "क्लबको विवरण सम्पादन गर्नुहोस्",
+  "Club details saved.": "क्लबको विवरण सुरक्षित भयो।",
+  "Short description can't be empty": "छोटो विवरण खाली हुन सक्दैन",
   "e.g. Thursdays 3 PM, Room 204": "जस्तै बिहीबार दिउँसो 3 बजे, कोठा 204",
   "Meets: {when}": "बैठक: {when}",
   "Approve each person who joins": "सामेल हुने प्रत्येक व्यक्तिलाई स्वीकृत गर्नुहोस्",
@@ -1464,4 +1467,7 @@ export const ne = {
   "In topics you follow": "तपाईंले पछ्याएका विषयमा",
   "Change your topics": "विषयहरू परिवर्तन गर्नुहोस्",
   "My topics": "मेरा विषयहरू",
+  "Failed to save club details": "क्लबको विवरण सुरक्षित गर्न सकिएन",
+  "Only this club's leaders can edit it": "यो क्लबका नेताहरूले मात्र सम्पादन गर्न सक्छन्",
+  "Nothing to update": "अद्यावधिक गर्न केही छैन",
 };
