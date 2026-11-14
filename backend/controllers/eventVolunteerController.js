@@ -31,7 +31,7 @@ async function describe(event, viewer, withNames) {
 // GET /api/events/:id/volunteers  (public; organisers also see who signed up)
 async function getVolunteers(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title date club createdBy volunteerRoles");
+    const event = await Event.findById(req.params.id).select("title date club coHosts createdBy volunteerRoles");
     if (!event) return res.status(404).json({ message: "Event not found" });
     const staff = !!req.user && (await canManageEvent(req.user, event));
     res.status(200).json(await describe(event, req.user, staff));
@@ -44,7 +44,7 @@ async function getVolunteers(req, res) {
 // Marks that a volunteer really helped; only then can they download the certificate.
 async function setHelperAttended(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title date club createdBy");
+    const event = await Event.findById(req.params.id).select("title date club coHosts createdBy");
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });

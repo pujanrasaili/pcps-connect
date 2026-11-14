@@ -12,7 +12,7 @@ const { safeError } = require("../utils/errorMessage");
 // The event's organisers, and students whose registration is confirmed.
 async function getJoinLink(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("+joinLink club");
+    const event = await Event.findById(req.params.id).select("+joinLink club coHosts");
     if (!event) return res.status(404).json({ message: "Event not found" });
     const allowed =
       (await canManageEvent(req.user, event)) ||
@@ -27,7 +27,7 @@ async function getJoinLink(req, res) {
 // PUT /api/events/:id/join-link  { link }  (organisers; an empty link removes it)
 async function setJoinLink(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title club");
+    const event = await Event.findById(req.params.id).select("title club coHosts");
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
