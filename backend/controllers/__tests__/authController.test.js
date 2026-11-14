@@ -292,6 +292,18 @@ describe("updateProfile", () => {
     expect(User.findByIdAndUpdate).toHaveBeenCalledWith("u1", { name: "Sita" }, expect.any(Object));
   });
 
+  it("saves followed topics cleaned up, and rejects more than five", async () => {
+    User.findByIdAndUpdate.mockResolvedValue({ ...goodUser(), interests: ["workshop"] });
+    const ok = await call({ interests: [" Workshop ", "workshop"] });
+    expect(User.findByIdAndUpdate).toHaveBeenCalledWith("u1", { interests: ["workshop"] }, expect.any(Object));
+    expect(ok.status).toHaveBeenCalledWith(200);
+    expect(ok.json.mock.calls[0][0].user.interests).toEqual(["workshop"]);
+    User.findByIdAndUpdate.mockClear();
+    const bad = await call({ interests: ["a", "b", "c", "d", "e", "f"] });
+    expect(bad.status).toHaveBeenCalledWith(400);
+    expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
   it("rejects an http avatar link", async () => {
     const res = await call({ avatar: "http://evil.example/x.png" });
     expect(res.status).toHaveBeenCalledWith(400);
