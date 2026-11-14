@@ -1,7 +1,8 @@
-// Emails each student one summary of the coming week's events from the clubs
-// they joined (see utils/weeklyDigest.js for who gets what). Meant to run
-// weekly, see .github/workflows/weekly-digest.yml. Students who turned club
-// updates off in Settings are skipped, and nobody gets an empty digest.
+// Emails each student one summary of the coming week's events: from the clubs
+// they joined and in the topics they follow (see utils/weeklyDigest.js for who
+// gets what). Meant to run weekly, see .github/workflows/weekly-digest.yml.
+// Students who turned club updates off in Settings are skipped, and nobody gets
+// an empty digest.
 //
 // Best-effort like the rest of the app's email: a bounced address is logged
 // and the run carries on. Pass --dry to print who would be emailed without
@@ -19,6 +20,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 require("../models/Club");
 require("../models/User");
 const Event = require("../models/Event");
+const User = require("../models/User");
 const ClubMembership = require("../models/ClubMembership");
 const Registration = require("../models/Registration");
 const sendEmail = require("../utils/sendEmail");
@@ -32,15 +34,20 @@ async function run() {
   await mongoose.connect(process.env.MONGO_URI);
   const { start, end } = digestWindow();
 
-  const events = await Event.find({ date: { $gte: start, $lte: end }, club: { $ne: null } }).populate("club", "name");
-  console.log(`Found ${events.length} club event(s) in the next 7 days.`);
+  const events = await Event.find({ date: { $gte: start, $lte: end } }).populate("club", "name");
+  console.log(`Found ${events.length} event(s) in the next 7 days.`);
 
   let digests = [];
   if (events.length) {
-    const clubIds = [...new Set(events.flatMap((e) => [e.club._id, ...(e.coHosts || [])].map(String)))];
+    const clubIds = [...new Set(events.flatMap((e) => [e.club?._id, ...(e.coHosts || [])].filter(Boolean).map(String)))];
     const memberships = await ClubMembership.find({ club: { $in: clubIds } }).populate("user", "name email clubUpdates language");
     const registrations = await Registration.find({ event: { $in: events.map((e) => e._id) }, status: { $ne: "cancelled" } }).select("user event");
-    digests = buildDigests({ events, memberships, registrations });
+    // Students who follow a topic hear about matching events from any club (or none).
+    const topics = [...new Set(events.map((e) => String(e.category || "").trim().toLowerCase()).filter((t) => t && t !== "general"))];
+    const followers = topics.length
+      ? (await User.find({ interests: { $in: topics }, approvalStatus: "approved" }).select("name email clubUpdates language interests")).map((u) => ({ user: u, interests: u.interests }))
+      : [];
+    digests = buildDigests({ events, memberships, registrations, followers });
   }
   console.log(`${digests.length} student(s) have something to hear about.`);
 
