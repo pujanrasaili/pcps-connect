@@ -8,6 +8,7 @@ const Club = require("../models/Club");
 const { recordAudit } = require("../utils/audit");
 const { ratingSummary } = require("../utils/ratingSummary");
 const { notifyNewClubEvent } = require("../utils/notifyClubMembers");
+const { notifyInterestedStudents } = require("../utils/notifyInterested");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const { uploadBufferToCloudinary } = require("../middleware/upload");
 const { safeError } = require("../utils/errorMessage");
@@ -230,6 +231,8 @@ async function createEvent(req, res) {
         }
       }
     }
+    // Students who follow this topic hear about it too (the first date of a series only).
+    await notifyInterestedStudents(event, [club?._id, ...(coHosts.ids || [])]);
     await recordAudit(
       req.user,
       "event.created",

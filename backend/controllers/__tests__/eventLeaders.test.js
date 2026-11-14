@@ -5,6 +5,7 @@ jest.mock("../../models/WaitlistEntry");
 jest.mock("../../models/EventQuestion");
 jest.mock("../../models/EventVolunteer");
 jest.mock("../../utils/notifyClubMembers");
+jest.mock("../../utils/notifyInterested");
 jest.mock("../../utils/notifyRegistrants");
 jest.mock("../../utils/waitlist");
 jest.mock("../../utils/audit");
@@ -207,6 +208,17 @@ describe("co-hosted events", () => {
     expect(res.status).toHaveBeenCalledWith(201);
     expect(notifyNewClubEvent).toHaveBeenCalledTimes(2);
     expect(notifyNewClubEvent.mock.calls[1][2]).toEqual({ exceptMembersOf: A });
+  });
+
+  it("announces the new event to students who follow its topic, skipping the hosting clubs' members", async () => {
+    const { notifyInterestedStudents } = require("../../utils/notifyInterested");
+    Club.countDocuments.mockResolvedValue(1);
+    Club.find.mockResolvedValue([{ _id: B, name: "B" }]);
+    const res = mockRes();
+    await createEvent({ body: { ...body, club: A, coHosts: JSON.stringify([B]) }, user: ADMIN }, res);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(notifyInterestedStudents).toHaveBeenCalledTimes(1);
+    expect(notifyInterestedStudents.mock.calls[0][1]).toEqual([A, B]);
   });
 
   it("400 when a co-host club doesn't exist", async () => {
