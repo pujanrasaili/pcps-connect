@@ -76,6 +76,54 @@ describe("buildDigests", () => {
   });
 });
 
+describe("followed topics", () => {
+  const follower = (userId, interests, extra = {}) => ({ user: { _id: userId, name: `User ${userId}`, email: `${userId}@x.com`, ...extra }, interests });
+  const topicEv = (id, day, category, extra = {}) => ev(id, "c9", day, { category, ...extra });
+
+  it("sends events in a followed topic even to someone in no club", () => {
+    const out = buildDigests({ events: [topicEv("e1", 20, "Workshop")], memberships: [], registrations: [], followers: [follower("u1", ["workshop"])] });
+    expect(out).toHaveLength(1);
+    expect(out[0].events.map((e) => e._id)).toEqual(["e1"]);
+    expect(out[0].forYou).toBe(true);
+  });
+
+  it("skips other topics, General, full events, registered ones, opt-outs and missing emails", () => {
+    const events = [topicEv("e1", 20, "Sports"), topicEv("e2", 21, "General"), topicEv("e3", 22, "Workshop", { capacity: 5, registeredCount: 5 }), topicEv("e4", 23, "Workshop")];
+    const base = { events, memberships: [], registrations: [{ user: "u1", event: "e4" }] };
+    expect(buildDigests({ ...base, followers: [follower("u1", ["workshop", "general"])] })).toEqual([]);
+    expect(buildDigests({ ...base, followers: [follower("u2", ["workshop"], { clubUpdates: false })] })).toEqual([]);
+    expect(buildDigests({ ...base, followers: [follower("u3", ["workshop"], { email: "" })] })).toEqual([]);
+  });
+
+  it("doesn't repeat an event the student already gets through a club, and keeps the club wording then", () => {
+    const events = [ev("e1", "c1", 20, { category: "Workshop" })];
+    const out = buildDigests({ events, memberships: [member("u1", "c1")], registrations: [], followers: [follower("u1", ["workshop"])] });
+    expect(out[0].events).toHaveLength(1);
+    expect(out[0].forYou).toBe(false);
+  });
+
+  it("mixes club and topic events in one digest, soonest first", () => {
+    const events = [ev("e1", "c1", 22), topicEv("e2", 20, "Workshop")];
+    const out = buildDigests({ events, memberships: [member("u1", "c1")], registrations: [], followers: [follower("u1", ["workshop"])] });
+    expect(out[0].events.map((e) => e._id)).toEqual(["e2", "e1"]);
+    expect(out[0].forYou).toBe(true);
+  });
+
+  it("renders the 'for you' wording only when a topic event is included, and tolerates events with no club", () => {
+    const user = { _id: "u1", name: "Asha", email: "a@x.com", language: "en" };
+    const noClub = { ...topicEv("e1", 20, "Workshop"), club: null };
+    const withTopic = renderDigest({ user, events: [noClub], more: 0, forYou: true }, "https://site.test");
+    expect(withTopic.subject).toBe("1 event this week for you");
+    expect(withTopic.html).toContain("topics you follow");
+    expect(withTopic.html).not.toContain("undefined");
+    expect(withTopic.html).not.toMatch(/>\s*&middot;/);
+    const plain = renderDigest({ user, events: [ev("e2", "c1", 21)], more: 0, forYou: false }, "https://site.test");
+    expect(plain.subject).toBe("1 event this week from your clubs");
+    const ne = renderDigest({ user: { ...user, language: "ne" }, events: [noClub], more: 0, forYou: true }, "https://site.test");
+    expect(ne.subject).toContain("तपाईंका लागि");
+  });
+});
+
 describe("renderDigest", () => {
   const user = { _id: "u1", name: "Sita <b>" };
 
