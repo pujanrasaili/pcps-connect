@@ -4,6 +4,7 @@ jest.mock("../../models/User");
 jest.mock("../../utils/audit");
 jest.mock("../../utils/clubAccess");
 jest.mock("../../utils/notifyQuestion");
+jest.mock("../../utils/eventOrganisers");
 
 const Event = require("../../models/Event");
 const EventQuestion = require("../../models/EventQuestion");
@@ -11,6 +12,7 @@ const User = require("../../models/User");
 const { recordAudit } = require("../../utils/audit");
 const { canManageEvent } = require("../../utils/clubAccess");
 const { notifyOrganiserOfQuestion, notifyAskerOfAnswer } = require("../../utils/notifyQuestion");
+const { organiserIds } = require("../../utils/eventOrganisers");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../eventQuestionController");
 
 function mockRes() {
@@ -56,14 +58,17 @@ describe("askQuestion", () => {
     Event.findById.mockReturnValue(selectOf(event()));
     EventQuestion.countDocuments.mockResolvedValue(0);
     EventQuestion.create.mockImplementation(async (doc) => ({ _id: "new", ...doc, createdAt: "t" }));
-    User.findById.mockReturnValue(selectOf({ name: "Organiser", email: "org@x.np" }));
+    organiserIds.mockResolvedValue(["org1", "leader1"]);
+    User.find.mockImplementation((q) => selectOf(q._id.$in.map((id) => ({ _id: id, name: id, email: `${id}@x.np` }))));
   });
 
   it("saves only the first name, emails the organiser and answers 201", async () => {
     const res = mockRes();
     await askQuestion({ params: { id: EV }, body: { question: " Is food free? " }, user: student }, res);
     expect(EventQuestion.create).toHaveBeenCalledWith({ event: EV, author: "u1", authorName: "Sita", question: "Is food free?" });
-    expect(notifyOrganiserOfQuestion).toHaveBeenCalledTimes(1);
+    // the event's creator and the hosting club's leader both hear
+    expect(notifyOrganiserOfQuestion).toHaveBeenCalledTimes(2);
+    expect(notifyOrganiserOfQuestion.mock.calls.map((c) => c[0]._id)).toEqual(["org1", "leader1"]);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json.mock.calls[0][0].question).not.toHaveProperty("author");
   });
@@ -71,7 +76,8 @@ describe("askQuestion", () => {
   it("does not email an organiser about their own question", async () => {
     const res = mockRes();
     await askQuestion({ params: { id: EV }, body: { question: "Testing 123" }, user: { _id: "org1", name: "Org" } }, res);
-    expect(notifyOrganiserOfQuestion).not.toHaveBeenCalled();
+    expect(notifyOrganiserOfQuestion).toHaveBeenCalledTimes(1);
+    expect(notifyOrganiserOfQuestion.mock.calls[0][0]._id).toBe("leader1");
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
