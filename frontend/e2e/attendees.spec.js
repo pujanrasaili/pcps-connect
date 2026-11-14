@@ -10,12 +10,12 @@ const reg = (i, name, extra = {}) => ({ _id: `g${i}`.padEnd(24, "0"), status: "c
 const reply = (route, body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
 const quiet = (problems) => problems.filter((p) => !/status of (400|401|404|409)/.test(p));
 
-async function withAttendeesApi(page, { regs, waitlist = [], walkIn } = {}) {
+async function withAttendeesApi(page, { regs, waitlist = [], walkIn, sent } = {}) {
   let rows = regs || [reg(1, "Asha Rai"), reg(2, "Bikash Thapa", { attended: true, rating: 4, feedback: "Great session" }), reg(3, "Chhori Lama"), reg(4, "Pema Sherpa", { status: "pending" })];
   const calls = [];
   await page.route("**/api/events", (route) => reply(route, { events: [event] }));
   await page.route(`**/api/admin/events/${EV}/registrations`, (route) => reply(route, { registrations: rows, waitlist }));
-  await page.route(`**/api/admin/events/${EV}/announce`, (route) => { calls.push(`announce ${route.request().postDataJSON().message}`); return reply(route, { message: "Sent to 4 students." }); });
+  await page.route(`**/api/admin/events/${EV}/announce`, (route) => { calls.push(`announce ${route.request().postDataJSON().message}`); return reply(route, sent ? { message: "Message sent to 4 student(s)", sent } : { message: "Sent to 4 students." }); });
   await page.route(`**/api/admin/events/${EV}/walk-in`, (route) => {
     calls.push(`walk-in ${route.request().postDataJSON().identifier}`);
     if (walkIn) return reply(route, { message: walkIn }, 400);
@@ -162,4 +162,14 @@ test("an event nobody has registered for says so", async ({ page }) => {
   await withAttendeesApi(page, { regs: [] });
   const dialog = await openAttendees(page);
   await expect(dialog.getByText("No one has registered for this event yet.")).toBeVisible();
+});
+
+test("the sent-to-N confirmation is shown in Nepali", async ({ page }) => {
+  await setUp(page, { lang: "ne", role: "admin" });
+  await withAttendeesApi(page, { sent: 4 });
+  const dialog = await openAttendees(page, "ne");
+  await dialog.getByRole("button", { name: "सबैलाई सन्देश" }).click();
+  await dialog.getByLabel(/4/).first().fill("Moved to Room B2");
+  await dialog.getByRole("button", { name: "4 जनालाई पठाउनुहोस्" }).click();
+  await expect(page.getByText("4 जना विद्यार्थीलाई सन्देश पठाइयो")).toBeVisible();
 });
