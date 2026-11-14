@@ -39,11 +39,18 @@ As **S**:
 3. As **A**, the bell should show: All places are taken for "Registration desk" at ... (only if A did not sign up themselves).
 4. As **S**, press **Cancel**. The role shows 0 of 1 again.
 
-## 5. Day-before reminder emails (optional, needs an event tomorrow)
+## 5. Full events and leaders (5 min)
+
+1. As **A**, create an event with capacity **1** for a club that has a leader (a third account **L**, made leader in Admin → Clubs → leaders icon, is ideal).
+2. As **S**, register. As **A** (and as **L**) the bell should show: "<event> is full". Registering as **A** yourself should not ring A's own bell.
+3. Turn on "Approve each person who joins" for another event. As **S** send a request. As **A** and **L** the bell should show "S asked to join ...". As **S** ask a question on the event page: **A** and **L** should both get an email.
+4. In Nepali (switch with the language button) the same bell messages should read in Nepali.
+
+## 6. Day-before reminder emails (optional, needs an event tomorrow)
 
 Create an event for tomorrow, register **S** for it and, if you like, also add S as a volunteer. After the next scheduled reminder run (GitHub → Actions → the event reminders workflow; you can also press "Run workflow"), S should receive the email and a bell message. A student who switched event reminders off in Settings receives neither.
 
-## 6. Nepali pages (10 min)
+## 7. Nepali pages (10 min)
 
 Switch the site to Nepali and open: Privacy, Terms, an event with volunteer roles, the Dashboard, Help. Anything that is English where it should be Nepali, or Nepali that reads wrong, write down or screenshot and send to Claude. The review sheet `nepali-review.html` lists the strings to check, starting with its "Start here" section, then "New features" (alerts, notice board, activity record, poster, online link, volunteers).
 
