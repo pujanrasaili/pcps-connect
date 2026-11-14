@@ -1476,4 +1476,6 @@ export const ne = {
   "A notice board post was hidden after {count} reports: \"{title}\"": "{count} रिपोर्ट पछि सूचना पाटीको पोस्ट लुकाइयो: \"{title}\"",
   "You're helping at {title} on {date} ({role})": "तपाईं {date} मा {title} मा सहयोग गर्दै हुनुहुन्छ ({role})",
   "You're helping at {title} on {date}": "तपाईं {date} मा {title} मा सहयोग गर्दै हुनुहुन्छ",
+  "Message sent to {n} student(s)": "{n} जना विद्यार्थीलाई सन्देश पठाइयो",
+  "Message sent to {n} member(s)": "{n} जना सदस्यलाई सन्देश पठाइयो",
 };

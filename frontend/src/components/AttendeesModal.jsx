@@ -67,7 +67,7 @@ export default function AttendeesModal({ event, onClose }) {
     setSending(true);
     try {
       const res = await api.post(`/admin/events/${event._id}/announce`, { message });
-      toast.success(res.data.message);
+      toast.success(typeof res.data.sent === "number" ? t("Message sent to {n} student(s)", { n: res.data.sent }) : t(res.data.message));
       setComposing(false);
       setMessage("");
     } catch (err) {

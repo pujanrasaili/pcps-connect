@@ -24,7 +24,7 @@ export default function ClubMessageModal({ club, memberCount: memberCountProp, o
     setSending(true);
     try {
       const res = await api.post(`/admin/clubs/${club._id}/announce`, { message });
-      toast.success(res.data.message);
+      toast.success(typeof res.data.sent === "number" ? t("Message sent to {n} member(s)", { n: res.data.sent }) : t(res.data.message));
       onClose();
     } catch (err) {
       toast.error(getErrorMessage(err, t("Failed to send message")));
