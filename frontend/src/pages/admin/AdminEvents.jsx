@@ -48,6 +48,15 @@ export default function AdminEvents() {
   const { clubs: ledClubs } = useLedClubs();
   const toast = useToast();
   const { t } = useLang();
+  const categoryOptions = useMemo(() => {
+    const seen = new Map();
+    for (const e of events) {
+      const name = String(e.category || "").trim();
+      if (name && name.toLowerCase() !== "general" && !seen.has(name.toLowerCase())) seen.set(name.toLowerCase(), name);
+    }
+    return [...seen.values()].sort((x, y) => x.localeCompare(y));
+  }, [events]);
+
   // A club leader (not an admin) sees and manages only their own clubs' events,
   // and every event they create must belong to one of those clubs.
   const leaderMode = user?.role !== "admin";
@@ -463,7 +472,13 @@ export default function AdminEvents() {
             </div>
             <div>
               <label className="label-field" htmlFor="ev-category">{t("Category")}</label>
-              <input id="ev-category" name="category" maxLength={50} className="input-field" value={form.category} onChange={handleChange} placeholder={t("Technology, Workshop...")} />
+              <input id="ev-category" name="category" maxLength={50} list="ev-category-options" className="input-field" value={form.category} onChange={handleChange} placeholder={t("Technology, Workshop...")} />
+              {/* Suggest the categories already in use, so students who follow a topic aren't missed by a spelling variant. */}
+              <datalist id="ev-category-options">
+                {categoryOptions.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label className="label-field" htmlFor="ev-price">{t("Price")}</label>
