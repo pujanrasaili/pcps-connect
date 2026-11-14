@@ -61,7 +61,7 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 - **Event photos:** open an event's page and press "Add photo" in the Photos box (admins and the event's club leaders only). Up to 8 per event, max 5 MB each; the trash icon on a photo removes it from the page.
 - **Contact form messages:** Admin → Messages lists what people sent through the Contact page. Press Reply to answer from your email app, then Mark handled. Messages are deleted automatically after 180 days.
 - **Who changed what:** the Activity page lists recent admin actions (last 200).
-- **Export a list:** the attendee list and the Users page have a CSV download.
+- **Export a list:** the attendee list, the Users page and Manage Events have a CSV download. On Manage Events it exports exactly the events the tab and search show: title, date, place, category, hosting clubs, price, registered, capacity, pending requests and rating.
 
 ## Emails that send themselves
 
