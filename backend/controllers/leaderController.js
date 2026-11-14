@@ -5,6 +5,9 @@ const Event = require("../models/Event");
 const Registration = require("../models/Registration");
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { safeError } = require("../utils/errorMessage");
+const { pickLeaderClubFields } = require("../utils/clubFields");
+const { validateClubFields } = require("../utils/clubInput");
+const { recordAudit } = require("../utils/audit");
 
 // GET /api/leader/clubs
 // Lets the frontend know whether to show the "Manage my clubs" area and which
@@ -15,6 +18,32 @@ async function getMyLedClubs(req, res) {
     res.status(200).json({ clubs });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch your clubs") });
+  }
+}
+
+// PATCH /api/leader/clubs/:id  (the club's leaders, or an admin)
+// Lets a club's leaders keep its description, activities, meeting line and
+// contact email up to date without waiting for an admin. Anything else in the
+// body (name, leaders, approval...) is ignored; an empty request is a 400.
+async function updateMyClub(req, res) {
+  try {
+    if (!(await canManageClub(req.user, req.params.id))) {
+      return res.status(403).json({ message: "Only this club's leaders can edit it" });
+    }
+    const fields = pickLeaderClubFields(req.body);
+    if (Object.keys(fields).length === 0) return res.status(400).json({ message: "Nothing to update" });
+    const inputError = validateClubFields(fields);
+    if (inputError) return res.status(400).json({ message: inputError });
+    if (fields.description !== undefined && String(fields.description).trim() === "") {
+      return res.status(400).json({ message: "Short description can't be empty" });
+    }
+
+    const club = await Club.findByIdAndUpdate(req.params.id, fields, { new: true, runValidators: true });
+    if (!club) return res.status(404).json({ message: "Club not found" });
+    await recordAudit(req.user, "club.updated", `Edited details of club "${club.name}"`);
+    res.status(200).json({ message: "Club updated", club });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to update club") });
   }
 }
 
@@ -74,4 +103,4 @@ async function getClubStats(req, res) {
   }
 }
 
-module.exports = { getMyLedClubs, getClubStats };
+module.exports = { getMyLedClubs, getClubStats, updateMyClub };

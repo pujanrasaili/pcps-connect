@@ -1,5 +1,6 @@
 const express = require("express");
-const { getMyLedClubs, getClubStats } = require("../controllers/leaderController");
+const { getMyLedClubs, getClubStats, updateMyClub } = require("../controllers/leaderController");
+const { actionLimiter } = require("../middleware/rateLimit");
 const { protect } = require("../middleware/auth");
 const { validateIdParam } = require("../middleware/validateId");
 
@@ -10,5 +11,7 @@ router.param("id", validateIdParam);
 router.get("/clubs", protect, getMyLedClubs);
 // Numbers for one club, for its leaders and admins.
 router.get("/clubs/:id/stats", protect, getClubStats);
+// A club's leaders (or an admin) edit its description, activities, meeting line and email.
+router.patch("/clubs/:id", protect, actionLimiter, updateMyClub);
 
 module.exports = router;
