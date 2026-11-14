@@ -4,11 +4,13 @@ jest.mock("../../models/Event");
 jest.mock("../../utils/waitlist");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/inApp");
+jest.mock("../../utils/eventOrganisers");
 
 const Registration = require("../../models/Registration");
 const Event = require("../../models/Event");
 const sendEmail = require("../../utils/sendEmail");
 const { pushNotifications } = require("../../utils/inApp");
+const { organiserIds } = require("../../utils/eventOrganisers");
 const { registerForEvent } = require("../registrationController");
 
 const EVENT_ID = "64b7f0c2a1b2c3d4e5f60001";
@@ -21,6 +23,7 @@ const mockRes = () => {
 const event = (over = {}) => ({ _id: EVENT_ID, title: "Hack Night", capacity: 3, date: new Date(Date.now() + 864e5), createdBy: "organiser1", ...over });
 
 async function register(ev, before, after, userId = "student1") {
+  organiserIds.mockResolvedValue([ev.createdBy, "leader1"].filter(Boolean));
   Event.findById.mockResolvedValue(ev);
   Registration.findOne.mockResolvedValue(null);
   Registration.countDocuments.mockResolvedValueOnce(before).mockResolvedValueOnce(after);
@@ -38,7 +41,7 @@ describe("the organiser hears when the last seat goes", () => {
     const res = await register(event(), 2, 3);
     expect(res.status).toHaveBeenCalledWith(201);
     expect(pushNotifications).toHaveBeenCalledTimes(1);
-    expect(pushNotifications).toHaveBeenCalledWith(["organiser1"], { type: "event_full", title: "Hack Night is full", link: `/events/${EVENT_ID}` });
+    expect(pushNotifications).toHaveBeenCalledWith(["organiser1", "leader1"], { type: "event_full", title: "Hack Night is full", link: `/events/${EVENT_ID}` });
   });
 
   it("stays quiet for ordinary sign-ups", async () => {
@@ -46,13 +49,14 @@ describe("the organiser hears when the last seat goes", () => {
     expect(pushNotifications).not.toHaveBeenCalled();
   });
 
-  it("does not tell the organiser about their own sign-up", async () => {
+  it("does not tell a person about their own sign-up", async () => {
     await register(event(), 2, 3, "organiser1");
-    expect(pushNotifications).not.toHaveBeenCalled();
+    expect(pushNotifications).toHaveBeenCalledTimes(1);
+    expect(pushNotifications.mock.calls[0][0]).toEqual(["leader1"]);
   });
 
-  it("does nothing for an event with no recorded organiser", async () => {
-    await register(event({ createdBy: undefined }), 2, 3);
+  it("does nothing when nobody is left to tell", async () => {
+    await register(event({ createdBy: undefined }), 2, 3, "leader1");
     expect(pushNotifications).not.toHaveBeenCalled();
   });
 });
