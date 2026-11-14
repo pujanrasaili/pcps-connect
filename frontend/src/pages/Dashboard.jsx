@@ -34,7 +34,7 @@ import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import { formatDate, formatDateAndTime, isUpcoming, relativeDay } from "../utils/formatDate";
-import { hostIds } from "../utils/eventHosts";
+import { hostIds, hostNames } from "../utils/eventHosts";
 import { resolveUploadUrl } from "../services/api";
 import { downloadIcsAll } from "../utils/calendar";
 import { useSavedEvents } from "../hooks/useSavedEvents";
@@ -282,7 +282,7 @@ export default function Dashboard() {
                     <div className="min-w-0">
                       <p className="truncate text-slate-700 dark:text-slate-200">{e.title}</p>
                       <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                        {e.club?.name ? `${e.club.name} · ` : ""}
+                        {e.club?.name ? `${hostNames(e).join(" + ")} · ` : ""}
                         {formatDateAndTime(e.date)}
                       </p>
                     </div>
@@ -323,7 +323,7 @@ export default function Dashboard() {
                 >
                   <p className="truncate text-slate-700 dark:text-slate-200">{e.title}</p>
                   <p className="truncate text-xs text-slate-500 dark:text-slate-400">
-                    {e.club?.name ? `${e.club.name} · ` : ""}
+                    {e.club?.name ? `${hostNames(e).join(" + ")} · ` : ""}
                     {formatDateAndTime(e.date)}
                   </p>
                 </Link>

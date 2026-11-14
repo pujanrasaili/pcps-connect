@@ -78,5 +78,6 @@ test("a member of a co-hosting club sees the event under 'From your clubs'", asy
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "From your clubs", exact: true })).toBeVisible();
   await expect(page.locator("div.card-surface", { has: page.getByRole("heading", { name: "From your clubs", exact: true }) }).getByText("Joint Night")).toBeVisible();
+  await expect(page.getByText(`${clubs[0].name} + ${clubs[1].name} ·`).first()).toBeVisible();
   expect(problems).toEqual([]);
 });
