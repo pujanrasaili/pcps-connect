@@ -1472,4 +1472,8 @@ export const ne = {
   "Nothing to update": "अद्यावधिक गर्न केही छैन",
   "New {category} event: {title}": "नयाँ {category} कार्यक्रम: {title}",
   "{club} updated its meeting time": "{club} ले आफ्नो बैठकको समय अद्यावधिक गर्‍यो",
+  "A notice board post was reported: \"{title}\"": "सूचना पाटीको पोस्ट रिपोर्ट गरियो: \"{title}\"",
+  "A notice board post was hidden after {count} reports: \"{title}\"": "{count} रिपोर्ट पछि सूचना पाटीको पोस्ट लुकाइयो: \"{title}\"",
+  "You're helping at {title} on {date} ({role})": "तपाईं {date} मा {title} मा सहयोग गर्दै हुनुहुन्छ ({role})",
+  "You're helping at {title} on {date}": "तपाईं {date} मा {title} मा सहयोग गर्दै हुनुहुन्छ",
 };

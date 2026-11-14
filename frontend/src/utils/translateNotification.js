@@ -20,6 +20,10 @@ export const NOTIFICATION_PATTERNS = [
   [/^New idea for (.+)$/, "New idea for {club}", ["club"]],
   [/^(.+) shared a news update$/, "{club} shared a news update", ["club"]],
   [/^(.+) announced (.+)$/, "{club} announced {title}", ["club", "title"]],
+  [/^A notice board post was reported: "(.+)"$/, 'A notice board post was reported: "{title}"', ["title"]],
+  [/^A notice board post was hidden after (\d+) reports: "(.+)"$/, 'A notice board post was hidden after {count} reports: "{title}"', ["count", "title"]],
+  [/^You're helping at (.+) on (.+) \((.+)\)$/, "You're helping at {title} on {date} ({role})", ["title", "date", "role"]],
+  [/^You're helping at (.+) on (.+)$/, "You're helping at {title} on {date}", ["title", "date"]],
   [/^New (.+) event: (.+)$/, "New {category} event: {title}", ["category", "title"]],
   [/^(.+) updated its meeting time$/, "{club} updated its meeting time", ["club"]],
 ];
