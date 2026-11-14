@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../components/PasswordInput";
+import TopicPicker from "../components/TopicPicker";
 import { FaMoon, FaSun, FaBell, FaLock, FaCheckCircle, FaTrashAlt, FaDownload } from "react-icons/fa";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -200,6 +201,7 @@ export default function Settings() {
             onChange={() => handleTogglePref("clubUpdates")}
             disabled={savingPref === "clubUpdates"}
           />
+          <TopicPicker />
           {push.available && (
             <PrefRow
               icon={FaBell}

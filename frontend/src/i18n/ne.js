@@ -1456,4 +1456,6 @@ export const ne = {
   "Print a club poster": "क्लबको पोस्टर छाप्नुहोस्",
   "Co-hosting clubs (optional, up to 2)": "सह-आयोजक क्लबहरू (ऐच्छिक, बढीमा 2)",
   "Their leaders can manage this event too.": "तिनका नेताहरूले पनि यो कार्यक्रम व्यवस्थापन गर्न सक्छन्।",
+  "Topics you follow": "तपाईंले पछ्याएका विषयहरू",
+  "Get a bell message when a new event in one of these topics is announced. Pick up to {n}.": "यी विषयमा नयाँ कार्यक्रम घोषणा हुँदा घण्टी सन्देश पाउनुहोस्। बढीमा {n} वटा छान्नुहोस्।",
 };
