@@ -6,6 +6,7 @@ const { safeError } = require("../utils/errorMessage");
 const { promoteFromWaitlist } = require("../utils/waitlist");
 const { sendRegistrationConfirmation, sendRequestReceived } = require("../utils/registrationEmails");
 const { notifyAdmins, pushNotifications } = require("../utils/inApp");
+const { organiserIds } = require("../utils/eventOrganisers");
 const { createCheckInCode } = require("../utils/checkInCode");
 const { createCertificateCode } = require("../utils/certificateCode");
 
@@ -71,10 +72,12 @@ async function registerForEvent(req, res) {
       const countAfterInsert = await Registration.countDocuments({ event: eventId });
       if (countAfterInsert <= event.capacity) {
         registration = created;
-        // The organiser hears once, when the last seat goes (not for every
-        // sign-up). pushNotifications never throws.
-        if (countAfterInsert === event.capacity && event.createdBy && String(event.createdBy) !== String(req.user._id)) {
-          await pushNotifications([event.createdBy], {
+        // The organisers (creator and the hosting clubs' leaders) hear once,
+        // when the last seat goes -- not for every sign-up. pushNotifications
+        // never throws.
+        if (countAfterInsert === event.capacity) {
+          const who = (await organiserIds(event)).filter((id) => id !== String(req.user._id));
+          if (who.length) await pushNotifications(who, {
             type: "event_full",
             title: `${event.title} is full`,
             link: `/events/${event._id}`,
