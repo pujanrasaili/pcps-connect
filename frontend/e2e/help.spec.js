@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { setUp, axeViolations } from "./helpers.js";
 
-// The Help & FAQ page: 22 questions that open and close, a link to Contact,
+// The Help & FAQ page: 28 questions that open and close, a link to Contact,
 // the footer link to the page, and an address like /help#club-ideas that jumps to one.
-const TOPICS = 26;
+const TOPICS = 28;
 
 for (const lang of ["en", "ne"]) {
   const en = lang === "en";
