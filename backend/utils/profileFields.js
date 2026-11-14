@@ -8,6 +8,8 @@ const TEXT_FIELDS = Object.keys(LIMITS);
 const FLAG_FIELDS = ["eventReminders", "clubUpdates"];
 const AVATAR_MAX = 500;
 const LANGUAGES = ["en", "ne"];
+const MAX_INTERESTS = 5;
+const INTEREST_MAX = 50;
 
 const LABELS = {
   name: "Name",
@@ -54,6 +56,17 @@ function cleanProfileFields(input = {}) {
     values[field] = raw;
   }
 
+  if (input.interests !== undefined && input.interests !== null) {
+    if (!Array.isArray(input.interests) || input.interests.some((v) => typeof v !== "string")) {
+      return { error: "Interests must be a list of topics" };
+    }
+    // Lower case and trimmed, so "Workshop" and "workshop " are one topic.
+    const topics = [...new Set(input.interests.map((v) => v.trim().toLowerCase()).filter(Boolean))];
+    if (topics.some((v) => v.length > INTEREST_MAX)) return { error: `A topic must be ${INTEREST_MAX} characters or fewer` };
+    if (topics.length > MAX_INTERESTS) return { error: `Pick at most ${MAX_INTERESTS} topics` };
+    values.interests = topics;
+  }
+
   if (input.language !== undefined && input.language !== null) {
     if (!LANGUAGES.includes(input.language)) return { error: "Language must be en or ne" };
     values.language = input.language;
@@ -62,4 +75,4 @@ function cleanProfileFields(input = {}) {
   return { values };
 }
 
-module.exports = { cleanProfileFields, LIMITS };
+module.exports = { cleanProfileFields, LIMITS, MAX_INTERESTS };

@@ -20,6 +20,7 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
         eventReminders: user.eventReminders !== false,
         clubUpdates: user.clubUpdates !== false,
       },
+      interests: user.interests || [],
       joined: iso(user.createdAt),
     },
     registrations: registrations

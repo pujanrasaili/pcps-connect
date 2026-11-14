@@ -55,6 +55,7 @@ function publicUser(user) {
     avatar: user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=4F46E5`,
     eventReminders: user.eventReminders !== false,
     clubUpdates: user.clubUpdates !== false,
+    interests: user.interests || [],
     language: pickLanguage(user.language),
   };
 }

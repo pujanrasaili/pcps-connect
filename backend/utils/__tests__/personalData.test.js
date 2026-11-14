@@ -27,6 +27,7 @@ describe("buildPersonalData", () => {
     expect(data.exportedAt).toBe(NOW.toISOString());
     expect(data.profile).toMatchObject({ name: "Sita", studentId: "S-1", favoriteClub: "Tech Club" });
     expect(data.profile.emailNotifications).toEqual({ eventReminders: false, clubUpdates: true });
+    expect(data.profile.interests).toEqual([]);
     expect(data.registrations).toEqual([
       expect.objectContaining({ event: "Hack", attended: true, rating: 5, feedback: "great" }),
     ]);

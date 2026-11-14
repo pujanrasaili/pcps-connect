@@ -60,3 +60,23 @@ describe("cleanProfileFields", () => {
     });
   });
 });
+
+describe("interests", () => {
+  const { cleanProfileFields } = require("../profileFields");
+
+  it("trims, lower-cases and de-duplicates topics", () => {
+    expect(cleanProfileFields({ interests: [" Workshop", "workshop", "Technology ", ""] }).values.interests).toEqual(["workshop", "technology"]);
+  });
+  it("accepts an empty list to clear them", () => {
+    expect(cleanProfileFields({ interests: [] }).values.interests).toEqual([]);
+  });
+  it("rejects a non-list, non-text entries, more than 5 topics and very long topics", () => {
+    expect(cleanProfileFields({ interests: "workshop" }).error).toBeTruthy();
+    expect(cleanProfileFields({ interests: [1] }).error).toBeTruthy();
+    expect(cleanProfileFields({ interests: ["a", "b", "c", "d", "e", "f"] }).error).toMatch(/at most 5/);
+    expect(cleanProfileFields({ interests: ["x".repeat(51)] }).error).toMatch(/50/);
+  });
+  it("leaves interests alone when not sent", () => {
+    expect(cleanProfileFields({ name: "Asha" }).values.interests).toBeUndefined();
+  });
+});

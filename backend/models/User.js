@@ -48,6 +48,10 @@ const userSchema = new mongoose.Schema(
     // announces a new event. Defaults true; opt out from Settings.
     clubUpdates: { type: Boolean, default: true },
 
+    // Topics (event categories, lower case) the student wants a bell message
+    // about when a new event in one is announced. At most 5 (utils/profileFields.js).
+    interests: { type: [{ type: String, maxlength: 50 }], default: [], index: true },
+
     // The language this student last used on the site ("en" or "ne"). Account
     // emails are written in it. Anything else falls back to English.
     language: { type: String, enum: ["en", "ne"], default: "en" },
