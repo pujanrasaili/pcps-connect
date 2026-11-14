@@ -89,6 +89,7 @@ pcps-connect/
 - Leaders edit their own club details: a pencil icon on the club page (for the club's leaders) opens a form for description, activities, meetings and email, saved through `PATCH /api/leader/clubs/:id`. Name, image, leaders and approval stay admin-only.
 - Club meeting times: an admin can add a "Regular meetings" line to a club (120 characters). It shows as "Meets: ..." on the club page and on the printed poster.
 - Club list export: Admin → Clubs has "Export CSV" for the clubs the search shows (name, category, members, founded year, contact email, meeting time, whether joining needs approval).
+- Event full alert: the event's creator gets one bell message ("... is full") when the last seat is taken, not for every sign-up and not for their own; it and the volunteer "all places are taken" message are shown in Nepali.
 - Activity log export: Admin → Activity has "Export CSV" for the entries the filter and search show (time, person, action, detail).
 - Event list export: on Admin → Events (and My Club Events for leaders) "Export CSV" downloads the events the current tab and search show, with hosting clubs, registrations, capacity and rating, for term reports.
 - Events page "My topics" filter: a chip that appears for students who follow topics and narrows the list to those categories.
