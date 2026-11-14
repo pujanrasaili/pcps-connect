@@ -37,7 +37,7 @@ async function getQuestions(req, res) {
 // POST /api/events/:id/questions  (requires login)
 async function askQuestion(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title date club createdBy");
+    const event = await Event.findById(req.params.id).select("title date club coHosts createdBy");
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (new Date(event.date) < new Date()) {
       return res.status(400).json({ message: "This event has already taken place, so it no longer takes questions" });
@@ -71,7 +71,7 @@ async function askQuestion(req, res) {
 // PUT /api/events/:id/questions/:questionId/answer  (admin, or a leader of the event's club)
 async function answerQuestion(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title club createdBy");
+    const event = await Event.findById(req.params.id).select("title club coHosts createdBy");
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
@@ -110,7 +110,7 @@ async function deleteQuestion(req, res) {
     const isAsker = String(question.author) === String(req.user._id);
     let manager = false;
     if (!isAsker) {
-      const event = await Event.findById(req.params.id).select("title club createdBy");
+      const event = await Event.findById(req.params.id).select("title club coHosts createdBy");
       manager = !!event && (await canManageEvent(req.user, event));
       if (!manager) return res.status(403).json({ message: "Access denied: insufficient permissions" });
       await recordAudit(req.user, "event.questionDeleted", `Deleted a question on "${event.title}"`);
