@@ -1470,4 +1470,6 @@ export const ne = {
   "Failed to save club details": "क्लबको विवरण सुरक्षित गर्न सकिएन",
   "Only this club's leaders can edit it": "यो क्लबका नेताहरूले मात्र सम्पादन गर्न सक्छन्",
   "Nothing to update": "अद्यावधिक गर्न केही छैन",
+  "New {category} event: {title}": "नयाँ {category} कार्यक्रम: {title}",
+  "{club} updated its meeting time": "{club} ले आफ्नो बैठकको समय अद्यावधिक गर्‍यो",
 };

@@ -28,6 +28,8 @@ const SAMPLES = [
   "Asha verified their email and is waiting for approval",
   "You're in! Coding Club approved your request to join",
   "Coding Club declined your request to join",
+  "New Workshop event: Hack Night",
+  "Coding Club updated its meeting time",
   "A seat opened for Hack Night - your request is waiting for approval",
   "You got a seat: Hack Night",
   "Coding Club announced Hack Night",

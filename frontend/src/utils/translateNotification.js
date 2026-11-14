@@ -20,6 +20,8 @@ export const NOTIFICATION_PATTERNS = [
   [/^New idea for (.+)$/, "New idea for {club}", ["club"]],
   [/^(.+) shared a news update$/, "{club} shared a news update", ["club"]],
   [/^(.+) announced (.+)$/, "{club} announced {title}", ["club", "title"]],
+  [/^New (.+) event: (.+)$/, "New {category} event: {title}", ["category", "title"]],
+  [/^(.+) updated its meeting time$/, "{club} updated its meeting time", ["club"]],
 ];
 
 export function translateNotification(title, t) {
