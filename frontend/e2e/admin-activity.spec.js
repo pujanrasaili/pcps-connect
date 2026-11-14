@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { readFileSync } from "node:fs";
 import { setUp, axeViolations } from "./helpers.js";
 
 // The admin activity log: readable labels, colour-coded kinds, filter chips,
@@ -101,4 +102,20 @@ test("a student can't open the activity log", async ({ page }) => {
   await setUp(page, { lang: "en", role: "student" });
   await page.goto("/admin/activity");
   await expect(page).not.toHaveURL(/\/admin\/activity/);
+});
+
+test("Export CSV downloads the entries the filter shows", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en", role: "admin" });
+  await serve(page, few);
+  await page.goto("/admin/activity");
+  await expect(page.getByRole("button", { name: "Export CSV (6)" })).toBeVisible();
+  await page.getByRole("button", { name: "Events", exact: true }).click();
+  const button = page.getByRole("button", { name: "Export CSV (1)" });
+  const [download] = await Promise.all([page.waitForEvent("download"), button.click()]);
+  expect(download.suggestedFilename()).toBe("pcps-activity.csv");
+  const rows = readFileSync(await download.path(), "utf8").replace(/^﻿/, "").split("\r\n");
+  expect(rows).toHaveLength(2);
+  expect(rows[1]).toContain('"Created event Hack Night"');
+  expect(rows[1]).toContain('"Admin User"');
+  expect(quiet(problems)).toEqual([]);
 });
