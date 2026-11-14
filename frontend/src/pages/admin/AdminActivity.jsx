@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaHistory } from "react-icons/fa";
+import { FaHistory, FaFileCsv } from "react-icons/fa";
 import { api, getErrorMessage } from "../../services/api";
 import { actionLabel, actionTone, actionGroup } from "../../utils/auditLabels";
 import SearchBar from "../../components/SearchBar";
 import { useDebounce } from "../../hooks/useDebounce";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
+import { activityCsv } from "../../utils/activityCsv";
+import { downloadCsv } from "../../utils/csv";
 import { useLang } from "../../context/LanguageContext";
 
 const PAGE_SIZE = 15;
@@ -91,6 +93,14 @@ export default function AdminActivity() {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={() => downloadCsv("pcps-activity.csv", activityCsv(filtered, actionLabel))}
+          disabled={filtered.length === 0}
+          className="ml-auto flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 sm:py-2 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+        >
+          <FaFileCsv /> {t("Export CSV")} ({filtered.length})
+        </button>
       </div>
 
       <div className="card-surface p-6">
