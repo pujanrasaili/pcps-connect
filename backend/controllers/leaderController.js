@@ -8,6 +8,7 @@ const { safeError } = require("../utils/errorMessage");
 const { pickLeaderClubFields } = require("../utils/clubFields");
 const { validateClubFields } = require("../utils/clubInput");
 const { recordAudit } = require("../utils/audit");
+const { notifyMeetingChange } = require("../utils/notifyMeetingChange");
 
 // GET /api/leader/clubs
 // Lets the frontend know whether to show the "Manage my clubs" area and which
@@ -38,9 +39,11 @@ async function updateMyClub(req, res) {
       return res.status(400).json({ message: "Short description can't be empty" });
     }
 
+    const before = fields.meetings !== undefined ? await Club.findById(req.params.id).select("meetings") : null;
     const club = await Club.findByIdAndUpdate(req.params.id, fields, { new: true, runValidators: true });
     if (!club) return res.status(404).json({ message: "Club not found" });
     await recordAudit(req.user, "club.updated", `Edited details of club "${club.name}"`);
+    if (before) await notifyMeetingChange(club, before.meetings);
     res.status(200).json({ message: "Club updated", club });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to update club") });

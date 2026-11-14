@@ -6,6 +6,7 @@ const ClubPost = require("../models/ClubPost");
 const { destroyClubNewsPhotos } = require("../utils/clubNewsPhotoCleanup");
 const { safeError } = require("../utils/errorMessage");
 const { recordAudit } = require("../utils/audit");
+const { notifyMeetingChange } = require("../utils/notifyMeetingChange");
 const { pickClubFields } = require("../utils/clubFields");
 const { validateClubFields } = require("../utils/clubInput");
 const { withMemberCounts } = require("../utils/memberCounts");
@@ -60,12 +61,14 @@ async function updateClub(req, res) {
   try {
     const inputError = validateClubFields(pickClubFields(req.body));
     if (inputError) return res.status(400).json({ message: inputError });
+    const before = req.body?.meetings !== undefined ? await Club.findById(req.params.id).select("meetings") : null;
     const club = await Club.findByIdAndUpdate(req.params.id, pickClubFields(req.body), {
       new: true,
       runValidators: true,
     });
     if (!club) return res.status(404).json({ message: "Club not found" });
     await recordAudit(req.user, "club.updated", `Edited club "${club.name}"`);
+    if (before) await notifyMeetingChange(club, before.meetings);
     // Turning approval off lets the students already waiting in.
     if (req.body?.requiresApproval === false) await admitWaitingRequests(club);
     res.status(200).json({ message: "Club updated", club });

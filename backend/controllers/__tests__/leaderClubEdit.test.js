@@ -1,8 +1,10 @@
 jest.mock("../../utils/clubAccess");
 jest.mock("../../utils/audit");
+jest.mock("../../utils/notifyMeetingChange");
 jest.mock("../../models/Club");
 const { canManageClub } = require("../../utils/clubAccess");
 const { recordAudit } = require("../../utils/audit");
+const { notifyMeetingChange } = require("../../utils/notifyMeetingChange");
 const Club = require("../../models/Club");
 const { updateMyClub } = require("../leaderController");
 
@@ -23,6 +25,7 @@ describe("PATCH /api/leader/clubs/:id", () => {
   beforeEach(() => {
     canManageClub.mockResolvedValue(true);
     Club.findByIdAndUpdate.mockResolvedValue({ _id: "c1", name: "Tech" });
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ meetings: "" }) });
   });
 
   it("lets a leader update the descriptive fields and records it", async () => {
@@ -60,6 +63,18 @@ describe("PATCH /api/leader/clubs/:id", () => {
     const res = await call({ description: "   " });
     expect(res.status).toHaveBeenCalledWith(400);
     expect(Club.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("tells the members when the meetings line is sent, comparing with the old one", async () => {
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ meetings: "Fridays" }) });
+    await call({ meetings: "Saturdays" });
+    expect(notifyMeetingChange).toHaveBeenCalledWith({ _id: "c1", name: "Tech" }, "Fridays");
+  });
+
+  it("doesn't look anything up or notify when the meetings line isn't part of the edit", async () => {
+    await call({ description: "Only this" });
+    expect(Club.findById).not.toHaveBeenCalled();
+    expect(notifyMeetingChange).not.toHaveBeenCalled();
   });
 
   it("404s when the club is gone", async () => {

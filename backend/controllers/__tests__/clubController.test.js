@@ -7,6 +7,7 @@ jest.mock("../../utils/admitWaitingRequests");
 jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../utils/audit");
+jest.mock("../../utils/notifyMeetingChange");
 jest.mock("../../utils/clubNewsPhotoCleanup", () => ({ destroyClubNewsPhotos: jest.fn().mockResolvedValue() }));
 
 const Club = require("../../models/Club");
@@ -16,6 +17,7 @@ const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const User = require("../../models/User");
 const Event = require("../../models/Event");
 const { recordAudit } = require("../../utils/audit");
+const { notifyMeetingChange } = require("../../utils/notifyMeetingChange");
 const { getClubs, getClubById, createClub, updateClub, deleteClub } = require("../clubController");
 const { pickClubFields } = require("../../utils/clubFields");
 const { destroyClubNewsPhotos } = require("../../utils/clubNewsPhotoCleanup");
@@ -110,6 +112,13 @@ describe("createClub", () => {
 });
 
 describe("updateClub", () => {
+  it("tells the members when an admin changes the meetings line", async () => {
+    Club.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ meetings: "Fridays" }) });
+    Club.findByIdAndUpdate.mockResolvedValue({ _id: "c1", name: "Tech", meetings: "Saturdays" });
+    await updateClub({ user: admin, params: { id: "c1" }, body: { meetings: "Saturdays" } }, mockRes());
+    expect(notifyMeetingChange).toHaveBeenCalledWith({ _id: "c1", name: "Tech", meetings: "Saturdays" }, "Fridays");
+  });
+
   it("cannot be used to change leaders or the creator", async () => {
     Club.findByIdAndUpdate = jest.fn().mockResolvedValue({ _id: "c1", name: "New" });
     const res = mockRes();
