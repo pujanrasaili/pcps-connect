@@ -17,6 +17,7 @@ import {
   FaRegCircle,
   FaCheckCircle,
   FaQrcode,
+  FaHashtag,
 } from "react-icons/fa";
 import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
@@ -89,6 +90,17 @@ export default function Dashboard() {
       .filter((e) => hostIds(e).some((id) => joinedIds.has(id)) && isUpcoming(e.date) && !registeredIds.has(e._id))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [events, memberships, registeredEvents]);
+
+  // Upcoming events in a topic the student follows (Settings), not already in
+  // "From your clubs" and not signed up for yet.
+  const inMyTopics = useMemo(() => {
+    const topics = new Set(user?.interests || []);
+    if (topics.size === 0) return [];
+    const skip = new Set([...fromMyClubs.map((e) => e._id), ...registeredEvents.map((r) => r.event._id)]);
+    return events
+      .filter((e) => topics.has(String(e.category || "").trim().toLowerCase()) && isUpcoming(e.date) && !skip.has(e._id))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [events, user?.interests, fromMyClubs, registeredEvents]);
 
   const waitlist = useMyWaitlist();
   const volunteering = useMyVolunteering();
@@ -299,6 +311,36 @@ export default function Dashboard() {
               {t("+{n} more on the Events page", { n: fromMyClubs.length - 3 })}
             </Link>
           )}
+        </div>
+      )}
+
+      {inMyTopics.length > 0 && (
+        <div className="card-surface min-w-0 p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <FaHashtag className="shrink-0 text-primary-500" aria-hidden="true" />
+            <h2 className="font-semibold text-slate-800 dark:text-slate-100">{t("In topics you follow")}</h2>
+          </div>
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
+            {inMyTopics.slice(0, 3).map((e) => (
+              <li key={e._id}>
+                <Link
+                  to={`/events/${e._id}`}
+                  className="-mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-slate-700 dark:text-slate-200">{e.title}</p>
+                    <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                      {e.category} · {formatDateAndTime(e.date)}
+                    </p>
+                  </div>
+                  <FaArrowRight className="shrink-0 text-xs text-slate-400" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link to="/settings" className="mt-2 inline-block text-xs font-semibold text-primary-600 dark:text-primary-300">
+            {t("Change your topics")}
+          </Link>
         </div>
       )}
 
