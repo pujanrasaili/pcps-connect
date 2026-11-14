@@ -38,3 +38,18 @@ describe("requiresApproval", () => {
     expect(validateClubFields({ requiresApproval: { $ne: 1 } })).toBe("Members need approval must be true or false");
   });
 });
+
+describe("meetings", () => {
+  it("accepts a short line of text and an empty one", () => {
+    expect(validateClubFields({ meetings: "Thursdays 3 PM, Room 204" })).toBeNull();
+    expect(validateClubFields({ meetings: "" })).toBeNull();
+  });
+  it("rejects non-text and anything over 120 characters", () => {
+    expect(validateClubFields({ meetings: 5 })).toMatch(/Regular meetings must be text/);
+    expect(validateClubFields({ meetings: "x".repeat(121) })).toMatch(/120 characters/);
+  });
+  it("is one of the fields an admin form may set", () => {
+    const { pickClubFields } = require("../clubFields");
+    expect(pickClubFields({ meetings: "Fridays", leaders: ["x"] })).toEqual({ meetings: "Fridays" });
+  });
+});

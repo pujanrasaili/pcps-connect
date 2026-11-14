@@ -15,6 +15,7 @@ const LIMITS = {
   leadRole: 100,
   email: 254,
   foundedYear: 10,
+  meetings: 120,
 };
 const LABELS = {
   name: "Club name",
@@ -27,6 +28,7 @@ const LABELS = {
   leadRole: "Lead role",
   email: "Email",
   foundedYear: "Founded year",
+  meetings: "Regular meetings",
 };
 const REQUIRED_TEXT = ["name", "category", "description"];
 const MAX_ACTIVITIES = 30;

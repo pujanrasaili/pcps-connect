@@ -13,6 +13,8 @@ const clubSchema = new mongoose.Schema(
     leadRole: { type: String, default: "" },
     email: { type: String, default: "" },
     foundedYear: { type: String, default: "" },
+    // When and where it usually meets, free text ("Thursdays 3 PM, Room 204").
+    meetings: { type: String, default: "", maxlength: 120 },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     // When true, "Join" is a request that the club's leaders (or an admin)
     // approve; the student is not a member until then. Off by default.
