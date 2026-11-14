@@ -14,7 +14,7 @@ const { safeError } = require("../utils/errorMessage");
 // name and student ID come back, so this can't be used to look people up.
 async function addWalkIn(req, res) {
   try {
-    const event = await Event.findById(req.params.id).select("title capacity club createdBy");
+    const event = await Event.findById(req.params.id).select("title capacity club coHosts createdBy");
     if (!event) return res.status(404).json({ message: "Event not found" });
     if (!(await canManageEvent(req.user, event))) {
       return res.status(403).json({ message: "Access denied: insufficient permissions" });
