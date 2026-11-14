@@ -1,6 +1,7 @@
 const Event = require("../models/Event");
 const EventQuestion = require("../models/EventQuestion");
 const User = require("../models/User");
+const { organiserIds } = require("../utils/eventOrganisers");
 const { canManageEvent } = require("../utils/clubAccess");
 const { cleanQuestion, cleanAnswer, firstName, MAX_OPEN_PER_STUDENT } = require("../utils/questionInput");
 const { notifyOrganiserOfQuestion, notifyAskerOfAnswer } = require("../utils/notifyQuestion");
@@ -56,11 +57,11 @@ async function askQuestion(req, res) {
     const authorName = firstName(req.user.name);
     const created = await EventQuestion.create({ event: event._id, author: req.user._id, authorName, question });
 
-    // Tell the organiser, unless they asked it themselves. Best effort.
-    if (String(event.createdBy) !== String(req.user._id)) {
-      const organiser = await User.findById(event.createdBy).select("name email language");
-      await notifyOrganiserOfQuestion(organiser, event, question, authorName);
-    }
+    // Tell the organisers, unless they asked it themselves. Best effort.
+    // Everyone who runs the event hears (its creator and the hosting clubs' leaders).
+    const ids = (await organiserIds(event)).filter((id) => id !== String(req.user._id));
+    const organisers = ids.length ? await User.find({ _id: { $in: ids } }).select("name email language") : [];
+    for (const organiser of organisers || []) await notifyOrganiserOfQuestion(organiser, event, question, authorName);
 
     res.status(201).json({ message: "Question posted", question: publicQuestion(created, req.user._id) });
   } catch (err) {
