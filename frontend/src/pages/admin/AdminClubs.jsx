@@ -30,6 +30,7 @@ const EMPTY_FORM = {
   leadRole: "",
   email: "",
   foundedYear: "",
+  meetings: "",
   requiresApproval: false,
 };
 
@@ -149,6 +150,7 @@ export default function AdminClubs() {
       leadRole: club.leadRole || "",
       email: club.email || "",
       foundedYear: club.foundedYear || "",
+      meetings: club.meetings || "",
       requiresApproval: !!club.requiresApproval,
     });
     setFormOpen(true);
@@ -365,6 +367,10 @@ export default function AdminClubs() {
               <label className="label-field" htmlFor="club-foundedYear">{t("Founded year")}</label>
               <input id="club-foundedYear" name="foundedYear" maxLength={10} className="input-field" value={form.foundedYear} onChange={handleChange} />
             </div>
+          </div>
+          <div>
+            <label className="label-field" htmlFor="club-meetings">{t("Regular meetings")}</label>
+            <input id="club-meetings" name="meetings" maxLength={120} className="input-field" value={form.meetings} onChange={handleChange} placeholder={t("e.g. Thursdays 3 PM, Room 204")} />
           </div>
           <label className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
             <input type="checkbox" name="requiresApproval" checked={!!form.requiresApproval} onChange={handleChange} className="mt-0.5 h-4 w-4 rounded border-slate-300" />
