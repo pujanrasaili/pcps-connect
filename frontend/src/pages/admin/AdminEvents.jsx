@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy, FaLock, FaLockOpen } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy, FaLock, FaLockOpen, FaFileCsv } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
@@ -21,6 +21,8 @@ import { usePagination } from "../../hooks/usePagination";
 import { isoToLocalInput, localInputToIso } from "../../utils/dateTimeInput";
 import { isRegistrationClosed } from "../../utils/registrationDeadline";
 import { shrinkImage } from "../../utils/resizeImage";
+import { eventsCsv } from "../../utils/eventsCsv";
+import { downloadCsv } from "../../utils/csv";
 
 const PAGE_SIZE = 10;
 const EMPTY_FORM = {
@@ -253,9 +255,19 @@ export default function AdminEvents() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400">{t(visibleEvents.length === 1 ? "{n} event total" : "{n} events total", { n: visibleEvents.length })}</p>
         </div>
-        <Button icon={FaPlus} onClick={openCreate}>
-          {t("Add Event")}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => downloadCsv("pcps-events.csv", eventsCsv(filteredEvents))}
+            disabled={filteredEvents.length === 0}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 sm:py-2 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+          >
+            <FaFileCsv /> {t("Export CSV")} ({filteredEvents.length})
+          </button>
+          <Button icon={FaPlus} onClick={openCreate}>
+            {t("Add Event")}
+          </Button>
+        </div>
       </div>
 
       {leaderMode && <AttendanceReportCard report={report} />}
