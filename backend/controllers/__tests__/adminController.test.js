@@ -597,7 +597,7 @@ describe("getAttendanceReport", () => {
     Registration.aggregate = jest.fn().mockResolvedValue([]);
     const res = mockRes();
     await getAttendanceReport({ user: { _id: "leader1", role: "user" } }, res);
-    expect(Event.find).toHaveBeenCalledWith(expect.objectContaining({ club: { $in: ["cA"] } }));
+    expect(Event.find).toHaveBeenCalledWith(expect.objectContaining({ $or: [{ club: { $in: ["cA"] } }, { coHosts: { $in: ["cA"] } }] }));
     expect(res.status).toHaveBeenCalledWith(200);
   });
 

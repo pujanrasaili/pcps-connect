@@ -462,7 +462,7 @@ async function checkInByCode(req, res) {
 
     const registration = await Registration.findById(registrationId)
       .populate("user", "name studentId")
-      .populate("event", "title date club");
+      .populate("event", "title date club coHosts");
     if (!registration || !registration.event) {
       return res.status(404).json({ message: "Registration not found -- it may have been cancelled" });
     }
@@ -612,7 +612,8 @@ async function getAttendanceReport(req, res) {
     if (!isAdmin(req.user)) {
       const led = await ledClubs(req.user);
       if (led.length === 0) return res.status(403).json({ message: FORBIDDEN });
-      filter.club = { $in: led.map((c) => c._id) };
+      // Events a club co-hosts count in its report too.
+      filter.$or = [{ club: { $in: led.map((c) => c._id) } }, { coHosts: { $in: led.map((c) => c._id) } }];
     }
 
     // The overview card shows the latest 8; "?all=1" returns every past event
