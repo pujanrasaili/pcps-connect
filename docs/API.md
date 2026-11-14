@@ -21,7 +21,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | POST | `/api/auth/login` | Anyone (rate limited) | Log in; sets the session cookie. |
 | POST | `/api/auth/logout` | Anyone | Log out; clears the session cookie. |
 | GET | `/api/auth/me` | Logged-in student | The logged-in user's own account. |
-| PUT | `/api/auth/profile` | Logged-in student | Edit your own profile (name, student ID, program, semester, phone, email preferences). |
+| PUT | `/api/auth/profile` | Logged-in student | Edit your own profile (name, student ID, program, semester, phone, email preferences, and up to five followed topics in `interests`). |
 | PUT | `/api/auth/favorite-club` | Logged-in student | Set or clear your one favourite club. |
 | PUT | `/api/auth/change-password` | Logged-in student (rate limited) | Change your own password (needs the current one). |
 | GET | `/api/auth/export` | Logged-in student (rate limited) | Download everything the site stores about you, as JSON. |

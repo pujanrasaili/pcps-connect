@@ -68,7 +68,7 @@ const DESCRIPTIONS = {
   login: "Log in; sets the session cookie.",
   logout: "Log out; clears the session cookie.",
   getMe: "The logged-in user's own account.",
-  updateProfile: "Edit your own profile (name, student ID, program, semester, phone, email preferences).",
+  updateProfile: "Edit your own profile (name, student ID, program, semester, phone, email preferences, and up to five followed topics in `interests`).",
   toggleFavoriteClub: "Set or clear your one favourite club.",
   changePassword: "Change your own password (needs the current one).",
   exportMyData: "Download everything the site stores about you, as JSON.",
