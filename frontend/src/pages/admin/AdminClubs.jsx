@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaUsers, FaEnvelope, FaUserTie } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaUsers, FaEnvelope, FaUserTie, FaFileCsv } from "react-icons/fa";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
 import { api, getErrorMessage, resolveUploadUrl } from "../../services/api";
@@ -12,6 +12,8 @@ import { useRequestCounts } from "../../hooks/useRequestCounts";
 import Modal from "../../components/Modal";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import SearchBar from "../../components/SearchBar";
+import { clubsCsv } from "../../utils/clubsCsv";
+import { downloadCsv } from "../../utils/csv";
 import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
@@ -213,9 +215,19 @@ export default function AdminClubs() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400">{t(clubs.length === 1 ? "{n} club total" : "{n} clubs total", { n: clubs.length })}</p>
         </div>
-        <Button icon={FaPlus} onClick={openCreate}>
-          {t("Add Club")}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => downloadCsv("pcps-clubs.csv", clubsCsv(filteredClubs))}
+            disabled={filteredClubs.length === 0}
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 sm:py-2 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+          >
+            <FaFileCsv /> {t("Export CSV")} ({filteredClubs.length})
+          </button>
+          <Button icon={FaPlus} onClick={openCreate}>
+            {t("Add Club")}
+          </Button>
+        </div>
       </div>
 
       <div className="max-w-sm">
