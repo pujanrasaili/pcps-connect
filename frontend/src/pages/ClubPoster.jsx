@@ -87,6 +87,7 @@ export default function ClubPoster() {
         <div>
           <h1 className="font-display text-4xl font-bold leading-tight sm:text-5xl">{club.name}</h1>
           {club.description && <p className="mx-auto mt-4 max-w-lg text-lg text-slate-700">{short(club.description)}</p>}
+          {club.meetings && <p className="mt-3 text-base font-semibold text-slate-800">{t("Meets: {when}", { when: club.meetings })}</p>}
         </div>
 
         <div className="flex flex-col items-center">

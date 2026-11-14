@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { joinButtonState } from "../utils/clubJoinState";
 import { Link, useSearchParams } from "react-router-dom";
-import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers, FaPrint } from "react-icons/fa";
+import { FaEnvelope, FaCalendarAlt, FaHeart, FaRegHeart, FaCheck, FaPlus, FaArrowRight, FaShareAlt, FaUsers, FaPrint, FaClock } from "react-icons/fa";
 import ClubCard from "../components/ClubCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
@@ -233,6 +233,11 @@ export default function Clubs() {
               {selectedClub.foundedYear && (
                 <span className="flex items-center gap-1.5">
                   <FaCalendarAlt className="shrink-0 text-primary-500" /> {t("Founded {year}", { year: selectedClub.foundedYear })}
+                </span>
+              )}
+              {selectedClub.meetings && (
+                <span className="flex items-center gap-1.5">
+                  <FaClock className="shrink-0 text-primary-500" /> {t("Meets: {when}", { when: selectedClub.meetings })}
                 </span>
               )}
               {selectedClub.email && (
