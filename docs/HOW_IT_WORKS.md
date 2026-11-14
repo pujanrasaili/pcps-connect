@@ -50,6 +50,14 @@ manage only that club's events. These rules are enforced in the API
 (`middleware/staff.js`, `utils/clubAccess.js`), so a student can't use leader
 or admin features by editing the page.
 
+An event has one **main club** and, if an admin chooses, up to two **co-hosting
+clubs** (`coHosts` on the event). `canManageEvent` in `utils/clubAccess.js`
+treats a leader of any of them as a manager of that event, but only admins can
+set or change the co-hosts, so a leader can't pull another club into their
+event. Everything that groups events by club (calendar feeds, the weekly digest,
+the leaderboard, a club's stats and the new-event announcement) counts
+co-hosted events for every hosting club.
+
 ## Registering for an event
 
 - The server checks the event hasn't happened, the student isn't already
