@@ -402,7 +402,7 @@ export const ne = {
   "Event reminders": "कार्यक्रमको सम्झना",
   "Get an email before events you registered for.": "तपाईंले दर्ता गरेका कार्यक्रमअघि इमेल पाउनुहोस्।",
   "Club updates": "क्लबका अपडेट",
-  "Get an email when a club you've joined announces a new event, plus a short weekly summary of what your clubs have planned.": "तपाईं सहभागी भएको क्लबले नयाँ कार्यक्रम घोषणा गर्दा इमेल पाउनुहोस्, साथै तपाईंका क्लबहरूले योजना गरेका कुराको छोटो साप्ताहिक सारांश।",
+  "Get an email when a club you've joined announces a new event, plus a short weekly summary of what your clubs and the topics you follow have planned. This also covers bell messages about topics you follow.": "तपाईं सहभागी भएको क्लबले नयाँ कार्यक्रम घोषणा गर्दा इमेल पाउनुहोस्, साथै तपाईंका क्लब र तपाईंले पछ्याएका विषयले योजना गरेका कुराको छोटो साप्ताहिक सारांश। यसले तपाईंले पछ्याएका विषयका घण्टी सन्देशलाई पनि समेट्छ।",
   "Toggle {title}": "{title} खोल्नुहोस्/बन्द गर्नुहोस्",
   "Change password": "पासवर्ड बदल्नुहोस्",
   "Update the password you use to log in.": "लगइन गर्न प्रयोग गर्ने पासवर्ड अपडेट गर्नुहोस्।",

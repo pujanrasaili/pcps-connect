@@ -196,7 +196,7 @@ export default function Settings() {
           <PrefRow
             icon={FaBell}
             title="Club updates"
-            desc="Get an email when a club you've joined announces a new event, plus a short weekly summary of what your clubs have planned."
+            desc="Get an email when a club you've joined announces a new event, plus a short weekly summary of what your clubs and the topics you follow have planned. This also covers bell messages about topics you follow."
             checked={user?.clubUpdates !== false}
             onChange={() => handleTogglePref("clubUpdates")}
             disabled={savingPref === "clubUpdates"}
