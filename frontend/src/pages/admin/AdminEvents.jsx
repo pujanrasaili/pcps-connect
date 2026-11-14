@@ -480,7 +480,7 @@ export default function AdminEvents() {
             />
             <span className="text-sm">
               <span className="font-medium text-slate-800 dark:text-slate-100">{t("Approve each person who joins")}</span>
-              <span className="block text-slate-500 dark:text-slate-400">
+              <span className="block text-slate-600 dark:text-slate-400">
                 {t("Students send a request instead of being confirmed straight away. A seat is held for each request, and you approve or decline them from the attendee list.")}
               </span>
             </span>
@@ -496,7 +496,7 @@ export default function AdminEvents() {
               />
               <span className="text-sm">
                 <span className="font-medium text-slate-800 dark:text-slate-100">{t("Copy the volunteer roles")}</span>
-                <span className="block text-slate-500 dark:text-slate-400">
+                <span className="block text-slate-600 dark:text-slate-400">
                   {t("{roles} come across with the same number of places and no sign-ups.", { roles: duplicatedFrom.volunteerRoles.map((r) => r.name).join(", ") })}
                 </span>
               </span>
