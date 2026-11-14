@@ -88,6 +88,7 @@ pcps-connect/
 - Co-hosted events: an admin can name up to two more clubs on an event (admin event form, "Co-hosting clubs"). Their leaders can manage the event, its page says "Hosted by A + B", club stats count it, and members of every hosting club get it in the weekly digest. Leaders cannot add co-hosts themselves.
 - Leaders edit their own club details: a pencil icon on the club page (for the club's leaders) opens a form for description, activities, meetings and email, saved through `PATCH /api/leader/clubs/:id`. Name, image, leaders and approval stay admin-only.
 - Club meeting times: an admin can add a "Regular meetings" line to a club (120 characters). It shows as "Meets: ..." on the club page and on the printed poster.
+- Club list export: Admin → Clubs has "Export CSV" for the clubs the search shows (name, category, members, founded year, contact email, meeting time, whether joining needs approval).
 - Activity log export: Admin → Activity has "Export CSV" for the entries the filter and search show (time, person, action, detail).
 - Event list export: on Admin → Events (and My Club Events for leaders) "Export CSV" downloads the events the current tab and search show, with hosting clubs, registrations, capacity and rating, for term reports.
 - Events page "My topics" filter: a chip that appears for students who follow topics and narrows the list to those categories.
