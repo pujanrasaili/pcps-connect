@@ -120,8 +120,8 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/clubs/:id/ideas` | Logged-in student | Ideas members suggested to a club: the club's leaders and admins see all of them, anyone else sees only their own. |
 | POST | `/api/clubs/:id/ideas` | Logged-in student (rate limited) | Suggest an idea to a club (members only; up to 3 waiting per member, 300 characters). The club's leaders get a bell notification. |
 | DELETE | `/api/clubs/:id/ideas/:ideaId` | Logged-in student (rate limited) | Remove one idea (its author, the club's leaders or an admin). |
-| POST | `/api/clubs` | Admin only | Create a club. |
-| PUT | `/api/clubs/:id` | Admin only | Edit a club. |
+| POST | `/api/clubs` | Admin only | Create a club. Optional meetings is a short line (120 characters) saying when and where it usually meets. |
+| PUT | `/api/clubs/:id` | Admin only | Edit a club, including its regular meetings line. |
 | DELETE | `/api/clubs/:id` | Admin only | Delete a club along with its memberships and event links. |
 
 ## /api/club-memberships
