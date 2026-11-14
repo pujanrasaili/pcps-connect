@@ -104,6 +104,21 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "follow-topics",
+    question: "Can I hear about events I care about?",
+    answer: [
+      "Yes. In Settings, under Topics you follow, tick up to five kinds of event (for example Workshop or Sports). When a new event in one of them is announced you get a bell message, and your Dashboard lists the upcoming ones in a card called In topics you follow.",
+      "On the Events page a My topics button shows only those events. Untick a topic in Settings any time to stop hearing about it.",
+    ],
+  },
+  {
+    id: "club-meetings",
+    question: "How do I find out when a club meets?",
+    answer: [
+      "Open the club on the Clubs page. If its leaders have added a regular meeting time, it is shown as Meets, for example Thursdays 3 PM, Room 204. If you are a member you also get a bell message whenever that time changes.",
+    ],
+  },
+  {
     id: "club-approval",
     question: "A club says \"Request to join\". What happens?",
     answer: [
@@ -156,7 +171,7 @@ export const HELP_TOPICS = [
     id: "bell",
     question: "What is the bell in the top bar?",
     answer: [
-      "The bell collects short messages for you in one place: a seat opened up from a waitlist, your join request was approved or declined, an event you registered for changed or is coming up, a club you joined announced something, or your question was answered.",
+      "The bell collects short messages for you in one place: a seat opened up from a waitlist, your join request was approved or declined, an event you registered for changed or is coming up, a club you joined announced something, a new event in a topic you follow, a club changed its meeting time, or your question was answered.",
       "A number on the bell means messages you have not opened yet. Opening the bell marks them as read. Messages disappear after 60 days. They are extra to the emails, so you can still turn reminder and club emails off in Settings.",
     ],
   },
