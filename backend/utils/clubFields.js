@@ -18,6 +18,19 @@ const CLUB_FIELDS = [
   "requiresApproval",
 ];
 
+// What a club's own leaders may edit themselves (PATCH /api/leader/clubs/:id):
+// the text that describes the club. Its name, category, icon, image, who leads
+// it and whether joining needs approval stay with the admins.
+const LEADER_CLUB_FIELDS = ["description", "longDescription", "activities", "meetings", "email"];
+
+function pickLeaderClubFields(body = {}) {
+  const picked = {};
+  for (const field of LEADER_CLUB_FIELDS) {
+    if (body[field] !== undefined) picked[field] = body[field];
+  }
+  return picked;
+}
+
 function pickClubFields(body = {}) {
   const picked = {};
   for (const field of CLUB_FIELDS) {
@@ -26,4 +39,4 @@ function pickClubFields(body = {}) {
   return picked;
 }
 
-module.exports = { CLUB_FIELDS, pickClubFields };
+module.exports = { CLUB_FIELDS, LEADER_CLUB_FIELDS, pickClubFields, pickLeaderClubFields };
