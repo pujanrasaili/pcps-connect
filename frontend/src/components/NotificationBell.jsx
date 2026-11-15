@@ -13,7 +13,7 @@ import { useLang } from "../context/LanguageContext";
 // until it is closed.
 export default function NotificationBell({ className = "" }) {
   const { t } = useLang();
-  const { items, unread, load, markAllRead } = useNotifications(true);
+  const { items, unread, load, markAllRead, clearAll } = useNotifications(true);
   const [open, setOpen] = useState(false);
   const [newIds, setNewIds] = useState(() => new Set());
   const boxRef = useRef(null);
@@ -75,7 +75,18 @@ export default function NotificationBell({ className = "" }) {
           aria-label={t("Notifications")}
           className="card-surface fixed inset-x-3 top-16 z-50 animate-fade-in p-2 md:absolute md:inset-x-auto md:right-0 md:top-auto md:mt-2 md:w-96"
         >
-          <p className="px-3 pb-1 pt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">{t("Notifications")}</p>
+          <div className="flex items-center justify-between px-3 pb-1 pt-2">
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t("Notifications")}</p>
+            {items.length > 0 && (
+              <button
+                type="button"
+                onClick={clearAll}
+                className="rounded text-xs font-medium text-primary-700 hover:underline dark:text-primary-300"
+              >
+                {t("Clear all")}
+              </button>
+            )}
+          </div>
           {items.length === 0 ? (
             <p className="px-3 py-6 text-center text-sm text-slate-500 dark:text-slate-400">
               {t("Nothing yet. You'll see waitlist spots, join decisions and event changes here.")}

@@ -36,6 +36,18 @@ export function useNotifications(enabled) {
     }
   }, []);
 
+  const clearAll = useCallback(async () => {
+    try {
+      await api.delete("/notifications", { quiet: true });
+      if (!mounted.current) return true;
+      setUnread(0);
+      setItems([]);
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   useEffect(() => {
     mounted.current = true;
     if (!enabled) return undefined;
@@ -51,5 +63,5 @@ export function useNotifications(enabled) {
     };
   }, [enabled, load]);
 
-  return { items: enabled ? items : [], unread: enabled ? unread : 0, load, markAllRead };
+  return { items: enabled ? items : [], unread: enabled ? unread : 0, load, markAllRead, clearAll };
 }
