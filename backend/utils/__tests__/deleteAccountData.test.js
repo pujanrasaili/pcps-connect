@@ -1,3 +1,4 @@
+jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
 jest.mock("../../models/WaitlistEntry");
@@ -15,6 +16,7 @@ jest.mock("../../models/ContactMessage");
 jest.mock("../notifyRegistrants");
 
 const Event = require("../../models/Event");
+const User = require("../../models/User");
 const Registration = require("../../models/Registration");
 const WaitlistEntry = require("../../models/WaitlistEntry");
 const ClubMembership = require("../../models/ClubMembership");
@@ -45,6 +47,7 @@ describe("removeUserAndData", () => {
     expect(ClubPost.updateMany).toHaveBeenCalledWith({ author: "u1" }, { authorName: "Former club leader" });
     expect(ClubIdea.deleteMany).toHaveBeenCalledWith({ author: "u1" });
     expect(BoardPost.deleteMany).toHaveBeenCalledWith({ author: "u1" });
+    expect(BoardPost.updateMany).toHaveBeenCalledWith({ reports: "u1" }, { $pull: { reports: "u1" } });
     expect(EventQuestion.deleteMany).toHaveBeenCalledWith({ author: "u1" });
     expect(user.deleteOne).toHaveBeenCalled();
   });
@@ -69,5 +72,19 @@ describe("removeUserAndData", () => {
     expect(order.slice(0, 3)).toEqual(["notify", "notify", "deleteRegs"]);
     expect(Registration.deleteMany).toHaveBeenCalledWith({ event: { $in: ["e1", "e2"] } });
     expect(Event.deleteMany).toHaveBeenCalledWith({ _id: { $in: ["e1", "e2"] } });
+  });
+});
+
+describe("removeUserAndData and saved lists", () => {
+  it("removes the organiser's deleted upcoming events from everyone's saved list", async () => {
+    Event.find.mockResolvedValue([{ _id: "e1" }, { _id: "e2" }]);
+    await removeUserAndData({ _id: "u1", deleteOne: jest.fn().mockResolvedValue() });
+    expect(User.updateMany).toHaveBeenCalledWith({ savedEvents: { $in: ["e1", "e2"] } }, { $pull: { savedEvents: { $in: ["e1", "e2"] } } });
+  });
+
+  it("leaves saved lists alone when no event was deleted", async () => {
+    Event.find.mockResolvedValue([]);
+    await removeUserAndData({ _id: "u1", deleteOne: jest.fn().mockResolvedValue() });
+    expect(User.updateMany).not.toHaveBeenCalled();
   });
 });
