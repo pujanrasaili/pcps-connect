@@ -174,3 +174,36 @@ test("Nepali: Resolved and Mark as resolved are translated", async ({ page }) =>
   await expect(page.getByText("समाधान भयो", { exact: true })).toBeVisible();
   expect(await axeViolations(page)).toEqual([]);
 });
+
+test("closing the tab on a half-written notice asks first; an empty form does not", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.route("**/api/board", (route) => reply(route, { posts: POSTS }));
+  await page.goto("/board");
+  await expect(page.locator("#board-title")).toBeVisible();
+  const kinds = [];
+  page.on("dialog", (d) => {
+    kinds.push(d.type());
+    return d.accept();
+  });
+  // Pages only get the prompt after the person has touched them, so type first.
+  await page.locator("#board-title").fill("Half written");
+  await page.locator("#board-title").fill("");
+  await page.close({ runBeforeUnload: true });
+  await page.waitForEvent("close").catch(() => {});
+  expect(kinds).toEqual([]);
+});
+
+test("a typed notice triggers the browser's leave-page prompt", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.route("**/api/board", (route) => reply(route, { posts: POSTS }));
+  await page.goto("/board");
+  await page.locator("#board-title").fill("Half written");
+  const kinds = [];
+  page.on("dialog", (d) => {
+    kinds.push(d.type());
+    return d.accept();
+  });
+  await page.close({ runBeforeUnload: true });
+  await page.waitForEvent("close").catch(() => {});
+  expect(kinds).toEqual(["beforeunload"]);
+});
