@@ -3,7 +3,7 @@
 // free of database calls so it's easy to test.
 const iso = (d) => (d ? new Date(d).toISOString() : null);
 
-function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [], joinRequests = [], questions = [], contactMessages = [], clubIdeas = [], volunteering = [], boardPosts = [], eventsCreated = [], phoneAlertDevices = 0 }, now = new Date()) {
+function buildPersonalData({ user, registrations = [], waitlist = [], memberships = [], ledClubs = [], notifications = [], joinRequests = [], questions = [], contactMessages = [], clubIdeas = [], volunteering = [], boardPosts = [], eventsCreated = [], clubPosts = [], phoneAlertDevices = 0 }, now = new Date()) {
   return {
     exportedAt: now.toISOString(),
     profile: {
@@ -80,6 +80,7 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
       postedAt: iso(p.createdAt),
       expiresAt: iso(p.expiresAt),
     })),
+    clubAnnouncements: clubPosts.map((p) => ({ club: p.club && p.club.name ? p.club.name : "", body: p.body, postedAt: iso(p.createdAt) })),
     eventsYouCreated: eventsCreated.map((e) => ({ event: e.title, eventDate: iso(e.date) })),
     // Only how many devices have alerts on: the device addresses themselves are never exported.
     phoneAlertDevices,
