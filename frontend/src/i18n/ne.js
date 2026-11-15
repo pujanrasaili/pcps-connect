@@ -408,7 +408,7 @@ export const ne = {
   "Update the password you use to log in.": "लगइन गर्न प्रयोग गर्ने पासवर्ड अपडेट गर्नुहोस्।",
   "Preparing...": "तयार गर्दै...",
   "Download my data": "मेरो डेटा डाउनलोड गर्नुहोस्",
-  "A file with your profile, registrations, ratings and club memberships.": "तपाईंको प्रोफाइल, दर्ता, मूल्याङ्कन र क्लब सदस्यता भएको फाइल।",
+  "A file with everything stored about you: your profile, registrations, ratings, club activity and notice board posts.": "तपाईंबारे राखिएको सबै कुरा भएको फाइल: प्रोफाइल, दर्ता, मूल्याङ्कन, क्लबका गतिविधि र सूचना पाटीका पोस्टहरू।",
   "Delete account": "खाता मेट्नुहोस्",
   "Permanently remove your account, registrations and club memberships.": "तपाईंको खाता, दर्ता र क्लब सदस्यता सधैंका लागि हटाउनुहोस्।",
   "Delete your account?": "तपाईंको खाता मेट्ने?",

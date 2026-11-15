@@ -249,7 +249,7 @@ export default function Settings() {
             <div>
               <p className="font-medium text-slate-800 dark:text-slate-100">{exporting ? t("Preparing...") : t("Download my data")}</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {t("A file with your profile, registrations, ratings and club memberships.")}
+                {t("A file with everything stored about you: your profile, registrations, ratings, club activity and notice board posts.")}
               </p>
             </div>
           </button>
