@@ -162,3 +162,37 @@ test("Nepali: the copy-roles box is translated", async ({ page }) => {
   await expect(page.getByRole("checkbox", { name: /स्वयंसेवक भूमिकाहरू कपी गर्नुहोस्/ })).toBeChecked();
   await expect(page.getByText("Desk उही स्थान सङ्ख्यासहित आउँछन्, साइन-अप बिना।")).toBeVisible();
 });
+
+for (const lang of ["en", "ne"]) {
+  test(`closing a form with typing in it asks first; an untouched form closes freely (${lang})`, async ({ page }) => {
+    const l = text[lang];
+    await setUp(page, { lang, role: "admin" });
+    await withEventsApi(page);
+    await page.goto("/admin/events");
+    const asked = [];
+    page.on("dialog", async (d) => {
+      asked.push(d.message());
+      await (asked.length === 1 ? d.dismiss() : d.accept());
+    });
+    // Nothing typed: Escape closes at once, no question.
+    await page.getByRole("button", { name: l.add }).click();
+    await expect(page.locator("#ev-title")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#ev-title")).toHaveCount(0);
+    expect(asked).toEqual([]);
+    // Typed: the first Escape is answered "stay", the second "discard".
+    await page.getByRole("button", { name: l.add }).click();
+    await page.locator("#ev-title").fill("Half written");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#ev-title")).toHaveValue("Half written");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#ev-title")).toHaveCount(0);
+    expect(asked).toHaveLength(2);
+    expect(asked[0]).toContain(lang === "en" ? "Discard what you've typed?" : "तपाईंले लेखेको हटाउने?");
+    // A fresh form starts clean again.
+    await page.getByRole("button", { name: l.add }).click();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#ev-title")).toHaveCount(0);
+    expect(asked).toHaveLength(2);
+  });
+}
