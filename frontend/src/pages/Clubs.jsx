@@ -147,14 +147,14 @@ export default function Clubs() {
           </p>
         </div>
 
-        <div className="mx-auto mt-5 flex max-w-4xl flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="sm:w-80">
+        <div className="mt-5 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="sm:w-96">
             <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, topic or category...")} />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
 
-        <div className="mx-auto mt-4 flex max-w-4xl flex-wrap items-center justify-between gap-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           {isAuthenticated ? (
             <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
               <input

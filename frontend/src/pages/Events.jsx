@@ -187,14 +187,14 @@ export default function Events() {
           </div>
         </div>
 
-        <div className="mx-auto mt-4 flex max-w-4xl flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-3 sm:mt-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="sm:w-80">
             <SearchBar value={query} onChange={setQuery} placeholder={t("Search by name, place or club...")} />
           </div>
           <FilterButtons options={categories} active={category} onChange={setCategory} />
         </div>
 
-        <div className="mx-auto mt-4 flex max-w-4xl flex-wrap gap-x-6 gap-y-2">
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
           <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-slate-600 max-sm:py-2.5 dark:text-slate-300">
             <input
               type="checkbox"
