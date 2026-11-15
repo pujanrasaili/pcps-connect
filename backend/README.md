@@ -50,7 +50,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 |---|---|---|---|
 | GET | `/` | — | List all clubs. |
 | GET | `/:id` | — | One club. |
-| POST | `/` | Admin | Create a club. Body: `name, category, description, longDescription?, image?, icon?, activities?, leadName?, leadRole?, email?, foundedYear?`. |
+| POST | `/` | Admin | Create a club. Body: `name, category, description, longDescription?, image?, icon?, activities?, leadName?, leadRole?, email?, foundedYear?, meetings?, requiresApproval?`. Club leaders can edit their own club's descriptive fields through `PATCH /api/leader/clubs/:id`. |
 | PUT | `/:id` | Admin | Update a club (same fields, all optional). |
 | DELETE | `/:id` | Admin | Deletes the club and cascades: removes its `ClubMembership` rows and clears it from any user's `favoriteClub`. |
 
@@ -60,7 +60,7 @@ Below, **Auth** means a valid `token` cookie is required; **Admin** means
 |---|---|---|---|
 | GET | `/` | — | List all events, each with a live `registeredCount` computed from actual registrations (not a stored counter). Also `averageRating` (one decimal, `null` if unrated) and `ratingCount` from attendee feedback. |
 | GET | `/:id` | — | One event, same `registeredCount` treatment. |
-| POST | `/create` | Admin | `multipart/form-data`: `title, description, date, location, capacity?, category?, price?, club?, image?` (file field `image`, uploaded to Cloudinary). `club` is an optional club id; members of that club are emailed on creation (unless they turned club updates off). |
+| POST | `/create` | Admin | `multipart/form-data`: `title, description, date, location, capacity?, category?, price?, club?, image?` (file field `image`, uploaded to Cloudinary). `club` is an optional club id; members of that club are emailed on creation (unless they turned club updates off). `coHosts` (up to two more club ids) is admin-only; co-hosting clubs' members are told too, and those clubs' leaders can manage the event. |
 | PUT | `/:id` | Admin | Same fields, all optional; `multipart/form-data` if replacing the image. Capacity can't be set below the number already registered; raising it promotes people from the waitlist. |
 | DELETE | `/:id` | Admin | Emails registrants that it's cancelled, then deletes the event and cascades: removes its `Registration` and `WaitlistEntry` rows. |
 
@@ -136,13 +136,14 @@ When a seat opens (a registration is cancelled, or capacity is raised) the longe
 
 Full field definitions live in `models/*.js`; summary:
 
-- **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected)`
-- **Club** — `name, category, description, longDescription, image, icon, activities[], leadName, leadRole, email, foundedYear, createdBy (→User)`
-- **Event** — `title, description, date, location, image, capacity, category, price, club? (→Club), createdBy (→User)`
+- **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected), eventReminders, clubUpdates, interests[] (up to 5 followed event categories), language (en|ne), passwordChangedAt`
+- **Club** — `name, category, description, longDescription, image, icon, activities[], leadName, leadRole, email, foundedYear, meetings (when it meets, up to 120 characters), requiresApproval, leaders[] (→User, never sent by the public endpoints), createdBy (→User)`
+- **Event** — `title, description, date, endDate?, location, image, photos[], joinLink?, capacity, registrationDeadline?, category, price, requiresApproval, volunteerRoles[], club? (→Club), coHosts[] (up to 2 more →Club), createdBy (→User)`
 - **Registration** — `user (→User), event (→Event), status (pending|confirmed|cancelled), attended, reminderSent, rating?, feedback?`. Unique index on `(user, event)`.
 - **WaitlistEntry** — `user (→User), event (→Event)`. Unique index on `(user, event)`; oldest entry is promoted first.
 - **AuditLog** — `actor (→User), actorName, action, summary`. Expires after a year.
 - **ClubMembership** — `user (→User), club (→Club)`. Unique index on `(user, club)`.
+- **Also in `models/`** — `ClubJoinRequest`, `ClubPost` (club news), `ClubIdea`, `EventQuestion`, `EventVolunteer`, `BoardPost` (notice board), `Notification` (the bell), `PushSubscription` (phone alerts), `SiteNotice` (announcement banner) and `ContactMessage`. `docs/API.md` lists the routes that use them.
 
 ## Error responses
 
