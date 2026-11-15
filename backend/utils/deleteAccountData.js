@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const User = require("../models/User");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
 const ClubMembership = require("../models/ClubMembership");
@@ -36,6 +37,9 @@ async function removeUserAndData(user) {
     await EventQuestion.deleteMany({ event: { $in: upcomingIds } });
     await EventVolunteer.deleteMany({ event: { $in: upcomingIds } });
     await Event.deleteMany({ _id: { $in: upcomingIds } });
+    // Nobody's "Save for later" list should keep pointing at them.
+    const upcomingKeys = upcomingIds.map(String);
+    await User.updateMany({ savedEvents: { $in: upcomingKeys } }, { $pull: { savedEvents: { $in: upcomingKeys } } });
   }
   await Registration.deleteMany({ user: user._id });
   await WaitlistEntry.deleteMany({ user: user._id });
@@ -50,6 +54,8 @@ async function removeUserAndData(user) {
   // Ideas they suggested to clubs go with them.
   await ClubIdea.deleteMany({ author: user._id });
   await BoardPost.deleteMany({ author: user._id });
+  // Reports they filed on other people's posts no longer carry their id.
+  await BoardPost.updateMany({ reports: user._id }, { $pull: { reports: user._id } });
   await ClubMembership.deleteMany({ user: user._id });
   await ClubJoinRequest.deleteMany({ user: user._id });
   await Club.updateMany({ leaders: user._id }, { $pull: { leaders: user._id } });
