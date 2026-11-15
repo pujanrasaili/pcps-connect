@@ -136,7 +136,7 @@ When a seat opens (a registration is cancelled, or capacity is raised) the longe
 
 Full field definitions live in `models/*.js`; summary:
 
-- **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected), eventReminders, clubUpdates, interests[] (up to 5 followed event categories), language (en|ne), passwordChangedAt`
+- **User** — `name, email (unique), password (hashed, select:false), role (user|admin), studentId, program, semester, phone, avatar, favoriteClub (→Club), emailVerified, approvalStatus (pending|approved|rejected), eventReminders, clubUpdates, interests[] (up to 5 followed event categories), savedEvents[] (up to 200 bookmarked event ids), language (en|ne), passwordChangedAt`
 - **Club** — `name, category, description, longDescription, image, icon, activities[], leadName, leadRole, email, foundedYear, meetings (when it meets, up to 120 characters), requiresApproval, leaders[] (→User, never sent by the public endpoints), createdBy (→User)`
 - **Event** — `title, description, date, endDate?, location, image, photos[], joinLink?, capacity, registrationDeadline?, category, price, requiresApproval, volunteerRoles[], club? (→Club), coHosts[] (up to 2 more →Club), createdBy (→User)`
 - **Registration** — `user (→User), event (→Event), status (pending|confirmed|cancelled), attended, reminderSent, rating?, feedback?`. Unique index on `(user, event)`.
