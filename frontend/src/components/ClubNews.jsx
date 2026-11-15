@@ -8,6 +8,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import Button from "./Button";
 import SafeImage from "./SafeImage";
 import { shrinkImage } from "../utils/resizeImage";
+import { useUnsavedWarning } from "../hooks/useUnsavedWarning";
 
 const MAX = 1000;
 
@@ -22,6 +23,8 @@ export default function ClubNews({ clubId, canPost }) {
   const [draft, setDraft] = useState("");
   const [photo, setPhoto] = useState(null); // a picked image file, sent with the post
   const [saving, setSaving] = useState(false);
+  // A club update that's been started but not posted: warn before the tab is closed.
+  useUnsavedWarning(draft.trim().length > 0);
   const fileInput = useRef(null);
   const [editing, setEditing] = useState(null); // { id, text } while a post is being edited
   const [deleteTarget, setDeleteTarget] = useState(null);

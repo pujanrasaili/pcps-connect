@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useUnsavedWarning } from "../hooks/useUnsavedWarning";
 import { FaMapMarkerAlt, FaPhoneAlt, FaClock, FaCheckCircle, FaUserTie } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import Button from "../components/Button";
@@ -11,6 +12,8 @@ export default function Contact() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
+  // A message that's been started but not sent: warn before the tab is closed.
+  useUnsavedWarning(!sent && !!(form.subject.trim() || form.message.trim()));
 
   const handleChange = (e) => {
     const { name, value } = e.target;
