@@ -21,6 +21,7 @@
     "reminders": "node scripts/sendEventReminders.js",
     "digest": "node scripts/sendWeeklyDigest.js",
     "request-reminders": "node scripts/sendJoinRequestReminders.js",
+    "feedback-requests": "node scripts/sendFeedbackRequests.js",
     "smoke": "node scripts/smokeTest.js",
     "review:nepali": "node scripts/exportNepaliReview.js",
     "test": "jest",
