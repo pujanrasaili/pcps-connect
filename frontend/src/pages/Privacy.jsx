@@ -22,7 +22,13 @@ export default function Privacy() {
             ID, program, semester, and phone number to your profile. We
             also store which clubs you join or favorite and which events
             you register for, so your Dashboard and Profile can show your
-            own activity. The notification bell keeps short messages
+            own activity. If you use the optional features we also store
+            what they need: the event topics you follow, the helper role
+            you sign up for at an event, questions you ask on an event
+            and ideas you send to a club (each with your first name), notice
+            board posts you write (with any contact detail you choose to add),
+            and, if you switch on phone alerts, the address your browser
+            gives us to send them to that device. The notification bell keeps short messages
             about your activity (such as a changed event or an approved
             request) for 60 days. Messages sent through the Contact form (your
             name, email, subject and message) are saved so admins can reply
@@ -44,7 +50,11 @@ export default function Privacy() {
             -- your profile details are private to you. PCPS Connect
             administrators can see your name, email, and registration
             activity in order to manage the platform (e.g. approving
-            accounts, viewing who's registered for an event).
+            accounts, viewing who's registered for an event). The leaders
+            an administrator names for a club can see who has joined that
+            club and who registered for its events, and can read the ideas
+            members send it. Questions you ask on an event and notice board
+            posts are shown to other logged-in students with your first name only.
           </Section>
 
           <Section title="4. Where your data lives">
