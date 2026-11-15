@@ -7,6 +7,7 @@ import { useLang } from "../context/LanguageContext";
 import { formatDate } from "../utils/formatDate";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Button from "../components/Button";
+import { useUnsavedWarning } from "../hooks/useUnsavedWarning";
 
 const MAX_TITLE = 80;
 const MAX_BODY = 300;
@@ -33,6 +34,8 @@ export default function Board() {
   const [failed, setFailed] = useState(false);
   const [filter, setFilter] = useState("all");
   const [form, setForm] = useState({ category: "lost", title: "", body: "", contact: "" });
+  // A notice that's been started but not posted: warn before the tab is closed.
+  useUnsavedWarning(!!(form.title.trim() || form.body.trim() || form.contact.trim()));
   const [saving, setSaving] = useState(false);
   const [removeTarget, setRemoveTarget] = useState(null);
   const [removing, setRemoving] = useState(false);
