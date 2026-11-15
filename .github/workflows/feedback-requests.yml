@@ -1,0 +1,35 @@
+name: Feedback Requests
+
+# Runs scripts/sendFeedbackRequests.js once a day: students who attended an
+# event in the last three days (and are past the first three hours after it
+# started) and have not rated it get a bell message and an email asking for a
+# rating. Each person is asked once. Uses the same secrets as Event Reminders.
+
+on:
+  schedule:
+    - cron: "0 10 * * *"
+  workflow_dispatch: {} # lets this be triggered manually from the Actions tab too
+
+jobs:
+  send-feedback-requests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run feedback-requests
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          # Optional: add these two secrets to send through Brevo instead of Gmail
+          # (the same sender the live site uses). Left empty, Gmail is used.
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_SENDER_EMAIL: ${{ secrets.BREVO_SENDER_EMAIL }}
