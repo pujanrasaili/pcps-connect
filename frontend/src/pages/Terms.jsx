@@ -34,7 +34,10 @@ export default function Terms() {
             engage with campus life in good faith. Don't create accounts
             under someone else's identity, attempt to bypass the
             registration/approval process, or use the platform to harass
-            other students or disrupt events.
+            other students or disrupt events. What you write on the notice
+            board, in event questions and in club ideas is your own
+            responsibility: keep it truthful and respectful, and do not post
+            other people's private details.
           </Section>
 
           <Section title="4. Event registrations">
@@ -51,7 +54,10 @@ export default function Terms() {
           <Section title="5. Content and accounts">
             An administrator may edit, remove, or reject content or
             accounts that violate these terms or misrepresent someone's
-            identity or affiliation with PCPS.
+            identity or affiliation with PCPS. Notice board posts are
+            removed automatically after 14 days, and a post that three
+            different students report is hidden until an administrator
+            reviews it.
           </Section>
 
           <Section title="6. No warranty">
