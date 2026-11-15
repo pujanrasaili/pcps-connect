@@ -1,7 +1,7 @@
 jest.mock("../../models/Notification");
 
 const Notification = require("../../models/Notification");
-const { getMyNotifications, markAllRead } = require("../notificationController");
+const { getMyNotifications, markAllRead, clearMine } = require("../notificationController");
 
 function mockRes() {
   const res = {};
@@ -54,6 +54,23 @@ describe("markAllRead", () => {
     Notification.updateMany.mockRejectedValue(new Error("db down"));
     const res = mockRes();
     await markAllRead({ user }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("clearMine", () => {
+  it("deletes only the caller's notifications", async () => {
+    Notification.deleteMany.mockResolvedValue({});
+    const res = mockRes();
+    await clearMine({ user }, res);
+    expect(Notification.deleteMany).toHaveBeenCalledWith({ user: "u1" });
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it("returns 500 when the database fails", async () => {
+    Notification.deleteMany.mockRejectedValue(new Error("db down"));
+    const res = mockRes();
+    await clearMine({ user }, res);
     expect(res.status).toHaveBeenCalledWith(500);
   });
 });

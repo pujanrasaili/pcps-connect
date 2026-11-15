@@ -10,7 +10,13 @@ const note = (n, title, read, link) => ({ _id: `n${n}`.padEnd(24, "0"), title, r
 async function withBell(page, list) {
   let items = list;
   let readAll = 0;
-  await page.route("**/api/notifications", (route) => reply(route, { notifications: items, unreadCount: items.filter((n) => !n.read).length }));
+  await page.route("**/api/notifications", (route) => {
+    if (route.request().method() === "DELETE") {
+      items = [];
+      return reply(route, { message: "ok" });
+    }
+    return reply(route, { notifications: items, unreadCount: items.filter((n) => !n.read).length });
+  });
   await page.route("**/api/notifications/read-all", (route) => {
     readAll += 1;
     items = items.map((n) => ({ ...n, read: true }));
@@ -112,3 +118,17 @@ test("a visitor who isn't logged in has no bell", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(bell(page, /^Notifications/)).toHaveCount(0);
 });
+
+for (const lang of ["en", "ne"]) {
+  test(`Clear all empties the list (${lang})`, async ({ page }) => {
+    const en = lang === "en";
+    await setUp(page, { lang, role: "student" });
+    await withBell(page, [note(1, "You got a seat: Hack Night", true, "/events/e1"), note(2, "Welcome to PCPS Connect", true)]);
+    await page.goto("/");
+    await page.getByRole("navigation", { name: en ? "Main" : "मुख्य" }).getByRole("button", { name: en ? /^Notifications/ : /^सूचनाहरू/ }).click();
+    const panel = page.getByRole("region", { name: en ? "Notifications" : "सूचनाहरू" });
+    await panel.getByRole("button", { name: en ? "Clear all" : "सबै हटाउनुहोस्" }).click();
+    await expect(panel.getByText(en ? /Nothing yet/ : /अहिलेसम्म केही छैन/)).toBeVisible();
+    await expect(panel.getByRole("button", { name: en ? "Clear all" : "सबै हटाउनुहोस्" })).toHaveCount(0);
+  });
+}
