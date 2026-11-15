@@ -46,6 +46,9 @@ describe("buildPersonalData", () => {
 
   it("copes with a bare user and no related records", () => {
     const d = buildPersonalData({ user: { name: "A", email: "a@x.com", role: "user" } }, NOW);
+    expect(d.boardPosts).toEqual([]);
+    expect(d.eventsYouCreated).toEqual([]);
+    expect(d.phoneAlertDevices).toBe(0);
     expect(d.registrations).toEqual([]);
     expect(d.profile.favoriteClub).toBeNull();
     expect(d.profile.joined).toBeNull();
