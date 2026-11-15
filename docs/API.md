@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-115 endpoints.
+116 endpoints.
 
 ## /api/health
 
@@ -176,6 +176,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 |---|---|---|---|
 | GET | `/api/notifications` | Logged-in student | Your latest in-app notifications (newest first) and how many are unread. |
 | PUT | `/api/notifications/read-all` | Logged-in student | Mark all of your notifications as read. |
+| DELETE | `/api/notifications` | Logged-in student | Clear all of your notifications. |
 
 ## /api/push
 

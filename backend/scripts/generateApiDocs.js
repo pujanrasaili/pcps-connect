@@ -176,6 +176,7 @@ const DESCRIPTIONS = {
   leaveWaitlist: "Leave an event's waitlist.",
   getMyNotifications: "Your latest in-app notifications (newest first) and how many are unread.",
   markAllRead: "Mark all of your notifications as read.",
+  clearMine: "Clear all of your notifications.",
   verifyCertificate: "Check that a certificate code is genuine (public, no login).",
 };
 
