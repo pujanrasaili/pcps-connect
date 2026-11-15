@@ -1491,4 +1491,5 @@ export const ne = {
   "You saved {title}: it is on {date}": "तपाईंले {title} सुरक्षित गर्नुभएको थियो: यो {date} मा हुँदैछ",
   "Clear all": "सबै हटाउनुहोस्",
   "Discard what you've typed? This event hasn't been saved.": "तपाईंले लेखेको हटाउने? यो कार्यक्रम सुरक्षित गरिएको छैन।",
+  "Discard what you've typed? This club hasn't been saved.": "तपाईंले लेखेको हटाउने? यो क्लब सुरक्षित गरिएको छैन।",
 };

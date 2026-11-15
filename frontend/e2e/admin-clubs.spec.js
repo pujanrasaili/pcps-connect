@@ -83,3 +83,30 @@ test("the club form will not send without a name, category and description", asy
   await expect(page.locator("#club-name")).toBeVisible();
   expect(calls).toEqual([]);
 });
+
+for (const lang of ["en", "ne"]) {
+  test(`closing a club form with typing in it asks first; an untouched form closes freely (${lang})`, async ({ page }) => {
+    await setUp(page, { lang, role: "admin" });
+    await withClubsApi(page);
+    await page.goto("/admin/clubs");
+    const asked = [];
+    page.on("dialog", async (d) => {
+      asked.push(d.message());
+      await (asked.length === 1 ? d.dismiss() : d.accept());
+    });
+    const add = page.getByRole("button", { name: text[lang].add });
+    await add.click();
+    await expect(page.locator("#club-name")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#club-name")).toHaveCount(0);
+    expect(asked).toEqual([]);
+    await add.click();
+    await page.locator("#club-name").fill("Half written");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#club-name")).toHaveValue("Half written");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#club-name")).toHaveCount(0);
+    expect(asked).toHaveLength(2);
+    expect(asked[0]).toContain(lang === "en" ? "This club hasn't been saved" : "यो क्लब सुरक्षित गरिएको छैन");
+  });
+}
