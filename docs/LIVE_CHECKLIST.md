@@ -52,7 +52,7 @@ Create an event for tomorrow, register **S** for it and, if you like, also add S
 
 ## 7. Rate-the-event request (optional, needs an event that already started)
 
-Mark **S** as attended at an event that started between 3 hours and 3 days ago (Attendees window), without S rating it. Run GitHub → Actions → "Feedback Requests" → "Run workflow". S should get a bell message "How was <event>? Rate it" and an email with a "Rate the event" button that opens the Profile page. Run the workflow again: nothing new is sent. A student who rated already, or switched event reminders off, receives nothing.
+Mark **S** as attended at an event that started between 3 hours and 3 days ago (Attendees window), without S rating it. Run GitHub → Actions → "Feedback Requests" → "Run workflow". S should get a bell message "How was <event>? Rate it" and an email with a "Rate the event" button that opens the Profile page. Run the workflow again: nothing new is sent. A student who rated already, or switched event reminders off, receives nothing. For an event that started at least 3 days ago and has registrations, its organisers (you as **A**, and the club leader **L**) get the same run's recap: a bell message "Recap for <event>: N of M attended" and an email with turnout, the average rating and up to three comments.
 
 ## 8. Nepali pages (10 min)
 

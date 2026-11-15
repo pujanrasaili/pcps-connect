@@ -106,7 +106,9 @@ Unsubscribe link to Settings. Four GitHub Actions workflows run on a timer:
 the student's clubs, **join request reminders** that nudge club leaders
 about students who have waited more than 5 days, and **feedback requests**
 that ask students who attended an event in the last three days, and have not
-rated it, to rate it (once, by bell and email).
+rated it, to rate it (once, by bell and email). The same job sends each
+finished event's organisers a **recap** (turnout, average rating, a few
+comments) once the event is three days old.
 
 ## Nepali language
 
