@@ -56,6 +56,7 @@ function publicUser(user) {
     eventReminders: user.eventReminders !== false,
     clubUpdates: user.clubUpdates !== false,
     interests: user.interests || [],
+    savedEvents: user.savedEvents || [],
     language: pickLanguage(user.language),
   };
 }

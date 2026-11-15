@@ -21,6 +21,7 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
         clubUpdates: user.clubUpdates !== false,
       },
       interests: user.interests || [],
+      savedEvents: user.savedEvents || [],
       joined: iso(user.createdAt),
     },
     registrations: registrations

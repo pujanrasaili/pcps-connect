@@ -80,3 +80,22 @@ describe("interests", () => {
     expect(cleanProfileFields({ name: "Asha" }).values.interests).toBeUndefined();
   });
 });
+
+describe("savedEvents", () => {
+  const id = (n) => String(n).padStart(24, "a");
+  it("keeps a clean list of event ids, once each", () => {
+    expect(cleanProfileFields({ savedEvents: [id(1), id(2), id(1)] }).values.savedEvents).toEqual([id(1), id(2)]);
+  });
+  it("accepts an empty list (nothing saved)", () => {
+    expect(cleanProfileFields({ savedEvents: [] }).values.savedEvents).toEqual([]);
+  });
+  it("rejects a non-list, non-ids and too many", () => {
+    expect(cleanProfileFields({ savedEvents: "x" }).error).toBeTruthy();
+    expect(cleanProfileFields({ savedEvents: ["nope"] }).error).toBeTruthy();
+    expect(cleanProfileFields({ savedEvents: [1] }).error).toBeTruthy();
+    expect(cleanProfileFields({ savedEvents: Array.from({ length: 201 }, (_, i) => id(i)) }).error).toMatch(/at most 200/);
+  });
+  it("is left alone when not sent", () => {
+    expect(cleanProfileFields({ name: "Asha" }).values).not.toHaveProperty("savedEvents");
+  });
+});

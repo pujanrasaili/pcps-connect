@@ -10,6 +10,7 @@ const AVATAR_MAX = 500;
 const LANGUAGES = ["en", "ne"];
 const MAX_INTERESTS = 5;
 const INTEREST_MAX = 50;
+const MAX_SAVED_EVENTS = 200;
 
 const LABELS = {
   name: "Name",
@@ -65,6 +66,15 @@ function cleanProfileFields(input = {}) {
     if (topics.some((v) => v.length > INTEREST_MAX)) return { error: `A topic must be ${INTEREST_MAX} characters or fewer` };
     if (topics.length > MAX_INTERESTS) return { error: `Pick at most ${MAX_INTERESTS} topics` };
     values.interests = topics;
+  }
+
+  if (input.savedEvents !== undefined && input.savedEvents !== null) {
+    if (!Array.isArray(input.savedEvents) || input.savedEvents.some((v) => typeof v !== "string" || !/^[0-9a-f]{24}$/i.test(v))) {
+      return { error: "Saved events must be a list of event ids" };
+    }
+    const saved = [...new Set(input.savedEvents)];
+    if (saved.length > MAX_SAVED_EVENTS) return { error: `Save at most ${MAX_SAVED_EVENTS} events` };
+    values.savedEvents = saved;
   }
 
   if (input.language !== undefined && input.language !== null) {

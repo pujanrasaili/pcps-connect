@@ -50,6 +50,8 @@ const userSchema = new mongoose.Schema(
 
     // Topics (event categories, lower case) the student wants a bell message
     // about when a new event in one is announced. At most 5 (utils/profileFields.js).
+    // "Save for later" bookmarks (event ids), so they follow the student to another device.
+    savedEvents: { type: [{ type: String, maxlength: 24 }], default: [] },
     interests: { type: [{ type: String, maxlength: 50 }], default: [], index: true },
 
     // The language this student last used on the site ("en" or "ne"). Account
