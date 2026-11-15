@@ -17,6 +17,8 @@ import { downloadCsv } from "../../utils/csv";
 import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
+import { useUnsavedWarning } from "../../hooks/useUnsavedWarning";
+
 
 const PAGE_SIZE = 10;
 const ICON_OPTIONS = ["FaCode", "FaRobot", "FaCamera", "FaFutbol", "FaLightbulb", "FaUsers"];
@@ -47,6 +49,9 @@ export default function AdminClubs() {
   const [editingClub, setEditingClub] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  // True once something has been typed, so closing the form can ask before throwing it away.
+  const [touched, setTouched] = useState(false);
+  useUnsavedWarning(formOpen && touched);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [messageTarget, setMessageTarget] = useState(null);
@@ -127,14 +132,22 @@ export default function AdminClubs() {
 
   const openMessage = (club) => setMessageTarget(club);
 
+  // Closing with the X, Escape or a click outside asks first if something was typed.
+  const closeForm = () => {
+    if (touched && !window.confirm(t("Discard what you've typed? This club hasn't been saved."))) return;
+    setFormOpen(false);
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    setTouched(true);
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const openCreate = () => {
     setEditingClub(null);
     setForm(EMPTY_FORM);
+    setTouched(false);
     setFormOpen(true);
   };
 
@@ -155,6 +168,7 @@ export default function AdminClubs() {
       meetings: club.meetings || "",
       requiresApproval: !!club.requiresApproval,
     });
+    setTouched(false);
     setFormOpen(true);
   };
 
@@ -322,7 +336,7 @@ export default function AdminClubs() {
 
       <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
-      <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingClub ? t("Edit Club") : t("Add Club")} size="lg">
+      <Modal isOpen={formOpen} onClose={closeForm} title={editingClub ? t("Edit Club") : t("Add Club")} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
