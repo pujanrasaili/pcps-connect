@@ -27,4 +27,15 @@ async function markAllRead(req, res) {
   }
 }
 
-module.exports = { getMyNotifications, markAllRead };
+// DELETE /api/notifications  (logged in) -- clears all of your messages. Only
+// your own are touched; nobody else's list changes.
+async function clearMine(req, res) {
+  try {
+    await Notification.deleteMany({ user: req.user._id });
+    res.status(200).json({ message: "Notifications cleared" });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to clear notifications") });
+  }
+}
+
+module.exports = { getMyNotifications, markAllRead, clearMine };
