@@ -26,6 +26,7 @@ export const NOTIFICATION_PATTERNS = [
   [/^You're helping at (.+) on (.+)$/, "You're helping at {title} on {date}", ["title", "date"]],
   [/^New (.+) event: (.+)$/, "New {category} event: {title}", ["category", "title"]],
   [/^All places are taken for "(.+)" at (.+)$/, 'All places are taken for "{role}" at {title}', ["role", "title"]],
+  [/^How was (.+)\? Rate it$/, "How was {title}? Rate it", ["title"]],
   [/^(.+) is full$/, "{title} is full", ["title"]],
   [/^(.+) updated its meeting time$/, "{club} updated its meeting time", ["club"]],
 ];

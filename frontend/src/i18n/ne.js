@@ -1485,4 +1485,5 @@ export const ne = {
   "On the Events page a My topics button shows only those events. Untick a topic in Settings any time to stop hearing about it.": "कार्यक्रम पृष्ठमा \"मेरा विषयहरू\" बटनले ती कार्यक्रम मात्र देखाउँछ। कुनै विषयको सूचना रोक्न सेटिङमा जुनसुकै बेला त्यसको चिन्ह हटाउनुहोस्।",
   "How do I find out when a club meets?": "क्लब कहिले भेट हुन्छ भनेर कसरी थाहा पाउने?",
   "Open the club on the Clubs page. If its leaders have added a regular meeting time, it is shown as Meets, for example Thursdays 3 PM, Room 204. If you are a member you also get a bell message whenever that time changes.": "क्लब पृष्ठमा क्लब खोल्नुहोस्। नेतृत्वकर्ताहरूले नियमित भेट हुने समय थपेका छन् भने त्यो \"बैठक\" को रूपमा देखिन्छ, जस्तै बिहीबार दिउँसो 3 बजे, कोठा 204। तपाईं सदस्य हुनुहुन्छ भने त्यो समय बदलिँदा घण्टीमा सन्देश पनि आउँछ।",
+  "How was {title}? Rate it": "{title} कस्तो लाग्यो? मूल्यांकन गर्नुहोस्",
 };

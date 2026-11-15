@@ -36,6 +36,7 @@ const SAMPLES = [
   "Coding Club updated its meeting time",
   'All places are taken for "Greeter" at Hack Night',
   "Hack Night is full",
+  "How was Hack Night? Rate it",
   "A seat opened for Hack Night - your request is waiting for approval",
   "You got a seat: Hack Night",
   "Coding Club announced Hack Night",
