@@ -41,6 +41,15 @@ const T = {
     feedbackBody: "Thanks for coming to <strong>{title}</strong>. Rate it and leave a short comment so the organisers know what worked. It takes a few seconds:",
     feedbackCta: "Rate the event",
     feedbackFooter: "You can turn these emails off with event reminders in {settings}.",
+    recapSubject: "Recap: how {rawTitle} went",
+    recapHeading: "How your event went",
+    recapBody: "Here is how <strong>{title}</strong> went:",
+    recapAttended: "<strong>{attended} of {registered}</strong> registered students attended ({percent}%).",
+    recapRated: "Average rating <strong>{average} / 5</strong> from {count} rating(s).",
+    recapNoRatings: "Nobody has rated it yet.",
+    recapComments: "What students wrote:",
+    recapLink: "Open the full report",
+    recapFooter: "You are getting this because you help run the event. Turn these emails off with event reminders in {settings}.",
     settings: "Settings",
   },
   ne: {
@@ -79,6 +88,15 @@ const T = {
     feedbackBody: "<strong>{title}</strong> मा आउनुभएकोमा धन्यवाद। यसलाई मूल्यांकन गर्नुहोस् र छोटो टिप्पणी दिनुहोस्, ताकि आयोजकहरूले के राम्रो भयो भनेर जान्न सकून्। यसमा केही सेकेन्ड मात्र लाग्छ:",
     feedbackCta: "कार्यक्रम मूल्यांकन गर्नुहोस्",
     feedbackFooter: "कार्यक्रमको सम्झनाका साथ यी इमेल पनि {settings} मा बन्द गर्न सक्नुहुन्छ।",
+    recapSubject: "सारांश: {rawTitle} कस्तो भयो",
+    recapHeading: "तपाईंको कार्यक्रम कस्तो भयो",
+    recapBody: "<strong>{title}</strong> कस्तो भयो भन्ने सारांश यहाँ छ:",
+    recapAttended: "दर्ता भएका {registered} जना विद्यार्थीमध्ये <strong>{attended} जना</strong> उपस्थित भए ({percent}%)।",
+    recapRated: "{count} वटा मूल्यांकनबाट औसत मूल्यांकन <strong>{average} / 5</strong>।",
+    recapNoRatings: "अहिलेसम्म कसैले मूल्यांकन गरेका छैनन्।",
+    recapComments: "विद्यार्थीहरूले लेखेका कुरा:",
+    recapLink: "पूरा रिपोर्ट खोल्नुहोस्",
+    recapFooter: "तपाईंले कार्यक्रम सञ्चालनमा सहयोग गर्नुभएकाले यो इमेल पाउनुभएको हो। कार्यक्रमको सम्झनाका साथ यी इमेल पनि {settings} मा बन्द गर्न सक्नुहुन्छ।",
     settings: "सेटिङ",
   },
 };
@@ -124,6 +142,31 @@ function feedbackRequestEmail(language, v) {
   };
 }
 
+// { lang, subject, heading, bodyHtml } for the recap sent to an event's organisers.
+// v.comments is an array of already-escaped strings; v.reportLink is the full address.
+function eventRecapEmail(language, v) {
+  const lang = pickLanguage(language);
+  const t = T[lang];
+  const rated = v.count > 0 ? fill(t.recapRated, v) : t.recapNoRatings;
+  const comments = (v.comments || []).length
+    ? `<p style="margin: 16px 0 4px;"><strong>${t.recapComments}</strong></p>${v.comments.map((c) => `<p style="margin: 0 0 6px; padding-left: 10px; border-left: 3px solid #cbd5e1;">${c}</p>`).join("")}`
+    : "";
+  return {
+    lang,
+    subject: fill(t.recapSubject, v),
+    heading: t.recapHeading,
+    bodyHtml: `
+              <p style="margin: 0 0 12px;">${fill(t.hi, v)}</p>
+              <p style="margin: 0 0 12px;">${fill(t.recapBody, v)}</p>
+              <p style="margin: 0 0 4px;">${fill(t.recapAttended, v)}</p>
+              <p style="margin: 0;">${rated}</p>
+              ${comments}
+              <p style="margin: 16px 0 0;"><a href="${v.reportLink}" style="color: #4F46E5;">${t.recapLink}</a></p>
+              <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">${fill(t.recapFooter, v)}</p>
+            `,
+  };
+}
+
 // { lang, subject, heading, bodyHtml } for the reminder to a student helping at an event.
 function volunteerReminderEmail(language, v) {
   const lang = pickLanguage(language);
@@ -143,4 +186,4 @@ function volunteerReminderEmail(language, v) {
   };
 }
 
-module.exports = { eventReminderEmail, feedbackRequestEmail, volunteerReminderEmail, text, settingsWord, T };
+module.exports = { eventReminderEmail, feedbackRequestEmail, eventRecapEmail, volunteerReminderEmail, text, settingsWord, T };

@@ -36,6 +36,8 @@ const eventSchema = new mongoose.Schema(
   club: { type: mongoose.Schema.Types.ObjectId, ref: "Club", default: null, index: true },
   // Optional: up to two more clubs running the event together with `club`. Only an
   // admin sets these. Their leaders can manage the event too (utils/clubAccess.js).
+  // The post-event recap email to the organisers goes out once (utils/eventRecaps.js).
+  recapSent: { type: Boolean, default: false },
   coHosts: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Club" }], default: [], index: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
   },
