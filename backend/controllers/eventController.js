@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const User = require("../models/User");
 const { destroyEventPhotos } = require("../utils/eventPhotoCleanup");
 const Registration = require("../models/Registration");
 const WaitlistEntry = require("../models/WaitlistEntry");
@@ -366,6 +367,8 @@ async function deleteEvent(req, res) {
     await WaitlistEntry.deleteMany({ event: event._id });
     await EventQuestion.deleteMany({ event: event._id });
     await EventVolunteer.deleteMany({ event: event._id });
+    // Students' "Save for later" lists must not keep pointing at a deleted event.
+    await User.updateMany({ savedEvents: String(event._id) }, { $pull: { savedEvents: String(event._id) } });
     await destroyEventPhotos(event.photos);
     await recordAudit(req.user, "event.deleted", `Deleted event "${event.title}"`);
 
