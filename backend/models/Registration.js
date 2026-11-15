@@ -11,6 +11,8 @@ const registrationSchema = new mongoose.Schema(
     // doesn't re-email the same student every day between registering and
     // the event actually happening.
     reminderSent: { type: Boolean, default: false },
+    // The "How was it?" nudge after the event goes out once (see utils/feedbackRequests.js).
+    feedbackAsked: { type: Boolean, default: false },
     // Post-event feedback, only settable by the student once an admin has
     // marked them as having attended (see submitFeedback).
     rating: { type: Number, min: 1, max: 5, default: null },

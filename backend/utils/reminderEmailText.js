@@ -36,6 +36,11 @@ const T = {
     nudgeIntro: "These students asked to join a club that approves its members and have not heard back yet:",
     nudgeRow: "<strong>{club}</strong>: {count} waiting, the longest for {days} days",
     nudgeLink: "Open the Members window to approve or decline",
+    feedbackSubject: "How was {rawTitle}?",
+    feedbackHeading: "How was the event?",
+    feedbackBody: "Thanks for coming to <strong>{title}</strong>. Rate it and leave a short comment so the organisers know what worked. It takes a few seconds:",
+    feedbackCta: "Rate the event",
+    feedbackFooter: "You can turn these emails off with event reminders in {settings}.",
     settings: "Settings",
   },
   ne: {
@@ -69,6 +74,11 @@ const T = {
     nudgeIntro: "यी विद्यार्थीहरूले सदस्यलाई स्वीकृत गर्ने क्लबमा सामेल हुन अनुरोध गरेका थिए र अझै जवाफ पाएका छैनन्:",
     nudgeRow: "<strong>{club}</strong>: {count} जना पर्खिरहेका, सबैभन्दा लामो {days} दिनदेखि",
     nudgeLink: "स्वीकृत वा अस्वीकृत गर्न सदस्य सूची खोल्नुहोस्",
+    feedbackSubject: "{rawTitle} कस्तो लाग्यो?",
+    feedbackHeading: "कार्यक्रम कस्तो लाग्यो?",
+    feedbackBody: "<strong>{title}</strong> मा आउनुभएकोमा धन्यवाद। यसलाई मूल्यांकन गर्नुहोस् र छोटो टिप्पणी दिनुहोस्, ताकि आयोजकहरूले के राम्रो भयो भनेर जान्न सकून्। यसमा केही सेकेन्ड मात्र लाग्छ:",
+    feedbackCta: "कार्यक्रम मूल्यांकन गर्नुहोस्",
+    feedbackFooter: "कार्यक्रमको सम्झनाका साथ यी इमेल पनि {settings} मा बन्द गर्न सक्नुहुन्छ।",
     settings: "सेटिङ",
   },
 };
@@ -96,6 +106,24 @@ function eventReminderEmail(language, v) {
   };
 }
 
+// { lang, subject, heading, bodyHtml } for the "How was the event?" email.
+// v.profileLink is the full address of the page where students rate events.
+function feedbackRequestEmail(language, v) {
+  const lang = pickLanguage(language);
+  const t = T[lang];
+  return {
+    lang,
+    subject: fill(t.feedbackSubject, v),
+    heading: t.feedbackHeading,
+    bodyHtml: `
+              <p style="margin: 0 0 12px;">${fill(t.hi, v)}</p>
+              <p style="margin: 0 0 16px;">${fill(t.feedbackBody, v)}</p>
+              <p style="margin: 0;"><a href="${v.profileLink}" style="display: inline-block; background: #4F46E5; color: #ffffff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t.feedbackCta}</a></p>
+              <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">${fill(t.feedbackFooter, v)}</p>
+            `,
+  };
+}
+
 // { lang, subject, heading, bodyHtml } for the reminder to a student helping at an event.
 function volunteerReminderEmail(language, v) {
   const lang = pickLanguage(language);
@@ -115,4 +143,4 @@ function volunteerReminderEmail(language, v) {
   };
 }
 
-module.exports = { eventReminderEmail, volunteerReminderEmail, text, settingsWord, T };
+module.exports = { eventReminderEmail, feedbackRequestEmail, volunteerReminderEmail, text, settingsWord, T };
