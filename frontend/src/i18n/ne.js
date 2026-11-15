@@ -1487,4 +1487,6 @@ export const ne = {
   "Open the club on the Clubs page. If its leaders have added a regular meeting time, it is shown as Meets, for example Thursdays 3 PM, Room 204. If you are a member you also get a bell message whenever that time changes.": "क्लब पृष्ठमा क्लब खोल्नुहोस्। नेतृत्वकर्ताहरूले नियमित भेट हुने समय थपेका छन् भने त्यो \"बैठक\" को रूपमा देखिन्छ, जस्तै बिहीबार दिउँसो 3 बजे, कोठा 204। तपाईं सदस्य हुनुहुन्छ भने त्यो समय बदलिँदा घण्टीमा सन्देश पनि आउँछ।",
   "How was {title}? Rate it": "{title} कस्तो लाग्यो? मूल्यांकन गर्नुहोस्",
   "Recap for {title}: {attended} of {registered} attended": "{title} को सारांश: {registered} जनामध्ये {attended} जना उपस्थित भए",
+  "Coming up: {title} on {date}": "आउँदैछ: {title}, {date} मा",
+  "You saved {title}: it is on {date}": "तपाईंले {title} सुरक्षित गर्नुभएको थियो: यो {date} मा हुँदैछ",
 };
