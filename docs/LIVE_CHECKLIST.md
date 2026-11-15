@@ -50,11 +50,15 @@ As **S**:
 
 Create an event for tomorrow, register **S** for it and, if you like, also add S as a volunteer. After the next scheduled reminder run (GitHub → Actions → the event reminders workflow; you can also press "Run workflow"), S should receive the email and a bell message. A student who switched event reminders off in Settings receives neither.
 
-## 7. Rate-the-event request (optional, needs an event that already started)
+## 7. Saved events on two devices (3 min)
+
+Log in as **S** on two devices (or one normal and one private window). Save an event on the first, wait a second, then reload the second: it should show as saved. Unsave it on the second and reload the first: it should be gone. Log out: the saved list on that device should be empty. For the nudge: save an event that starts within 24 hours without registering, then run GitHub → Actions → the event reminders workflow; **S** should get a bell message "You saved <event>: it is on ..." (once, even if the workflow runs twice).
+
+## 8. Rate-the-event request (optional, needs an event that already started)
 
 Mark **S** as attended at an event that started between 3 hours and 3 days ago (Attendees window), without S rating it. Run GitHub → Actions → "Feedback Requests" → "Run workflow". S should get a bell message "How was <event>? Rate it" and an email with a "Rate the event" button that opens the Profile page. Run the workflow again: nothing new is sent. A student who rated already, or switched event reminders off, receives nothing. For an event that started at least 3 days ago and has registrations, its organisers (you as **A**, and the club leader **L**) get the same run's recap: a bell message "Recap for <event>: N of M attended" and an email with turnout, the average rating and up to three comments.
 
-## 8. Nepali pages (10 min)
+## 9. Nepali pages (10 min)
 
 Switch the site to Nepali and open: Privacy, Terms, an event with volunteer roles, the Dashboard, Help. Anything that is English where it should be Nepali, or Nepali that reads wrong, write down or screenshot and send to Claude. The review sheet `nepali-review.html` lists the strings to check, starting with its "Start here" section, then "New features" (alerts, notice board, activity record, poster, online link, volunteers).
 
