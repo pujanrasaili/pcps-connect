@@ -101,10 +101,12 @@ calendar app converts correctly.
 Sent through Brevo (or Gmail SMTP with Nodemailer as a fallback): verification, password reset,
 registration confirmations, event changes and cancellations, announcements.
 Each has a plain-text version, and messages students can opt out of carry an
-Unsubscribe link to Settings. Three GitHub Actions workflows run on a timer:
+Unsubscribe link to Settings. Four GitHub Actions workflows run on a timer:
 **daily event reminders**, a **weekly digest** of next week's events from
-the student's clubs, and **join request reminders** that nudge club leaders
-about students who have waited more than 5 days.
+the student's clubs, **join request reminders** that nudge club leaders
+about students who have waited more than 5 days, and **feedback requests**
+that ask students who attended an event in the last three days, and have not
+rated it, to rate it (once, by bell and email).
 
 ## Nepali language
 

@@ -89,6 +89,7 @@ pcps-connect/
 - Leaders edit their own club details: a pencil icon on the club page (for the club's leaders) opens a form for description, activities, meetings and email, saved through `PATCH /api/leader/clubs/:id`. Name, image, leaders and approval stay admin-only.
 - Club meeting times: an admin can add a "Regular meetings" line to a club (120 characters). It shows as "Meets: ..." on the club page and on the printed poster.
 - Club list export: Admin → Clubs has "Export CSV" for the clubs the search shows (name, category, members, founded year, contact email, meeting time, whether joining needs approval).
+- Feedback requests: once a day (GitHub Actions workflow "Feedback Requests", `npm run feedback-requests`) students who were marked as attended an event that started between 3 hours and 3 days ago, and have not rated it, get a bell message and an email asking them to rate it, linking to their Profile where the rating box is. Each person is asked once; students who turned event reminders off are not emailed. More ratings means a more useful event report for organisers.
 - Event full alert: the event's organisers (its creator and the leaders of the hosting and co-hosting clubs) get one bell message ("... is full") when the last seat is taken, not for every sign-up and not for their own; it and the volunteer "all places are taken" message are shown in Nepali.
 - Activity log export: Admin → Activity has "Export CSV" for the entries the filter and search show (time, person, action, detail).
 - Event list export: on Admin → Events (and My Club Events for leaders) "Export CSV" downloads the events the current tab and search show, with hosting clubs, registrations, capacity and rating, for term reports.
@@ -245,7 +246,7 @@ verify a sender address in Brevo, create an API key, and add `BREVO_API_KEY`
 (and `BREVO_SENDER_EMAIL` if the sender differs from `EMAIL_USER`) on Render.
 When `BREVO_API_KEY` is set it replaces Gmail SMTP. `npm run test-email -- you@gmail.com`
 (from `backend/`) sends one test message and prints the real error if it fails.
-The GitHub Actions jobs (reminders, weekly digest) keep using Gmail SMTP by
+The GitHub Actions jobs (reminders, feedback requests, weekly digest) keep using Gmail SMTP by
 default, which Actions does not block. To make them send from the same Brevo
 sender as the live site instead, also add the repository secrets `BREVO_API_KEY`
 and `BREVO_SENDER_EMAIL` (optional; left unset, Gmail is used).
