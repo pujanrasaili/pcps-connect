@@ -23,7 +23,7 @@ export default function Privacy() {
             also store which clubs you join or favorite and which events
             you register for, so your Dashboard and Profile can show your
             own activity. If you use the optional features we also store
-            what they need: the event topics you follow, the helper role
+            what they need: the events you save for later, the event topics you follow, the helper role
             you sign up for at an event, questions you ask on an event
             and ideas you send to a club (each with your first name), notice
             board posts you write (with any contact detail you choose to add),

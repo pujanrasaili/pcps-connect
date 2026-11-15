@@ -164,7 +164,7 @@ export const HELP_TOPICS = [
     id: "save-later",
     question: "What does the bookmark button do?",
     answer: [
-      'It saves an event to the "Saved" tab on the Events page, and upcoming saved events show on your Dashboard. Saved events are stored in the browser you are using, so they do not follow you to another phone or computer.',
+      'It saves an event to the "Saved" tab on the Events page, and upcoming saved events show on your Dashboard. When you are logged in, saved events are kept with your account, so they follow you to another phone or computer. Before you log in they stay in this browser.',
     ],
   },
   {
