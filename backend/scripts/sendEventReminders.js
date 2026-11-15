@@ -37,6 +37,7 @@ const { pushNotifications } = require("../utils/inApp");
 const { pickLanguage } = require("../utils/emailText");
 const { eventReminderEmail, settingsWord } = require("../utils/reminderEmailText");
 const { remindVolunteers } = require("../utils/volunteerReminders");
+const { remindSavers } = require("../utils/savedReminders");
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
@@ -112,6 +113,10 @@ async function run() {
     const helpers = await remindVolunteers(event);
     sent += helpers.sent;
     failed += helpers.failed;
+
+    // Students who saved the event but have not joined get a bell nudge.
+    const nudged = await remindSavers(event);
+    if (nudged) console.log(`Nudged ${nudged} student(s) who saved "${event.title}".`);
   }
 
   console.log(`Done. Sent ${sent} reminder(s), ${failed} failed.`);
