@@ -1,3 +1,4 @@
+jest.mock("../../models/User");
 jest.mock("../../models/Event");
 jest.mock("../../models/Club");
 jest.mock("../../models/Registration");
@@ -15,6 +16,7 @@ jest.mock("../../middleware/upload", () => ({ uploadBufferToCloudinary: jest.fn(
 const Event = require("../../models/Event");
 const Club = require("../../models/Club");
 const Registration = require("../../models/Registration");
+const User = require("../../models/User");
 const { destroyEventPhotos } = require("../../utils/eventPhotoCleanup");
 const { createEvent, updateEvent, deleteEvent } = require("../eventController");
 
@@ -96,6 +98,12 @@ describe("event rules for club leaders", () => {
     await deleteEvent({ params: { id: "ev1" }, user: LEADER }, no);
     expect(no.status).toHaveBeenCalledWith(403);
     expect(other.deleteOne).not.toHaveBeenCalled();
+  });
+
+  it("delete: the event is removed from students' saved lists", async () => {
+    Event.findById.mockResolvedValue(existing(A));
+    await deleteEvent({ params: { id: "ev1" }, user: LEADER }, mockRes());
+    expect(User.updateMany).toHaveBeenCalledWith({ savedEvents: "ev1" }, { $pull: { savedEvents: "ev1" } });
   });
 
   it("a populated club object on the event is matched by its _id", async () => {

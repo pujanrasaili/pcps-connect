@@ -1061,4 +1061,11 @@ describe("deleteEventAdmin", () => {
     expect(destroyEventPhotos).toHaveBeenCalledWith(photos);
     expect(res.status).toHaveBeenCalledWith(200);
   });
+
+  it("removes the event from every student's saved list", async () => {
+    const ev = { _id: "e1", title: "Hack Night", photos: [], deleteOne: jest.fn().mockResolvedValue() };
+    Event.findById.mockResolvedValue(ev);
+    await deleteEventAdmin({ params: { id: "e1" }, user: { _id: ADMIN_ID } }, mockRes());
+    expect(User.updateMany).toHaveBeenCalledWith({ savedEvents: "e1" }, { $pull: { savedEvents: "e1" } });
+  });
 });
