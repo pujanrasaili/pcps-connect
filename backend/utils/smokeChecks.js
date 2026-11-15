@@ -15,7 +15,7 @@ async function runSmokeChecks(backend, frontend, fetchFn = fetch) {
       results.push({ name, ok: false, detail: err.message });
     }
   }
-  const get = (url) => fetchFn(url, { signal: AbortSignal.timeout(90000), redirect: "manual" });
+  const get = (url, init = {}) => fetchFn(url, { signal: AbortSignal.timeout(90000), redirect: "manual", ...init });
   const expect = (cond, message) => { if (!cond) throw new Error(message); };
 
   await check("API is awake and the database is connected", async () => {
@@ -52,6 +52,11 @@ async function runSmokeChecks(backend, frontend, fetchFn = fetch) {
     }
   });
 
+  await check("The newest API is deployed (club leaders' editing route exists)", async () => {
+    const res = await get(`${api}/api/leader/clubs/000000000000000000000000`, { method: "PATCH", headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest" }, body: "{}" });
+    expect(res.status === 401 || res.status === 403, `PATCH /api/leader/clubs/:id answered ${res.status} -- the backend on Render looks out of date (redeploy it)`);
+  });
+
   await check("API sends basic security headers", async () => {
     const res = await get(`${api}/api/health`);
     expect(res.headers.get("x-content-type-options") === "nosniff", "missing X-Content-Type-Options");
@@ -67,6 +72,16 @@ async function runSmokeChecks(backend, frontend, fetchFn = fetch) {
   await check("Website sends a Content-Security-Policy", async () => {
     const res = await get(site);
     expect(res.headers.get("content-security-policy"), "no CSP header");
+  });
+
+  await check("The app can be installed (manifest and service worker load)", async () => {
+    const manifest = await get(`${site}/manifest.webmanifest`);
+    expect(manifest.status === 200, `/manifest.webmanifest answered ${manifest.status}`);
+    const body = JSON.parse(await manifest.text());
+    expect(body && body.name, "the manifest has no name");
+    const worker = await get(`${site}/sw.js`);
+    expect(worker.status === 200, `/sw.js answered ${worker.status}`);
+    expect(!(await worker.text()).includes('id="root"'), "/sw.js returns the web page instead of the service worker");
   });
 
   await check("Opening a page address directly works (e.g. /events)", async () => {
