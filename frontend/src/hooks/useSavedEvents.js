@@ -49,3 +49,8 @@ export function useSavedEvents() {
   const toggle = useCallback((id) => emit(toggleSaved(getSnapshot(), id)), []);
   return { savedIds: ids, isSaved, toggle };
 }
+
+// For the account sync (SavedEventsSync): read, replace and watch the shared list.
+export const getSaved = getSnapshot;
+export const replaceSaved = (ids) => emit(parseSaved(JSON.stringify(ids)));
+export const watchSaved = subscribe;
