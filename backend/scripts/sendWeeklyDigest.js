@@ -42,11 +42,12 @@ async function run() {
     const clubIds = [...new Set(events.flatMap((e) => [e.club?._id, ...(e.coHosts || [])].filter(Boolean).map(String)))];
     const memberships = await ClubMembership.find({ club: { $in: clubIds } }).populate("user", "name email clubUpdates language");
     const registrations = await Registration.find({ event: { $in: events.map((e) => e._id) }, status: { $ne: "cancelled" } }).select("user event");
-    // Students who follow a topic hear about matching events from any club (or none).
+    // Students who follow a topic, or saved one of these events, hear about it from any club (or none).
     const topics = [...new Set(events.map((e) => String(e.category || "").trim().toLowerCase()).filter((t) => t && t !== "general"))];
-    const followers = topics.length
-      ? (await User.find({ interests: { $in: topics }, approvalStatus: "approved" }).select("name email clubUpdates language interests")).map((u) => ({ user: u, interests: u.interests }))
-      : [];
+    const eventIds = events.map((e) => String(e._id));
+    const interested = await User.find({ approvalStatus: "approved", $or: [{ interests: { $in: topics } }, { savedEvents: { $in: eventIds } }] })
+      .select("name email clubUpdates language interests savedEvents");
+    const followers = interested.map((u) => ({ user: u, interests: u.interests, saved: (u.savedEvents || []).filter((id) => eventIds.includes(id)) }));
     digests = buildDigests({ events, memberships, registrations, followers });
   }
   console.log(`${digests.length} student(s) have something to hear about.`);

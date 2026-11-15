@@ -20,8 +20,9 @@ const isFull = (event) => (event.capacity ?? 100) - (event.registeredCount ?? 0)
 //   memberships:   [{ user: { _id, name, email, clubUpdates }, club: <club id> }]
 //   registrations: [{ user: <id>, event: <id> }] -- events a student already signed up for
 //   followers:     [{ user: { _id, name, email, clubUpdates, language }, interests: ["workshop"] }]
-//                  -- students who follow topics (optional). They also get upcoming events
-//                  in those categories ("General" is never a topic), even from no club.
+//                  -- students who follow topics and/or saved events (optional; `saved` is a
+//                  list of event ids). They also get upcoming events in those categories
+//                  ("General" is never a topic) and the events they saved, even from no club.
 // A student gets the soonest events from clubs they joined, skipping events they
 // are already registered for and events that are full (they can't act on
 // those). Students who turned club updates off, have no email, or have nothing
@@ -58,9 +59,11 @@ function buildDigests({ events, memberships, registrations, followers = [] }) {
     const user = f.user;
     if (!user?.email || user.clubUpdates === false) continue;
     const topics = new Set(f.interests || []);
+    const saved = new Set((f.saved || []).map(String));
     for (const event of events) {
       const topic = String(event.category || "").trim().toLowerCase();
-      if (!topic || topic === "general" || !topics.has(topic) || isFull(event)) continue;
+      const byTopic = topic && topic !== "general" && topics.has(topic);
+      if ((!byTopic && !saved.has(String(event._id))) || isFull(event)) continue;
       if (registered.has(`${user._id}:${event._id}`)) continue;
       const entry = perUser.get(String(user._id)) || { user, events: [] };
       if (entry.events.some((e) => String(e._id) === String(event._id))) continue; // already there via a club
