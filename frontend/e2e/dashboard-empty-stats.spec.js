@@ -8,6 +8,8 @@ for (const [lang, title, month] of [["en", "Your activity", "Participation by Mo
     await page.goto("/dashboard");
     await expect(page.getByRole("heading", { name: title })).toBeVisible();
     await expect(page.getByRole("heading", { name: month })).toHaveCount(0);
+    // The empty card points the way: a button to the events list.
+    await expect(page.getByRole("link", { name: lang === "ne" ? "कार्यक्रमहरू हेर्नुहोस्" : "Browse events" }).first()).toHaveAttribute("href", "/events");
     expect(problems).toEqual([]);
   });
 }
