@@ -109,12 +109,28 @@ describe("followed topics", () => {
     expect(out[0].forYou).toBe(true);
   });
 
+  it("includes events a student saved, even from a club they have not joined or a topic they do not follow", () => {
+    const events = [ev("e1", "c9", 22)];
+    const out = buildDigests({ events, memberships: [], registrations: [], followers: [{ user: { _id: "u1", name: "Asha", email: "a@x.com" }, interests: [], saved: ["e1", "gone"] }] });
+    expect(out).toHaveLength(1);
+    expect(out[0].events.map((e) => e._id)).toEqual(["e1"]);
+    expect(out[0].forYou).toBe(true);
+  });
+
+  it("does not repeat a saved event the student already registered for or that is full", () => {
+    const full = { ...ev("e2", "c9", 23), capacity: 5, registeredCount: 5 };
+    const events = [ev("e1", "c9", 22), full];
+    const out = buildDigests({ events, memberships: [], registrations: [{ user: "u1", event: "e1" }], followers: [{ user: { _id: "u1", name: "Asha", email: "a@x.com" }, interests: [], saved: ["e1", "e2"] }] });
+    expect(out).toEqual([]);
+  });
+
   it("renders the 'for you' wording only when a topic event is included, and tolerates events with no club", () => {
     const user = { _id: "u1", name: "Asha", email: "a@x.com", language: "en" };
     const noClub = { ...topicEv("e1", 20, "Workshop"), club: null };
     const withTopic = renderDigest({ user, events: [noClub], more: 0, forYou: true }, "https://site.test");
     expect(withTopic.subject).toBe("1 event this week for you");
     expect(withTopic.html).toContain("topics you follow");
+    expect(withTopic.html).toContain("events you saved");
     expect(withTopic.html).not.toContain("undefined");
     expect(withTopic.html).not.toMatch(/>\s*&middot;/);
     const plain = renderDigest({ user, events: [ev("e2", "c1", 21)], more: 0, forYou: false }, "https://site.test");
