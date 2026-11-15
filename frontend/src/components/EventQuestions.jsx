@@ -6,6 +6,7 @@ import { useToast } from "../context/ToastContext";
 import { formatDate } from "../utils/formatDate";
 import ConfirmDialog from "./ConfirmDialog";
 import Button from "./Button";
+import { useUnsavedWarning } from "../hooks/useUnsavedWarning";
 import { useLang } from "../context/LanguageContext";
 
 const MAX_QUESTION = 300;
@@ -21,6 +22,8 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
   const { t } = useLang();
   const [questions, setQuestions] = useState(null); // null = loading
   const [draft, setDraft] = useState("");
+  // A question that's been started but not sent: warn before the tab is closed.
+  useUnsavedWarning(draft.trim().length > 0);
   const [asking, setAsking] = useState(false);
   const [answering, setAnswering] = useState(null); // id of the question being answered
   const [answerDraft, setAnswerDraft] = useState("");

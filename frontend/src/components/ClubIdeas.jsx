@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
 import { formatDate } from "../utils/formatDate";
 import Button from "./Button";
+import { useUnsavedWarning } from "../hooks/useUnsavedWarning";
 
 const MAX = 300;
 const MAX_WAITING = 3;
@@ -19,6 +20,8 @@ export default function ClubIdeas({ clubId, member, staff }) {
   const { t } = useLang();
   const [ideas, setIdeas] = useState(null); // null = still loading
   const [draft, setDraft] = useState("");
+  // An idea that's been started but not sent: warn before the tab is closed.
+  useUnsavedWarning(draft.trim().length > 0);
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
