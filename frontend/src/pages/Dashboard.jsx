@@ -18,6 +18,7 @@ import {
   FaCheckCircle,
   FaQrcode,
   FaHashtag,
+  FaChartBar,
 } from "react-icons/fa";
 import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
@@ -497,8 +498,14 @@ export default function Dashboard() {
 function EmptyChart() {
   const { t } = useLang();
   return (
-    <div className="flex items-center justify-center py-6 text-center text-sm text-slate-500 dark:text-slate-400">
-      {t("No data yet — register for an event to see your stats.")}
+    <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+      <span aria-hidden="true" className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-300">
+        <FaChartBar />
+      </span>
+      <p className="max-w-xs text-sm text-slate-500 dark:text-slate-400">{t("No data yet — register for an event to see your stats.")}</p>
+      <Link to="/events" className="btn-secondary text-sm">
+        {t("Browse events")}
+      </Link>
     </div>
   );
 }
