@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy, FaLock, FaLockOpen, FaFileCsv } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
+import { useUnsavedWarning } from "../../hooks/useUnsavedWarning";
 import { useClubs } from "../../context/ClubsContext";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
@@ -72,6 +73,9 @@ export default function AdminEvents() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
+  // True once something has been typed, so closing the form can ask before throwing it away.
+  const [touched, setTouched] = useState(false);
+  useUnsavedWarning(formOpen && touched);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [attendeesEvent, setAttendeesEvent] = useState(null);
@@ -102,6 +106,7 @@ export default function AdminEvents() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    setTouched(true);
     setForm((prev) => {
       const next = { ...prev, [name]: type === "checkbox" ? checked : value };
       // Moving the start moves the end with it, so the length stays the same.
@@ -118,6 +123,7 @@ export default function AdminEvents() {
     setEditingEvent(null);
     setForm({ ...EMPTY_FORM, club: leaderMode ? clubs[0]?._id || "" : "" });
     setImageFile(null);
+    setTouched(false);
     setFormOpen(true);
   };
 
@@ -146,6 +152,7 @@ export default function AdminEvents() {
       copyRoles: (event.volunteerRoles || []).length > 0,
     });
     setImageFile(null);
+    setTouched(false);
     setFormOpen(true);
   };
 
@@ -169,7 +176,14 @@ export default function AdminEvents() {
       repeatCount: 4,
     });
     setImageFile(null);
+    setTouched(false);
     setFormOpen(true);
+  };
+
+  // Closing with the X, Escape or a click outside asks first if something was typed.
+  const closeForm = () => {
+    if (touched && !window.confirm(t("Discard what you've typed? This event hasn't been saved."))) return;
+    setFormOpen(false);
   };
 
   const handleSubmit = async (e) => {
@@ -385,7 +399,7 @@ export default function AdminEvents() {
 
       <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
 
-      <Modal isOpen={formOpen} onClose={() => setFormOpen(false)} title={editingEvent ? t("Edit Event") : t("Add Event")} size="lg">
+      <Modal isOpen={formOpen} onClose={closeForm} title={editingEvent ? t("Edit Event") : t("Add Event")} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           {duplicatedFrom && (
             <p className="rounded-lg bg-primary-50 px-3 py-2 text-sm text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
@@ -579,7 +593,10 @@ export default function AdminEvents() {
               id="ev-image"
               type="file"
               accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              onChange={(e) => {
+                setTouched(true);
+                setImageFile(e.target.files?.[0] || null);
+              }}
               className="input-field file:mr-3 file:rounded-lg file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-600 dark:file:bg-primary-900/30 dark:file:text-primary-300"
             />
           </div>

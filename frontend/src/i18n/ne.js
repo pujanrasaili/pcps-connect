@@ -1490,4 +1490,5 @@ export const ne = {
   "Coming up: {title} on {date}": "आउँदैछ: {title}, {date} मा",
   "You saved {title}: it is on {date}": "तपाईंले {title} सुरक्षित गर्नुभएको थियो: यो {date} मा हुँदैछ",
   "Clear all": "सबै हटाउनुहोस्",
+  "Discard what you've typed? This event hasn't been saved.": "तपाईंले लेखेको हटाउने? यो कार्यक्रम सुरक्षित गरिएको छैन।",
 };
