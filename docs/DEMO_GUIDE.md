@@ -40,6 +40,13 @@ then open Admin → Messages. It is there with a badge on the menu; press Reply
 emailed, so none get lost, and the form has spam protection and its own rate
 limit."
 
+Another optional extra (1 minute): as the admin, edit an event and tick a second
+club under "Co-hosting clubs". Open the event as a student: it shows both clubs,
+and the leaders of both can manage it. Then in Settings tick a topic under
+"Topics you follow" and show the "My topics" button on the Events page. Say:
+"events can be run by more than one club, and students hear about the kinds of
+events they care about."
+
 If something is slow, say "the free hosting tier wakes up slowly" and move on.
 It is true, and it is written in the README.
 
@@ -86,8 +93,11 @@ translated page uses a sentence that isn't in the dictionary. Be honest that the
 was written with AI assistance and has not yet been reviewed by a Nepali speaker (run `npm run review:nepali` in `backend` to make a page of every sentence beside its English for a reviewer to mark), and that
 the account emails (verify, reset, password changed, account deleted) and the event emails (registration, request received or declined, waitlist spot, event changed, cancelled, organiser message) and the club emails (join approved or declined, new club event, club message) and the scheduled emails (event reminder, weekly digest, overdue join-request nudge) and the account approval, new club leader and event question emails follow the student's language; the contact-form message to the site owner, the certificate and the legal pages are still English.
 
-**What would you improve with more time?** Real push notifications, a
-student-facing mobile app wrapper, and load testing with real student numbers.
+**What would you improve with more time?** Load testing with real student
+numbers, a review of the Nepali text by a native speaker, and a store-listed
+phone app (today the site installs to the home screen and can send phone
+alerts, but it is not in an app store). Do not list push alerts or an
+installable app as future work: they already exist.
 
 **Did you build this alone?** Answer honestly. For example: "I designed it
 and ran it, and I built it with AI assistance (Claude), reviewing and
