@@ -50,7 +50,11 @@ As **S**:
 
 Create an event for tomorrow, register **S** for it and, if you like, also add S as a volunteer. After the next scheduled reminder run (GitHub → Actions → the event reminders workflow; you can also press "Run workflow"), S should receive the email and a bell message. A student who switched event reminders off in Settings receives neither.
 
-## 7. Nepali pages (10 min)
+## 7. Rate-the-event request (optional, needs an event that already started)
+
+Mark **S** as attended at an event that started between 3 hours and 3 days ago (Attendees window), without S rating it. Run GitHub → Actions → "Feedback Requests" → "Run workflow". S should get a bell message "How was <event>? Rate it" and an email with a "Rate the event" button that opens the Profile page. Run the workflow again: nothing new is sent. A student who rated already, or switched event reminders off, receives nothing.
+
+## 8. Nepali pages (10 min)
 
 Switch the site to Nepali and open: Privacy, Terms, an event with volunteer roles, the Dashboard, Help. Anything that is English where it should be Nepali, or Nepali that reads wrong, write down or screenshot and send to Claude. The review sheet `nepali-review.html` lists the strings to check, starting with its "Start here" section, then "New features" (alerts, notice board, activity record, poster, online link, volunteers).
 
