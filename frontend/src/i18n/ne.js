@@ -1492,4 +1492,5 @@ export const ne = {
   "Clear all": "सबै हटाउनुहोस्",
   "Discard what you've typed? This event hasn't been saved.": "तपाईंले लेखेको हटाउने? यो कार्यक्रम सुरक्षित गरिएको छैन।",
   "Discard what you've typed? This club hasn't been saved.": "तपाईंले लेखेको हटाउने? यो क्लब सुरक्षित गरिएको छैन।",
+  "Use the form above to add a post.": "पोस्ट थप्न माथिको फारम प्रयोग गर्नुहोस्।",
 };

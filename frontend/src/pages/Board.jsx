@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { FaTrash, FaFlag } from "react-icons/fa";
+import { FaTrash, FaFlag, FaClipboardList } from "react-icons/fa";
+import EmptyState from "../components/EmptyState";
 import { api, getErrorMessage } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -166,7 +167,7 @@ export default function Board() {
       {posts === null ? null : failed ? (
         <p className="text-sm text-slate-600 dark:text-slate-300">{t("Couldn't load the notice board. Please try again.")}</p>
       ) : shown.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-300">{t("Nothing here right now.")}</p>
+        <EmptyState icon={FaClipboardList} title={t("Nothing here right now.")} hint={t("Use the form above to add a post.")} />
       ) : (
         <ul className="space-y-3">
           {shown.map((p) => (
