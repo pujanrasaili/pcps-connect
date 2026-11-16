@@ -3,12 +3,15 @@ jest.mock("../../models/Club");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
+jest.mock("../../models/ClubPoll");
 
 const { canManageClub } = require("../../utils/clubAccess");
 const Club = require("../../models/Club");
 const ClubMembership = require("../../models/ClubMembership");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
+const ClubPoll = require("../../models/ClubPoll");
+const CLUB_OID = "c".repeat(24);
 const { getClubStats } = require("../leaderController");
 
 const mockRes = () => {
@@ -18,7 +21,7 @@ const mockRes = () => {
   return res;
 };
 const DAY = 86400000;
-const req = { user: { _id: "u1" }, params: { id: "c1" } };
+const req = { user: { _id: "u1" }, params: { id: CLUB_OID } };
 const eventsQuery = (rows) => ({ select: () => ({ sort: () => ({ lean: async () => rows }) }) });
 afterEach(() => jest.resetAllMocks());
 
@@ -36,9 +39,12 @@ describe("getClubStats", () => {
       { _id: "e2", registered: 20, attended: 15, ratingSum: 18, ratingCount: 4 },
       { _id: "e1", registered: 10, attended: 5, ratingSum: 0, ratingCount: 0 },
     ]);
+    ClubPoll.aggregate.mockResolvedValue([{ votes: 12, closesAt: new Date(Date.now() + DAY) }]);
     const res = mockRes();
     await getClubStats(req, res);
     const { stats } = res.json.mock.calls[0][0];
+    expect(stats.latestPoll).toEqual({ votes: 12, closed: false });
+    expect(String(ClubPoll.aggregate.mock.calls[0][0][0].$match.club)).toBe(CLUB_OID);
     expect(stats.members).toBe(30);
     expect(stats.newMembers).toEqual({ current: 6, previous: 4 });
     expect(stats.upcomingEvents).toBe(1);
@@ -84,5 +90,27 @@ describe("getClubStats", () => {
     const res = mockRes();
     await getClubStats(req, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("getClubStats latest poll", () => {
+  const setup = (rows) => {
+    canManageClub.mockResolvedValue(true);
+    Club.exists.mockResolvedValue(true);
+    ClubMembership.countDocuments.mockResolvedValue(5);
+    Event.find.mockReturnValue(eventsQuery([]));
+    ClubPoll.aggregate.mockResolvedValue(rows);
+  };
+  it("is null when the club has never run a poll", async () => {
+    setup([]);
+    const res = mockRes();
+    await getClubStats(req, res);
+    expect(res.json.mock.calls[0][0].stats.latestPoll).toBeNull();
+  });
+  it("marks a poll whose time is up as closed", async () => {
+    setup([{ votes: 3, closesAt: new Date(Date.now() - DAY) }]);
+    const res = mockRes();
+    await getClubStats(req, res);
+    expect(res.json.mock.calls[0][0].stats.latestPoll).toEqual({ votes: 3, closed: true });
   });
 });

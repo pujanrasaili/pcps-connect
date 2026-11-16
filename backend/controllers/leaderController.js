@@ -1,7 +1,9 @@
 const { ledClubs, canManageClub } = require("../utils/clubAccess");
 const Club = require("../models/Club");
 const ClubMembership = require("../models/ClubMembership");
+const mongoose = require("mongoose");
 const Event = require("../models/Event");
+const ClubPoll = require("../models/ClubPoll");
 const Registration = require("../models/Registration");
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { safeError } = require("../utils/errorMessage");
@@ -67,12 +69,20 @@ async function getClubStats(req, res) {
     const now = new Date();
     const month = new Date(now - 30 * DAY_MS);
     const twoMonths = new Date(now - 60 * DAY_MS);
-    const [members, joinedRecently, joinedBefore, events] = await Promise.all([
+    const [members, joinedRecently, joinedBefore, events, latestPoll] = await Promise.all([
       ClubMembership.countDocuments({ club: req.params.id }),
       ClubMembership.countDocuments({ club: req.params.id, createdAt: { $gte: month } }),
       ClubMembership.countDocuments({ club: req.params.id, createdAt: { $gte: twoMonths, $lt: month } }),
       Event.find({ $or: [{ club: req.params.id }, { coHosts: req.params.id }] }).select("title date").sort({ date: -1 }).lean(),
+      // Only a count of votes in the newest poll, never who voted.
+      ClubPoll.aggregate([
+        { $match: { club: new mongoose.Types.ObjectId(String(req.params.id)) } },
+        { $sort: { createdAt: -1 } },
+        { $limit: 1 },
+        { $project: { _id: 0, closesAt: 1, votes: { $sum: { $map: { input: "$options", as: "o", in: { $size: { $ifNull: ["$$o.voters", []] } } } } } } },
+      ]),
     ]);
+    const poll = (latestPoll || [])[0];
 
     const past = events.filter((e) => new Date(e.date) < now);
     const stats = past.length
@@ -95,6 +105,7 @@ async function getClubStats(req, res) {
       stats: {
         members,
         newMembers: { current: joinedRecently, previous: joinedBefore },
+        latestPoll: poll ? { votes: poll.votes, closed: new Date(poll.closesAt) <= now } : null,
         upcomingEvents: events.length - past.length,
         pastEvents: past.length,
         attendance: report.totals,

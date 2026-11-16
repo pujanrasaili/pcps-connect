@@ -164,7 +164,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | Method | Path | Who | What it does |
 |---|---|---|---|
 | GET | `/api/leader/clubs` | Logged-in student | The clubs you are a leader of. |
-| GET | `/api/leader/clubs/:id/stats` | Logged-in student | One-club summary for its leaders and admins: members and new joiners, events, turnout and ratings (counts only). |
+| GET | `/api/leader/clubs/:id/stats` | Logged-in student | One-club summary for its leaders and admins: members and new joiners, events, turnout, ratings and the latest poll's vote count (counts only). |
 | PATCH | `/api/leader/clubs/:id` | Logged-in student (rate limited) | A club's leaders (or an admin) edit its short and full description, activities, regular meetings line and contact email. Name, leaders, image and approval stay admin-only; any other field is ignored. |
 
 ## /api/waitlist
