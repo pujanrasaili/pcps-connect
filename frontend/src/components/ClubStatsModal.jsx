@@ -61,6 +61,15 @@ export default function ClubStatsModal({ club, onClose }) {
             <Tile label={t("Upcoming events")} value={stats.upcomingEvents} />
             <Tile label={t("Events held")} value={stats.pastEvents} />
             <Tile label={t("Turnout")} value={dash(stats.attendance.attendanceRate, "%")} note={t("{a} of {r} registered students showed up", { a: stats.attendance.attended, r: stats.attendance.registered })} />
+            <Tile
+              label={t("Latest poll turnout")}
+              value={stats.latestPoll && stats.members ? `${Math.min(100, Math.round((stats.latestPoll.votes / stats.members) * 100))}%` : "—"}
+              note={
+                stats.latestPoll
+                  ? t("{v} of {m} members voted", { v: Math.min(stats.latestPoll.votes, stats.members), m: stats.members })
+                  : t("No polls yet")
+              }
+            />
             <Tile label={t("Average rating")} value={stats.attendance.averageRating ? `${stats.attendance.averageRating} / 5` : "—"} note={stats.attendance.ratingCount ? t("{n} ratings", { n: stats.attendance.ratingCount }) : t("No ratings yet")} />
           </div>
 
