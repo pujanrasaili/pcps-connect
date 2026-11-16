@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaTrash, FaPlus } from "react-icons/fa";
+import { FaTrash, FaPlus, FaLock } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
@@ -72,6 +72,16 @@ export default function ClubPolls({ clubId, member, staff }) {
       toast.success(t("Vote saved."));
     } catch (err) {
       toast.error(getErrorMessage(err, t("Couldn't save your vote")));
+    }
+  };
+
+  const handleClose = async (poll) => {
+    try {
+      const res = await api.post(`/clubs/${clubId}/polls/${poll._id}/close`);
+      setPolls((prev) => (prev || []).map((p) => (p._id === poll._id ? res.data.poll : p)));
+      toast.success(t("Poll closed."));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Couldn't close the poll")));
     }
   };
 
@@ -182,6 +192,17 @@ export default function ClubPolls({ clubId, member, staff }) {
               <div className="flex items-start justify-between gap-3">
                 <p className="break-words text-sm font-semibold text-slate-800 dark:text-slate-100">{poll.question}</p>
                 {staff && (
+                  <div className="flex shrink-0 items-center gap-1">
+                    {!poll.closed && (
+                      <button
+                        type="button"
+                        onClick={() => handleClose(poll)}
+                        aria-label={t("Close the poll now: {question}", { question: poll.question })}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                      >
+                        <FaLock className="text-xs" aria-hidden="true" />
+                      </button>
+                    )}
                   <button
                     type="button"
                     onClick={() => handleRemove(poll)}
@@ -190,6 +211,7 @@ export default function ClubPolls({ clubId, member, staff }) {
                   >
                     <FaTrash className="text-xs" aria-hidden="true" />
                   </button>
+                  </div>
                 )}
               </div>
               <ul className="mt-2 space-y-1.5">

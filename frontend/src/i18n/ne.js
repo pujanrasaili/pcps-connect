@@ -1523,4 +1523,7 @@ export const ne = {
   "Open a club you have joined from the Clubs page. If its leaders have started a poll, a \"Polls\" section in the club's details window shows the question and the answers: tap an answer to vote. You get one vote per poll, and you can tap another answer to change it until the poll closes.": "क्लब पृष्ठबाट आफूले सामेल भएको क्लब खोल्नुहोस्। यदि नेताहरूले मतदान सुरु गरेका छन् भने क्लबको विवरण विन्डोमा \"मतदानहरू\" भाग देखिन्छ, जहाँ प्रश्न र उत्तरहरू हुन्छन्: मत दिन उत्तरमा थिच्नुहोस्। प्रत्येक मतदानमा तपाईंको एउटा मत हुन्छ, र मतदान बन्द नहुँदासम्म अर्को उत्तर थिचेर बदल्न सकिन्छ।",
   "Everyone sees the live counts, but nobody can see who voted for what. Leaders and admins can start a poll (2 to 5 answers, open for 1 to 14 days) and remove it, and members get a message in their bell when a new poll starts.": "सबैले हालसम्मको गणना देख्छन्, तर कसले कुन उत्तरमा मत दियो भन्ने कसैले देख्दैन। नेता र एडमिनले मतदान सुरु गर्न (2 देखि 5 उत्तर, 1 देखि 14 दिनसम्म खुला) र हटाउन सक्छन्, र नयाँ मतदान सुरु हुँदा सदस्यहरूले घण्टी (बेल) मा सन्देश पाउँछन्।",
   "Polls waiting for your vote": "तपाईंको मत कुरिरहेका मतदानहरू",
+  "Poll closed.": "मतदान बन्द गरियो।",
+  "Couldn't close the poll": "मतदान बन्द गर्न सकिएन",
+  "Close the poll now: {question}": "मतदान अहिले नै बन्द गर्नुहोस्: {question}",
 };
