@@ -7,7 +7,7 @@ const reply = (route, body, status = 200) => route.fulfill({ status, contentType
 const quiet = (problems) => problems.filter((p) => !/status of (400|401|403|404|500)/.test(p));
 const C = clubs[0];
 const STATS = {
-  members: 30, newMembers: { current: 6, previous: 4 }, upcomingEvents: 1, pastEvents: 2,
+  members: 30, latestPoll: { votes: 12, closed: false }, newMembers: { current: 6, previous: 4 }, upcomingEvents: 1, pastEvents: 2,
   attendance: { registered: 30, attended: 20, attendanceRate: 67, averageRating: 4.5, ratingCount: 4 },
   recent: [
     { _id: "e2".padEnd(24, "0"), title: "Recent Workshop", date: new Date(Date.now() - 3 * 864e5).toISOString(), registered: 20, attended: 15, attendanceRate: 75, averageRating: 4.5 },
@@ -34,6 +34,9 @@ test("the Stats window shows members, joiners, events, turnout, rating and the l
   await expect(dialog.getByText("67%")).toBeVisible();
   await expect(dialog.getByText("20 of 30 registered students showed up")).toBeVisible();
   await expect(dialog.getByText("4.5 / 5")).toBeVisible();
+  await expect(dialog.getByText("Latest poll turnout")).toBeVisible();
+  await expect(dialog.getByText("40%")).toBeVisible();
+  await expect(dialog.getByText("12 of 30 members voted")).toBeVisible();
   await expect(dialog.getByText("Recent Workshop")).toBeVisible();
   await expect(dialog.getByText(/50% · 5\/10/)).toBeVisible();
   expect(quiet(problems)).toEqual([]);
@@ -45,6 +48,7 @@ test("a brand-new club shows dashes and friendly notes, not NaN or 0%", async ({
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByText("same as the 30 days before")).toBeVisible();
   await expect(dialog.getByText("No ratings yet")).toBeVisible();
+  await expect(dialog.getByText("No polls yet")).toBeVisible();
   await expect(dialog.getByText("—").first()).toBeVisible();
   await expect(dialog.getByText("NaN")).toHaveCount(0);
   await expect(dialog.getByText("Latest events")).toHaveCount(0);
@@ -68,6 +72,8 @@ test("Nepali: the Stats window is translated and accessible", async ({ page }) =
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByText("पछिल्ला 30 दिनमा सामेल भएका")).toBeVisible();
   await expect(dialog.getByText("दर्ता भएका 30 मध्ये 20 विद्यार्थी आए")).toBeVisible();
+  await expect(dialog.getByText("पछिल्लो मतदानमा सहभागिता")).toBeVisible();
+  await expect(dialog.getByText("30 सदस्यमध्ये 12 जनाले मत दिए")).toBeVisible();
   await page.waitForTimeout(500);
   expect(await axeViolations(page)).toEqual([]);
 });
