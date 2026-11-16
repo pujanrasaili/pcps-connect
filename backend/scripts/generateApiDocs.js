@@ -161,6 +161,7 @@ const DESCRIPTIONS = {
   getClubPolls: "A club's recent polls with live counts and your own pick (members, leaders and admins). Who voted for what is never shown.",
   createClubPoll: "Start a poll: a question, 2 to 5 answers and 1 to 14 days open (the club's leaders or an admin; up to 3 open at once). Members get a bell notification.",
   voteClubPoll: "Vote in an open poll (members only). Voting again moves your vote.",
+  closeClubPoll: "End a poll now; the results stay visible but nobody can vote any more (the club's leaders or an admin).",
   deleteClubPoll: "Remove a poll (the club's leaders or an admin).",
   deleteClubPost: "Delete one news post (admins and that club's leaders only).",
   getMyOpenPolls: "Open polls (up to 5, closing soonest first) in the clubs you have joined that you have not voted on yet.",

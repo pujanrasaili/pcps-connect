@@ -131,4 +131,23 @@ async function deleteClubPoll(req, res) {
   }
 }
 
-module.exports = { getClubPolls, createClubPoll, voteClubPoll, deleteClubPoll, shape };
+// POST /api/clubs/:id/polls/:pollId/close  (the club's leaders or an admin)
+// Ends a poll now: the results stay for everyone, nobody can vote any more.
+async function closeClubPoll(req, res) {
+  try {
+    const { id, pollId } = req.params;
+    if (!mongoose.isValidObjectId(pollId)) return res.status(404).json({ message: "Poll not found" });
+    const poll = await ClubPoll.findOne({ _id: pollId, club: id });
+    if (!poll) return res.status(404).json({ message: "Poll not found" });
+    if (!(await canManageClub(req.user, poll.club))) return res.status(403).json(FORBIDDEN);
+    const now = new Date();
+    if (new Date(poll.closesAt) <= now) return res.status(400).json({ message: "This poll has already closed" });
+    await ClubPoll.updateOne({ _id: poll._id }, { $set: { closesAt: now, purgeAt: new Date(now.getTime() + KEEP_AFTER_CLOSE) } });
+    const fresh = await ClubPoll.findById(poll._id).lean();
+    res.status(200).json({ message: "Poll closed", poll: shape(fresh, req.user._id) });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to close the poll") });
+  }
+}
+
+module.exports = { getClubPolls, createClubPoll, voteClubPoll, deleteClubPoll, closeClubPoll, shape };

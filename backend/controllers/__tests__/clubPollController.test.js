@@ -9,7 +9,7 @@ const ClubMembership = require("../../models/ClubMembership");
 const ClubPoll = require("../../models/ClubPoll");
 const { canManageClub } = require("../../utils/clubAccess");
 const { pushNotifications } = require("../../utils/inApp");
-const { getClubPolls, createClubPoll, voteClubPoll, deleteClubPoll, shape } = require("../clubPollController");
+const { getClubPolls, createClubPoll, voteClubPoll, deleteClubPoll, closeClubPoll, shape } = require("../clubPollController");
 
 const OID = (n) => String(n).padStart(24, "0");
 const res0 = () => { const r = {}; r.status = jest.fn().mockReturnValue(r); r.json = jest.fn().mockReturnValue(r); return r; };
@@ -241,6 +241,60 @@ describe("deleteClubPoll", () => {
     ClubPoll.findOne.mockRejectedValue(new Error("db"));
     const res = res0();
     await deleteClubPoll(req(), res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("closeClubPoll", () => {
+  const req = (pollId = OID(50)) => ({ params: { id: OID(9), pollId }, user: me });
+
+  it("404s for a bad or missing poll", async () => {
+    let res = res0();
+    await closeClubPoll(req("nope"), res);
+    expect(res.status).toHaveBeenCalledWith(404);
+    ClubPoll.findOne.mockResolvedValue(null);
+    res = res0();
+    await closeClubPoll(req(), res);
+    expect(res.status).toHaveBeenCalledWith(404);
+  });
+
+  it("is for the club's leaders and admins only", async () => {
+    ClubPoll.findOne.mockResolvedValue(poll());
+    const res = res0();
+    await closeClubPoll(req(), res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(ClubPoll.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("refuses a poll that has already closed", async () => {
+    ClubPoll.findOne.mockResolvedValue(poll({ closesAt: past() }));
+    canManageClub.mockResolvedValue(true);
+    const res = res0();
+    await closeClubPoll(req(), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(ClubPoll.updateOne).not.toHaveBeenCalled();
+  });
+
+  it("closes an open poll now and moves its clean-up date", async () => {
+    ClubPoll.findOne.mockResolvedValue(poll());
+    ClubPoll.updateOne.mockResolvedValue({});
+    const closed = poll({ closesAt: new Date(Date.now() - 1000) });
+    ClubPoll.findById.mockReturnValue({ lean: jest.fn().mockResolvedValue(closed) });
+    canManageClub.mockResolvedValue(true);
+    const res = res0();
+    await closeClubPoll(req(), res);
+    const set = ClubPoll.updateOne.mock.calls[0][1].$set;
+    expect(set.closesAt.getTime()).toBeLessThanOrEqual(Date.now());
+    expect(set.purgeAt.getTime()).toBeGreaterThan(Date.now() + 29 * 86400000);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json.mock.calls[0][0].poll.closed).toBe(true);
+  });
+
+  it("500s cleanly when the database fails", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    ClubPoll.findOne.mockRejectedValue(new Error("db"));
+    const res = res0();
+    await closeClubPoll(req(), res);
     expect(res.status).toHaveBeenCalledWith(500);
   });
 });
