@@ -1526,4 +1526,5 @@ export const ne = {
   "Poll closed.": "मतदान बन्द गरियो।",
   "Couldn't close the poll": "मतदान बन्द गर्न सकिएन",
   "Close the poll now: {question}": "मतदान अहिले नै बन्द गर्नुहोस्: {question}",
+  "Polls you have not voted on yet are listed on your Dashboard in \"Polls waiting for your vote\", soonest to close first. Leaders and admins can also end a poll early with the lock button; its results stay visible but nobody can vote any more.": "तपाईंले अझै मत नदिएका मतदानहरू तपाईंको ड्यासबोर्डमा \"तपाईंको मत कुरिरहेका मतदानहरू\" मा देखिन्छन्, चाँडै बन्द हुने पहिले। नेता र एडमिनले ताला (लक) बटनले मतदान चाँडै अन्त्य पनि गर्न सक्छन्; नतिजा देखिइरहन्छ तर कसैले मत दिन सक्दैन।",
 };
