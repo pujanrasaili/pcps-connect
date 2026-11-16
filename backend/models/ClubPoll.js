@@ -21,6 +21,8 @@ const clubPollSchema = new mongoose.Schema(
     options: { type: [optionSchema], required: true },
     closesAt: { type: Date, required: true },
     purgeAt: { type: Date, required: true },
+    // Set once the "closing soon" bell reminder has gone out (so it is sent once).
+    reminded: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

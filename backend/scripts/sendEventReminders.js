@@ -38,6 +38,7 @@ const { pickLanguage } = require("../utils/emailText");
 const { eventReminderEmail, settingsWord } = require("../utils/reminderEmailText");
 const { remindVolunteers } = require("../utils/volunteerReminders");
 const { remindSavers } = require("../utils/savedReminders");
+const { remindPollVoters } = require("../utils/pollReminders");
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
@@ -118,6 +119,10 @@ async function run() {
     const nudged = await remindSavers(event);
     if (nudged) console.log(`Nudged ${nudged} student(s) who saved "${event.title}".`);
   }
+
+  // Members who have not voted in a club poll closing within a day get a bell nudge.
+  const pollNudges = await remindPollVoters();
+  if (pollNudges) console.log(`Reminded ${pollNudges} member(s) about polls closing soon.`);
 
   console.log(`Done. Sent ${sent} reminder(s), ${failed} failed.`);
 
