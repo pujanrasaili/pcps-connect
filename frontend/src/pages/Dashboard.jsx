@@ -25,6 +25,8 @@ import WaitlistCard from "../components/WaitlistCard";
 import VolunteeringCard from "../components/VolunteeringCard";
 import ClubNewsFeedCard from "../components/ClubNewsFeedCard";
 import { useMyClubNews } from "../hooks/useMyClubNews";
+import PollsWaitingCard from "../components/PollsWaitingCard";
+import { useMyOpenPolls } from "../hooks/useMyOpenPolls";
 import { useMyWaitlist } from "../hooks/useMyWaitlist";
 import { useMyVolunteering } from "../hooks/useMyVolunteering";
 import { useAuth } from "../context/AuthContext";
@@ -106,6 +108,7 @@ export default function Dashboard() {
   const waitlist = useMyWaitlist();
   const volunteering = useMyVolunteering();
   const clubNews = useMyClubNews();
+  const openPolls = useMyOpenPolls();
   const { savedIds } = useSavedEvents();
   const savedForLater = useMemo(() => {
     const joined = new Set(registeredEvents.map((r) => r.event._id));
@@ -349,6 +352,7 @@ export default function Dashboard() {
 
       <VolunteeringCard items={volunteering} />
 
+      <PollsWaitingCard polls={openPolls} />
       <ClubNewsFeedCard posts={clubNews} />
 
       {savedForLater.length > 0 && (
