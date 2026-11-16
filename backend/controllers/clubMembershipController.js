@@ -4,6 +4,7 @@ const { notifyClubStaffOfRequest } = require("../utils/clubJoinNotices");
 const { isObjectId } = require("../middleware/validateId");
 const Club = require("../models/Club");
 const ClubPost = require("../models/ClubPost");
+const ClubPoll = require("../models/ClubPoll");
 const { safeError } = require("../utils/errorMessage");
 
 // GET /api/club-memberships/my  (requires login)
@@ -36,6 +37,30 @@ async function getMyClubNews(req, res) {
     res.status(200).json({ posts });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch club news") });
+  }
+}
+
+// GET /api/club-memberships/polls  (requires login)
+// Open polls in the student's clubs that they have not voted on yet, soonest
+// to close first (a short list for the Dashboard). Never includes who voted.
+const POLLS_LIMIT = 5;
+async function getMyOpenPolls(req, res) {
+  try {
+    const memberships = await ClubMembership.find({ user: req.user._id }).select("club");
+    const clubIds = memberships.map((m) => m.club);
+    if (clubIds.length === 0) return res.status(200).json({ polls: [] });
+    const polls = await ClubPoll.find({
+      club: { $in: clubIds },
+      closesAt: { $gt: new Date() },
+      "options.voters": { $ne: req.user._id },
+    })
+      .sort({ closesAt: 1 })
+      .limit(POLLS_LIMIT)
+      .select("club question closesAt")
+      .populate("club", "name");
+    res.status(200).json({ polls });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch polls") });
   }
 }
 
@@ -102,4 +127,4 @@ async function leaveClub(req, res) {
   }
 }
 
-module.exports = { getMyClubNews, getMyMemberships, getMyJoinRequests, joinClub, leaveClub };
+module.exports = { getMyOpenPolls, getMyClubNews, getMyMemberships, getMyJoinRequests, joinClub, leaveClub };

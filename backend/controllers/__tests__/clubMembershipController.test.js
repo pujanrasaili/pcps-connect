@@ -2,6 +2,7 @@ jest.mock("../../models/Club");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/ClubJoinRequest");
 jest.mock("../../models/ClubPost");
+jest.mock("../../models/ClubPoll");
 jest.mock("../../utils/clubJoinNotices");
 
 const Club = require("../../models/Club");
@@ -9,7 +10,8 @@ const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const { notifyClubStaffOfRequest } = require("../../utils/clubJoinNotices");
 const ClubPost = require("../../models/ClubPost");
-const { getMyClubNews, getMyMemberships, joinClub, leaveClub, getMyJoinRequests } = require("../clubMembershipController");
+const ClubPoll = require("../../models/ClubPoll");
+const { getMyOpenPolls, getMyClubNews, getMyMemberships, joinClub, leaveClub, getMyJoinRequests } = require("../clubMembershipController");
 
 function mockRes() {
   const res = {};
@@ -209,5 +211,41 @@ describe("getMyClubNews", () => {
     expect(limit).toHaveBeenCalledWith(5);
     expect(populate).toHaveBeenCalledWith("club", "name");
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe("getMyOpenPolls", () => {
+  const chain = (rows) => {
+    const q = { sort: jest.fn(), limit: jest.fn(), select: jest.fn(), populate: jest.fn().mockResolvedValue(rows) };
+    q.sort.mockReturnValue(q); q.limit.mockReturnValue(q); q.select.mockReturnValue(q);
+    return q;
+  };
+  it("returns nothing without querying polls when the student has no clubs", async () => {
+    ClubMembership.find.mockReturnValue({ select: jest.fn().mockResolvedValue([]) });
+    const res = mockRes();
+    await getMyOpenPolls({ user: student }, res);
+    expect(res.json).toHaveBeenCalledWith({ polls: [] });
+    expect(ClubPoll.find).not.toHaveBeenCalled();
+  });
+  it("asks only for open polls in the student's clubs they have not voted on", async () => {
+    ClubMembership.find.mockReturnValue({ select: jest.fn().mockResolvedValue([{ club: "c1" }, { club: "c2" }]) });
+    const q = chain([{ _id: "p1", question: "Day?" }]);
+    ClubPoll.find.mockReturnValue(q);
+    const res = mockRes();
+    await getMyOpenPolls({ user: student }, res);
+    const filter = ClubPoll.find.mock.calls[0][0];
+    expect(filter.club).toEqual({ $in: ["c1", "c2"] });
+    expect(filter.closesAt.$gt).toBeInstanceOf(Date);
+    expect(filter["options.voters"]).toEqual({ $ne: "s1" });
+    expect(q.sort).toHaveBeenCalledWith({ closesAt: 1 });
+    expect(q.limit).toHaveBeenCalledWith(5);
+    expect(q.select).toHaveBeenCalledWith("club question closesAt");
+    expect(res.json).toHaveBeenCalledWith({ polls: [{ _id: "p1", question: "Day?" }] });
+  });
+  it("answers 500 when the database fails", async () => {
+    ClubMembership.find.mockReturnValue({ select: jest.fn().mockRejectedValue(new Error("x")) });
+    const res = mockRes();
+    await getMyOpenPolls({ user: student }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });

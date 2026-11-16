@@ -1,5 +1,5 @@
 const express = require("express");
-const { getMyClubNews, getMyMemberships, getMyJoinRequests, joinClub, leaveClub } = require("../controllers/clubMembershipController");
+const { getMyOpenPolls, getMyClubNews, getMyMemberships, getMyJoinRequests, joinClub, leaveClub } = require("../controllers/clubMembershipController");
 const { protect } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
 
@@ -13,6 +13,7 @@ router.use(protect);
 
 router.get("/my", getMyMemberships);
 router.get("/news", getMyClubNews);
+router.get("/polls", getMyOpenPolls);
 router.get("/requests/my", getMyJoinRequests);
 // Joining and leaving are rate limited per student: with approval clubs every
 // join sends leaders a notification, so a script flipping join/leave would

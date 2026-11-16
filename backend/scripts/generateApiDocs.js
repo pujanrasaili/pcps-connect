@@ -163,6 +163,7 @@ const DESCRIPTIONS = {
   voteClubPoll: "Vote in an open poll (members only). Voting again moves your vote.",
   deleteClubPoll: "Remove a poll (the club's leaders or an admin).",
   deleteClubPost: "Delete one news post (admins and that club's leaders only).",
+  getMyOpenPolls: "Open polls (up to 5, closing soonest first) in the clubs you have joined that you have not voted on yet.",
   getMyClubNews: "The latest news posts (up to 5, last 30 days) from the clubs you have joined.",
   getMyMemberships: "The clubs you have joined.",
   joinClub: "Join a club; for clubs that approve their members this sends a request instead (answer 202).",
