@@ -485,3 +485,84 @@ test("club idea box: members suggest, leaders and admins read, and it is cleaned
   assert.equal((await admin.req("DELETE", `/clubs/${clubId}`)).status, 200);
   assert.equal(await ideas.countDocuments({ club: clubObjectId }), 0);
 });
+
+test("club polls: leaders ask, members vote once, votes stay private and are cleaned up", { skip }, async () => {
+  const admin = await makeUser("cpa", "admin");
+  const leader = await makeUser("cpl");
+  const member = await makeUser("cpm");
+  const second = await makeUser("cps");
+  const outsider = await makeUser("cpo");
+
+  let r = await admin.req("POST", "/clubs", { name: `Polls ${stamp}`, description: "A club used by the polls integration test.", category: "Arts" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const clubId = (r.json.club || r.json)._id;
+  assert.equal((await admin.req("PUT", `/admin/clubs/${clubId}/leaders`, { userIds: [leader.id] })).status, 200);
+  assert.equal((await member.req("POST", "/club-memberships/join", { clubId })).status, 201);
+  assert.equal((await second.req("POST", "/club-memberships/join", { clubId })).status, 201);
+
+  const url = `/clubs/${clubId}/polls`;
+  const bellTypes = async (who) => (await who.req("GET", "/notifications")).json.notifications.map((n) => n.type);
+
+  // Logged-out people and non-members get nothing; members cannot start one.
+  assert.equal((await new Client().req("GET", url)).status, 401);
+  assert.equal((await outsider.req("GET", url)).status, 403);
+  assert.equal((await member.req("POST", url, { question: "Which day?", options: ["Fri", "Sat"] })).status, 403);
+
+  // Bad input is refused, including objects slipped in where text belongs.
+  assert.equal((await leader.req("POST", url, { question: "Which day?", options: ["Only one"] })).status, 400);
+  assert.equal((await leader.req("POST", url, { question: { $ne: 1 }, options: ["Fri", "Sat"] })).status, 400);
+  assert.equal((await leader.req("POST", url, { question: "Which day?", options: ["Fri", "Sat"], days: 99 })).status, 400);
+
+  // A leader starts a poll; the members hear about it, the leader does not.
+  r = await leader.req("POST", url, { question: "Which day?", options: ["Fri", "Sat"], days: 3 });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const pollId = r.json.poll._id;
+  assert.ok((await bellTypes(member)).includes("club_poll"));
+  assert.ok(!(await bellTypes(leader)).includes("club_poll"));
+
+  // Members vote once; voting again moves the vote; bad options are refused.
+  const vote = (who, option, id = pollId) => who.req("POST", `${url}/${id}/vote`, { option });
+  assert.equal((await vote(outsider, 0)).status, 403);
+  assert.equal((await vote(member, 5)).status, 400);
+  assert.equal((await vote(member, "0")).status, 400);
+  assert.equal((await vote(member, 0)).status, 200);
+  assert.equal((await vote(second, 0)).status, 200);
+  let poll = (await member.req("GET", url)).json.polls[0];
+  assert.deepEqual(poll.options.map((o) => o.count), [2, 0]);
+  assert.equal(poll.myVote, 0);
+  assert.equal((await vote(member, 1)).status, 200);
+  poll = (await member.req("GET", url)).json.polls[0];
+  assert.deepEqual(poll.options.map((o) => o.count), [1, 1]);
+  assert.equal(poll.myVote, 1);
+  assert.equal(poll.total, 2);
+  // Nobody learns who voted for what.
+  const raw = JSON.stringify((await leader.req("GET", url)).json);
+  assert.ok(!raw.includes(member.id) && !raw.includes(second.id));
+  assert.equal((await admin.req("GET", url)).status, 200);
+
+  // Deleting an account takes its vote back and leaves the poll.
+  assert.equal((await member.req("DELETE", "/auth/account", { password: PASSWORD })).status, 200);
+  poll = (await second.req("GET", url)).json.polls[0];
+  assert.deepEqual(poll.options.map((o) => o.count), [1, 0]);
+
+  // A closed poll still shows its results but takes no more votes.
+  const polls = mongoose.connection.collection("clubpolls");
+  await polls.updateOne({ _id: new mongoose.Types.ObjectId(pollId) }, { $set: { closesAt: new Date(Date.now() - 1000) } });
+  assert.equal((await vote(second, 1)).status, 400);
+  assert.equal((await second.req("GET", url)).json.polls[0].closed, true);
+
+  // Only a leader or an admin removes a poll, and only through its own club.
+  assert.equal((await second.req("DELETE", `${url}/${pollId}`)).status, 403);
+  const other = (await admin.req("POST", "/clubs", { name: `Polls other ${stamp}`, description: "Another club for the polls integration test.", category: "Arts" })).json;
+  assert.equal((await admin.req("DELETE", `/clubs/${(other.club || other)._id}/polls/${pollId}`)).status, 404);
+  assert.equal((await leader.req("DELETE", `${url}/${pollId}`)).status, 200);
+  assert.deepEqual((await second.req("GET", url)).json.polls, []);
+
+  // Deleting the club takes its polls along.
+  r = await leader.req("POST", url, { question: "Another?", options: ["Yes", "No"] });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const clubObjectId = new mongoose.Types.ObjectId(clubId);
+  assert.equal(await polls.countDocuments({ club: clubObjectId }), 1);
+  assert.equal((await admin.req("DELETE", `/clubs/${clubId}`)).status, 200);
+  assert.equal(await polls.countDocuments({ club: clubObjectId }), 0);
+});
