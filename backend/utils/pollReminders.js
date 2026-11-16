@@ -3,6 +3,8 @@
 // (scripts/sendEventReminders.js) and looks at polls closing in the next 24
 // hours. Each poll is claimed first (`reminded`), so it is sent once even if
 // the job runs twice. Bell only, no email. Never says who voted.
+// populate("club") needs the Club model registered, even in the standalone job.
+require("../models/Club");
 const ClubPoll = require("../models/ClubPoll");
 const ClubMembership = require("../models/ClubMembership");
 const { pushNotifications } = require("./inApp");
