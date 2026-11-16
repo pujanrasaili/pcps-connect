@@ -8,7 +8,7 @@ export default function Avatar({ user, className = "h-8 w-8" }) {
   const [failedSrc, setFailedSrc] = useState(null);
   const src = user?.avatar;
   if (src && failedSrc !== src) {
-    return <img src={src} alt="" onError={() => setFailedSrc(src)} className={`${className} rounded-full`} />;
+    return <img src={src} alt="" loading="lazy" decoding="async" onError={() => setFailedSrc(src)} className={`${className} rounded-full`} />;
   }
   return (
     <span
