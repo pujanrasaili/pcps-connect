@@ -319,7 +319,7 @@ export default function AdminEvents() {
               {event.image ? (
                 <img
                   src={resolveUploadUrl(event.image, 160)}
-                  alt=""
+                  alt="" loading="lazy" decoding="async"
                   className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
                 />
               ) : (
