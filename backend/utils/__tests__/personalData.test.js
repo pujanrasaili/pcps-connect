@@ -49,6 +49,7 @@ describe("buildPersonalData", () => {
     expect(d.boardPosts).toEqual([]);
     expect(d.eventsYouCreated).toEqual([]);
     expect(d.clubAnnouncements).toEqual([]);
+    expect(d.clubPollsVoted).toBe(0);
     expect(d.phoneAlertDevices).toBe(0);
     expect(d.registrations).toEqual([]);
     expect(d.profile.favoriteClub).toBeNull();
