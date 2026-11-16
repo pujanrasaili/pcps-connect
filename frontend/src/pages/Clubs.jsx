@@ -27,6 +27,7 @@ import ClubNews from "../components/ClubNews";
 import ClubLeaderboard from "../components/ClubLeaderboard";
 import { isHostedBy } from "../utils/eventHosts";
 import ClubIdeas from "../components/ClubIdeas";
+import ClubPolls from "../components/ClubPolls";
 import ClubDetailsDialog from "../components/ClubDetailsDialog";
 import SafeImage from "../components/SafeImage";
 import CardSkeletons from "../components/CardSkeletons";
@@ -283,6 +284,7 @@ export default function Clubs() {
             )}
 
             <ClubNews clubId={selectedClub._id} canPost={canPostNews(selectedClub._id)} />
+            {user && <ClubPolls key={`polls-${selectedClub._id}`} clubId={selectedClub._id} member={isJoined(selectedClub._id)} staff={canPostNews(selectedClub._id)} />}
             {user && <ClubIdeas key={selectedClub._id} clubId={selectedClub._id} member={isJoined(selectedClub._id)} staff={canPostNews(selectedClub._id)} />}
 
             <Link
