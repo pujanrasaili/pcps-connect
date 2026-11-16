@@ -72,6 +72,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "club-polls",
+    question: "How do club polls work?",
+    answer: [
+      "Open a club you have joined from the Clubs page. If its leaders have started a poll, a \"Polls\" section in the club's details window shows the question and the answers: tap an answer to vote. You get one vote per poll, and you can tap another answer to change it until the poll closes.",
+      "Everyone sees the live counts, but nobody can see who voted for what. Leaders and admins can start a poll (2 to 5 answers, open for 1 to 14 days) and remove it, and members get a message in their bell when a new poll starts.",
+    ],
+  },
+  {
     id: "activity-record",
     question: "Can I get a printed record of my activities?",
     answer: [
