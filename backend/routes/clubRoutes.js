@@ -3,6 +3,7 @@ const { getClubs, getClubById, createClub, updateClub, deleteClub } = require(".
 const upload = require("../middleware/upload");
 const { getClubPosts, createClubPost, updateClubPost, setClubPostPinned, deleteClubPost } = require("../controllers/clubPostController");
 const { getClubIdeas, createClubIdea, deleteClubIdea } = require("../controllers/clubIdeaController");
+const { getClubPolls, createClubPoll, voteClubPoll, deleteClubPoll } = require("../controllers/clubPollController");
 const { protect, adminOnly } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
 
@@ -24,6 +25,10 @@ router.delete("/:id/posts/:postId", protect, actionLimiter, deleteClubPost);
 router.get("/:id/ideas", protect, getClubIdeas);
 router.post("/:id/ideas", protect, actionLimiter, createClubIdea);
 router.delete("/:id/ideas/:ideaId", protect, actionLimiter, deleteClubIdea);
+router.get("/:id/polls", protect, getClubPolls);
+router.post("/:id/polls", protect, actionLimiter, createClubPoll);
+router.post("/:id/polls/:pollId/vote", protect, actionLimiter, voteClubPoll);
+router.delete("/:id/polls/:pollId", protect, actionLimiter, deleteClubPoll);
 router.post("/", protect, adminOnly, createClub);
 router.put("/:id", protect, adminOnly, updateClub);
 router.delete("/:id", protect, adminOnly, deleteClub);
