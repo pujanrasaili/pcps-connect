@@ -525,6 +525,10 @@ test("club polls: leaders ask, members vote once, votes stay private and are cle
 
   // Members vote once; voting again moves the vote; bad options are refused.
   const vote = (who, option, id = pollId) => who.req("POST", `${url}/${id}/vote`, { option });
+  // Before voting, the poll waits on the member's Dashboard list.
+  const waiting = async (who) => (await who.req("GET", "/club-memberships/polls")).json.polls.map((p) => p._id);
+  assert.ok((await waiting(member)).includes(pollId));
+  assert.deepEqual(await waiting(outsider), []);
   assert.equal((await vote(outsider, 0)).status, 403);
   assert.equal((await vote(member, 5)).status, 400);
   assert.equal((await vote(member, "0")).status, 400);
@@ -542,6 +546,13 @@ test("club polls: leaders ask, members vote once, votes stay private and are cle
   const raw = JSON.stringify((await leader.req("GET", url)).json);
   assert.ok(!raw.includes(member.id) && !raw.includes(second.id));
   assert.equal((await admin.req("GET", url)).status, 200);
+  // Once voted, it leaves the waiting list; the leaders' stats count the votes.
+  assert.ok(!(await waiting(member)).includes(pollId));
+  assert.ok(!(await waiting(second)).includes(pollId));
+  r = await leader.req("GET", `/leader/clubs/${clubId}/stats`);
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.deepEqual(r.json.stats.latestPoll, { votes: 2, closed: false });
+  assert.equal((await member.req("GET", `/leader/clubs/${clubId}/stats`)).status, 403);
 
   // Deleting an account takes its vote back and leaves the poll.
   assert.equal((await member.req("DELETE", "/auth/account", { password: PASSWORD })).status, 200);
