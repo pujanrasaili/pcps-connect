@@ -316,11 +316,17 @@ export default function AdminEvents() {
         ) : (
           pagedEvents.map((event) => (
             <div key={event._id} className="flex flex-wrap items-center gap-3 p-4 sm:flex-nowrap">
-              <img
-                src={resolveUploadUrl(event.image, 160)}
-                alt=""
-                className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
-              />
+              {event.image ? (
+                <img
+                  src={resolveUploadUrl(event.image, 160)}
+                  alt=""
+                  className="h-14 w-14 shrink-0 rounded-lg object-cover bg-slate-100 dark:bg-slate-800"
+                />
+              ) : (
+                <span aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-xl text-primary-500 dark:bg-primary-900/30 dark:text-primary-300">
+                  <FaCalendarAlt />
+                </span>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-slate-800 dark:text-slate-100">{event.title}</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
