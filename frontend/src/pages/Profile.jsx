@@ -157,9 +157,14 @@ export default function Profile() {
             ))}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-            {t("You haven't joined any clubs yet — browse the clubs and join one to see it here.")}
-          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {t("You haven't joined any clubs yet — browse the clubs and join one to see it here.")}
+            </p>
+            <Link to="/clubs" className="btn-secondary text-sm">
+              {t("Browse clubs")}
+            </Link>
+          </div>
         )}
       </div>
 
@@ -232,7 +237,12 @@ export default function Profile() {
             })}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{t("No event history yet.")}</p>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="text-sm text-slate-500 dark:text-slate-400">{t("No event history yet.")}</p>
+            <Link to="/events" className="btn-secondary text-sm">
+              {t("Browse events")}
+            </Link>
+          </div>
         )}
       </div>
 
