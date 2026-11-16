@@ -22,12 +22,15 @@ const stamp = Date.now();
 let server;
 let mongoose;
 
+// Each client pretends to be a different phone/laptop (the server trusts one
+// proxy hop), so the sign-up limit per network doesn't trip as tests add users.
+let nextIp = 10;
 class Client {
-  constructor() { this.cookie = ""; }
+  constructor() { this.cookie = ""; this.ip = `10.1.${Math.floor(nextIp / 250)}.${(nextIp += 1) % 250 + 1}`; }
   async req(method, url, body) {
     const res = await fetch(BASE + url, {
       method,
-      headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest", Cookie: this.cookie },
+      headers: { "Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest", "X-Forwarded-For": this.ip, Cookie: this.cookie },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     const set = res.headers.getSetCookie?.() || [];
