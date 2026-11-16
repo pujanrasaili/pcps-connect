@@ -20,6 +20,7 @@ const ClubJoinRequest = require("../models/ClubJoinRequest");
 const EventQuestion = require("../models/EventQuestion");
 const EventVolunteer = require("../models/EventVolunteer");
 const ClubIdea = require("../models/ClubIdea");
+const ClubPoll = require("../models/ClubPoll");
 const BoardPost = require("../models/BoardPost");
 const ClubPost = require("../models/ClubPost");
 const PushSubscription = require("../models/PushSubscription");
@@ -339,7 +340,7 @@ async function changePassword(req, res) {
 // Everything the app stores about the logged-in person, as a JSON download.
 async function exportMyData(req, res) {
   try {
-    const [user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, clubIdeas, volunteering, boardPosts, eventsCreated, clubPosts, phoneAlertDevices] = await Promise.all([
+    const [user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, clubIdeas, volunteering, boardPosts, eventsCreated, clubPosts, clubPollsVoted, phoneAlertDevices] = await Promise.all([
       User.findById(req.user._id).populate("favoriteClub", "name"),
       Registration.find({ user: req.user._id }).populate("event", "title date").sort({ createdAt: 1 }),
       WaitlistEntry.find({ user: req.user._id }).populate("event", "title date").sort({ createdAt: 1 }),
@@ -353,6 +354,7 @@ async function exportMyData(req, res) {
       BoardPost.find({ author: req.user._id }).select("category title body contact createdAt expiresAt").sort({ createdAt: 1 }),
       Event.find({ createdBy: req.user._id }).select("title date").sort({ date: 1 }),
       ClubPost.find({ author: req.user._id }).populate("club", "name").select("club body createdAt").sort({ createdAt: 1 }),
+      ClubPoll.countDocuments({ "options.voters": req.user._id }),
       PushSubscription.countDocuments({ user: req.user._id }),
     ]);
     if (!user) return res.status(404).json({ message: "Account not found" });
@@ -361,7 +363,7 @@ async function exportMyData(req, res) {
     const contactMessages = await ContactMessage.find({ email: String(user.email || "").toLowerCase() })
       .select("subject message createdAt")
       .sort({ createdAt: 1 });
-    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, contactMessages, clubIdeas, volunteering, boardPosts, eventsCreated, clubPosts, phoneAlertDevices }));
+    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, contactMessages, clubIdeas, volunteering, boardPosts, eventsCreated, clubPosts, clubPollsVoted, phoneAlertDevices }));
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to export your data") });
   }
