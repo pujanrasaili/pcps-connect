@@ -523,6 +523,14 @@ test("club polls: leaders ask, members vote once, votes stay private and are cle
   assert.ok((await bellTypes(member)).includes("club_poll"));
   assert.ok(!(await bellTypes(leader)).includes("club_poll"));
 
+  // A poll closing within a day nudges the members who have not voted, once.
+  await mongoose.connection.collection("clubpolls").updateOne({ _id: new mongoose.Types.ObjectId(pollId) }, { $set: { closesAt: new Date(Date.now() + 3600 * 1000) } });
+  const { remindPollVoters } = require("../utils/pollReminders");
+  assert.equal(await remindPollVoters(), 2);
+  assert.ok((await bellTypes(second)).includes("club_poll_closing"));
+  assert.ok(!(await bellTypes(leader)).includes("club_poll_closing"));
+  assert.equal(await remindPollVoters(), 0);
+
   // Members vote once; voting again moves the vote; bad options are refused.
   const vote = (who, option, id = pollId) => who.req("POST", `${url}/${id}/vote`, { option });
   // Before voting, the poll waits on the member's Dashboard list.
