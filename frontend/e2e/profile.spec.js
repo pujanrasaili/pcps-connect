@@ -67,3 +67,14 @@ test("a student must pick stars before sending feedback, then it is saved", asyn
   expect(calls).toEqual(['feedback 4 "Great light and a friendly group."']);
   await expect(page.getByRole("button", { name: "Edit rating" })).toBeVisible();
 });
+
+for (const lang of ["en", "ne"]) {
+  test(`a new student's empty Profile sections point to clubs and events (${lang})`, async ({ page }) => {
+    await setUp(page, { lang, role: "student" });
+    await page.route("**/api/registrations/my", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ registrations: [] }) }));
+    await page.goto("/profile");
+    const main = page.getByRole("main");
+    await expect(main.getByRole("link", { name: lang === "ne" ? "क्लबहरू हेर्नुहोस्" : "Browse clubs" })).toHaveAttribute("href", "/clubs");
+    await expect(main.getByRole("link", { name: lang === "ne" ? "कार्यक्रमहरू हेर्नुहोस्" : "Browse events" })).toHaveAttribute("href", "/events");
+  });
+}
