@@ -23,6 +23,7 @@ const report = { events: [{ _id: events[2]._id, title: "Photo Walk", date: event
 // What the mocked API answers (anything unlisted gets an empty object).
 function answer(path, role, lang) {
   if (path.endsWith("/auth/me")) return role ? { status: 200, body: { user: { ...(role === "admin" ? admin : student), language: lang } } } : { status: 401, body: { message: "Not logged in" } };
+  if (path.endsWith("/club-memberships/polls")) return { body: { polls: [] } };
   if (path.endsWith("/club-memberships/news")) return { body: { posts: news } };
   if (path.endsWith("/clubs")) return { body: { clubs } };
   if (path.endsWith("/events")) return { body: { events } };
