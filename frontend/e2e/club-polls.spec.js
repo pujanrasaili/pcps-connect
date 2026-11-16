@@ -54,6 +54,12 @@ async function withPollsApi(page, { member, leader, polls = [] }) {
     });
     return reply(route, { message: "ok", poll: list.find((p) => p._id === id) });
   });
+  await page.route(`**/api/clubs/${club._id}/polls/*/close`, (route) => {
+    const id = new URL(route.request().url()).pathname.split("/").slice(-2)[0];
+    calls.push(`close ${id}`);
+    list = list.map((p) => (p._id === id ? { ...p, closed: true } : p));
+    return reply(route, { message: "Poll closed", poll: list.find((p) => p._id === id) });
+  });
   await page.route(`**/api/clubs/${club._id}/polls/*`, (route) => {
     const id = new URL(route.request().url()).pathname.split("/").pop();
     calls.push(`remove ${id}`);
@@ -96,12 +102,25 @@ for (const lang of ["en", "ne"]) {
     await box.getByRole("button", { name: l.go }).click();
     await expect(page.getByText(l.started)).toBeVisible();
     await expect(box.getByText("Next meeting?")).toBeVisible();
-    await box.getByRole("button", { name: /Next meeting\?/ }).click();
+    await box.getByRole("button", { name: /Next meeting\?/ }).last().click();
     await expect(page.getByText(l.removed)).toBeVisible();
     await expect(box.getByText("Next meeting?")).toHaveCount(0);
     expect(calls).toEqual(["start Next meeting? | Friday,Saturday | 7", "remove p10"]);
   });
 }
+
+test("a leader can close an open poll early, after which it can't be voted on or closed again", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  const calls = await withPollsApi(page, { member: true, leader: true, polls: [makePoll()] });
+  await page.goto(`/clubs?club=${club._id}`);
+  const box = page.getByRole("region", { name: "Polls" });
+  await box.getByRole("button", { name: /Close the poll now: Which day works\?/ }).click();
+  await expect(page.getByText("Poll closed.")).toBeVisible();
+  await expect(box.getByText("Closed")).toBeVisible();
+  await expect(box.getByRole("button", { name: /Friday|Saturday/ })).toHaveCount(0);
+  await expect(box.getByRole("button", { name: /Close the poll now/ })).toHaveCount(0);
+  expect(calls).toEqual(["close p1"]);
+});
 
 test("a closed poll shows results but no vote buttons", async ({ page }) => {
   await setUp(page, { lang: "en", role: "student" });

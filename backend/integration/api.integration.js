@@ -548,6 +548,14 @@ test("club polls: leaders ask, members vote once, votes stay private and are cle
   poll = (await second.req("GET", url)).json.polls[0];
   assert.deepEqual(poll.options.map((o) => o.count), [1, 0]);
 
+  // Ending a poll early: members can't, leaders can; it can't be ended twice.
+  assert.equal((await second.req("POST", `${url}/${pollId}/close`)).status, 403);
+  r = await leader.req("POST", `${url}/${pollId}/close`);
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.poll.closed, true);
+  assert.equal((await leader.req("POST", `${url}/${pollId}/close`)).status, 400);
+  assert.equal((await vote(second, 1)).status, 400);
+
   // A closed poll still shows its results but takes no more votes.
   const polls = mongoose.connection.collection("clubpolls");
   await polls.updateOne({ _id: new mongoose.Types.ObjectId(pollId) }, { $set: { closesAt: new Date(Date.now() - 1000) } });
