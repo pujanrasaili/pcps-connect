@@ -19,6 +19,7 @@ export const NOTIFICATION_PATTERNS = [
   [/^(.+) declined your request to join$/, "{club} declined your request to join", ["club"]],
   [/^New idea for (.+)$/, "New idea for {club}", ["club"]],
   [/^New poll in (.+?): (.+)$/, "New poll in {club}: {question}", ["club", "question"]],
+  [/^Poll closing soon in (.+?): (.+)$/, "Poll closing soon in {club}: {question}", ["club", "question"]],
   [/^(.+) shared a news update$/, "{club} shared a news update", ["club"]],
   [/^(.+) announced (.+)$/, "{club} announced {title}", ["club", "title"]],
   [/^A notice board post was reported: "(.+)"$/, 'A notice board post was reported: "{title}"', ["title"]],

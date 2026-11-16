@@ -1530,4 +1530,5 @@ export const ne = {
   "Latest poll turnout": "पछिल्लो मतदानमा सहभागिता",
   "{v} of {m} members voted": "{m} सदस्यमध्ये {v} जनाले मत दिए",
   "No polls yet": "अहिलेसम्म कुनै मतदान छैन",
+  "Poll closing soon in {club}: {question}": "{club} मा मतदान चाँडै बन्द हुँदैछ: {question}",
 };
