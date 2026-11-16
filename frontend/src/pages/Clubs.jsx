@@ -7,6 +7,7 @@ import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
 import Modal from "../components/Modal";
 import Reveal from "../components/Reveal";
+import EmptyState from "../components/EmptyState";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { formatDate, isUpcoming } from "../utils/formatDate";
@@ -204,19 +205,13 @@ export default function Clubs() {
             <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
           </>
         ) : (
-          <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
-            <p className="text-lg font-medium">
-              {mineOnly && !query && category === "All" ? t("You haven't joined any clubs yet.") : t("No clubs match your search.")}
-            </p>
-            <p className="mt-1 text-sm">
-              {mineOnly && !query && category === "All" ? t("Untick the box to browse every club.") : t("Try a different name or category.")}
-            </p>
-            {(query || category !== "All" || mineOnly) && (
-              <button onClick={clearFilters} className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300">
-                {t("Clear filters")}
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={FaUsers}
+            title={mineOnly && !query && category === "All" ? t("You haven't joined any clubs yet.") : t("No clubs match your search.")}
+            hint={mineOnly && !query && category === "All" ? t("Untick the box to browse every club.") : t("Try a different name or category.")}
+            actionLabel={query || category !== "All" || mineOnly ? t("Clear filters") : undefined}
+            onAction={clearFilters}
+          />
         )}
 
         <ClubLeaderboard />

@@ -6,6 +6,7 @@ import EventCard from "../components/EventCard";
 import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
 import Reveal from "../components/Reveal";
+import EmptyState from "../components/EmptyState";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
@@ -250,37 +251,32 @@ export default function Events() {
             <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
           </>
         ) : (
-          <div className="mt-16 text-center text-slate-500 dark:text-slate-400">
-            <p className="text-lg font-medium">
-              {when === "mine"
+          <EmptyState
+            icon={FaRegCalendarAlt}
+            title={
+              when === "mine"
                 ? t("You haven't registered for any matching events.")
                 : when === "saved"
                   ? savedIds.length === 0
                     ? t("You haven't saved any events yet.")
                     : t("None of your saved events match.")
                   : when === "upcoming"
-                  ? t("No upcoming events match your search.")
-                  : when === "week"
-                    ? t("Nothing is happening in the next 7 days.")
-                    : t("No past events match your search.")}
-            </p>
-            <p className="mt-1 text-sm">
-              {when === "saved" && savedIds.length === 0
+                    ? t("No upcoming events match your search.")
+                    : when === "week"
+                      ? t("Nothing is happening in the next 7 days.")
+                      : t("No past events match your search.")
+            }
+            hint={
+              when === "saved" && savedIds.length === 0
                 ? t("Tap the bookmark on an event to keep it here for later.")
-                : t("Try a different name or category.")}
-            </p>
-            {(query || category !== "All" || openOnly || freeOnly) && (
-              <button
-                onClick={() => {
-                  setQuery("");
-                  update({ q: "", category: "All", open: false, free: false });
-                }}
-                className="mt-3 text-sm font-semibold text-primary-600 hover:underline dark:text-primary-300"
-              >
-                {t("Clear filters")}
-              </button>
-            )}
-          </div>
+                : t("Try a different name or category.")
+            }
+            actionLabel={query || category !== "All" || openOnly || freeOnly ? t("Clear filters") : undefined}
+            onAction={() => {
+              setQuery("");
+              update({ q: "", category: "All", open: false, free: false });
+            }}
+          />
         )}
       </div>
     </div>
