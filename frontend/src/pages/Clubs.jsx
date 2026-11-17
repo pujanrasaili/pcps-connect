@@ -31,6 +31,8 @@ import ClubPolls from "../components/ClubPolls";
 import ClubDetailsDialog from "../components/ClubDetailsDialog";
 import SafeImage from "../components/SafeImage";
 import CardSkeletons from "../components/CardSkeletons";
+import { clubMetaDescription, clubJsonLd } from "../utils/clubSeo";
+import { jsonLdText } from "../utils/eventJsonLd";
 
 const PAGE_SIZE = 9;
 
@@ -58,6 +60,38 @@ export default function Clubs() {
     return () => {
       document.title = previous.startsWith(selectedClub.name) ? "Clubs | PCPS Connect" : previous;
     };
+  }, [selectedClub]);
+
+  // For search engines and link previews: the open club gets its own address
+  // (canonical), description and schema.org data; the page's usual ones come back
+  // when it closes.
+  useEffect(() => {
+    if (!selectedClub) return undefined;
+    const undo = [];
+    const set = (selector, attr, value) => {
+      const tag = document.querySelector(selector);
+      if (!tag || !value) return;
+      const original = tag.getAttribute(attr);
+      tag.setAttribute(attr, value);
+      undo.push(() => tag.setAttribute(attr, original));
+    };
+    const description = clubMetaDescription(selectedClub);
+    const url = `${window.location.origin}/clubs?club=${selectedClub._id}`;
+    set('link[rel="canonical"]', "href", url);
+    set('meta[property="og:url"]', "content", url);
+    set('meta[name="description"]', "content", description);
+    set('meta[property="og:description"]', "content", description);
+    set('meta[name="twitter:description"]', "content", description);
+    set('meta[property="og:title"]', "content", `${selectedClub.name} | PCPS Connect`);
+    const data = clubJsonLd(selectedClub, window.location.origin);
+    if (data) {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.textContent = jsonLdText(data);
+      document.head.appendChild(script);
+      undo.push(() => script.remove());
+    }
+    return () => undo.forEach((fn) => fn());
   }, [selectedClub]);
 
   const handleShare = async () => {
