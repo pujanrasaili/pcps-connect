@@ -1536,4 +1536,6 @@ export const ne = {
   "Upcoming and past events from the clubs at Patan College of Professional Studies. Find something to join and register in a tap.": "पाटन कलेज अफ प्रोफेसनल स्टडिजका क्लबहरूका आगामी र विगतका कार्यक्रमहरू। सामेल हुने कुरा खोज्नुहोस् र एक ट्यापमै दर्ता गर्नुहोस्।",
   "Send a message to the PCPS Connect team at Patan College of Professional Studies.": "पाटन कलेज अफ प्रोफेसनल स्टडिजको PCPS Connect टोलीलाई सन्देश पठाउनुहोस्।",
   "Answers to common questions about clubs, events, tickets, certificates and polls on PCPS Connect.": "PCPS Connect मा क्लब, कार्यक्रम, टिकट, प्रमाणपत्र र मतदानबारे सामान्य प्रश्नका उत्तरहरू।",
+  "The rules for using PCPS Connect: accounts, acceptable use, event registrations and what we expect from everyone on the site.": "PCPS Connect प्रयोग गर्ने नियमहरू: खाता, स्वीकार्य प्रयोग, कार्यक्रम दर्ता र साइटमा सबैबाट हामीले के अपेक्षा गर्छौं।",
+  "What PCPS Connect collects, why, how long it is kept and how you can download or delete your data.": "PCPS Connect ले के सङ्कलन गर्छ, किन, कति समयसम्म राखिन्छ र तपाईंले आफ्नो डेटा कसरी डाउनलोड वा मेटाउन सक्नुहुन्छ।",
 };
