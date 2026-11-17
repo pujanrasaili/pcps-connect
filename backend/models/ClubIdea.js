@@ -14,4 +14,7 @@ const clubIdeaSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// The idea box lists a club's newest ideas first.
+clubIdeaSchema.index({ club: 1, createdAt: -1 });
+
 module.exports = mongoose.model("ClubIdea", clubIdeaSchema);

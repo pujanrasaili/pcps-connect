@@ -16,4 +16,7 @@ const eventQuestionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// An event page lists its newest questions first.
+eventQuestionSchema.index({ event: 1, createdAt: -1 });
+
 module.exports = mongoose.model("EventQuestion", eventQuestionSchema);
