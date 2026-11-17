@@ -19,4 +19,10 @@ const clubPostSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// A club page lists its news pinned-first then newest-first, and the Dashboard
+// feed reads recent posts across clubs; these let the database walk each list
+// in order instead of sorting every post a club ever made.
+clubPostSchema.index({ club: 1, pinned: -1, createdAt: -1 });
+clubPostSchema.index({ club: 1, createdAt: -1 });
+
 module.exports = mongoose.model("ClubPost", clubPostSchema);
