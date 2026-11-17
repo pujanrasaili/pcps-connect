@@ -60,3 +60,11 @@ test("the Contact page map can be framed, but only from Google, and nothing else
   assert.match(csp, /frame-src https:\/\/www\.google\.com(;|$)/);
   assert.doesNotMatch(csp, /frame-src[^;]*\*/);
 });
+
+test("built files are cached for a year (their names change with their content), media for a week", () => {
+  const config = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const cache = (source) => config.headers.find((h) => h.source === source)?.headers.find((x) => x.key === "Cache-Control")?.value;
+  assert.equal(cache("/assets/(.*)"), "public, max-age=31536000, immutable");
+  assert.match(cache("/media/(.*)"), /max-age=604800/);
+  assert.equal(cache("/sw.js"), "no-cache");
+});
