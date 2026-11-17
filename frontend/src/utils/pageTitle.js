@@ -65,6 +65,8 @@ export const DESCRIPTIONS = {
   "/clubs": "Browse the student clubs at Patan College of Professional Studies, see what each one does and join the ones you like.",
   "/events": "Upcoming and past events from the clubs at Patan College of Professional Studies. Find something to join and register in a tap.",
   "/contact": "Send a message to the PCPS Connect team at Patan College of Professional Studies.",
+  "/terms": "The rules for using PCPS Connect: accounts, acceptable use, event registrations and what we expect from everyone on the site.",
+  "/privacy": "What PCPS Connect collects, why, how long it is kept and how you can download or delete your data.",
   "/help": "Answers to common questions about clubs, events, tickets, certificates and polls on PCPS Connect.",
 };
 
