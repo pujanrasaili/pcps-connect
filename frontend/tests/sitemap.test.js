@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSitemapXml, sitemapEvents, STATIC_PATHS } from "../api/_sitemap.js";
-import { loadEvents } from "../api/sitemap.js";
+import { buildSitemapXml, sitemapEvents, sitemapClubs, STATIC_PATHS } from "../api/_sitemap.js";
+import { loadEvents, loadClubs } from "../api/sitemap.js";
 
 const now = new Date("2026-03-20T00:00:00Z");
 const id = (n) => String(n).padStart(24, "a");
@@ -42,4 +42,18 @@ test("/sitemap.xml is served by the function, ahead of the catch-all, and no sta
   assert.ok(sitemap >= 0 && sitemap < catchAll);
   assert.equal(config.rewrites[sitemap].destination, "/api/sitemap");
   assert.equal(existsSync(new URL("../public/sitemap.xml", import.meta.url)), false);
+});
+
+test("every club is listed at its own address, junk ids are not", () => {
+  const xml = buildSitemapXml([], now, [{ _id: id(7), updatedAt: "2026-03-02T00:00:00Z" }, { _id: "bad" }, null]);
+  assert.ok(xml.includes(`<loc>https://pcps-connect.vercel.app/clubs?club=${id(7)}</loc><lastmod>2026-03-02T00:00:00.000Z</lastmod>`));
+  assert.ok(!xml.includes("bad"));
+  assert.equal(sitemapClubs("nope").length, 0);
+  assert.equal(sitemapClubs(Array.from({ length: 300 }, (_, i) => ({ _id: id(i) }))).length, 200);
+});
+
+test("a failed club lookup gives no clubs instead of breaking the sitemap", async () => {
+  assert.deepEqual(await loadClubs({ fetchImpl: async () => { throw new Error("down"); } }), []);
+  assert.deepEqual(await loadClubs({ fetchImpl: async () => ({ ok: false }) }), []);
+  assert.equal((await loadClubs({ fetchImpl: async () => ({ ok: true, json: async () => ({ clubs: [{ _id: id(1) }] }) }) })).length, 1);
 });

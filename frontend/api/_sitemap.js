@@ -5,6 +5,7 @@ import { SITE, isValidId } from "./_preview.js";
 
 export const STATIC_PATHS = ["/", "/clubs", "/events", "/contact", "/terms", "/privacy", "/help"];
 const MAX_EVENTS = 500;
+const MAX_CLUBS = 200;
 const RECENT_MS = 30 * 24 * 60 * 60 * 1000; // events that ended over a month ago are not worth crawling
 
 const xmlEscape = (value) =>
@@ -23,11 +24,21 @@ export function sitemapEvents(events, now = new Date()) {
     .slice(0, MAX_EVENTS);
 }
 
-export function buildSitemapXml(events = [], now = new Date()) {
+// Clubs have no page of their own: each opens as a window on /clubs?club=<id>,
+// which the page gives its own canonical address, so those addresses are listed.
+export function sitemapClubs(clubs) {
+  return (Array.isArray(clubs) ? clubs : []).filter((c) => isValidId(c?._id)).slice(0, MAX_CLUBS);
+}
+
+export function buildSitemapXml(events = [], now = new Date(), clubs = []) {
   const urls = STATIC_PATHS.map((p) => `  <url><loc>${xmlEscape(SITE + (p === "/" ? "/" : p))}</loc></url>`);
   for (const event of sitemapEvents(events, now)) {
     const mod = lastmod(event.updatedAt);
     urls.push(`  <url><loc>${xmlEscape(`${SITE}/events/${event._id}`)}</loc>${mod ? `<lastmod>${mod}</lastmod>` : ""}</url>`);
+  }
+  for (const club of sitemapClubs(clubs)) {
+    const mod = lastmod(club.updatedAt);
+    urls.push(`  <url><loc>${xmlEscape(`${SITE}/clubs?club=${club._id}`)}</loc>${mod ? `<lastmod>${mod}</lastmod>` : ""}</url>`);
   }
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
 }
