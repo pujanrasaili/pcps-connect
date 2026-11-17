@@ -267,7 +267,7 @@ export default function EventDetails() {
   return (
     <div>
       <div className="relative h-64 bg-slate-800 sm:h-80">
-        <SafeImage src={resolveUploadUrl(event.image, 1600)} alt={event.title} className="h-full w-full object-cover" />
+        <SafeImage src={resolveUploadUrl(event.image, 1600)} alt={event.title} fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/55 to-slate-900/15" />
         <div className="container-page absolute inset-x-0 bottom-6 text-white">
           <Link to="/events" className="hit-v mb-3 flex w-fit items-center gap-1.5 text-sm text-white hover:underline">

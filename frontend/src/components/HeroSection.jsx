@@ -50,6 +50,10 @@ export default function HeroSection() {
           ref={imgRef}
           src={campusBuilding}
           alt={t("PCPS College campus building")}
+          width="680"
+          height="504"
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover will-change-transform"
           style={{ transform: "scale(1.1)" }}
         />
