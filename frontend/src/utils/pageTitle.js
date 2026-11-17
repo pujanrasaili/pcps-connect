@@ -56,3 +56,38 @@ export function canonicalForPath(pathname) {
   const path = String(pathname || "/").split(/[?#]/)[0].replace(/\/+$/, "");
   return `${SITE_ORIGIN}${path || "/"}`;
 }
+
+// Short search-result descriptions for the public pages; other pages keep the
+// site-wide one from index.html.
+export const DEFAULT_DESCRIPTION =
+  "PCPS Club & Event Management System — explore clubs, discover events, and manage your participation at Patan College of Professional Studies.";
+export const DESCRIPTIONS = {
+  "/clubs": "Browse the student clubs at Patan College of Professional Studies, see what each one does and join the ones you like.",
+  "/events": "Upcoming and past events from the clubs at Patan College of Professional Studies. Find something to join and register in a tap.",
+  "/contact": "Send a message to the PCPS Connect team at Patan College of Professional Studies.",
+  "/help": "Answers to common questions about clubs, events, tickets, certificates and polls on PCPS Connect.",
+};
+
+const normalPath = (pathname) => {
+  const path = String(pathname || "/").split(/[?#]/)[0];
+  return path.length > 1 ? path.replace(/\/+$/, "") : path;
+};
+
+const PAGE_OWNS_META = (path) => path.startsWith("/events/");
+
+// The description for a path, or undefined when the page sets its own.
+export function descriptionForPath(pathname, t = (text) => text) {
+  const path = normalPath(pathname);
+  if (PAGE_OWNS_META(path)) return undefined;
+  return t(DESCRIPTIONS[path] || DEFAULT_DESCRIPTION);
+}
+
+// Pages search engines should not list: sign-in and account pages, the admin
+// area, personal records, certificate links and addresses that do not exist.
+// (robots.txt alone only stops crawling; "noindex" stops listing.)
+const PUBLIC_PATHS = new Set(["/", "/clubs", "/events", "/contact", "/terms", "/privacy", "/help"]);
+export function isNoIndexPath(pathname) {
+  const path = normalPath(pathname);
+  if (PUBLIC_PATHS.has(path) || PAGE_OWNS_META(path)) return false;
+  return true;
+}

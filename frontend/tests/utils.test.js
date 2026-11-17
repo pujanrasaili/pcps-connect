@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { csvField, buildCsv, slugify } from "../src/utils/csv.js";
 import { pluralize } from "../src/utils/plural.js";
 import { buildIcs, buildIcsCalendar, googleCalendarUrl } from "../src/utils/calendar.js";
-import { titleForPath, eventTitle, DEFAULT_TITLE, canonicalForPath } from "../src/utils/pageTitle.js";
+import { titleForPath, eventTitle, DEFAULT_TITLE, canonicalForPath, descriptionForPath, isNoIndexPath, DESCRIPTIONS, DEFAULT_DESCRIPTION } from "../src/utils/pageTitle.js";
 import { isUpcoming, isPastEvent, relativeDay } from "../src/utils/formatDate.js";
 import { queueLabel } from "../src/utils/waitlistLabel.js";
 import { shouldAutoplayVideo } from "../src/utils/videoPolicy.js";
@@ -950,4 +950,23 @@ test("event structured data lists the banner first, then up to five photos, web 
   const noBanner = eventJsonLd({ _id: "e1", title: "T", date: "2026-11-06T13:00:00Z", image: "/uploads/a.jpg", photos: ["https://img/p.jpg", "javascript:x", 5] }, "o");
   assert.deepEqual(noBanner.image, ["https://img/p.jpg"]);
   assert.equal(eventJsonLd({ _id: "e1", title: "T", date: "2026-11-06T13:00:00Z" }, "o").image, undefined);
+});
+
+test("public pages have their own description, others the site one, event pages none (they set it themselves)", () => {
+  for (const path of Object.keys(DESCRIPTIONS)) {
+    assert.equal(descriptionForPath(path), DESCRIPTIONS[path]);
+    assert.ok(DESCRIPTIONS[path].length >= 50 && DESCRIPTIONS[path].length <= 160, path);
+  }
+  assert.equal(descriptionForPath("/clubs/"), DESCRIPTIONS["/clubs"]);
+  assert.equal(descriptionForPath("/dashboard"), DEFAULT_DESCRIPTION);
+  assert.equal(descriptionForPath("/events/abc"), undefined);
+});
+
+test("only the public pages may be listed by search engines", () => {
+  for (const path of ["/", "/clubs", "/events", "/events/abc123", "/contact", "/terms", "/privacy", "/help", "/clubs/"]) {
+    assert.equal(isNoIndexPath(path), false, path);
+  }
+  for (const path of ["/login", "/register", "/dashboard", "/admin/users", "/profile", "/certificate/x", "/verify/x", "/nowhere"]) {
+    assert.equal(isNoIndexPath(path), true, path);
+  }
 });
