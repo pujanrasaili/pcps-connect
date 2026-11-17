@@ -42,6 +42,33 @@
     <meta name="twitter:description" content="Explore clubs, discover events, and manage your participation at Patan College of Professional Studies." />
     <meta name="twitter:image" content="https://pcps-connect.vercel.app/og-image.jpg" />
 
+    <!-- Site data for search engines: who runs the site and what it is called. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "CollegeOrUniversity",
+            "@id": "https://pcps-connect.vercel.app/#organization",
+            "name": "Patan College of Professional Studies",
+            "alternateName": "PCPS",
+            "url": "https://pcps-connect.vercel.app/",
+            "logo": "https://pcps-connect.vercel.app/icon-512.png",
+            "address": { "@type": "PostalAddress", "streetAddress": "Kandevatasthan", "addressLocality": "Lalitpur", "addressCountry": "NP" },
+            "sameAs": ["https://www.facebook.com/patancollege", "https://www.instagram.com/pcpscollege/"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://pcps-connect.vercel.app/#website",
+            "name": "PCPS Connect",
+            "url": "https://pcps-connect.vercel.app/",
+            "inLanguage": ["en", "ne"],
+            "publisher": { "@id": "https://pcps-connect.vercel.app/#organization" }
+          }
+        ]
+      }
+    </script>
+
     <title>PCPS Connect | Club & Event Management</title>
   </head>
   <body>
