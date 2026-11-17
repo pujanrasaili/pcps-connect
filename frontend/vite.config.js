@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
           // React and the router change rarely; keeping them out of the app's
           // own file means a deploy only re-downloads the app code, because
           // the vendor file keeps the same name (and the cached copy).
-          advancedChunks: {
+          codeSplitting: {
             groups: [{ name: 'vendor', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ }],
           },
         },
