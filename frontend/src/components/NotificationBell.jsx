@@ -5,6 +5,7 @@ import { useNotifications } from "../hooks/useNotifications";
 import { timeAgo } from "../utils/timeAgo";
 import { translateNotification } from "../utils/translateNotification";
 import { translateAgo } from "../utils/translateAgo";
+import { notificationIcon } from "../utils/notificationIcon";
 import { useLang } from "../context/LanguageContext";
 
 // The bell in the top bar: a badge with the number of unseen messages and a
@@ -94,6 +95,7 @@ export default function NotificationBell({ className = "" }) {
           ) : (
             <ul className="max-h-80 divide-y divide-slate-100 overflow-y-auto dark:divide-slate-800">
               {items.map((n) => {
+                const Icon = notificationIcon(n.type);
                 const body = (
                   <>
                     <span className="flex items-start gap-2">
@@ -103,6 +105,7 @@ export default function NotificationBell({ className = "" }) {
                           <span className="sr-only">{t("New")}</span>
                         </>
                       )}
+                      <Icon aria-hidden="true" className="mt-0.5 shrink-0 text-xs text-slate-500 dark:text-slate-400" />
                       <span className="min-w-0 text-sm text-slate-700 dark:text-slate-200">{translateNotification(n.title, t)}</span>
                     </span>
                     <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">{translateAgo(timeAgo(n.createdAt), t)}</span>
