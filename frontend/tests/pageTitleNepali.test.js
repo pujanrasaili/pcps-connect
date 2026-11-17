@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { TITLES, DEFAULT_TITLE, titleForPath, eventTitle } from "../src/utils/pageTitle.js";
+import { TITLES, DEFAULT_TITLE, titleForPath, eventTitle, DESCRIPTIONS, DEFAULT_DESCRIPTION } from "../src/utils/pageTitle.js";
 import { ne } from "../src/i18n/ne.js";
 import { translate } from "../src/i18n/translate.js";
 
@@ -22,4 +22,9 @@ test("tab titles keep the site name and switch the page name to Nepali", () => {
 test("an event's own name is never translated", () => {
   assert.equal(eventTitle("Hack Night", toNepali), "Hack Night | PCPS Connect");
   assert.equal(eventTitle("", toNepali), `${ne.Event} | PCPS Connect`);
+});
+
+test("every search-result description has a Nepali translation", () => {
+  const texts = [...Object.values(DESCRIPTIONS), DEFAULT_DESCRIPTION];
+  assert.deepEqual(texts.filter((text) => !(text in ne)), []);
 });

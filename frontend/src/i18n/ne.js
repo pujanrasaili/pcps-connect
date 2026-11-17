@@ -1531,4 +1531,9 @@ export const ne = {
   "{v} of {m} members voted": "{m} सदस्यमध्ये {v} जनाले मत दिए",
   "No polls yet": "अहिलेसम्म कुनै मतदान छैन",
   "Poll closing soon in {club}: {question}": "{club} मा मतदान चाँडै बन्द हुँदैछ: {question}",
+  "PCPS Club & Event Management System — explore clubs, discover events, and manage your participation at Patan College of Professional Studies.": "PCPS क्लब तथा कार्यक्रम व्यवस्थापन प्रणाली — पाटन कलेज अफ प्रोफेसनल स्टडिजमा क्लबहरू हेर्नुहोस्, कार्यक्रमहरू खोज्नुहोस् र आफ्नो सहभागिता व्यवस्थापन गर्नुहोस्।",
+  "Browse the student clubs at Patan College of Professional Studies, see what each one does and join the ones you like.": "पाटन कलेज अफ प्रोफेसनल स्टडिजका विद्यार्थी क्लबहरू हेर्नुहोस्, प्रत्येकले के गर्छ हेर्नुहोस् र मन परेकामा सामेल हुनुहोस्।",
+  "Upcoming and past events from the clubs at Patan College of Professional Studies. Find something to join and register in a tap.": "पाटन कलेज अफ प्रोफेसनल स्टडिजका क्लबहरूका आगामी र विगतका कार्यक्रमहरू। सामेल हुने कुरा खोज्नुहोस् र एक ट्यापमै दर्ता गर्नुहोस्।",
+  "Send a message to the PCPS Connect team at Patan College of Professional Studies.": "पाटन कलेज अफ प्रोफेसनल स्टडिजको PCPS Connect टोलीलाई सन्देश पठाउनुहोस्।",
+  "Answers to common questions about clubs, events, tickets, certificates and polls on PCPS Connect.": "PCPS Connect मा क्लब, कार्यक्रम, टिकट, प्रमाणपत्र र मतदानबारे सामान्य प्रश्नका उत्तरहरू।",
 };
