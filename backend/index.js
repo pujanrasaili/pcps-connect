@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const { compress } = require("./middleware/compress");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
@@ -40,6 +41,7 @@ connectDB();
 app.set("trust proxy", 1);
 
 app.use(helmet());
+app.use(compress);
 
 app.use(
   cors({
