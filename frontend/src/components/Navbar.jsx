@@ -113,7 +113,7 @@ export default function Navbar() {
     >
       <nav aria-label={t("Main")} className="container-page flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="PCPS College" className="h-9 w-auto" />
+          <img src={logo} alt="PCPS College" width="429" height="160" className="h-9 w-auto" />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
