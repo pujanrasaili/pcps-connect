@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap");
 /* Noto Sans Devanagari is only downloaded when a page shows Nepali text (Google
    serves it in pieces by character range), so English readers pay nothing. It sits
    after Inter and Poppins, which have no Devanagari letters, so Nepali looks the
