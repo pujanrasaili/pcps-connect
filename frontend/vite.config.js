@@ -27,5 +27,17 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
   return {
     plugins: [react(), preconnectApi(env.VITE_API_URL)],
+    build: {
+      rolldownOptions: {
+        output: {
+          // React and the router change rarely; keeping them out of the app's
+          // own file means a deploy only re-downloads the app code, because
+          // the vendor file keeps the same name (and the cached copy).
+          advancedChunks: {
+            groups: [{ name: 'vendor', test: /node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/ }],
+          },
+        },
+      },
+    },
   }
 })
