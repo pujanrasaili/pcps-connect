@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-127 endpoints.
+131 endpoints.
 
 ## /api/health
 
@@ -107,6 +107,9 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | PUT | `/api/admin/clubs/:id/leaders` | Admin only | Set a club's leaders (up to 10); new leaders are emailed. |
 | GET | `/api/admin/audit` | Admin only | The activity log of admin actions (kept for a year). |
 | PUT | `/api/admin/notice` | Admin only | Publish or clear the site-wide announcement banner. |
+| POST | `/api/admin/venues` | Admin only | Add a campus venue with a name and optional directions; admins only. |
+| PUT | `/api/admin/venues/:id` | Admin only | Rename a campus venue or change its directions; admins only. |
+| DELETE | `/api/admin/venues/:id` | Admin only | Remove a campus venue; admins only. Events keep their location text. |
 
 ## /api/clubs
 
@@ -163,6 +166,12 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | Method | Path | Who | What it does |
 |---|---|---|---|
 | GET | `/api/notice` | Anyone | The current site-wide announcement, if any. |
+
+## /api/venues
+
+| Method | Path | Who | What it does |
+|---|---|---|---|
+| GET | `/api/venues` | Anyone | List the campus venues (name and directions), A to Z; public. |
 
 ## /api/leader
 
