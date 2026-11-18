@@ -52,6 +52,12 @@ As **S**:
 2. As **S** (or logged out), the box shows "Local Cafe" as a link that opens in a new tab. Without a website it is plain text.
 3. Try the website `javascript:alert(1)` as **A**: saving should be refused.
 
+### Alumni (2 min)
+
+1. As **S**, join a club, then open its card → **Step down to alumni**. Leave the year, add the note "Treasurer", and press **Leave and join the alumni**.
+2. S is no longer a member, and the club's **Alumni** box shows S with the year and note.
+3. As another student, the same box shows S but no remove button; as **A** (or the club's leader) there is a remove button next to S.
+
 ## 5. Full events and leaders (5 min)
 
 1. As **A**, create an event with capacity **1** for a club that has a leader (a third account **L**, made leader in Admin → Clubs → leaders icon, is ideal).
