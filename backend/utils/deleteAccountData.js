@@ -8,6 +8,7 @@ const EventQuestion = require("../models/EventQuestion");
 const EventVolunteer = require("../models/EventVolunteer");
 const Club = require("../models/Club");
 const ClubIdea = require("../models/ClubIdea");
+const ClubAlumnus = require("../models/ClubAlumnus");
 const ClubPoll = require("../models/ClubPoll");
 const BoardPost = require("../models/BoardPost");
 const ClubPost = require("../models/ClubPost");
@@ -54,6 +55,8 @@ async function removeUserAndData(user) {
   await EventVolunteer.deleteMany({ user: user._id });
   // Ideas they suggested to clubs go with them.
   await ClubIdea.deleteMany({ author: user._id });
+  // Their place on a club's alumni list goes too.
+  await ClubAlumnus.deleteMany({ user: user._id });
   // Their votes in club polls are taken back (the polls themselves stay).
   await ClubPoll.updateMany({ "options.voters": user._id }, { $pull: { "options.$[].voters": user._id } });
   await BoardPost.deleteMany({ author: user._id });

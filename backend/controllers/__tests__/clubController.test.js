@@ -1,6 +1,7 @@
 jest.mock("../../models/Club");
 jest.mock("../../models/ClubPost");
 jest.mock("../../models/ClubIdea");
+jest.mock("../../models/ClubAlumnus");
 jest.mock("../../models/ClubPoll");
 jest.mock("../../models/ClubMembership");
 jest.mock("../../models/ClubJoinRequest");
@@ -14,6 +15,7 @@ jest.mock("../../utils/clubNewsPhotoCleanup", () => ({ destroyClubNewsPhotos: je
 const Club = require("../../models/Club");
 const ClubPost = require("../../models/ClubPost");
 const ClubPoll = require("../../models/ClubPoll");
+const ClubAlumnus = require("../../models/ClubAlumnus");
 const ClubMembership = require("../../models/ClubMembership");
 const ClubJoinRequest = require("../../models/ClubJoinRequest");
 const User = require("../../models/User");
@@ -159,6 +161,7 @@ describe("deleteClub", () => {
     expect(ClubMembership.deleteMany).toHaveBeenCalledWith({ club: "c1" });
     expect(ClubJoinRequest.deleteMany).toHaveBeenCalledWith({ club: "c1" }); // waiting requests go too
     expect(ClubPoll.deleteMany).toHaveBeenCalledWith({ club: "c1" }); // so do its polls
+    expect(ClubAlumnus.deleteMany).toHaveBeenCalledWith({ club: "c1" }); // and its alumni list
     expect(destroyClubNewsPhotos).toHaveBeenCalledWith(["u1", ""]); // news photos leave Cloudinary too
     expect(User.updateMany).toHaveBeenCalledWith({ favoriteClub: "c1" }, { favoriteClub: null });
     expect(Event.updateMany).toHaveBeenCalledWith({ club: "c1" }, { club: null });
