@@ -25,6 +25,7 @@ const {
   decideRegistration,
 } = require("../controllers/adminController");
 const { setNotice } = require("../controllers/noticeController");
+const { createVenue, updateVenue, deleteVenue } = require("../controllers/venueController");
 const { addWalkIn } = require("../controllers/walkInController");
 const { getContactMessages, setMessageHandled, deleteContactMessage } = require("../controllers/contactMessagesController");
 const { getClubMembers } = require("../controllers/clubMembersController");
@@ -87,5 +88,9 @@ router.put("/clubs/:id/leaders", setClubLeaders);
 
 router.get("/audit", getAuditLog);
 router.put("/notice", setNotice);
+
+router.post("/venues", createVenue);
+router.put("/venues/:id", updateVenue);
+router.delete("/venues/:id", deleteVenue);
 
 module.exports = router;
