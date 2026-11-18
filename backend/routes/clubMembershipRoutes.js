@@ -1,5 +1,6 @@
 const express = require("express");
 const { getMyOpenPolls, getMyClubNews, getMyMemberships, getMyJoinRequests, joinClub, leaveClub } = require("../controllers/clubMembershipController");
+const { becomeAlumnus } = require("../controllers/clubAlumniController");
 const { protect } = require("../middleware/auth");
 const { actionLimiter } = require("../middleware/rateLimit");
 
@@ -20,5 +21,6 @@ router.get("/requests/my", getMyJoinRequests);
 // flood them.
 router.post("/join", actionLimiter, joinClub);
 router.delete("/:clubId", actionLimiter, leaveClub);
+router.post("/:clubId/alumni", actionLimiter, becomeAlumnus);
 
 module.exports = router;

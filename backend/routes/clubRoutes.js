@@ -2,6 +2,7 @@ const express = require("express");
 const { getClubs, getClubById, createClub, updateClub, deleteClub } = require("../controllers/clubController");
 const upload = require("../middleware/upload");
 const { getClubPosts, createClubPost, updateClubPost, setClubPostPinned, deleteClubPost } = require("../controllers/clubPostController");
+const { getClubAlumni, removeAlumnus } = require("../controllers/clubAlumniController");
 const { getClubIdeas, createClubIdea, deleteClubIdea } = require("../controllers/clubIdeaController");
 const { getClubPolls, createClubPoll, voteClubPoll, deleteClubPoll, closeClubPoll } = require("../controllers/clubPollController");
 const { protect, adminOnly } = require("../middleware/auth");
@@ -22,6 +23,8 @@ router.post("/:id/posts", protect, actionLimiter, upload.single("image"), create
 router.patch("/:id/posts/:postId", protect, actionLimiter, updateClubPost);
 router.put("/:id/posts/:postId/pin", protect, actionLimiter, setClubPostPinned);
 router.delete("/:id/posts/:postId", protect, actionLimiter, deleteClubPost);
+router.get("/:id/alumni", protect, getClubAlumni);
+router.delete("/:id/alumni/:alumniId", protect, actionLimiter, removeAlumnus);
 router.get("/:id/ideas", protect, getClubIdeas);
 router.post("/:id/ideas", protect, actionLimiter, createClubIdea);
 router.delete("/:id/ideas/:ideaId", protect, actionLimiter, deleteClubIdea);
