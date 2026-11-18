@@ -65,7 +65,7 @@ describe("registerForEvent on an approval event", () => {
     setup();
     const res = mockRes();
     await registerForEvent({ body: { eventId: "64b7f0c2a1b2c3d4e5f60002" }, user: STUDENT }, res);
-    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "pending" });
+    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "pending", answers: [] });
     expect(notifyAdmins).toHaveBeenCalledWith(expect.objectContaining({ type: "join_request", title: "Asha asked to join Hack Night" }));
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json.mock.calls[0][0].message).toMatch(/request sent/i);
@@ -89,7 +89,7 @@ describe("registerForEvent on an approval event", () => {
     Event.findById.mockResolvedValue(event()); // requiresApproval undefined
     const res = mockRes();
     await registerForEvent({ body: { eventId: "64b7f0c2a1b2c3d4e5f60002" }, user: STUDENT }, res);
-    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "confirmed" });
+    expect(Registration.create).toHaveBeenCalledWith({ user: "stu", event: "64b7f0c2a1b2c3d4e5f60002", status: "confirmed", answers: [] });
   });
 });
 

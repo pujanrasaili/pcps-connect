@@ -1,3 +1,4 @@
+const { buildAnswers } = require("../utils/signupQuestions");
 const Event = require("../models/Event");
 const { registrationClosed } = require("../utils/registrationDeadline");
 const Registration = require("../models/Registration");
@@ -65,8 +66,13 @@ async function joinWaitlist(req, res) {
       return res.status(400).json({ message: "This event still has spots -- register for it directly" });
     }
 
+    // Answers to the sign-up questions travel with the place in line and become
+    // part of the registration when the student is promoted.
+    const given = buildAnswers(event.signupQuestions, req.body?.answers);
+    if (given.error) return res.status(400).json({ message: given.error });
+
     try {
-      await WaitlistEntry.create({ user: req.user._id, event: event._id });
+      await WaitlistEntry.create({ user: req.user._id, event: event._id, answers: given.value });
     } catch (err) {
       if (err.code === 11000) {
         return res.status(400).json({ message: "You're already on the waitlist for this event" });

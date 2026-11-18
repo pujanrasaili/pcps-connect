@@ -1,6 +1,7 @@
 const Registration = require("../models/Registration");
 const { isObjectId } = require("../middleware/validateId");
 const { registrationClosed } = require("../utils/registrationDeadline");
+const { buildAnswers } = require("../utils/signupQuestions");
 const Event = require("../models/Event");
 const User = require("../models/User");
 const { safeError } = require("../utils/errorMessage");
@@ -38,6 +39,10 @@ async function registerForEvent(req, res) {
       return res.status(400).json({ message: "You are already registered for this event" });
     }
 
+    // Answers to the organisers' sign-up questions (if the event has any).
+    const given = buildAnswers(event.signupQuestions, req.body.answers);
+    if (given.error) return res.status(400).json({ message: given.error });
+
     // The count check and the insert aren't one atomic operation, so students
     // registering for the last spots at the same instant can all pass the check.
     // Re-count after inserting (an operation MongoDB does serialize) and roll
@@ -60,6 +65,7 @@ async function registerForEvent(req, res) {
           // Events that need organiser approval start as a request ("pending").
           // It still holds a seat, so approving never hits a full event.
           status: event.requiresApproval ? "pending" : "confirmed",
+          answers: given.value,
         });
       } catch (err) {
         // Unique index on (user, event) -- two simultaneous clicks from the

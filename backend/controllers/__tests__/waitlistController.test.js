@@ -70,9 +70,30 @@ describe("joinWaitlist", () => {
     WaitlistEntry.countDocuments.mockResolvedValue(3);
     const res = mockRes();
     await joinWaitlist(req, res);
-    expect(WaitlistEntry.create).toHaveBeenCalledWith({ user: "u1", event: "ev1" });
+    expect(WaitlistEntry.create).toHaveBeenCalledWith({ user: "u1", event: "ev1", answers: [] });
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ position: 3 }));
+  });
+
+  it("keeps the answers to the sign-up questions with their place in line", async () => {
+    Event.findById.mockResolvedValue({ _id: "ev1", capacity: 5, date: future, signupQuestions: [{ text: "Phone?", required: true }] });
+    Registration.findOne.mockResolvedValue(null);
+    Registration.countDocuments.mockResolvedValue(5);
+    WaitlistEntry.create.mockResolvedValue({});
+    WaitlistEntry.countDocuments.mockResolvedValue(1);
+    const res = mockRes();
+    await joinWaitlist({ ...req, body: { answers: ["98xxxxxxx"] } }, res);
+    expect(WaitlistEntry.create).toHaveBeenCalledWith({ user: "u1", event: "ev1", answers: [{ question: "Phone?", answer: "98xxxxxxx" }] });
+  });
+
+  it("asks for a required answer before joining the line", async () => {
+    Event.findById.mockResolvedValue({ _id: "ev1", capacity: 5, date: future, signupQuestions: [{ text: "Phone?", required: true }] });
+    Registration.findOne.mockResolvedValue(null);
+    Registration.countDocuments.mockResolvedValue(5);
+    const res = mockRes();
+    await joinWaitlist({ ...req, body: {} }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(WaitlistEntry.create).not.toHaveBeenCalled();
   });
 
   it("400s (not 500) if they double-click and hit the unique index", async () => {

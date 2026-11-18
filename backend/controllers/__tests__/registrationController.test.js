@@ -123,6 +123,7 @@ describe("registerForEvent", () => {
       user: USER_ID,
       event: EVENT_ID,
       status: "confirmed",
+      answers: [],
     });
     expect(deleteOne).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(201);
@@ -450,3 +451,44 @@ describe("getCertificate", () => {
     expect(verifyCertificateCode(certificate.code)).toBe(REG_ID);
   });
 });
+
+describe("registerForEvent -- sign-up questions", () => {
+  const questions = [{ text: "T-shirt size?", required: true }, { text: "Anything we should know?", required: false }];
+  const setup = () => {
+    Event.findById.mockResolvedValue(futureEvent({ capacity: 5, signupQuestions: questions }));
+    Registration.findOne.mockResolvedValue(null);
+    Registration.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+    Registration.create.mockResolvedValue({ _id: "r", deleteOne: jest.fn() });
+    sendEmail.mockResolvedValue();
+  };
+  const call = (answers) => {
+    const res = mockRes();
+    return registerForEvent({ body: { eventId: EVENT_ID, answers }, user: { _id: USER_ID, name: "A", email: "a@patancollege.edu.np" } }, res).then(() => res);
+  };
+
+  it("refuses a missing required answer without creating anything", async () => {
+    setup();
+    const res = await call(["", "no"]);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Please answer: T-shirt size?" });
+    expect(Registration.create).not.toHaveBeenCalled();
+  });
+
+  it("stores the answers with the question text, leaving blank optional ones out", async () => {
+    setup();
+    const res = await call(["  M ", ""]);
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(Registration.create.mock.calls[0][0].answers).toEqual([{ question: "T-shirt size?", answer: "M" }]);
+  });
+
+  it("ignores answers sent for an event that has no questions", async () => {
+    Event.findById.mockResolvedValue(futureEvent({ capacity: 5 }));
+    Registration.findOne.mockResolvedValue(null);
+    Registration.countDocuments.mockResolvedValueOnce(0).mockResolvedValueOnce(1);
+    Registration.create.mockResolvedValue({ _id: "r", deleteOne: jest.fn() });
+    sendEmail.mockResolvedValue();
+    await call(["sneaky"]);
+    expect(Registration.create.mock.calls.at(-1)[0].answers).toEqual([]);
+  });
+});
+
