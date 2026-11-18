@@ -52,6 +52,13 @@ describe("promoteFromWaitlist", () => {
     expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({ to: "s1@patancollege.edu.np", icalEvent: expect.stringContaining("BEGIN:VEVENT") }));
   });
 
+  it("carries the sign-up answers over to the new registration", async () => {
+    Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
+    queue({ ...entry(1), answers: [{ question: "Size?", answer: "M" }] });
+    await promoteFromWaitlist(event);
+    expect(Registration.create.mock.calls[0][0].answers).toEqual([{ question: "Size?", answer: "M" }]);
+  });
+
   it("also tells the promoted student under the bell in the app", async () => {
     Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
     WaitlistEntry.findOneAndDelete.mockReturnValueOnce({ populate: jest.fn().mockResolvedValue(entry(1)) });
@@ -63,7 +70,7 @@ describe("promoteFromWaitlist", () => {
     Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
     queue(entry(1));
     expect(await promoteFromWaitlist({ ...event, requiresApproval: true })).toBe(1);
-    expect(Registration.create).toHaveBeenCalledWith({ user: "u1", event: "ev1", status: "pending" });
+    expect(Registration.create).toHaveBeenCalledWith({ user: "u1", event: "ev1", status: "pending", answers: [] });
     const mail = sendEmail.mock.calls[0][0];
     expect(mail.html).toMatch(/with the organisers/);
   });

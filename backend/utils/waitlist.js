@@ -50,7 +50,7 @@ async function promoteFromWaitlist(event) {
     if (!entry.user) continue; // deleted account -- skip, try the next one
 
     try {
-      await Registration.create({ user: entry.user._id, event: event._id, status: event.requiresApproval ? "pending" : "confirmed" });
+      await Registration.create({ user: entry.user._id, event: event._id, status: event.requiresApproval ? "pending" : "confirmed", answers: entry.answers || [] });
     } catch (err) {
       if (err.code === 11000) continue; // already registered some other way
       throw err;
@@ -62,7 +62,7 @@ async function promoteFromWaitlist(event) {
     const after = await Registration.countDocuments({ event: event._id });
     if (after > event.capacity) {
       await Registration.deleteOne({ user: entry.user._id, event: event._id });
-      await WaitlistEntry.create({ user: entry.user._id, event: event._id, createdAt: entry.createdAt });
+      await WaitlistEntry.create({ user: entry.user._id, event: event._id, createdAt: entry.createdAt, answers: entry.answers || [] });
       break;
     }
 
