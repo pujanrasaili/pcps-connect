@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-123 endpoints.
+124 endpoints.
 
 ## /api/health
 
@@ -43,6 +43,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | PUT | `/api/events/:id/questions/:questionId/answer` | Admin or club leader (rate limited) | Answer a question on an event (admins and that event's club leaders only); the asker is emailed the first time. |
 | DELETE | `/api/events/:id/questions/:questionId` | Logged-in student (rate limited) | Delete a question: its asker, or an admin / the event's club leader. |
 | PUT | `/api/events/:id/signup-questions` | Admin or club leader (rate limited) | Set the sign-up questions of an event (up to 3, each with a text and a required flag); admins and the event's club leaders only. Answers are kept with each registration and waitlist entry. |
+| PUT | `/api/events/:id/sponsors` | Admin or club leader (rate limited) | Set the sponsors of an event (up to 6, each with a name and an optional website); admins and the event's club leaders only. Shown as "Thanks to our partners" on the event page. |
 | GET | `/api/events/volunteering/mine` | Logged-in student | The upcoming events you signed up to help at, with your role, soonest first. |
 | GET | `/api/events/:id/join-link` | Logged-in student | An event's online meeting link, for its organisers and students with a confirmed registration. |
 | PUT | `/api/events/:id/join-link` | Logged-in student (rate limited) | Set or remove an event's online meeting link (organisers only; https links only). |
