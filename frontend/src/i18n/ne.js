@@ -1601,4 +1601,10 @@ export const ne = {
   "Campus venue added": "क्याम्पस स्थान थपियो",
   "Campus venue updated": "क्याम्पस स्थान अद्यावधिक गरियो",
   "Campus venue removed": "क्याम्पस स्थान हटाइयो",
+  "What are the extra questions when I register?": "दर्ता गर्दा थप प्रश्नहरू के हुन्?",
+  "Some events ask one to three extra questions, such as a T-shirt size or a phone number. They appear in the registration form (and when you join a full event's waitlist). A star marks the ones you must answer before you can continue.": "केही कार्यक्रमहरूले एकदेखि तीनवटा थप प्रश्न सोध्छन्, जस्तै टी-सर्टको साइज वा फोन नम्बर। ती दर्ता फारममा (र भरिएको कार्यक्रमको प्रतीक्षा सूचीमा सामेल हुँदा) देखिन्छन्। तारा चिन्हले जारी राख्न अनिवार्य उत्तर दिनुपर्ने प्रश्न जनाउँछ।",
+  "Your answers are seen only by that event's organisers and PCPS admins, and are kept with your registration.": "तपाईंका उत्तर त्यो कार्यक्रमका आयोजक र PCPS एडमिनले मात्र देख्छन्, र तपाईंको दर्ताका साथ राखिन्छन्।",
+  "What is the alumni list on a club?": "क्लबको पूर्व सदस्य सूची के हो?",
+  "When you are done with a club, press \"Step down to alumni\" on its card. You leave the club and your name appears in the club's Alumni box, with the year you left and a short note if you add them. Other logged-in students can see it.": "क्लबसँगको काम सकिएपछि क्लबको कार्डमा \"पूर्व सदस्य बन्नुहोस्\" थिच्नुहोस्। तपाईं क्लबबाट बाहिर निस्कनुहुन्छ र तपाईंको नाम क्लबको पूर्व सदस्य बाकसमा देखिन्छ, चाहेमा छोडेको वर्ष र छोटो टिप्पणीसहित। लगइन गरेका अन्य विद्यार्थीले यो देख्न सक्छन्।",
+  "It is your choice: nobody can add you, and you can remove your entry from the same box at any time.": "यो तपाईंको रोजाइ हो: कसैले तपाईंलाई थप्न सक्दैन, र तपाईं जुनसुकै बेला त्यही बाकसबाट आफ्नो प्रविष्टि हटाउन सक्नुहुन्छ।",
 };
