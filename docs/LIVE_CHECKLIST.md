@@ -58,6 +58,12 @@ As **S**:
 2. S is no longer a member, and the club's **Alumni** box shows S with the year and note.
 3. As another student, the same box shows S but no remove button; as **A** (or the club's leader) there is a remove button next to S.
 
+### Campus venues (2 min)
+
+1. As **A**, open Admin > **Venues**. Add "Seminar Hall" with the directions "Block B, second floor". Adding it again in other capitals should be refused.
+2. Create (or edit) an event: the Location box suggests "Seminar Hall". Use exactly that name.
+3. Open the event page as anyone: under the location it says "How to find it: Block B, second floor". An event with another location shows nothing extra.
+
 ## 5. Full events and leaders (5 min)
 
 1. As **A**, create an event with capacity **1** for a club that has a leader (a third account **L**, made leader in Admin → Clubs → leaders icon, is ideal).
