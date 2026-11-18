@@ -24,10 +24,12 @@ export default function Privacy() {
             you register for, so your Dashboard and Profile can show your
             own activity. If you use the optional features we also store
             what they need: the events you save for later, the event topics you follow, the helper role
-            you sign up for at an event, questions you ask on an event
+            you sign up for at an event, your answers to the extra questions an
+            event's organisers ask when you register, questions you ask on an event
             and ideas you send to a club (each with your first name), notice
             board posts you write (with any contact detail you choose to add),
-            and, if you switch on phone alerts, the address your browser
+            your name, the year you left and a short note if you choose to step down
+            to a club's alumni list, and, if you switch on phone alerts, the address your browser
             gives us to send them to that device. The notification bell keeps short messages
             about your activity (such as a changed event or an approved
             request) for 60 days. Messages sent through the Contact form (your
@@ -53,8 +55,12 @@ export default function Privacy() {
             accounts, viewing who's registered for an event). The leaders
             an administrator names for a club can see who has joined that
             club and who registered for its events, and can read the ideas
-            members send it. Questions you ask on an event and notice board
+            members send it, as well as your answers to an event's sign-up
+            questions. Questions you ask on an event and notice board
             posts are shown to other logged-in students with your first name only.
+            If you step down to a club's alumni list, your full name, the year
+            you left and your note are shown to other logged-in students until
+            you remove the entry (you can do this yourself at any time).
           </Section>
 
           <Section title="4. Where your data lives">
