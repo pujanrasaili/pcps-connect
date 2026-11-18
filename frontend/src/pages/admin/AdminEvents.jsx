@@ -217,6 +217,10 @@ export default function AdminEvents() {
         JSON.stringify(duplicatedFrom.signupQuestions.map((q) => ({ text: q.text, required: !!q.required })))
       );
     }
+    // A duplicate keeps the sponsors too.
+    if (!editingEvent && duplicatedFrom && (duplicatedFrom.sponsors || []).length > 0) {
+      formData.append("sponsors", JSON.stringify(duplicatedFrom.sponsors.map((s) => ({ name: s.name, url: s.url || "" }))));
+    }
     // Big phone photos are shrunk first so they fit the server's 5 MB limit.
     if (imageFile) formData.append("image", await shrinkImage(imageFile));
 

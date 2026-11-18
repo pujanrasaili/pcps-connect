@@ -63,6 +63,20 @@ describe("createEvent -- copied volunteer roles", () => {
   });
 });
 
+describe("createEvent -- copied sponsors", () => {
+  it("copies the sponsors onto a duplicated event", async () => {
+    await createEvent({ body: { ...baseBody, sponsors: JSON.stringify([{ name: "Acme", url: "acme.com" }]) }, user: admin }, mockRes());
+    expect(Event.create.mock.calls[0][0].sponsors).toEqual([{ name: "Acme", url: "https://acme.com/" }]);
+  });
+  it("starts with none, and rejects a broken list", async () => {
+    await createEvent({ body: baseBody, user: admin }, mockRes());
+    expect(Event.create.mock.calls[0][0].sponsors).toEqual([]);
+    const res = mockRes();
+    await createEvent({ body: { ...baseBody, sponsors: "nope" }, user: admin }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+});
+
 describe("createEvent -- copied sign-up questions", () => {
   const questions = JSON.stringify([{ _id: "old1", text: "T-shirt size?", required: true }, { text: "Phone?" }]);
   it("copies the questions (without their old ids) onto a duplicated event", async () => {
