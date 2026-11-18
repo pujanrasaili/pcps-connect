@@ -177,6 +177,22 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "signup-questions",
+    question: "What are the extra questions when I register?",
+    answer: [
+      "Some events ask one to three extra questions, such as a T-shirt size or a phone number. They appear in the registration form (and when you join a full event's waitlist). A star marks the ones you must answer before you can continue.",
+      "Your answers are seen only by that event's organisers and PCPS admins, and are kept with your registration.",
+    ],
+  },
+  {
+    id: "club-alumni",
+    question: "What is the alumni list on a club?",
+    answer: [
+      "When you are done with a club, press \"Step down to alumni\" on its card. You leave the club and your name appears in the club's Alumni box, with the year you left and a short note if you add them. Other logged-in students can see it.",
+      "It is your choice: nobody can add you, and you can remove your entry from the same box at any time.",
+    ],
+  },
+  {
     id: "bell",
     question: "What is the bell in the top bar?",
     answer: [
