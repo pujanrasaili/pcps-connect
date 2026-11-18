@@ -638,3 +638,24 @@ test("sign-up questions: required answers are enforced and kept through the wait
   assert.deepEqual(rows[0].answers.map((a) => [a.question, a.answer]), [["T-shirt size?", "XL"]]);
   assert.equal((await s3.req("GET", "/registrations/my")).status, 200);
 });
+
+test("event sponsors: only organisers set them, links are checked, and the public event shows them", { skip }, async () => {
+  const admin = await makeUser("spa", "admin");
+  const s1 = await makeUser("sp1");
+  let r = await admin.req("POST", "/clubs", { name: `Sponsors ${stamp}`, description: "A club used by the sponsors test.", category: "Technology" });
+  assert.equal(r.status, 201);
+  const clubId = (r.json.club || r.json)._id;
+  r = await admin.req("POST", "/events/create", { title: "Sponsored Event", description: "An event with a few sponsors listed.", date: day(5), location: "Hall", capacity: 20, category: "Workshop", price: "Free", club: clubId });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const event = r.json.event || r.json;
+
+  assert.equal((await s1.req("PUT", `/events/${event._id}/sponsors`, { sponsors: [{ name: "Acme" }] })).status, 403);
+  assert.equal((await admin.req("PUT", `/events/${event._id}/sponsors`, { sponsors: [{ name: "Acme", url: "javascript:alert(1)" }] })).status, 400);
+  r = await admin.req("PUT", `/events/${event._id}/sponsors`, { sponsors: [{ name: "Acme", url: "acme.com.np" }, { name: "Local Cafe" }] });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+
+  r = await new Client().req("GET", `/events/${event._id}`);
+  assert.equal(r.status, 200);
+  const shown = (r.json.event || r.json).sponsors;
+  assert.deepEqual(shown.map((s) => [s.name, s.url]), [["Acme", "https://acme.com.np/"], ["Local Cafe", ""]]);
+});
