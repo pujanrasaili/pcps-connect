@@ -11,6 +11,7 @@ const { getCalendarFeed } = require("../controllers/calendarFeedController");
 const { getQuestions, askQuestion, answerQuestion, deleteQuestion } = require("../controllers/eventQuestionController");
 const { getJoinLink, setJoinLink } = require("../controllers/eventJoinLinkController");
 const { setSignupQuestions } = require("../controllers/eventSignupQuestionsController");
+const { setSponsors } = require("../controllers/eventSponsorsController");
 const { setHelperAttended, getMyCertificate, getMyVolunteering, getVolunteers, signUp, cancelSignUp, setRoles } = require("../controllers/eventVolunteerController");
 const { protect, optionalAuth } = require("../middleware/auth");
 const { staffOnly } = require("../middleware/staff");
@@ -38,6 +39,7 @@ router.delete("/:id/questions/:questionId", protect, actionLimiter, deleteQuesti
 // Helper roles at an event: anyone can look, students sign up and cancel their own,
 // organisers set the roles (the controller checks the club).
 router.put("/:id/signup-questions", protect, staffOnly, actionLimiter, setSignupQuestions);
+router.put("/:id/sponsors", protect, staffOnly, actionLimiter, setSponsors);
 router.get("/volunteering/mine", protect, getMyVolunteering);
 router.get("/:id/join-link", protect, getJoinLink);
 router.put("/:id/join-link", protect, actionLimiter, setJoinLink);
