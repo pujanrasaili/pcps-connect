@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-124 endpoints.
+127 endpoints.
 
 ## /api/health
 
@@ -119,6 +119,8 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | PATCH | `/api/clubs/:id/posts/:postId` | Logged-in student (rate limited) | Fix the text of one news post (admins and that club's leaders only). |
 | PUT | `/api/clubs/:id/posts/:postId/pin` | Logged-in student (rate limited) | Pin a news post to the top of the club page, or unpin it (admins and that club's leaders only; one pinned post per club). |
 | DELETE | `/api/clubs/:id/posts/:postId` | Logged-in student (rate limited) | Delete one news post (admins and that club's leaders only). |
+| GET | `/api/clubs/:id/alumni` | Logged-in student | List the club's alumni (former members who chose to stay listed), newest first; any logged-in user. |
+| DELETE | `/api/clubs/:id/alumni/:alumniId` | Logged-in student (rate limited) | Remove an alumni entry; the person themselves, the club's leaders and admins only. |
 | GET | `/api/clubs/:id/ideas` | Logged-in student | Ideas members suggested to a club: the club's leaders and admins see all of them, anyone else sees only their own. |
 | POST | `/api/clubs/:id/ideas` | Logged-in student (rate limited) | Suggest an idea to a club (members only; up to 3 waiting per member, 300 characters). The club's leaders get a bell notification. |
 | DELETE | `/api/clubs/:id/ideas/:ideaId` | Logged-in student (rate limited) | Remove one idea (its author, the club's leaders or an admin). |
@@ -141,6 +143,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/club-memberships/requests/my` | Logged-in student | The clubs you have asked to join and are still waiting on (clubs that approve their members). |
 | POST | `/api/club-memberships/join` | Logged-in student (rate limited) | Join a club; for clubs that approve their members this sends a request instead (answer 202). |
 | DELETE | `/api/club-memberships/:clubId` | Logged-in student (rate limited) | Leave a club, or withdraw a request that is still waiting. |
+| POST | `/api/club-memberships/:clubId/alumni` | Logged-in student (rate limited) | A current member steps down: they leave the club and are listed as alumni, with an optional year and a short note. |
 
 ## /api/contact
 
