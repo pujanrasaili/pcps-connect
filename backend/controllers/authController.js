@@ -20,6 +20,7 @@ const ClubJoinRequest = require("../models/ClubJoinRequest");
 const EventQuestion = require("../models/EventQuestion");
 const EventVolunteer = require("../models/EventVolunteer");
 const ClubIdea = require("../models/ClubIdea");
+const ClubAlumnus = require("../models/ClubAlumnus");
 const ClubPoll = require("../models/ClubPoll");
 const BoardPost = require("../models/BoardPost");
 const ClubPost = require("../models/ClubPost");
@@ -360,10 +361,11 @@ async function exportMyData(req, res) {
     if (!user) return res.status(404).json({ message: "Account not found" });
     // Contact messages carry an email address, not an account, so they are
     // matched on this account's address.
+    const alumniOf = await ClubAlumnus.find({ user: req.user._id }).populate("club", "name").sort({ createdAt: 1 });
     const contactMessages = await ContactMessage.find({ email: String(user.email || "").toLowerCase() })
       .select("subject message createdAt")
       .sort({ createdAt: 1 });
-    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, contactMessages, clubIdeas, volunteering, boardPosts, eventsCreated, clubPosts, clubPollsVoted, phoneAlertDevices }));
+    res.status(200).json(buildPersonalData({ user, registrations, waitlist, memberships, ledClubs, notifications, joinRequests, questions, contactMessages, clubIdeas, volunteering, boardPosts, eventsCreated, clubPosts, clubPollsVoted, phoneAlertDevices, alumniOf }));
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to export your data") });
   }

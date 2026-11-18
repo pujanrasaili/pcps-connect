@@ -32,6 +32,7 @@ const MODELS = [
   require("../models/ClubJoinRequest"),
   require("../models/ClubPost"),
   require("../models/ClubIdea"),
+  require("../models/ClubAlumnus"),
   require("../models/ClubPoll"),
   require("../models/EventQuestion"),
   require("../models/EventVolunteer"),
