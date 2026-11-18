@@ -46,6 +46,12 @@ As **S**:
 3. As **A**, open the event's attendee list. S's answers show under their name, and the CSV download has one column per question.
 4. Duplicate the event from Admin → Events: the questions come across, the answers do not.
 
+### Sponsors (2 min)
+
+1. As **A**, open an upcoming event → **Thanks to our partners** → **Add sponsors**. Add "Local Cafe" with the website `example.com`, then **Save sponsors**.
+2. As **S** (or logged out), the box shows "Local Cafe" as a link that opens in a new tab. Without a website it is plain text.
+3. Try the website `javascript:alert(1)` as **A**: saving should be refused.
+
 ## 5. Full events and leaders (5 min)
 
 1. As **A**, create an event with capacity **1** for a club that has a leader (a third account **L**, made leader in Admin → Clubs → leaders icon, is ideal).
