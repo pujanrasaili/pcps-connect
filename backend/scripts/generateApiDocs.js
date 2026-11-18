@@ -137,6 +137,7 @@ const DESCRIPTIONS = {
   getVolunteers: "The helper roles at an event, how many places are taken and whether you hold one; organisers also see who signed up.",
   signUp: "Sign up to help in one role at an upcoming event (one role per event; a full role is refused).",
   cancelSignUp: "Cancel your own volunteer sign-up for an event.",
+  setSignupQuestions: "Set the sign-up questions of an event (up to 3, each with a text and a required flag); admins and the event's club leaders only. Answers are kept with each registration and waitlist entry.",
   setRoles: "Set the volunteer roles of an event (up to 5, with a name and places each); admins and the event's club leaders only. A role left out is removed with its sign-ups.",
   getQuestions: "The public questions and answers on an event (newest first, up to 50). Only first names are shown.",
   addEventPhoto: "Add one photo (max 5 MB, jpg/png/webp/gif) to an event's gallery, up to 8; admins and the event's club leaders only.",
