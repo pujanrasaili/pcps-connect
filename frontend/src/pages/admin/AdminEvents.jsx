@@ -23,6 +23,7 @@ import { isoToLocalInput, localInputToIso } from "../../utils/dateTimeInput";
 import { isRegistrationClosed } from "../../utils/registrationDeadline";
 import { shrinkImage } from "../../utils/resizeImage";
 import { eventsCsv } from "../../utils/eventsCsv";
+import { useVenues } from "../../hooks/useVenues";
 import { downloadCsv } from "../../utils/csv";
 
 const PAGE_SIZE = 10;
@@ -51,6 +52,7 @@ export default function AdminEvents() {
   const { clubs: ledClubs } = useLedClubs();
   const toast = useToast();
   const { t } = useLang();
+  const venues = useVenues();
   const categoryOptions = useMemo(() => {
     const seen = new Map();
     for (const e of events) {
@@ -438,7 +440,12 @@ export default function AdminEvents() {
             </div>
             <div>
               <label className="label-field" htmlFor="ev-location">{t("Location")}</label>
-              <input id="ev-location" name="location" maxLength={200} className="input-field" value={form.location} onChange={handleChange} required />
+              <input id="ev-location" name="location" maxLength={200} className="input-field" value={form.location} onChange={handleChange} required list="ev-venues" />
+              <datalist id="ev-venues">
+                {venues.map((v) => (
+                  <option key={v._id} value={v.name} />
+                ))}
+              </datalist>
             </div>
           </div>
           <div>

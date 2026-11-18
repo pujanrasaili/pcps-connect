@@ -28,6 +28,8 @@ import EventJoinLink from "../components/EventJoinLink";
 import EventPhotos from "../components/EventPhotos";
 import EventSponsors from "../components/EventSponsors";
 import { useRegistrations } from "../context/RegistrationContext";
+import { useVenues } from "../hooks/useVenues";
+import { findVenue } from "../utils/venues";
 import RegistrationForm from "../components/RegistrationForm";
 import SignupQuestionsFields from "../components/SignupQuestionsFields";
 import { answersComplete } from "../utils/signupAnswers";
@@ -76,6 +78,8 @@ export default function EventDetails() {
   const { clubs: ledClubs } = useLedClubs();
   const { registrations, isRegistered, isPending, cancelRegistration } = useRegistrations();
   const [event, setEvent] = useState(null);
+  const venues = useVenues();
+  const venue = findVenue(venues, event?.location);
 
   useEffect(() => {
     document.title = eventTitle(event?.title, t);
@@ -354,7 +358,14 @@ export default function EventDetails() {
               </li>
               <li className="flex items-center gap-3">
                 <FaMapMarkerAlt className="shrink-0 text-primary-500" />
-                <span className="text-slate-600 dark:text-slate-300">{event.location}</span>
+                <span className="text-slate-600 dark:text-slate-300">
+                  {event.location}
+                  {venue?.directions && (
+                    <span className="block text-xs text-slate-600 dark:text-slate-300" data-testid="venue-directions">
+                      {t("How to find it:")} {venue.directions}
+                    </span>
+                  )}
+                </span>
               </li>
               <li className="flex items-center gap-3">
                 <FaUsers className="shrink-0 text-primary-500" />
