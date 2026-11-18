@@ -39,6 +39,13 @@ As **S**:
 3. As **A**, the bell should show: All places are taken for "Registration desk" at ... (only if A did not sign up themselves).
 4. As **S**, press **Cancel**. The role shows 0 of 1 again.
 
+### Sign-up questions (3 min)
+
+1. As **A**, open an upcoming event → **Sign-up questions** → **Add questions**. Add "T-shirt size?" (tick **Required**) and "Anything we should know?". **Save questions**.
+2. As **S**, press Register. The two questions show; the confirm button stays greyed out until "T-shirt size?" is answered.
+3. As **A**, open the event's attendee list. S's answers show under their name, and the CSV download has one column per question.
+4. Duplicate the event from Admin → Events: the questions come across, the answers do not.
+
 ## 5. Full events and leaders (5 min)
 
 1. As **A**, create an event with capacity **1** for a club that has a leader (a third account **L**, made leader in Admin → Clubs → leaders icon, is ideal).
