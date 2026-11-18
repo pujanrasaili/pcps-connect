@@ -90,6 +90,21 @@ export function ClubMembershipProvider({ children }) {
     }
   };
 
+  // A member steps down: leaves the club and is listed as an alumnus.
+  // Returns the new alumni entry, or null when it did not work.
+  const stepDownToAlumni = async (clubId, details = {}) => {
+    if (!isAuthenticated) return null;
+    try {
+      const res = await api.post(`/club-memberships/${clubId}/alumni`, details);
+      await refreshMemberships();
+      adjustMemberCount(clubId, -1);
+      return res.data.alumnus;
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to step down"));
+      return null;
+    }
+  };
+
   const toggleJoin = async (clubId) => {
     if (!isAuthenticated) return;
     if (isJoined(clubId) || isPending(clubId)) {
@@ -124,6 +139,7 @@ export function ClubMembershipProvider({ children }) {
         isFavorite,
         joinClub,
         leaveClub,
+        stepDownToAlumni,
         toggleJoin,
         toggleFavorite,
       }}

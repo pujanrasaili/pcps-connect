@@ -26,6 +26,7 @@ import { useLedClubs } from "../hooks/useLedClubs";
 import ClubNews from "../components/ClubNews";
 import ClubLeaderboard from "../components/ClubLeaderboard";
 import { isHostedBy } from "../utils/eventHosts";
+import ClubAlumni from "../components/ClubAlumni";
 import ClubIdeas from "../components/ClubIdeas";
 import ClubPolls from "../components/ClubPolls";
 import ClubDetailsDialog from "../components/ClubDetailsDialog";
@@ -319,6 +320,7 @@ export default function Clubs() {
 
             <ClubNews clubId={selectedClub._id} canPost={canPostNews(selectedClub._id)} />
             {user && <ClubPolls key={`polls-${selectedClub._id}`} clubId={selectedClub._id} member={isJoined(selectedClub._id)} staff={canPostNews(selectedClub._id)} />}
+            {user && <ClubAlumni key={`alumni-${selectedClub._id}`} clubId={selectedClub._id} member={isJoined(selectedClub._id)} staff={canPostNews(selectedClub._id)} />}
             {user && <ClubIdeas key={selectedClub._id} clubId={selectedClub._id} member={isJoined(selectedClub._id)} staff={canPostNews(selectedClub._id)} />}
 
             <Link
