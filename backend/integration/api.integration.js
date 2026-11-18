@@ -596,3 +596,45 @@ test("club polls: leaders ask, members vote once, votes stay private and are cle
   assert.equal((await admin.req("DELETE", `/clubs/${clubId}`)).status, 200);
   assert.equal(await polls.countDocuments({ club: clubObjectId }), 0);
 });
+
+test("sign-up questions: required answers are enforced and kept through the waitlist", { skip }, async () => {
+  const admin = await makeUser("sqa", "admin");
+  const s1 = await makeUser("sq1");
+  const s2 = await makeUser("sq2");
+  const s3 = await makeUser("sq3");
+
+  let r = await admin.req("POST", "/clubs", { name: `Questions ${stamp}`, description: "A club used by the sign-up questions test.", category: "Technology" });
+  assert.equal(r.status, 201);
+  const clubId = (r.json.club || r.json)._id;
+  r = await admin.req("POST", "/events/create", { title: "Questions Event", description: "Capacity one event with sign-up questions.", date: day(5), location: "Hall", capacity: 1, category: "Workshop", price: "Free", club: clubId });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const event = r.json.event || r.json;
+
+  // Only organisers set the questions, and the limits hold.
+  assert.equal((await s1.req("PUT", `/events/${event._id}/signup-questions`, { questions: [{ text: "Size?", required: true }] })).status, 403);
+  assert.equal((await admin.req("PUT", `/events/${event._id}/signup-questions`, { questions: [{ text: "a1" }, { text: "b2" }, { text: "c3" }, { text: "d4" }] })).status, 400);
+  r = await admin.req("PUT", `/events/${event._id}/signup-questions`, { questions: [{ text: "T-shirt size?", required: true }, { text: "Notes?" }] });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(r.json.signupQuestions.length, 2);
+
+  // A missing required answer is refused; a full one is kept.
+  r = await s1.req("POST", "/registrations/register", { eventId: event._id, answers: ["", "hi"] });
+  assert.equal(r.status, 400);
+  assert.match(r.json.message, /T-shirt size/);
+  r = await s1.req("POST", "/registrations/register", { eventId: event._id, answers: ["M", ""] });
+  assert.ok([200, 201].includes(r.status), JSON.stringify(r.json));
+
+  // The event is full: the waitlist asks the same questions and keeps the answers.
+  assert.equal((await s2.req("POST", `/waitlist/${event._id}`, { answers: [""] })).status, 400);
+  assert.ok((await s2.req("POST", `/waitlist/${event._id}`, { answers: ["XL"] })).status < 300);
+
+  // Organisers see the answers; promotion carries them over.
+  const mine = (await s1.req("GET", "/registrations/my")).json.registrations;
+  assert.equal((await s1.req("DELETE", `/registrations/${mine[0]._id}`)).status, 200);
+  r = await admin.req("GET", `/admin/events/${event._id}/registrations`);
+  assert.equal(r.status, 200);
+  const rows = r.json.registrations || r.json;
+  assert.equal(rows.length, 1);
+  assert.deepEqual(rows[0].answers.map((a) => [a.question, a.answer]), [["T-shirt size?", "XL"]]);
+  assert.equal((await s3.req("GET", "/registrations/my")).status, 200);
+});
