@@ -33,6 +33,7 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
         attended: !!r.attended,
         rating: r.rating ?? null,
         feedback: r.feedback || "",
+        signUpAnswers: (r.answers || []).map((a) => ({ question: a.question, answer: a.answer })),
         registeredAt: iso(r.createdAt),
       })),
     waitlist: waitlist

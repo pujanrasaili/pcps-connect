@@ -37,6 +37,11 @@ describe("buildPersonalData", () => {
     expect(data.notifications).toEqual([{ message: "Seat opened", read: true, receivedAt: "2026-10-02T00:00:00.000Z" }]);
   });
 
+  it("includes the answers to sign-up questions, with no internal ids", () => {
+    const d = buildPersonalData({ user, registrations: [{ event: { title: "Hack" }, status: "confirmed", answers: [{ _id: "x", question: "Size?", answer: "M" }], createdAt: "2026-08-01T00:00:00Z" }] }, NOW);
+    expect(d.registrations[0].signUpAnswers).toEqual([{ question: "Size?", answer: "M" }]);
+  });
+
   it("never leaks credentials or internal tokens", () => {
     const text = JSON.stringify(data);
     for (const secret of ["HASH", "tok", "tok2", "password", "passwordChangedAt", "emailVerificationToken", "resetToken"]) {
