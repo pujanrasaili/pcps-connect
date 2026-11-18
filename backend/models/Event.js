@@ -29,6 +29,11 @@ const eventSchema = new mongoose.Schema(
       type: [{ text: { type: String, required: true, trim: true, maxlength: 100 }, required: { type: Boolean, default: false } }],
       default: [],
     },
+    // Optional partners thanked on the event page (at most 6; see utils/sponsors.js).
+    sponsors: {
+      type: [{ name: { type: String, required: true, trim: true, maxlength: 60 }, url: { type: String, default: "", maxlength: 200 } }],
+      default: [],
+    },
     // Optional: after this time nobody new can register or join the waitlist
     // (see utils/registrationDeadline.js).
     registrationDeadline: { type: Date, default: null },
