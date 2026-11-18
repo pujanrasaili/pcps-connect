@@ -16,6 +16,7 @@ const { safeError } = require("../utils/errorMessage");
 const { parseCapacity, capacityConflict } = require("../utils/eventCapacity");
 const { notifyEventRescheduled, notifyEventCancelled } = require("../utils/notifyRegistrants");
 const { cleanRoles } = require("../utils/volunteerInput");
+const { cleanQuestions } = require("../utils/signupQuestions");
 const { validateEventFields, cleanCategory } = require("../utils/eventInput");
 const { planOccurrences } = require("../utils/recurrence");
 const { parseEndDate, shiftedEnd } = require("../utils/eventEnd");
@@ -178,6 +179,20 @@ async function createEvent(req, res) {
       volunteerRoles = cleaned.value.map(({ name, slots }) => ({ name, slots }));
     }
 
+    // Sign-up questions copied from the event this one was duplicated from (a JSON list).
+    let signupQuestions = [];
+    if (req.body.signupQuestions) {
+      let parsed;
+      try {
+        parsed = JSON.parse(req.body.signupQuestions);
+      } catch {
+        return res.status(400).json({ message: "Questions must be a list" });
+      }
+      const cleaned = cleanQuestions(parsed);
+      if (cleaned.error) return res.status(400).json({ message: cleaned.error });
+      signupQuestions = cleaned.value.map(({ text, required }) => ({ text, required }));
+    }
+
     let image = null;
     if (req.file) {
       const uploaded = await uploadBufferToCloudinary(req.file.buffer, "pcps-connect/events");
@@ -197,6 +212,7 @@ async function createEvent(req, res) {
       ...(coHosts.ids ? { coHosts: coHosts.ids } : {}),
       createdBy: req.user._id,
       volunteerRoles,
+      signupQuestions,
     };
 
     let event;

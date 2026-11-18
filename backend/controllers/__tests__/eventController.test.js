@@ -63,6 +63,28 @@ describe("createEvent -- copied volunteer roles", () => {
   });
 });
 
+describe("createEvent -- copied sign-up questions", () => {
+  const questions = JSON.stringify([{ _id: "old1", text: "T-shirt size?", required: true }, { text: "Phone?" }]);
+  it("copies the questions (without their old ids) onto a duplicated event", async () => {
+    await createEvent({ body: { ...baseBody, signupQuestions: questions }, user: admin }, mockRes());
+    expect(Event.create.mock.calls[0][0].signupQuestions).toEqual([{ text: "T-shirt size?", required: true }, { text: "Phone?", required: false }]);
+  });
+
+  it("starts with none by default", async () => {
+    await createEvent({ body: baseBody, user: admin }, mockRes());
+    expect(Event.create.mock.calls[0][0].signupQuestions).toEqual([]);
+  });
+
+  it("rejects a broken or oversized list before creating anything", async () => {
+    for (const bad of ["not json", JSON.stringify([{ text: "a1" }, { text: "b2" }, { text: "c3" }, { text: "d4" }]), JSON.stringify([{ text: "" }])]) {
+      const res = mockRes();
+      await createEvent({ body: { ...baseBody, signupQuestions: bad }, user: admin }, res);
+      expect(res.status).toHaveBeenCalledWith(400);
+    }
+    expect(Event.create).not.toHaveBeenCalled();
+  });
+});
+
 describe("createEvent -- repeating series", () => {
   beforeEach(() => {
     Event.insertMany.mockImplementation(async (docs) => docs.map((d, i) => ({ _id: `ev${i}`, ...d })));

@@ -210,6 +210,13 @@ export default function AdminEvents() {
         JSON.stringify((duplicatedFrom.volunteerRoles || []).map((r) => ({ name: r.name, slots: r.slots })))
       );
     }
+    // A duplicate keeps the sign-up questions too (the old answers stay behind).
+    if (!editingEvent && duplicatedFrom && (duplicatedFrom.signupQuestions || []).length > 0) {
+      formData.append(
+        "signupQuestions",
+        JSON.stringify(duplicatedFrom.signupQuestions.map((q) => ({ text: q.text, required: !!q.required })))
+      );
+    }
     // Big phone photos are shrunk first so they fit the server's 5 MB limit.
     if (imageFile) formData.append("image", await shrinkImage(imageFile));
 
