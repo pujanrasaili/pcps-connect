@@ -34,6 +34,9 @@ const LABELS = {
   "event.questionDeleted": "Event question deleted",
   "notice.set": "Site announcement published",
   "notice.cleared": "Site announcement removed",
+  "venue.created": "Campus venue added",
+  "venue.updated": "Campus venue updated",
+  "venue.deleted": "Campus venue removed",
 };
 
 export function actionLabel(action) {

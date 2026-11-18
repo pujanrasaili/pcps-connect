@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode, FaEnvelope } from "react-icons/fa";
+import { FaChartPie, FaUsers, FaCalendarAlt, FaUserShield, FaHistory, FaQrcode, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import MobileTabBar from "../components/MobileTabBar";
 import SlowServerNotice from "../components/SlowServerNotice";
@@ -19,6 +19,7 @@ const ADMIN_LINKS = [
   { to: "/admin/check-in", label: "Check-in", icon: FaQrcode },
   { to: "/admin/users", label: "Users", icon: FaUserShield, badgeKey: "pending" },
   { to: "/admin/messages", label: "Messages", icon: FaEnvelope, badgeKey: "messages" },
+  { to: "/admin/venues", label: "Venues", icon: FaMapMarkerAlt },
   { to: "/admin/activity", label: "Activity", icon: FaHistory },
 ];
 
