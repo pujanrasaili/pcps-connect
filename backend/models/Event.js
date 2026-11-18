@@ -23,6 +23,12 @@ const eventSchema = new mongoose.Schema(
       type: [{ name: { type: String, required: true, trim: true, maxlength: 40 }, slots: { type: Number, required: true, min: 1, max: 50 } }],
       default: [],
     },
+    // Optional short questions everyone answers when registering (at most 3; see
+    // utils/signupQuestions.js). Only the organisers see the answers.
+    signupQuestions: {
+      type: [{ text: { type: String, required: true, trim: true, maxlength: 100 }, required: { type: Boolean, default: false } }],
+      default: [],
+    },
     // Optional: after this time nobody new can register or join the waitlist
     // (see utils/registrationDeadline.js).
     registrationDeadline: { type: Date, default: null },

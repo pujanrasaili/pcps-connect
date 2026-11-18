@@ -8,6 +8,9 @@ const waitlistEntrySchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     event: { type: mongoose.Schema.Types.ObjectId, ref: "Event", required: true },
+    // Answers to the event's sign-up questions (question text copied in, so it
+    // still reads right if the organisers reword it). Organisers only.
+    answers: { type: [{ _id: false, question: { type: String, maxlength: 100 }, answer: { type: String, maxlength: 200 } }], default: [] },
   },
   { timestamps: true }
 );
