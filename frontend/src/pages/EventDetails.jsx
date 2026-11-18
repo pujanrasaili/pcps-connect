@@ -23,10 +23,13 @@ import { useAuth } from "../context/AuthContext";
 import { useLedClubs } from "../hooks/useLedClubs";
 import EventQuestions from "../components/EventQuestions";
 import EventVolunteers from "../components/EventVolunteers";
+import SignupQuestionsEditor from "../components/SignupQuestionsEditor";
 import EventJoinLink from "../components/EventJoinLink";
 import EventPhotos from "../components/EventPhotos";
 import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
+import SignupQuestionsFields from "../components/SignupQuestionsFields";
+import { answersComplete } from "../utils/signupAnswers";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 import { formatDate, formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
@@ -108,6 +111,7 @@ export default function EventDetails() {
   // null = unknown/not loaded, otherwise { onWaitlist, position }
   const [waitlist, setWaitlist] = useState(null);
   const [waitlistBusy, setWaitlistBusy] = useState(false);
+  const [waitlistAnswers, setWaitlistAnswers] = useState([]);
   const [qrOpen, setQrOpen] = useState(false);
   const { isSaved, toggle: toggleSaved } = useSavedEvents();
   const related = useMemo(() => relatedEvents(allEvents, event), [allEvents, event]);
@@ -221,7 +225,7 @@ export default function EventDetails() {
   const handleJoinWaitlist = async () => {
     setWaitlistBusy(true);
     try {
-      const res = await api.post(`/waitlist/${event._id}`);
+      const res = await api.post(`/waitlist/${event._id}`, { answers: waitlistAnswers });
       setWaitlist({ onWaitlist: true, position: res.data.position });
       toast.success(t("You're on the waitlist. We'll email you if a spot opens."));
     } catch (err) {
@@ -328,6 +332,7 @@ export default function EventDetails() {
           <EventJoinLink eventId={event._id} registered={confirmedHere} canManage={canAnswerQuestions} eventOver={eventOver} />
 
           <EventVolunteers eventId={event._id} eventTitle={event.title} eventOver={eventOver} canManage={canAnswerQuestions} isAuthenticated={isAuthenticated} />
+          {canAnswerQuestions && !eventOver && <SignupQuestionsEditor key={`sq-${event._id}`} eventId={event._id} questions={event.signupQuestions || []} onSaved={refreshEvents} />}
 
           <EventQuestions
             eventId={event._id}
@@ -478,7 +483,8 @@ export default function EventDetails() {
             ) : isFull && isAuthenticated ? (
               <div className="mt-5 space-y-2">
                 <p className="text-center text-sm text-slate-500 dark:text-slate-400">{t("This event is full.")}</p>
-                <Button className="w-full" variant="outline" onClick={handleJoinWaitlist} disabled={waitlistBusy}>
+                <SignupQuestionsFields questions={event.signupQuestions} answers={waitlistAnswers} onChange={setWaitlistAnswers} />
+                <Button className="w-full" variant="outline" onClick={handleJoinWaitlist} disabled={waitlistBusy || !answersComplete(event.signupQuestions, waitlistAnswers)}>
                   {waitlistBusy ? t("Joining...") : t("Join the waitlist")}
                 </Button>
               </div>

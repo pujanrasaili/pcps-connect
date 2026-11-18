@@ -3,6 +3,8 @@ import { FaCheckCircle, FaUser, FaEnvelope } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useRegistrations } from "../context/RegistrationContext";
 import Button from "./Button";
+import SignupQuestionsFields from "./SignupQuestionsFields";
+import { answersComplete } from "../utils/signupAnswers";
 import { useLang } from "../context/LanguageContext";
 
 export default function RegistrationForm({ event, onSuccess }) {
@@ -10,13 +12,16 @@ export default function RegistrationForm({ event, onSuccess }) {
   const { t } = useLang();
   const { registerForEvent, isRegistered, isPending } = useRegistrations();
   const [submitting, setSubmitting] = useState(false);
+  const [answers, setAnswers] = useState([]);
+  const questions = event.signupQuestions || [];
+  const ready = answersComplete(questions, answers);
 
   const alreadyRegistered = isRegistered(event._id);
   const needsApproval = !!event.requiresApproval;
 
   const handleConfirm = async () => {
     setSubmitting(true);
-    const result = await registerForEvent(event._id);
+    const result = await registerForEvent(event._id, answers);
     setSubmitting(false);
 
     if (result.ok) onSuccess?.();
@@ -53,7 +58,9 @@ export default function RegistrationForm({ event, onSuccess }) {
         </p>
       </div>
 
-      <Button onClick={handleConfirm} className="w-full" disabled={submitting}>
+      <SignupQuestionsFields questions={questions} answers={answers} onChange={setAnswers} />
+
+      <Button onClick={handleConfirm} className="w-full" disabled={submitting || !ready}>
         {submitting ? (needsApproval ? t("Sending request...") : t("Registering...")) : needsApproval ? t("Send request") : t("Confirm registration")}
       </Button>
     </div>

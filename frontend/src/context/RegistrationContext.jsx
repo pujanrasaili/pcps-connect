@@ -51,13 +51,13 @@ export function RegistrationProvider({ children }) {
   const isPending = (eventId) =>
     isAuthenticated && registrations.some((r) => r.event?._id === eventId && r.status === "pending");
 
-  const registerForEvent = async (eventId) => {
+  const registerForEvent = async (eventId, answers = []) => {
     if (!isAuthenticated) {
       toast.error("Please log in to register.");
       return { ok: false, message: "Please log in to register." };
     }
     try {
-      const res = await api.post("/registrations/register", { eventId });
+      const res = await api.post("/registrations/register", { eventId, answers });
       await refreshRegistrations();
       const pending = res.data?.registration?.status === "pending";
       toast.success(pending ? "Request sent -- the organisers will review it." : "You're registered for this event!");
