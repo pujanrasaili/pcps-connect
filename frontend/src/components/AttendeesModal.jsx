@@ -13,7 +13,8 @@ import { buildSheetHtml } from "../utils/attendanceSheet";
 import { formatDateTime } from "../utils/formatDate";
 
 function downloadAttendanceCsv(event, registrations) {
-  const header = ["Name", "Email", "Student ID", "Registered On", "Status", "Attended", "Rating", "Feedback"];
+  const questions = event?.signupQuestions || [];
+  const header = ["Name", "Email", "Student ID", "Registered On", "Status", "Attended", "Rating", "Feedback", ...questions.map((q) => q.text)];
   const rows = registrations.map((r) => [
     r.user?.name || "Unknown student",
     r.user?.email || "",
@@ -23,6 +24,7 @@ function downloadAttendanceCsv(event, registrations) {
     r.attended ? "Yes" : "No",
     r.rating || "",
     r.feedback || "",
+    ...questions.map((q) => (r.answers || []).find((a) => a.question === q.text)?.answer || ""),
   ]);
   downloadCsv(`${slugify(event?.title, "event")}-attendance.csv`, buildCsv(header, rows));
 }
@@ -300,6 +302,16 @@ export default function AttendeesModal({ event, onClose }) {
                     {r.user?.email}
                     {r.user?.studentId ? ` · ${r.user.studentId}` : ""}
                   </p>
+                  {(r.answers || []).length > 0 && (
+                    <dl className="mt-0.5 space-y-0.5 text-xs text-slate-600 dark:text-slate-300" data-testid="attendee-answers">
+                      {r.answers.map((a) => (
+                        <div key={a.question} className="flex gap-1">
+                          <dt className="font-medium">{a.question}</dt>
+                          <dd className="min-w-0 break-words">{a.answer}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
                   {r.rating ? (
                     <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                       <Stars value={r.rating} className="text-[10px]" />
