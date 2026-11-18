@@ -689,3 +689,26 @@ test("club alumni: a member steps down, is listed, and can be removed", { skip }
   assert.equal((await admin.req("DELETE", `/clubs/${clubId}/alumni/${entryId}`)).status, 200);
   assert.equal((await s2.req("GET", `/clubs/${clubId}/alumni`)).json.alumni.length, 0);
 });
+
+test("campus venues: only admins edit them, names stay unique, and everyone can read them", { skip }, async () => {
+  const admin = await makeUser("vna", "admin");
+  const s1 = await makeUser("vn1");
+  const name = `Seminar Hall ${stamp}`;
+
+  assert.equal((await s1.req("POST", "/admin/venues", { name })).status, 403);
+  assert.equal((await admin.req("POST", "/admin/venues", { name: "" })).status, 400);
+  let r = await admin.req("POST", "/admin/venues", { name, directions: "Block B, 2nd floor" });
+  assert.equal(r.status, 201, JSON.stringify(r.json));
+  const id = r.json.venue._id;
+  assert.equal((await admin.req("POST", "/admin/venues", { name: name.toUpperCase() })).status, 400, "same name, other capitals");
+
+  r = await new Client().req("GET", "/venues");
+  assert.equal(r.status, 200);
+  assert.ok(r.json.venues.some((v) => v.name === name && v.directions === "Block B, 2nd floor"));
+
+  r = await admin.req("PUT", `/admin/venues/${id}`, { name, directions: "Block C" });
+  assert.equal(r.status, 200);
+  assert.equal(r.json.venue.directions, "Block C");
+  assert.equal((await admin.req("DELETE", `/admin/venues/${id}`)).status, 200);
+  assert.equal((await admin.req("DELETE", `/admin/venues/${id}`)).status, 404);
+});
