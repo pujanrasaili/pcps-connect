@@ -26,6 +26,7 @@ import EventVolunteers from "../components/EventVolunteers";
 import SignupQuestionsEditor from "../components/SignupQuestionsEditor";
 import EventJoinLink from "../components/EventJoinLink";
 import EventPhotos from "../components/EventPhotos";
+import EventSponsors from "../components/EventSponsors";
 import { useRegistrations } from "../context/RegistrationContext";
 import RegistrationForm from "../components/RegistrationForm";
 import SignupQuestionsFields from "../components/SignupQuestionsFields";
@@ -326,6 +327,8 @@ export default function EventDetails() {
               </div>
             </div>
           )}
+
+          <EventSponsors key={`sp-${event._id}`} eventId={event._id} sponsors={event.sponsors || []} canManage={canAnswerQuestions} eventOver={eventOver} onSaved={refreshEvents} />
 
           <EventPhotos key={event._id} eventId={event._id} title={event.title} initialPhotos={event.photos || []} canManage={canAnswerQuestions} onChange={refreshEvents} />
 
