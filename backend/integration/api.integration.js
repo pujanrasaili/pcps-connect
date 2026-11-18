@@ -659,3 +659,33 @@ test("event sponsors: only organisers set them, links are checked, and the publi
   const shown = (r.json.event || r.json).sponsors;
   assert.deepEqual(shown.map((s) => [s.name, s.url]), [["Acme", "https://acme.com.np/"], ["Local Cafe", ""]]);
 });
+
+test("club alumni: a member steps down, is listed, and can be removed", { skip }, async () => {
+  const admin = await makeUser("ala", "admin");
+  const s1 = await makeUser("al1");
+  const s2 = await makeUser("al2");
+  let r = await admin.req("POST", "/clubs", { name: `Alumni ${stamp}`, description: "A club used by the alumni test.", category: "Technology" });
+  assert.equal(r.status, 201);
+  const clubId = (r.json.club || r.json)._id;
+
+  // Only members can step down, and the year is checked.
+  assert.equal((await s1.req("POST", `/club-memberships/${clubId}/alumni`, {})).status, 403);
+  assert.ok((await s1.req("POST", "/club-memberships/join", { clubId })).status < 300);
+  assert.equal((await s1.req("POST", `/club-memberships/${clubId}/alumni`, { year: 1850 })).status, 400);
+  r = await s1.req("POST", `/club-memberships/${clubId}/alumni`, { year: new Date().getFullYear(), note: "Treasurer" });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+
+  // They left the club and are on the list, visible to other students.
+  assert.equal((await s1.req("GET", "/club-memberships/my")).json.memberships.length, 0);
+  r = await s2.req("GET", `/clubs/${clubId}/alumni`);
+  assert.equal(r.status, 200);
+  assert.equal(r.json.alumni.length, 1);
+  assert.equal(r.json.alumni[0].note, "Treasurer");
+  assert.equal(r.json.alumni[0].mine, false);
+  const entryId = r.json.alumni[0]._id;
+
+  // Another student cannot remove it; an admin can.
+  assert.equal((await s2.req("DELETE", `/clubs/${clubId}/alumni/${entryId}`)).status, 403);
+  assert.equal((await admin.req("DELETE", `/clubs/${clubId}/alumni/${entryId}`)).status, 200);
+  assert.equal((await s2.req("GET", `/clubs/${clubId}/alumni`)).json.alumni.length, 0);
+});
