@@ -16,6 +16,11 @@ jest.mock("../../controllers/clubMembershipController", () => ({
   leaveClub: (req, res) => res.json({ handler: "leave" }),
 }));
 
+jest.mock("../../controllers/clubAlumniController", () => ({
+  becomeAlumnus: (req, res) => res.json({ handler: "step-down" }),
+  getMyAlumni: (req, res) => res.json({ handler: "my-alumni" }),
+}));
+
 const routes = require("../clubMembershipRoutes");
 
 async function call(method, path) {
@@ -36,6 +41,15 @@ async function call(method, path) {
 beforeEach(() => { calls.length = 0; });
 
 describe("club membership routes", () => {
+  it("stepping down to alumni is limited, and your own listings are read freely (not mistaken for a club id)", async () => {
+    const id = "a".repeat(24);
+    expect(await call("POST", `/${id}/alumni`)).toEqual({ handler: "step-down" });
+    expect(calls).toEqual([`POST /${id}/alumni`]);
+    calls.length = 0;
+    expect(await call("GET", "/alumni")).toEqual({ handler: "my-alumni" });
+    expect(calls).toEqual([]);
+  });
+
   it("joining goes through the action limiter", async () => {
     expect(await call("POST", "/join")).toEqual({ handler: "join" });
     expect(calls).toEqual(["POST /join"]);

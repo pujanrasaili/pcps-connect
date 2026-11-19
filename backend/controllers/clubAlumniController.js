@@ -49,6 +49,19 @@ async function becomeAlumnus(req, res) {
   }
 }
 
+// GET /api/club-memberships/alumni  (requires login)
+// The clubs the student is listed as alumni of, so they can see and undo it.
+async function getMyAlumni(req, res) {
+  try {
+    const rows = await ClubAlumnus.find({ user: req.user._id }).populate("club", "name").sort({ createdAt: -1 }).limit(PAGE).lean();
+    res.status(200).json({
+      alumni: rows.filter((a) => a.club).map((a) => ({ _id: a._id, clubId: a.club._id, clubName: a.club.name, year: a.year || null, note: a.note || "" })),
+    });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to fetch your alumni listings") });
+  }
+}
+
 // DELETE /api/clubs/:id/alumni/:alumniId  (the person themselves, the club's leaders, or an admin)
 async function removeAlumnus(req, res) {
   try {
@@ -63,4 +76,4 @@ async function removeAlumnus(req, res) {
   }
 }
 
-module.exports = { getClubAlumni, becomeAlumnus, removeAlumnus };
+module.exports = { getClubAlumni, getMyAlumni, becomeAlumnus, removeAlumnus };

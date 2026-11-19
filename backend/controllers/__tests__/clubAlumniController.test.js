@@ -7,7 +7,7 @@ const Club = require("../../models/Club");
 const ClubAlumnus = require("../../models/ClubAlumnus");
 const ClubMembership = require("../../models/ClubMembership");
 const { canManageClub } = require("../../utils/clubAccess");
-const { getClubAlumni, becomeAlumnus, removeAlumnus } = require("../clubAlumniController");
+const { getClubAlumni, getMyAlumni, becomeAlumnus, removeAlumnus } = require("../clubAlumniController");
 
 const mockRes = () => {
   const res = {};
@@ -38,6 +38,33 @@ describe("getClubAlumni", () => {
         { _id: "a2", name: "Bikash", year: null, note: "", mine: false },
       ],
     });
+  });
+});
+
+describe("getMyAlumni", () => {
+  it("lists the student's own entries with the club name, skipping clubs that no longer exist", async () => {
+    const rows = [
+      { _id: "a1", club: { _id: "c1", name: "Robotics" }, year: 2024, note: "Treasurer" },
+      { _id: "a2", club: null },
+      { _id: "a3", club: { _id: "c2", name: "Debate" } },
+    ];
+    ClubAlumnus.find.mockReturnValue({ populate: () => ({ sort: () => ({ limit: () => ({ lean: () => Promise.resolve(rows) }) }) }) });
+    const res = mockRes();
+    await getMyAlumni({ user: me }, res);
+    expect(ClubAlumnus.find).toHaveBeenCalledWith({ user: "u1" });
+    expect(res.json).toHaveBeenCalledWith({
+      alumni: [
+        { _id: "a1", clubId: "c1", clubName: "Robotics", year: 2024, note: "Treasurer" },
+        { _id: "a3", clubId: "c2", clubName: "Debate", year: null, note: "" },
+      ],
+    });
+  });
+  it("500s cleanly on a database error", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    ClubAlumnus.find.mockImplementation(() => { throw new Error("db"); });
+    const res = mockRes();
+    await getMyAlumni({ user: me }, res);
+    expect(res.status).toHaveBeenCalledWith(500);
   });
 });
 
