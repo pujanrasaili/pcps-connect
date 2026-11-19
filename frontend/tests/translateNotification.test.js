@@ -20,6 +20,7 @@ const SAMPLES = [
   "Asha asked to join Hack Night",
   "Hack Night was updated (new time or place)",
   "Hack Night was cancelled",
+  "A new question was added to Hack Night",
   "New message about Hack Night",
   "New message from Asha",
   "Your question about Hack Night was answered",
