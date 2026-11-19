@@ -24,6 +24,7 @@ import { useLedClubs } from "../hooks/useLedClubs";
 import EventQuestions from "../components/EventQuestions";
 import EventVolunteers from "../components/EventVolunteers";
 import SignupQuestionsEditor from "../components/SignupQuestionsEditor";
+import MyAnswersCard from "../components/MyAnswersCard";
 import EventJoinLink from "../components/EventJoinLink";
 import EventPhotos from "../components/EventPhotos";
 import EventSponsors from "../components/EventSponsors";
@@ -339,6 +340,7 @@ export default function EventDetails() {
           <EventJoinLink eventId={event._id} registered={confirmedHere} canManage={canAnswerQuestions} eventOver={eventOver} />
 
           <EventVolunteers eventId={event._id} eventTitle={event.title} eventOver={eventOver} canManage={canAnswerQuestions} isAuthenticated={isAuthenticated} />
+          {myRegistration && !eventOver && <MyAnswersCard key={`ma-${event._id}`} registration={myRegistration} questions={event.signupQuestions || []} />}
           {canAnswerQuestions && !eventOver && <SignupQuestionsEditor key={`sq-${event._id}`} eventId={event._id} questions={event.signupQuestions || []} onSaved={refreshEvents} />}
 
           <EventQuestions
