@@ -1,8 +1,12 @@
 jest.mock("../../models/Event");
 jest.mock("../../utils/audit");
+jest.mock("../../models/Registration");
+jest.mock("../../utils/inApp");
 jest.mock("../../utils/clubAccess");
 
 const Event = require("../../models/Event");
+const Registration = require("../../models/Registration");
+const { pushNotifications } = require("../../utils/inApp");
 const { recordAudit } = require("../../utils/audit");
 const { canManageEvent } = require("../../utils/clubAccess");
 const { setSignupQuestions } = require("../eventSignupQuestionsController");
@@ -66,5 +70,41 @@ describe("setSignupQuestions", () => {
     const res = mockRes();
     await setSignupQuestions(req({ questions: [] }), res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+  describe("telling people who already signed up", () => {
+    const FUTURE = new Date(Date.now() + 864e5);
+    const setup = (event) => {
+      Event.findById.mockResolvedValue({ _id: "ev1", title: "Hack Night", date: FUTURE, save: jest.fn().mockResolvedValue(), ...event });
+      canManageEvent.mockResolvedValue(true);
+      Registration.find.mockReturnValue({ distinct: jest.fn().mockResolvedValue(["s1", "s2"]) });
+    };
+
+    it("sends a bell message when a new required question is added", async () => {
+      setup({ signupQuestions: [] });
+      const res = mockRes();
+      await setSignupQuestions(req({ questions: [{ text: "Phone?", required: true }] }), res);
+      expect(pushNotifications).toHaveBeenCalledWith(["s1", "s2"], expect.objectContaining({ type: "event_answers_needed", title: "A new question was added to Hack Night", link: "/events/ev1" }));
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it("stays quiet for optional questions, unchanged questions and past events", async () => {
+      setup({ signupQuestions: [] });
+      await setSignupQuestions(req({ questions: [{ text: "Notes?", required: false }] }), mockRes());
+      setup({ signupQuestions: [{ text: "Phone?", required: true }] });
+      await setSignupQuestions(req({ questions: [{ text: "Phone?", required: true }] }), mockRes());
+      setup({ signupQuestions: [], date: new Date(Date.now() - 864e5) });
+      await setSignupQuestions(req({ questions: [{ text: "Phone?", required: true }] }), mockRes());
+      expect(pushNotifications).not.toHaveBeenCalled();
+    });
+
+    it("still saves when the notification fails", async () => {
+      jest.spyOn(console, "error").mockImplementation(() => {});
+      setup({ signupQuestions: [] });
+      pushNotifications.mockRejectedValue(new Error("down"));
+      const res = mockRes();
+      await setSignupQuestions(req({ questions: [{ text: "Phone?", required: true }] }), res);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
   });
 });
