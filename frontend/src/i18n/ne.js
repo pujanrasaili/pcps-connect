@@ -1607,4 +1607,5 @@ export const ne = {
   "What is the alumni list on a club?": "क्लबको पूर्व सदस्य सूची के हो?",
   "When you are done with a club, press \"Step down to alumni\" on its card. You leave the club and your name appears in the club's Alumni box, with the year you left and a short note if you add them. Other logged-in students can see it.": "क्लबसँगको काम सकिएपछि क्लबको कार्डमा \"पूर्व सदस्य बन्नुहोस्\" थिच्नुहोस्। तपाईं क्लबबाट बाहिर निस्कनुहुन्छ र तपाईंको नाम क्लबको पूर्व सदस्य बाकसमा देखिन्छ, चाहेमा छोडेको वर्ष र छोटो टिप्पणीसहित। लगइन गरेका अन्य विद्यार्थीले यो देख्न सक्छन्।",
   "It is your choice: nobody can add you, and you can remove your entry from the same box at any time.": "यो तपाईंको रोजाइ हो: कसैले तपाईंलाई थप्न सक्दैन, र तपाईं जुनसुकै बेला त्यही बाकसबाट आफ्नो प्रविष्टि हटाउन सक्नुहुन्छ।",
+  "members who stepped down and chose to be listed": "क्लब छोडेर सूचीबद्ध हुन रोज्नुभएका सदस्यहरू",
 };
