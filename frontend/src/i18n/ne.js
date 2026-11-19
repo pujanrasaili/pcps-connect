@@ -1610,4 +1610,9 @@ export const ne = {
   "members who stepped down and chose to be listed": "क्लब छोडेर सूचीबद्ध हुन रोज्नुभएका सदस्यहरू",
   "My alumni listings": "मेरा पूर्व सदस्य सूचीहरू",
   "Other logged-in students can see your name on these clubs' alumni lists.": "लगइन गरेका अन्य विद्यार्थीले यी क्लबहरूको पूर्व सदस्य सूचीमा तपाईंको नाम देख्न सक्छन्।",
+  "Your answers": "तपाईंका उत्तरहरू",
+  "Edit my answers": "मेरा उत्तर सम्पादन गर्नुहोस्",
+  "Save answers": "उत्तर सुरक्षित गर्नुहोस्",
+  "Your answers were saved": "तपाईंका उत्तर सुरक्षित गरियो",
+  "Couldn't save your answers": "तपाईंका उत्तर सुरक्षित गर्न सकिएन",
 };
