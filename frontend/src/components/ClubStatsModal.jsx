@@ -53,6 +53,7 @@ export default function ClubStatsModal({ club, onClose }) {
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Tile label={t("Members")} value={stats.members} />
+            <Tile label={t("Alumni")} value={stats.alumni ?? 0} note={t("members who stepped down and chose to be listed")} />
             <Tile
               label={t("Joined in the last 30 days")}
               value={joined.current}
