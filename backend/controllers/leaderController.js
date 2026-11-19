@@ -4,6 +4,7 @@ const ClubMembership = require("../models/ClubMembership");
 const mongoose = require("mongoose");
 const Event = require("../models/Event");
 const ClubPoll = require("../models/ClubPoll");
+const ClubAlumnus = require("../models/ClubAlumnus");
 const Registration = require("../models/Registration");
 const { buildAttendanceReport } = require("../utils/attendanceReport");
 const { safeError } = require("../utils/errorMessage");
@@ -69,7 +70,7 @@ async function getClubStats(req, res) {
     const now = new Date();
     const month = new Date(now - 30 * DAY_MS);
     const twoMonths = new Date(now - 60 * DAY_MS);
-    const [members, joinedRecently, joinedBefore, events, latestPoll] = await Promise.all([
+    const [members, joinedRecently, joinedBefore, events, latestPoll, alumni] = await Promise.all([
       ClubMembership.countDocuments({ club: req.params.id }),
       ClubMembership.countDocuments({ club: req.params.id, createdAt: { $gte: month } }),
       ClubMembership.countDocuments({ club: req.params.id, createdAt: { $gte: twoMonths, $lt: month } }),
@@ -81,6 +82,7 @@ async function getClubStats(req, res) {
         { $limit: 1 },
         { $project: { _id: 0, closesAt: 1, votes: { $sum: { $map: { input: "$options", as: "o", in: { $size: { $ifNull: ["$$o.voters", []] } } } } } } },
       ]),
+      ClubAlumnus.countDocuments({ club: req.params.id }),
     ]);
     const poll = (latestPoll || [])[0];
 
@@ -104,6 +106,7 @@ async function getClubStats(req, res) {
     res.status(200).json({
       stats: {
         members,
+        alumni: alumni || 0,
         newMembers: { current: joinedRecently, previous: joinedBefore },
         latestPoll: poll ? { votes: poll.votes, closed: new Date(poll.closesAt) <= now } : null,
         upcomingEvents: events.length - past.length,

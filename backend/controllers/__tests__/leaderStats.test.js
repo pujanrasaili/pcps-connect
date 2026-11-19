@@ -4,6 +4,7 @@ jest.mock("../../models/ClubMembership");
 jest.mock("../../models/Event");
 jest.mock("../../models/Registration");
 jest.mock("../../models/ClubPoll");
+jest.mock("../../models/ClubAlumnus");
 
 const { canManageClub } = require("../../utils/clubAccess");
 const Club = require("../../models/Club");
@@ -11,6 +12,7 @@ const ClubMembership = require("../../models/ClubMembership");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const ClubPoll = require("../../models/ClubPoll");
+const ClubAlumnus = require("../../models/ClubAlumnus");
 const CLUB_OID = "c".repeat(24);
 const { getClubStats } = require("../leaderController");
 
@@ -40,9 +42,12 @@ describe("getClubStats", () => {
       { _id: "e1", registered: 10, attended: 5, ratingSum: 0, ratingCount: 0 },
     ]);
     ClubPoll.aggregate.mockResolvedValue([{ votes: 12, closesAt: new Date(Date.now() + DAY) }]);
+    ClubAlumnus.countDocuments.mockResolvedValue(7);
     const res = mockRes();
     await getClubStats(req, res);
     const { stats } = res.json.mock.calls[0][0];
+    expect(stats.alumni).toBe(7);
+    expect(ClubAlumnus.countDocuments).toHaveBeenCalledWith({ club: CLUB_OID });
     expect(stats.latestPoll).toEqual({ votes: 12, closed: false });
     expect(String(ClubPoll.aggregate.mock.calls[0][0][0].$match.club)).toBe(CLUB_OID);
     expect(stats.members).toBe(30);
