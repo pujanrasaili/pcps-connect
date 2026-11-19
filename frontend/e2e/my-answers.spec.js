@@ -58,3 +58,20 @@ test("no answers card when the event has no sign-up questions", async ({ page })
   await expect(page.getByRole("heading", { name: "Hack Night" }).first()).toBeVisible();
   await expect(page.getByTestId("my-answers")).toHaveCount(0);
 });
+
+test("a required question added after sign-up is flagged on the card", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.route("**/api/leader/clubs", (route) => reply(route, { clubs: [] }));
+  await page.route(`**/api/events/${ID}`, (route) => reply(route, { event }));
+  await page.route(`**/api/events/${ID}/questions**`, (route) => reply(route, { questions: [] }));
+  await page.route(`**/api/events/${ID}/volunteers`, (route) => reply(route, { roles: [], mine: null, past: false }));
+  await page.route("**/api/registrations/my", (route) =>
+    reply(route, { registrations: [{ _id: REG, status: "confirmed", answers: [], event: { _id: ID, title: event.title, date: event.date, location: event.location } }] }));
+  await page.goto(`/events/${ID}`);
+  const note = page.getByTestId("answers-missing");
+  await expect(note).toBeVisible();
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+  await page.getByTestId("my-answers").getByRole("button").first().click();
+  await expect(note).toHaveCount(0);
+});
