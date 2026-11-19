@@ -683,6 +683,10 @@ test("club alumni: a member steps down, is listed, and can be removed", { skip }
   assert.equal(r.json.alumni[0].note, "Treasurer");
   assert.equal(r.json.alumni[0].mine, false);
   const entryId = r.json.alumni[0]._id;
+  r = await s1.req("GET", "/club-memberships/alumni");
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.json.alumni.map((a) => [a.clubName.startsWith("Alumni "), a.note]), [[true, "Treasurer"]], "the student sees their own listing");
+  assert.equal((await s2.req("GET", "/club-memberships/alumni")).json.alumni.length, 0);
   r = await admin.req("GET", `/leader/clubs/${clubId}/stats`);
   assert.equal(r.status, 200, JSON.stringify(r.json));
   assert.equal(r.json.stats.alumni, 1, "the leader stats count the alumni");
