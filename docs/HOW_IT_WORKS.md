@@ -75,6 +75,27 @@ co-hosted events for every hosting club.
   registering is looked up by exact email or student ID and is registered and
   checked in at once (`controllers/walkInController.js`). Capacity still applies.
 
+## Extra event details
+
+- **Sign-up questions.** An event's organisers can ask up to three extra
+  questions (a T-shirt size, a phone number). The student's answers are stored
+  with the registration, or with the waiting-list entry and carried over when
+  they are promoted. A required question can't be skipped: the form blocks it,
+  and the server checks again (`utils/signupQuestions.js`).
+- **Sponsors.** Up to six partners can be thanked on the event page. Only
+  `http` and `https` website links are kept, so a `javascript:` address can
+  never become a link (`utils/sponsors.js`).
+- **Campus venues.** Admins name the places events happen in and say how to
+  find them. When an event's location is exactly a venue's name, the event page
+  shows the directions (`controllers/venueController.js`).
+- **Club alumni.** A current member can step down: they leave the club and are
+  listed as alumni, with a year and a short note. Only members can do this and
+  nobody can be listed by someone else, so every name is there by choice
+  (`controllers/clubAlumniController.js`).
+
+All four are covered by "Download my data", account deletion and the backup
+where they hold personal data, and the Privacy Policy says what is stored.
+
 ## Time zones
 
 The server runs in UTC, so times are handled as exact instants. The admin form
@@ -170,6 +191,7 @@ are in `backend/utils/reminderEmailText.js`. The account approval, new club lead
 | Emails | `backend/utils/sendEmail.js` and the `notify*` files |
 | Nepali text and the language switch | `frontend/src/i18n/ne.js`, `context/LanguageContext.jsx`, `tests/i18n.test.js` |
 | Event questions, club news, club ideas, club polls, club members | `controllers/eventQuestionController.js`, `clubPostController.js`, `clubIdeaController.js`, `clubPollController.js`, `clubMembersController.js` |
+| Sign-up questions, sponsors, campus venues, club alumni | `utils/signupQuestions.js`, `utils/sponsors.js`, `controllers/venueController.js`, `controllers/clubAlumniController.js` |
 | Offline tickets and install | `frontend/src/services/ticketSync.js`, `public/sw.js`, `utils/installApp.js` |
 | Scheduled jobs | `.github/workflows/` and `backend/scripts/` |
 | Tests | `backend/**/__tests__/`, `frontend/tests/` |
@@ -189,6 +211,10 @@ and removes the extra registration.
 
 **Can a certificate be faked?** Its code is signed with a secret only the
 server has, and the verify page checks it against a real attended registration.
+
+**Can someone put their name on a club's alumni list without asking?** No.
+Only a current member can step down to alumni, and only for themselves; they can
+remove the entry again, and a club's leaders and admins can remove any.
 
 **Why is the first load sometimes slow?** The backend runs on a free tier that
 sleeps when idle; the first request wakes it (30-60 seconds). A health-check
