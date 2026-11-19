@@ -24,6 +24,8 @@ export default function MyAnswersCard({ registration, questions = [] }) {
 
   if (!registration || !questions.length) return null;
   const current = lineUp(questions, registration.answers);
+  // A required question the organisers added after this student signed up.
+  const missing = !answersComplete(questions, current);
 
   const save = async (e) => {
     e.preventDefault();
@@ -52,6 +54,11 @@ export default function MyAnswersCard({ registration, questions = [] }) {
           </Button>
         )}
       </div>
+      {missing && !editing && (
+        <p role="status" className="mt-3 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:bg-amber-900/20 dark:text-amber-300" data-testid="answers-missing">
+          {t("The organisers added a question you haven't answered yet. Please fill it in.")}
+        </p>
+      )}
       {editing ? (
         <form onSubmit={save} className="mt-4 space-y-4">
           <SignupQuestionsFields questions={questions} answers={draft} onChange={setDraft} />
