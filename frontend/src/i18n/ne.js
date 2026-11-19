@@ -1619,4 +1619,7 @@ export const ne = {
   "Answers needed": "उत्तर चाहिएको छ",
   "The organisers added a question after you signed up. Open the event to answer it.": "तपाईंले दर्ता गरेपछि आयोजकहरूले एउटा प्रश्न थपे। उत्तर दिन कार्यक्रम खोल्नुहोस्।",
   "No answer yet:": "अझै उत्तर छैन:",
+  "I gave a wrong answer when I signed up. Can I change it?": "साइन अप गर्दा मैले गलत उत्तर दिएँ। के म त्यो परिवर्तन गर्न सक्छु?",
+  "Yes. Some events ask a few questions when you register, such as a phone number. Until the event happens, open it again and use the \"Your answers\" card to press \"Edit my answers\", fix them and save.": "सक्नुहुन्छ। केही कार्यक्रमले दर्ता गर्दा फोन नम्बर जस्ता केही प्रश्न सोध्छन्। कार्यक्रम नहुञ्जेल, त्यसलाई फेरि खोल्नुहोस्, \"तपाईंका उत्तरहरू\" कार्डमा \"मेरा उत्तर सम्पादन गर्नुहोस्\" थिचेर उत्तर ठीक गरी सुरक्षित गर्नुहोस्।",
+  "If the organisers add a required question after you signed up, the event shows on your Dashboard under \"Answers needed\" until you answer it.": "तपाईंले दर्ता गरेपछि आयोजकहरूले अनिवार्य प्रश्न थपे भने, तपाईंले उत्तर नदिएसम्म त्यो कार्यक्रम ड्यासबोर्डमा \"उत्तर चाहिएको छ\" अन्तर्गत देखिन्छ।",
 };
