@@ -25,6 +25,14 @@ export const HELP_TOPICS = [
     ],
   },
   {
+    id: "edit-answers",
+    question: 'I gave a wrong answer when I signed up. Can I change it?',
+    answer: [
+      'Yes. Some events ask a few questions when you register, such as a phone number. Until the event happens, open it again and use the "Your answers" card to press "Edit my answers", fix them and save.',
+      'If the organisers add a required question after you signed up, the event shows on your Dashboard under "Answers needed" until you answer it.',
+    ],
+  },
+  {
     id: "full-event",
     question: "The event is full. What now?",
     answer: [
