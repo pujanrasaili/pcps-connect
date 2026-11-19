@@ -81,7 +81,8 @@ co-hosted events for every hosting club.
   questions (a T-shirt size, a phone number). The student's answers are stored
   with the registration, or with the waiting-list entry and carried over when
   they are promoted. A required question can't be skipped: the form blocks it,
-  and the server checks again (`utils/signupQuestions.js`).
+  and the server checks again (`utils/signupQuestions.js`). Students can change
+  their own answers until the event happens (`PUT /api/registrations/:id/answers`).
 - **Sponsors.** Up to six partners can be thanked on the event page. Only
   `http` and `https` website links are kept, so a `javascript:` address can
   never become a link (`utils/sponsors.js`).

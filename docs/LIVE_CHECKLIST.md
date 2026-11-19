@@ -44,7 +44,8 @@ As **S**:
 1. As **A**, open an upcoming event → **Sign-up questions** → **Add questions**. Add "T-shirt size?" (tick **Required**) and "Anything we should know?". **Save questions**.
 2. As **S**, press Register. The two questions show; the confirm button stays greyed out until "T-shirt size?" is answered.
 3. As **A**, open the event's attendee list. S's answers show under their name, and the CSV download has one column per question.
-4. Duplicate the event from Admin → Events: the questions come across, the answers do not.
+4. As **S**, on the event page press **Edit my answers** in the **Your answers** card, change the T-shirt size, **Save answers**. The attendee list now shows the new answer.
+5. Duplicate the event from Admin → Events: the questions come across, the answers do not.
 
 ### Sponsors (2 min)
 
