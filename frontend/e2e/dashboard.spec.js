@@ -211,3 +211,18 @@ test("the helping card passes the accessibility checks in dark mode", async ({ p
   await page.waitForTimeout(600);
   expect(await axeViolations(page)).toEqual([]);
 });
+
+for (const lang of ["en", "ne"]) {
+  test(`the Dashboard flags a question added after sign-up (${lang})`, async ({ page }) => {
+    const e1 = ev(1, "Hack Night", 5, { signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone?", required: true }] });
+    const e2 = ev(2, "Quiz Day", 6, { signupQuestions: [{ _id: "q2".padEnd(24, "0"), text: "Phone?", required: true }] });
+    await load(page, { lang, registrations: [reg(1, e1, { answers: [] }), reg(2, e2, { answers: [{ question: "Phone?", answer: "98" }] })], events: [e1, e2] });
+    await page.goto("/dashboard");
+    const card = page.getByTestId("answers-needed");
+    await expect(card).toBeVisible();
+    await expect(card).toContainText("Hack Night");
+    await expect(card).not.toContainText("Quiz Day");
+    await page.waitForTimeout(600);
+    expect(await axeViolations(page)).toEqual([]);
+  });
+}
