@@ -632,6 +632,13 @@ test("sign-up questions: required answers are enforced and kept through the wait
   assert.equal(r.status, 200, JSON.stringify(r.json));
   assert.deepEqual(r.json.answers.map((a) => a.answer), ["XL", "vegan"]);
 
+  // A new required question tells the people who already signed up (then put the list back).
+  const ask = (questions) => admin.req("PUT", `/events/${event._id}/signup-questions`, { questions });
+  assert.equal((await ask([{ text: "T-shirt size?", required: true }, { text: "Notes?" }, { text: "Phone?", required: true }])).status, 200);
+  const s1Bell = (await s1.req("GET", "/notifications")).json.notifications;
+  assert.ok(s1Bell.some((n) => n.type === "event_answers_needed" && n.link === `/events/${event._id}`), "student was not told about the new question");
+  assert.equal((await ask([{ text: "T-shirt size?", required: true }, { text: "Notes?" }])).status, 200);
+
   // The event is full: the waitlist asks the same questions and keeps the answers.
   assert.equal((await s2.req("POST", `/waitlist/${event._id}`, { answers: [""] })).status, 400);
   assert.ok((await s2.req("POST", `/waitlist/${event._id}`, { answers: ["XL"] })).status < 300);
