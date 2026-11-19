@@ -143,7 +143,9 @@ export default function AttendeesModal({ event, onClose }) {
       (!q ||
         (r.user?.name || "").toLowerCase().includes(q) ||
         (r.user?.email || "").toLowerCase().includes(q) ||
-        (r.user?.studentId || "").toLowerCase().includes(q))
+        (r.user?.studentId || "").toLowerCase().includes(q) ||
+        // Answers to the sign-up questions too, so "98123" finds whoever gave that phone number.
+        (r.answers || []).some((a) => (a.answer || "").toLowerCase().includes(q)))
   );
 
   const attendedCount = confirmed.filter((r) => r.attended).length;
