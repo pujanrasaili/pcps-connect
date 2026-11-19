@@ -187,3 +187,18 @@ test("the search also finds a sign-up answer, such as a phone number", async ({ 
   await expect(dialog.getByRole("button", { name: /Asha Rai/ })).toBeVisible();
   await expect(dialog.getByRole("button", { name: /Bikash Thapa/ })).toHaveCount(0);
 });
+
+test("the list shows who hasn't answered a required sign-up question", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const regs = [
+    reg(1, "Asha Rai", { answers: [{ question: "Phone number?", answer: "9812345678" }] }),
+    reg(2, "Bikash Thapa", { answers: [] }),
+  ];
+  await withAttendeesApi(page, { regs });
+  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  const dialog = await openAttendees(page);
+  await expect(dialog.getByTestId("attendee-answer-missing")).toHaveCount(1);
+  await expect(dialog.getByTestId("attendee-answer-missing")).toContainText("No answer yet: Phone number?");
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+});
