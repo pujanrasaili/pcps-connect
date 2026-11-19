@@ -7,7 +7,7 @@ const reply = (route, body, status = 200) => route.fulfill({ status, contentType
 const quiet = (problems) => problems.filter((p) => !/status of (400|401|403|404|500)/.test(p));
 const C = clubs[0];
 const STATS = {
-  members: 30, latestPoll: { votes: 12, closed: false }, newMembers: { current: 6, previous: 4 }, upcomingEvents: 1, pastEvents: 2,
+  members: 30, alumni: 3, latestPoll: { votes: 12, closed: false }, newMembers: { current: 6, previous: 4 }, upcomingEvents: 1, pastEvents: 2,
   attendance: { registered: 30, attended: 20, attendanceRate: 67, averageRating: 4.5, ratingCount: 4 },
   recent: [
     { _id: "e2".padEnd(24, "0"), title: "Recent Workshop", date: new Date(Date.now() - 3 * 864e5).toISOString(), registered: 20, attended: 15, attendanceRate: 75, averageRating: 4.5 },
@@ -29,6 +29,7 @@ test("the Stats window shows members, joiners, events, turnout, rating and the l
   await page.getByRole("button", { name: "Stats" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("heading", { name: `Stats — ${C.name}` })).toBeVisible();
+  await expect(dialog.getByText("members who stepped down and chose to be listed")).toBeVisible();
   await expect(dialog.getByText("Joined in the last 30 days")).toBeVisible();
   await expect(dialog.getByText("2 more than the 30 days before")).toBeVisible();
   await expect(dialog.getByText("67%")).toBeVisible();
