@@ -83,3 +83,17 @@ test("an admin adds, edits and removes a venue", async ({ page }) => {
   await expect(page.getByText("Venue removed.")).toBeVisible();
   expect(calls).toEqual(["add Seminar Hall | Block B", "edit Seminar Hall | Block C", `delete ${"a1".padEnd(24, "0")}`]);
 });
+
+test("a registered student's Google Calendar link carries the venue's directions", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await mockEventPage(page, "Seminar Hall");
+  await page.route("**/api/registrations/my", (route) =>
+    reply(route, { registrations: [{ _id: "r1".padEnd(24, "0"), status: "confirmed", attended: false, event: event("Seminar Hall") }] })
+  );
+  await page.goto(`/events/${ID}`);
+  const link = page.getByRole("link", { name: "Google Calendar" });
+  await expect(link).toBeVisible();
+  const details = new URL(await link.getAttribute("href")).searchParams.get("details");
+  expect(details).toContain("Come along.");
+  expect(details).toContain("How to find it: Block B, second floor");
+});
