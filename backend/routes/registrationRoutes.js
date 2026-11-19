@@ -3,6 +3,7 @@ const {
   registerForEvent,
   getMyRegistrations,
   cancelRegistration,
+  updateMyAnswers,
   submitFeedback,
   getCheckInCode,
   getCertificate,
@@ -23,6 +24,7 @@ router.get("/record", protect, getMyRecord);
 router.get("/:id/check-in-code", protect, getCheckInCode);
 router.get("/:id/certificate", protect, getCertificate);
 router.put("/:id/feedback", protect, actionLimiter, submitFeedback);
+router.put("/:id/answers", protect, actionLimiter, updateMyAnswers);
 router.delete("/:id", protect, actionLimiter, cancelRegistration);
 
 module.exports = router;

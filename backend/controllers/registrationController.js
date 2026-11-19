@@ -171,6 +171,32 @@ async function cancelRegistration(req, res) {
   }
 }
 
+// PUT /api/registrations/:id/answers  { answers: [...] }  (requires login + must own the registration)
+// Lets a student fix their answers to the event's sign-up questions (a new
+// phone number, say) until the event happens. The same rules as signing up apply.
+async function updateMyAnswers(req, res) {
+  try {
+    const registration = await Registration.findById(req.params.id);
+    if (!registration) return res.status(404).json({ message: "Registration not found" });
+    if (registration.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    const event = await Event.findById(registration.event);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (new Date(event.date) < new Date()) {
+      return res.status(400).json({ message: "This event has already taken place, so the answers can't be changed" });
+    }
+    const given = buildAnswers(event.signupQuestions, req.body?.answers);
+    if (given.error) return res.status(400).json({ message: given.error });
+
+    registration.answers = given.value;
+    await registration.save();
+    res.status(200).json({ message: "Answers saved", answers: registration.answers });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to save the answers") });
+  }
+}
+
 // GET /api/registrations/:id/check-in-code  (requires login + must own the registration)
 // The code goes into the QR the student shows at the door; see utils/checkInCode.
 async function getCheckInCode(req, res) {
@@ -269,6 +295,7 @@ async function submitFeedback(req, res) {
 }
 
 module.exports = {
+  updateMyAnswers,
   getCertificate,
   getCheckInCode,
   submitFeedback, registerForEvent, getMyRegistrations, cancelRegistration };

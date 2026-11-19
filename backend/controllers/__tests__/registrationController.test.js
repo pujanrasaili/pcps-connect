@@ -13,7 +13,7 @@ const sendEmail = require("../../utils/sendEmail");
 const { promoteFromWaitlist } = require("../../utils/waitlist");
 const { verifyCheckInCode } = require("../../utils/checkInCode");
 const { verifyCertificateCode } = require("../../utils/certificateCode");
-const { registerForEvent, cancelRegistration, submitFeedback, getCheckInCode, getCertificate } = require("../registrationController");
+const { registerForEvent, cancelRegistration, updateMyAnswers, submitFeedback, getCheckInCode, getCertificate } = require("../registrationController");
 
 function mockRes() {
   const res = {};
@@ -492,3 +492,49 @@ describe("registerForEvent -- sign-up questions", () => {
   });
 });
 
+
+describe("updateMyAnswers", () => {
+  afterEach(() => jest.clearAllMocks());
+  const QUESTIONS = [{ text: "Your phone number?", required: true }];
+  const mine = (extra = {}) => ({ user: { toString: () => USER_ID }, event: EVENT_ID, save: jest.fn().mockResolvedValue(), ...extra });
+  const call = async (answers = ["9800000000"]) => {
+    const res = mockRes();
+    await updateMyAnswers({ params: { id: "reg1" }, body: { answers }, user: { _id: USER_ID } }, res);
+    return res;
+  };
+
+  it("404s when the registration doesn't exist", async () => {
+    Registration.findById.mockResolvedValue(null);
+    expect((await call()).status).toHaveBeenCalledWith(404);
+  });
+
+  it("403s on someone else's registration", async () => {
+    Registration.findById.mockResolvedValue(mine({ user: { toString: () => "other" } }));
+    expect((await call()).status).toHaveBeenCalledWith(403);
+    expect(Event.findById).not.toHaveBeenCalled();
+  });
+
+  it("refuses once the event has taken place", async () => {
+    Registration.findById.mockResolvedValue(mine());
+    Event.findById.mockResolvedValue(futureEvent({ date: new Date(Date.now() - 1000), signupQuestions: QUESTIONS }));
+    expect((await call()).status).toHaveBeenCalledWith(400);
+  });
+
+  it("rejects a missing required answer and saves nothing", async () => {
+    const reg = mine();
+    Registration.findById.mockResolvedValue(reg);
+    Event.findById.mockResolvedValue(futureEvent({ signupQuestions: QUESTIONS }));
+    expect((await call([""])).status).toHaveBeenCalledWith(400);
+    expect(reg.save).not.toHaveBeenCalled();
+  });
+
+  it("saves the new answers", async () => {
+    const reg = mine();
+    Registration.findById.mockResolvedValue(reg);
+    Event.findById.mockResolvedValue(futureEvent({ signupQuestions: QUESTIONS }));
+    const res = await call(["9811111111"]);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(reg.save).toHaveBeenCalled();
+    expect(reg.answers).toEqual([{ question: "Your phone number?", answer: "9811111111" }]);
+  });
+});
