@@ -1618,4 +1618,5 @@ export const ne = {
   "The organisers added a question you haven't answered yet. Please fill it in.": "आयोजकहरूले तपाईंले अझै उत्तर नदिएको एउटा प्रश्न थपेका छन्। कृपया भर्नुहोस्।",
   "Answers needed": "उत्तर चाहिएको छ",
   "The organisers added a question after you signed up. Open the event to answer it.": "तपाईंले दर्ता गरेपछि आयोजकहरूले एउटा प्रश्न थपे। उत्तर दिन कार्यक्रम खोल्नुहोस्।",
+  "No answer yet:": "अझै उत्तर छैन:",
 };
