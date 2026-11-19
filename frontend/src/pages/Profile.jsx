@@ -14,6 +14,7 @@ import Button from "../components/Button";
 import StarRating, { Stars } from "../components/StarRating";
 import CheckInQrModal from "../components/CheckInQrModal";
 import MilestonesCard from "../components/MilestonesCard";
+import MyAlumniCard from "../components/MyAlumniCard";
 import Avatar from "../components/Avatar";
 import SafeImage from "../components/SafeImage";
 
@@ -169,6 +170,8 @@ export default function Profile() {
       </div>
 
       <MilestonesCard registrations={registrations} clubCount={memberships.length} />
+
+      <MyAlumniCard />
 
       <div className="card-surface p-6">
         <h2 className="font-display text-lg font-semibold text-slate-800 dark:text-slate-100">
