@@ -141,6 +141,7 @@ const DESCRIPTIONS = {
   createVenue: "Add a campus venue with a name and optional directions; admins only.",
   updateVenue: "Rename a campus venue or change its directions; admins only.",
   deleteVenue: "Remove a campus venue; admins only. Events keep their location text.",
+  getMyAlumni: "List the clubs the logged-in student is listed as alumni of, with the year and note, so they can review or remove the entries.",
   getClubAlumni: "List the club's alumni (former members who chose to stay listed), newest first; any logged-in user.",
   becomeAlumnus: "A current member steps down: they leave the club and are listed as alumni, with an optional year and a short note.",
   removeAlumnus: "Remove an alumni entry; the person themselves, the club's leaders and admins only.",

@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-131 endpoints.
+132 endpoints.
 
 ## /api/health
 
@@ -143,6 +143,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/club-memberships/my` | Logged-in student | The clubs you have joined. |
 | GET | `/api/club-memberships/news` | Logged-in student | The latest news posts (up to 5, last 30 days) from the clubs you have joined. |
 | GET | `/api/club-memberships/polls` | Logged-in student | Open polls (up to 5, closing soonest first) in the clubs you have joined that you have not voted on yet. |
+| GET | `/api/club-memberships/alumni` | Logged-in student | List the clubs the logged-in student is listed as alumni of, with the year and note, so they can review or remove the entries. |
 | GET | `/api/club-memberships/requests/my` | Logged-in student | The clubs you have asked to join and are still waiting on (clubs that approve their members). |
 | POST | `/api/club-memberships/join` | Logged-in student (rate limited) | Join a club; for clubs that approve their members this sends a request instead (answer 202). |
 | DELETE | `/api/club-memberships/:clubId` | Logged-in student (rate limited) | Leave a club, or withdraw a request that is still waiting. |
