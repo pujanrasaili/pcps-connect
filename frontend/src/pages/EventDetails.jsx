@@ -29,7 +29,7 @@ import EventPhotos from "../components/EventPhotos";
 import EventSponsors from "../components/EventSponsors";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useVenues } from "../hooks/useVenues";
-import { findVenue } from "../utils/venues";
+import { findVenue, withVenueDirections } from "../utils/venues";
 import RegistrationForm from "../components/RegistrationForm";
 import SignupQuestionsFields from "../components/SignupQuestionsFields";
 import { answersComplete } from "../utils/signupAnswers";
@@ -450,7 +450,7 @@ export default function EventDetails() {
                 </button>
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href={googleCalendarUrl(event)}
+                    href={googleCalendarUrl(withVenueDirections(event, venue))}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
@@ -459,7 +459,7 @@ export default function EventDetails() {
                   </a>
                   <button
                     type="button"
-                    onClick={() => downloadIcs(event)}
+                    onClick={() => downloadIcs(withVenueDirections(event, venue))}
                     className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800/50"
                   >
                     <FaCalendarPlus className="text-xs" /> {t("Download .ics")}
