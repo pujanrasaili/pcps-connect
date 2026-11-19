@@ -22,6 +22,8 @@ import {
 } from "react-icons/fa";
 import StatsCard from "../components/StatsCard";
 import WaitlistCard from "../components/WaitlistCard";
+import AnswersNeededCard from "../components/AnswersNeededCard";
+import { answersNeeded } from "../utils/answersNeeded";
 import VolunteeringCard from "../components/VolunteeringCard";
 import ClubNewsFeedCard from "../components/ClubNewsFeedCard";
 import { useMyClubNews } from "../hooks/useMyClubNews";
@@ -59,6 +61,7 @@ export default function Dashboard() {
   const waitingOnMyClubs = ledClubs.reduce((sum, c) => sum + (clubRequestCounts[c._id] || 0), 0);
   const { events } = useEvents();
   const { registrations, cancelRegistration, loaded: registrationsLoaded, loadFailed, refreshRegistrations } = useRegistrations();
+  const needAnswers = useMemo(() => answersNeeded(registrations, events), [registrations, events]);
 
   // Only registrations whose event is still populated (guards against a
   // deleted event leaving a dangling reference).
@@ -347,6 +350,8 @@ export default function Dashboard() {
           </Link>
         </div>
       )}
+
+      <AnswersNeededCard events={needAnswers} />
 
       <WaitlistCard items={waitlist} />
 
