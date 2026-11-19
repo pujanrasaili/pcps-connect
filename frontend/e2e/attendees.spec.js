@@ -173,3 +173,17 @@ test("the sent-to-N confirmation is shown in Nepali", async ({ page }) => {
   await dialog.getByRole("button", { name: "4 जनालाई पठाउनुहोस्" }).click();
   await expect(page.getByText("4 जना विद्यार्थीलाई सन्देश पठाइयो")).toBeVisible();
 });
+
+test("the search also finds a sign-up answer, such as a phone number", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const regs = [
+    reg(1, "Asha Rai", { answers: [{ question: "Phone number?", answer: "9812345678" }] }),
+    reg(2, "Bikash Thapa", { answers: [{ question: "Phone number?", answer: "9800000000" }] }),
+    ...Array.from({ length: 8 }, (_, i) => reg(i + 3, `Student${i + 3} Person`)), // the search box shows from 9 people
+  ];
+  await withAttendeesApi(page, { regs });
+  const dialog = await openAttendees(page);
+  await dialog.getByPlaceholder("Find by name, email or student ID...").fill("98123");
+  await expect(dialog.getByRole("button", { name: /Asha Rai/ })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: /Bikash Thapa/ })).toHaveCount(0);
+});
