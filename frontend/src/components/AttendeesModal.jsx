@@ -29,6 +29,13 @@ function downloadAttendanceCsv(event, registrations) {
   downloadCsv(`${slugify(event?.title, "event")}-attendance.csv`, buildCsv(header, rows));
 }
 
+// Required questions this person hasn't answered (the organisers may have added them after sign-up).
+function missingAnswers(questions, answers) {
+  return questions
+    .filter((q) => q.required && !String((answers || []).find((a) => a.question === q.text)?.answer ?? "").trim())
+    .map((q) => q.text);
+}
+
 // Opens a printable sign-in sheet in a new tab and starts the print dialog.
 function printSignInSheet(event, registrations, onBlocked) {
   const win = window.open("", "_blank");
@@ -46,6 +53,7 @@ function printSignInSheet(event, registrations, onBlocked) {
 export default function AttendeesModal({ event, onClose }) {
   const toast = useToast();
   const { t } = useLang();
+  const questions = event?.signupQuestions || [];
   const [registrations, setRegistrations] = useState([]);
   const [waitlist, setWaitlist] = useState([]);
   const [search, setSearch] = useState("");
@@ -314,6 +322,11 @@ export default function AttendeesModal({ event, onClose }) {
                       ))}
                     </dl>
                   )}
+                  {missingAnswers(questions, r.answers).map((text) => (
+                    <p key={text} className="mt-0.5 text-xs font-medium text-amber-800 dark:text-amber-300" data-testid="attendee-answer-missing">
+                      {t("No answer yet:")} {text}
+                    </p>
+                  ))}
                   {r.rating ? (
                     <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                       <Stars value={r.rating} className="text-[10px]" />
