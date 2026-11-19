@@ -624,6 +624,14 @@ test("sign-up questions: required answers are enforced and kept through the wait
   r = await s1.req("POST", "/registrations/register", { eventId: event._id, answers: ["M", ""] });
   assert.ok([200, 201].includes(r.status), JSON.stringify(r.json));
 
+  // A student can fix their own answers (not someone else's, not blank required ones).
+  const regId = (await s1.req("GET", "/registrations/my")).json.registrations[0]._id;
+  assert.equal((await s2.req("PUT", `/registrations/${regId}/answers`, { answers: ["S", ""] })).status, 403);
+  assert.equal((await s1.req("PUT", `/registrations/${regId}/answers`, { answers: ["", ""] })).status, 400);
+  r = await s1.req("PUT", `/registrations/${regId}/answers`, { answers: ["XL", "vegan"] });
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.deepEqual(r.json.answers.map((a) => a.answer), ["XL", "vegan"]);
+
   // The event is full: the waitlist asks the same questions and keeps the answers.
   assert.equal((await s2.req("POST", `/waitlist/${event._id}`, { answers: [""] })).status, 400);
   assert.ok((await s2.req("POST", `/waitlist/${event._id}`, { answers: ["XL"] })).status < 300);
