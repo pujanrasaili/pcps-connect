@@ -10,6 +10,7 @@ const { requireCsrfHeader } = require("./middleware/csrf");
 const defaultBody = require("./middleware/defaultBody");
 const { checkEnv } = require("./utils/envCheck");
 const { clientRequestError } = require("./utils/requestErrors");
+const { installProcessGuards } = require("./utils/processGuards");
 
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -28,6 +29,8 @@ const pushRoutes = require("./routes/pushRoutes");
 const boardRoutes = require("./routes/boardRoutes");
 const certificateRoutes = require("./routes/certificateRoutes");
 const healthRoutes = require("./routes/healthRoutes");
+
+installProcessGuards();
 
 const app = express();
 
