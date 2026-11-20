@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaFileCsv, FaUsers } from "react-icons/fa";
+import { FaCopy, FaFileCsv, FaUsers } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
@@ -7,7 +7,7 @@ import { translateAgo } from "../utils/translateAgo";
 import Modal from "./Modal";
 import SearchBar from "./SearchBar";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
-import { filterMembers } from "../utils/clubMembers";
+import { filterMembers, memberEmailCount, memberEmailList } from "../utils/clubMembers";
 import { timeAgo } from "../utils/timeAgo";
 
 // Who joined a club (admins, and the club's own leaders). Pass the club to
@@ -71,6 +71,17 @@ export default function ClubMembersModal({ club, onClose }) {
   const exportCsv = () => {
     const rows = members.map((m) => [m.name, m.email, m.studentId, m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : ""]);
     downloadCsv(`${slugify(club?.name, "club")}-members.csv`, buildCsv(["Name", "Email", "Student ID", "Joined"], rows));
+  };
+
+  const copyEmails = async () => {
+    const count = memberEmailCount(members);
+    if (count === 0) return toast.error(t("No email addresses to copy."));
+    try {
+      await navigator.clipboard.writeText(memberEmailList(members));
+      toast.success(count === 1 ? t("1 email address copied.") : t("{n} email addresses copied.", { n: count }));
+    } catch {
+      toast.error(t("Couldn't copy the addresses. Try Export CSV instead."));
+    }
   };
 
   const visible = filterMembers(members, search);
@@ -154,12 +165,20 @@ export default function ClubMembersModal({ club, onClose }) {
         <>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-slate-600 dark:text-slate-300">{t(members.length === 1 ? "{n} member, newest first" : "{n} members, newest first", { n: members.length })}</p>
+            <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={copyEmails}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <FaCopy aria-hidden="true" /> {t("Copy emails")}
+            </button>
             <button
               onClick={exportCsv}
               className="flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
             >
               <FaFileCsv aria-hidden="true" /> {t("Export CSV")}
             </button>
+            </div>
           </div>
           {members.length > 8 && (
             <div className="mb-3">
