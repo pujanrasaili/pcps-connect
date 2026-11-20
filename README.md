@@ -114,6 +114,9 @@ pcps-connect/
 - A club's details window lists its next three upcoming events, linking straight to each
 - Shared links show a proper preview in WhatsApp, Messenger, Telegram and similar apps: an event link shows the event's photo, title, date and place; a club link shows the club (a small Vercel function in `frontend/api` answers those apps' link crawlers, while people still get the normal app)
 - Every club has its own shareable link (`/clubs?club=<id>`) with a Share button; the Clubs and Events filters (search, category, Upcoming/Past/Registered, "only events with spots left", "free events only") are stored in the URL, so a filtered list can be shared and survives a refresh
+- Offline bar: while the phone has no internet, a thin bar on every page says "You're offline" and goes away by itself when the connection returns (when saved tickets exist, the tickets banner shows instead and links to them).
+- Copy emails: in the attendees window organisers press "Copy emails" to put every confirmed attendee's address on the clipboard (each once, people still awaiting approval left out), ready to paste into Bcc.
+- Server safety net: a background task that fails with nobody waiting for it (an email or phone alert sent after the reply) is logged instead of ending the server; real crashes still restart it.
 - Accessibility: text meets WCAG AA contrast in light and dark mode (checked with an axe-core sweep of every page, plus dialogs and form error states), long titles never cause sideways scrolling on phones, and ratings are announced to screen readers
 - New students see a "Get started" checklist on the dashboard (join a club, pick a favourite, register for an event) that disappears once they have joined a club and registered; it waits until their data has really loaded, so it never flashes for established students on a slow server
 - The student dashboard marks events happening within a week as "Today", "Tomorrow" or "In N days"
