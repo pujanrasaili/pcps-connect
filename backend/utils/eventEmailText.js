@@ -19,6 +19,19 @@ const details = (lang, v) => `
   <p style="margin: 0 0 4px;"><strong>${LABEL[lang].when}</strong> ${v.when}</p>
   <p style="margin: 0;"><strong>${LABEL[lang].where}</strong> ${v.where}</p>`;
 
+// The answers a student gave to the sign-up questions, as a small list.
+// `v.answers` is [{ question, answer }] with both parts already HTML-escaped.
+const ANSWERS = {
+  en: { heading: "Your answers", note: "You can change them from the event page until the event." },
+  ne: { heading: "तपाईंका उत्तरहरू", note: "कार्यक्रम नहुञ्जेल तपाईं कार्यक्रमको पृष्ठबाट यी परिवर्तन गर्न सक्नुहुन्छ।" },
+};
+const answersBlock = (lang, v) =>
+  v.answers && v.answers.length
+    ? `<p style="margin: 16px 0 4px;"><strong>${ANSWERS[lang].heading}</strong></p>
+          <ul style="margin: 0 0 4px; padding-left: 20px;">${v.answers.map((a) => `<li>${a.question} ${a.answer}</li>`).join("")}</ul>
+          <p style="margin: 0; font-size: 13px; color: #64748b;">${ANSWERS[lang].note}</p>`
+    : "";
+
 const MAIL = {
   confirmed: {
     en: (v) => ({
@@ -27,6 +40,7 @@ const MAIL = {
       bodyHtml: `${hi("en", v)}
           ${p(`You're confirmed for <strong>${v.title}</strong>. Here are the details:`)}
           ${details("en", v)}
+          ${answersBlock("en", v)}
           ${p("You can cancel anytime from your Dashboard if your plans change.", "16px 0 0")}`,
     }),
     ne: (v) => ({
@@ -35,6 +49,7 @@ const MAIL = {
       bodyHtml: `${hi("ne", v)}
           ${p(`तपाईं <strong>${v.title}</strong> का लागि पक्का हुनुभएको छ। विवरण यस प्रकार छ:`)}
           ${details("ne", v)}
+          ${answersBlock("ne", v)}
           ${p("योजना बदलिएमा तपाईं जुनसुकै बेला ड्यासबोर्डबाट रद्द गर्न सक्नुहुन्छ।", "16px 0 0")}`,
     }),
   },
