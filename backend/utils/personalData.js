@@ -38,7 +38,12 @@ function buildPersonalData({ user, registrations = [], waitlist = [], membership
       })),
     waitlist: waitlist
       .filter((w) => w.event)
-      .map((w) => ({ event: w.event.title, eventDate: iso(w.event.date), joinedAt: iso(w.createdAt) })),
+      .map((w) => ({
+        event: w.event.title,
+        eventDate: iso(w.event.date),
+        signUpAnswers: (w.answers || []).map((a) => ({ question: a.question, answer: a.answer })),
+        joinedAt: iso(w.createdAt),
+      })),
     clubMemberships: memberships
       .filter((m) => m.club)
       .map((m) => ({ club: m.club.name, joinedAt: iso(m.createdAt) })),
