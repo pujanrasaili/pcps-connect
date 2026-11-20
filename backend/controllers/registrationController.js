@@ -111,7 +111,7 @@ async function registerForEvent(req, res) {
       await sendRequestReceived(req.user, event);
       return res.status(201).json({ message: "Request sent -- the organisers will review it", registration });
     }
-    await sendRegistrationConfirmation(req.user, event);
+    await sendRegistrationConfirmation(req.user, event, registration.answers);
 
     res.status(201).json({ message: "Registered for event", registration });
   } catch (err) {

@@ -429,7 +429,7 @@ async function decideRegistration(req, res) {
         title: `You're in: your request to join ${event.title} was approved`,
         link: `/events/${event._id}`,
       });
-      if (registration.user?.email) await sendRegistrationConfirmation(registration.user, event);
+      if (registration.user?.email) await sendRegistrationConfirmation(registration.user, event, registration.answers);
       return res.status(200).json({ message: "Request approved", registration });
     }
 
