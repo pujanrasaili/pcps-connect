@@ -2,7 +2,6 @@ import { useState } from "react";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
-import { useRegistrations } from "../context/RegistrationContext";
 import { answersComplete } from "../utils/signupAnswers";
 import SignupQuestionsFields from "./SignupQuestionsFields";
 import Button from "./Button";
@@ -13,17 +12,18 @@ const lineUp = (questions, stored) =>
   questions.map((q) => (stored || []).find((a) => a.question === q.text)?.answer || "");
 
 // Lets a student fix their answers to the organisers' sign-up questions
-// until the event happens. The server checks the same rules again.
-export default function MyAnswersCard({ registration, questions = [] }) {
+// until the event happens (whether they are registered or waiting for a
+// spot). `saveUrl` is the endpoint to PUT to; `onSaved` refreshes whoever
+// holds the answers. The server checks the same rules again.
+export default function MyAnswersCard({ answers: stored, questions = [], saveUrl, onSaved }) {
   const toast = useToast();
   const { t } = useLang();
-  const { refreshRegistrations } = useRegistrations();
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState([]);
 
-  if (!registration || !questions.length) return null;
-  const current = lineUp(questions, registration.answers);
+  if (!saveUrl || !questions.length) return null;
+  const current = lineUp(questions, stored);
   // A required question the organisers added after this student signed up.
   const missing = !answersComplete(questions, current);
 
@@ -31,8 +31,8 @@ export default function MyAnswersCard({ registration, questions = [] }) {
     e.preventDefault();
     setBusy(true);
     try {
-      await api.put(`/registrations/${registration._id}/answers`, { answers: draft });
-      await refreshRegistrations();
+      const res = await api.put(saveUrl, { answers: draft });
+      await onSaved?.(res.data.answers);
       toast.success(t("Your answers were saved"));
       setEditing(false);
     } catch (err) {
