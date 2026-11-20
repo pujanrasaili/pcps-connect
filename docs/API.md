@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-134 endpoints.
+135 endpoints.
 
 ## /api/health
 
@@ -191,6 +191,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/waitlist/my` | Logged-in student | The upcoming events you are waitlisted for, with your place in line. |
 | GET | `/api/waitlist/:eventId` | Logged-in student | Whether you are on an event's waitlist, and where. |
 | POST | `/api/waitlist/:eventId` | Logged-in student (rate limited) | Join the waitlist of a full event. |
+| PUT | `/api/waitlist/:eventId/answers` | Logged-in student (rate limited) | Change your answers to an event's sign-up questions while you wait on its waitlist. |
 | DELETE | `/api/waitlist/:eventId` | Logged-in student (rate limited) | Leave an event's waitlist. |
 
 ## /api/notifications
