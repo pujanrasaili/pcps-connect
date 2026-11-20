@@ -298,6 +298,32 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* People whose device asks for more contrast ("Increase contrast" on iOS and
+   macOS, the equivalent on Windows and Android) get a solid, darker edge on
+   cards, fields and buttons, and a thicker focus ring, so nothing relies on a
+   pale tint or a faint border to be seen. */
+@media (prefers-contrast: more) {
+  .btn-secondary,
+  .btn-ghost,
+  .card-surface,
+  .input-field {
+    border: 1px solid #475569;
+  }
+  .dark .btn-secondary,
+  .dark .btn-ghost,
+  .dark .card-surface,
+  .dark .input-field {
+    border-color: #cbd5e1;
+  }
+  :focus-visible {
+    outline: 3px solid #1e40af;
+    outline-offset: 2px;
+  }
+  .dark :focus-visible {
+    outline-color: #bfdbfe;
+  }
+}
+
 /* Nepali (Devanagari) text: letters are joined into connected shapes, so wide
    letter-spacing and forced capitals (made for Latin text) would break or look
    odd, and the tall marks above and below the line need a little more room. */
