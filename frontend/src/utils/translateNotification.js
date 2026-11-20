@@ -6,6 +6,7 @@
 export const NOTIFICATION_PATTERNS = [
   [/^(.+) asked to join (.+)$/, "{name} asked to join {target}", ["name", "target"]],
   [/^(.+) was updated \(new time or place\)$/, "{title} was updated (new time or place)", ["title"]],
+  [/^Please answer the sign-up questions for (.+)$/, "Please answer the sign-up questions for {title}", ["title"]],
   [/^A new question was added to (.+)$/, "A new question was added to {title}", ["title"]],
   [/^(.+) was cancelled$/, "{title} was cancelled", ["title"]],
   [/^New message about (.+)$/, "New message about {title}", ["title"]],
