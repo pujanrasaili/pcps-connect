@@ -26,6 +26,7 @@ const {
 } = require("../controllers/adminController");
 const { setNotice } = require("../controllers/noticeController");
 const { createVenue, updateVenue, deleteVenue } = require("../controllers/venueController");
+const { remindMissingAnswers } = require("../controllers/eventSignupQuestionsController");
 const { addWalkIn } = require("../controllers/walkInController");
 const { getContactMessages, setMessageHandled, deleteContactMessage } = require("../controllers/contactMessagesController");
 const { getClubMembers } = require("../controllers/clubMembersController");
@@ -48,6 +49,7 @@ router.use(protect);
 // club (utils/clubAccess.js), so a leader can never touch another club's.
 router.get("/events/:id/registrations", staffOnly, getEventRegistrations);
 router.post("/events/:id/announce", staffOnly, actionLimiter, announceToRegistrants);
+router.post("/events/:id/remind-answers", staffOnly, actionLimiter, remindMissingAnswers);
 router.get("/clubs/:id/members", staffOnly, getClubMembers);
 router.get("/club-request-counts", staffOnly, getRequestCounts);
 router.get("/clubs/:id/requests", staffOnly, getClubJoinRequests);

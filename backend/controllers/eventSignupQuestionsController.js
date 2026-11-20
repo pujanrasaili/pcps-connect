@@ -4,7 +4,7 @@ const { safeError } = require("../utils/errorMessage");
 const { canManageEvent } = require("../utils/clubAccess");
 const Registration = require("../models/Registration");
 const { pushNotifications } = require("../utils/inApp");
-const { cleanQuestions } = require("../utils/signupQuestions");
+const { cleanQuestions, lacksRequiredAnswer } = require("../utils/signupQuestions");
 
 // PUT /api/events/:id/signup-questions  { questions: [{ _id?, text, required }] }  (organisers)
 // Replaces the list (up to 3). People who already registered keep their answers,
@@ -41,4 +41,34 @@ async function setSignupQuestions(req, res) {
   }
 }
 
-module.exports = { setSignupQuestions };
+// POST /api/admin/events/:id/remind-answers  (organisers)
+// A bell message to each registered student who still owes an answer to a
+// required sign-up question, linking to the event. Past events are skipped.
+async function remindMissingAnswers(req, res) {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!(await canManageEvent(req.user, event))) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    if (new Date(event.date) < new Date()) {
+      return res.status(400).json({ message: "This event has already taken place" });
+    }
+    if (!(event.signupQuestions || []).some((q) => q.required)) {
+      return res.status(400).json({ message: "This event has no required sign-up questions" });
+    }
+    const registrations = await Registration.find({ event: event._id }).select("user answers");
+    const owing = registrations.filter((r) => lacksRequiredAnswer(event.signupQuestions, r.answers)).map((r) => r.user);
+    const sent = await pushNotifications(owing, {
+      type: "event_answers_needed",
+      title: `Please answer the sign-up questions for ${event.title}`,
+      link: `/events/${event._id}`,
+    });
+    await recordAudit(req.user, "event.remindAnswers", `Reminded ${sent} student(s) to answer the sign-up questions for "${event.title}"`);
+    res.status(200).json({ message: `Reminder sent to ${sent} student(s)`, sent });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to send the reminder") });
+  }
+}
+
+module.exports = { setSignupQuestions, remindMissingAnswers };
