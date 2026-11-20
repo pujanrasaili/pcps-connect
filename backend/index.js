@@ -8,6 +8,7 @@ const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
 const { requireCsrfHeader } = require("./middleware/csrf");
 const defaultBody = require("./middleware/defaultBody");
+const { privateCache } = require("./middleware/privateCache");
 const { checkEnv } = require("./utils/envCheck");
 const { clientRequestError } = require("./utils/requestErrors");
 const { installProcessGuards } = require("./utils/processGuards");
@@ -58,6 +59,7 @@ app.use(
 app.use(express.json());
 app.use(defaultBody);
 app.use(cookieParser());
+app.use("/api", privateCache);
 
 // Runs before every route (multer parses multipart bodies per-route
 // further down, which is unaffected -- this only reads the header).
