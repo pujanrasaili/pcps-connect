@@ -1628,4 +1628,7 @@ export const ne = {
   "Failed to send the reminder": "सम्झना पठाउन सकिएन",
   "Remind {n} to answer": "{n} जनालाई उत्तर दिन सम्झाउनुहोस्",
   "Please answer the sign-up questions for {title}": "{title} को साइन-अप प्रश्नहरूको उत्तर दिनुहोस्",
+  "Answer summary": "उत्तरको सारांश",
+  "and {n} more different answers": "र थप {n} फरक उत्तर",
+  "No answers yet": "अझै कुनै उत्तर छैन",
 };
