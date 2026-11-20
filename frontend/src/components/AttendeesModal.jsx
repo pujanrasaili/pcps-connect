@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaPrint, FaEnvelope, FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheckCircle, FaRegCircle, FaUserFriends, FaFileCsv, FaPrint, FaEnvelope, FaCheck, FaTimes, FaCopy } from "react-icons/fa";
 import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { useLang } from "../context/LanguageContext";
@@ -12,6 +12,7 @@ import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 import { buildSheetHtml } from "../utils/attendanceSheet";
 import { summariseAnswers } from "../utils/answerSummary";
 import { formatDateTime } from "../utils/formatDate";
+import { attendeeEmails, emailList } from "../utils/attendeeEmails";
 
 function downloadAttendanceCsv(event, registrations) {
   const questions = event?.signupQuestions || [];
@@ -65,6 +66,17 @@ export default function AttendeesModal({ event, onClose }) {
   const [composing, setComposing] = useState(false);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+
+  const copyEmails = async () => {
+    const count = attendeeEmails(registrations).length;
+    if (count === 0) return toast.error(t("No email addresses to copy."));
+    try {
+      await navigator.clipboard.writeText(emailList(registrations));
+      toast.success(count === 1 ? t("1 email address copied.") : t("{n} email addresses copied.", { n: count }));
+    } catch {
+      toast.error(t("Couldn't copy the addresses. Try Export CSV instead."));
+    }
+  };
 
   // Start from a clean composer each time the modal opens for an event.
   useEffect(() => {
@@ -201,6 +213,12 @@ export default function AttendeesModal({ event, onClose }) {
               className="flex shrink-0 items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-600 transition-colors hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-300 dark:hover:bg-primary-900/50"
             >
               <FaEnvelope /> {t("Message everyone")}
+            </button>
+            <button
+              onClick={copyEmails}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              <FaCopy aria-hidden="true" /> {t("Copy emails")}
             </button>
             <button
               onClick={() => printSignInSheet(event, registrations, () => toast.error(t("Allow pop-ups for this site to print the sheet.")))}
