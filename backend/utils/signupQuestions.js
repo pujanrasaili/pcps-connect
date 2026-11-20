@@ -50,4 +50,12 @@ function buildAnswers(questions, answers) {
   return { value: out };
 }
 
-module.exports = { cleanQuestions, buildAnswers, MAX_QUESTIONS, MAX_QUESTION, MAX_ANSWER };
+// True when a required question has no answer yet (organisers may add one after
+// people signed up). `answers` are the stored {question, answer} pairs.
+function lacksRequiredAnswer(questions, answers) {
+  return (Array.isArray(questions) ? questions : []).some(
+    (q) => q.required && !String((answers || []).find((a) => a.question === q.text)?.answer ?? "").trim()
+  );
+}
+
+module.exports = { cleanQuestions, buildAnswers, lacksRequiredAnswer, MAX_QUESTIONS, MAX_QUESTION, MAX_ANSWER };
