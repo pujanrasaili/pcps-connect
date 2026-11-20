@@ -10,6 +10,7 @@ import WalkInForm from "./WalkInForm";
 import EventReportCard from "./EventReportCard";
 import { buildCsv, downloadCsv, slugify } from "../utils/csv";
 import { buildSheetHtml } from "../utils/attendanceSheet";
+import { summariseAnswers } from "../utils/answerSummary";
 import { formatDateTime } from "../utils/formatDate";
 
 function downloadAttendanceCsv(event, registrations) {
@@ -281,6 +282,26 @@ export default function AttendeesModal({ event, onClose }) {
                 </button>
               )}
             </div>
+          )}
+          {questions.length > 0 && confirmed.length > 0 && (
+            <details className="mb-4 rounded-xl border border-slate-200 p-3 dark:border-slate-700" data-testid="answer-summary">
+              <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-slate-200">{t("Answer summary")}</summary>
+              <ul className="mt-2 space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                {summariseAnswers(questions, confirmed).map((s) => (
+                  <li key={s.question}>
+                    <p className="font-medium">{s.question}</p>
+                    {s.top.length > 0 ? (
+                      <p className="break-words text-slate-600 dark:text-slate-300">
+                        {s.top.map((a) => `${a.answer} × ${a.count}`).join(" · ")}
+                        {s.moreDistinct > 0 ? ` · ${t("and {n} more different answers", { n: s.moreDistinct })}` : ""}
+                      </p>
+                    ) : (
+                      <p className="text-slate-600 dark:text-slate-300">{t("No answers yet")}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
           {pending.length > 0 && (
             <div className="mb-4 rounded-xl border border-primary-200 bg-primary-50/60 p-3 dark:border-primary-900/50 dark:bg-primary-900/10">
