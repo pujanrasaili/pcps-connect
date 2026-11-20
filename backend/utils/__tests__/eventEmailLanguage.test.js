@@ -98,3 +98,30 @@ describe("notifying registrants sends each person their own language", () => {
     expect(en.html).toContain("(was Hall)");
   });
 });
+
+describe("the confirmation email lists the sign-up answers", () => {
+  const answers = [
+    { question: "Phone <number>?", answer: "98 & 12" },
+    { question: "Notes?", answer: "  " },
+  ];
+
+  it("shows each answered question, escaped, and skips blank answers", async () => {
+    await sendRegistrationConfirmation({ name: "Asha", email: "a@x.com", language: "en" }, event, answers);
+    const html = sendEmail.mock.calls[0][0].html;
+    expect(html).toContain("Your answers");
+    expect(html).toContain("Phone &lt;number&gt;? 98 &amp; 12");
+    expect(html).not.toContain("Notes?");
+    expect(html).toContain("You can change them from the event page");
+  });
+
+  it("is Nepali for a Nepali account", async () => {
+    await sendRegistrationConfirmation({ name: "Asha", email: "a@x.com", language: "ne" }, event, answers);
+    expect(sendEmail.mock.calls[0][0].html).toContain("तपाईंका उत्तरहरू");
+  });
+
+  it("adds nothing when the event asked no questions", async () => {
+    await sendRegistrationConfirmation({ name: "Asha", email: "a@x.com", language: "en" }, event, []);
+    await sendRegistrationConfirmation({ name: "Asha", email: "a@x.com", language: "en" }, event);
+    for (const [msg] of sendEmail.mock.calls) expect(msg.html).not.toContain("Your answers");
+  });
+});
