@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
 const { requireCsrfHeader } = require("./middleware/csrf");
+const defaultBody = require("./middleware/defaultBody");
 const { checkEnv } = require("./utils/envCheck");
 const { clientRequestError } = require("./utils/requestErrors");
 
@@ -52,6 +53,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(defaultBody);
 app.use(cookieParser());
 
 // Runs before every route (multer parses multipart bodies per-route
