@@ -92,6 +92,7 @@ const DESCRIPTIONS = {
   cancelRegistration: "Cancel your own registration; the next person on the waitlist is promoted.",
   getEventRegistrations: "Everyone registered for an event, plus its waitlist.",
   announceToRegistrants: "Email everyone registered for an event.",
+  remindMissingAnswers: "Send a bell reminder to registered students who still owe an answer to a required sign-up question.",
   announceToClubMembers: "Email everyone who joined a club (members who opted out are skipped).",
   updateRegistrationAttendance: "Mark a registration as attended or not.",
   decideRegistration: "Approve or decline a join request for an approval-only event.",
