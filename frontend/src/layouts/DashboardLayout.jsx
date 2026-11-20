@@ -15,7 +15,7 @@ export default function DashboardLayout() {
       <ScrollToTop />
       <SkipLink />
       <Navbar />
-      <main id="main-content" tabIndex={-1} className="flex-1 bg-slate-50 dark:bg-slate-950 outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 bg-slate-50 dark:bg-slate-950 outline-hidden">
         <div className={`container-page grid grid-cols-1 gap-6 py-8 ${isAuthenticated ? "lg:grid-cols-[260px_1fr]" : ""}`}>
           {/* No menu for someone who is not (or not yet known to be) logged in. */}
           {isAuthenticated && <Sidebar className="lg:sticky lg:top-24 lg:h-fit" />}
