@@ -50,6 +50,18 @@ async function openAttendees(page, lang = "en") {
 
 for (const lang of ["en", "ne"]) {
   const en = lang === "en";
+  test(`"Copy emails" copies each confirmed address once and skips people awaiting approval (${lang})`, async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    const problems = await setUp(page, { lang, role: "admin" });
+    await withAttendeesApi(page);
+    const dialog = await openAttendees(page, lang);
+    await dialog.getByRole("button", { name: en ? "Copy emails" : "इमेल प्रतिलिपि गर्नुहोस्" }).click();
+    await expect(page.getByText(en ? "3 email addresses copied." : "3 वटा इमेल ठेगाना प्रतिलिपि गरियो।")).toBeVisible();
+    const text = await page.evaluate(() => navigator.clipboard.readText());
+    expect(text).toBe("asha@patancollege.edu.np, bikash@patancollege.edu.np, chhori@patancollege.edu.np");
+    expect(quiet(problems)).toEqual([]);
+  });
+
   test(`the attendee list shows progress, ratings and who is waiting for approval (${lang})`, async ({ page }) => {
     const problems = await setUp(page, { lang, role: "admin" });
     await withAttendeesApi(page);
