@@ -649,6 +649,12 @@ test("sign-up questions: required answers are enforced and kept through the wait
   assert.equal((await s2.req("POST", `/waitlist/${event._id}`, { answers: [""] })).status, 400);
   assert.ok((await s2.req("POST", `/waitlist/${event._id}`, { answers: ["XL"] })).status < 300);
 
+  // While waiting, the student can still fix their answers (not leave a required one blank).
+  assert.equal((await s2.req("GET", `/waitlist/${event._id}`)).json.answers[0].answer, "XL");
+  assert.equal((await s2.req("PUT", `/waitlist/${event._id}/answers`, { answers: [""] })).status, 400);
+  assert.equal((await s2.req("PUT", `/waitlist/${event._id}/answers`, { answers: ["XXL"] })).status, 200);
+  assert.equal((await s1.req("PUT", `/waitlist/${event._id}/answers`, { answers: ["S"] })).status, 404, "only someone on the waitlist can edit");
+
   // Organisers see the answers; promotion carries them over.
   const mine = (await s1.req("GET", "/registrations/my")).json.registrations;
   assert.equal((await s1.req("DELETE", `/registrations/${mine[0]._id}`)).status, 200);
@@ -656,7 +662,7 @@ test("sign-up questions: required answers are enforced and kept through the wait
   assert.equal(r.status, 200);
   const rows = r.json.registrations || r.json;
   assert.equal(rows.length, 1);
-  assert.deepEqual(rows[0].answers.map((a) => [a.question, a.answer]), [["T-shirt size?", "XL"]]);
+  assert.deepEqual(rows[0].answers.map((a) => [a.question, a.answer]), [["T-shirt size?", "XXL"]]);
   assert.equal((await s3.req("GET", "/registrations/my")).status, 200);
 });
 
