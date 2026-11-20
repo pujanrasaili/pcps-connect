@@ -234,6 +234,12 @@ cd backend
 MONGO_URI=mongodb://127.0.0.1:27017/pcps_test npm run test:integration
 ```
 
+Some tests are safety nets that fail when a new feature forgets a chore: a new
+database model must be added to the backup script (or deliberately left out), a new
+activity-log action needs a label and a Nepali translation, and every bell message
+the backend writes must be translatable (`backend/utils/__tests__/backupCoverage.test.js`,
+`frontend/tests/auditLabelsCoverage.test.js`, `frontend/tests/notificationCoverage.test.js`).
+
 Jest unit tests cover the auth flow, registration and capacity rules, admin
 safety guards, email notifications, the CSRF middleware and shared utilities.
 The frontend has zero-dependency unit tests (Node's built-in runner) for its
