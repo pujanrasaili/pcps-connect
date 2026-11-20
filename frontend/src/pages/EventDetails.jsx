@@ -77,7 +77,7 @@ export default function EventDetails() {
   const { getEventById, events: allEvents, refreshEvents } = useEvents();
   const { isAuthenticated, user } = useAuth();
   const { clubs: ledClubs } = useLedClubs();
-  const { registrations, isRegistered, isPending, cancelRegistration } = useRegistrations();
+  const { registrations, isRegistered, isPending, cancelRegistration, refreshRegistrations } = useRegistrations();
   const [event, setEvent] = useState(null);
   const venues = useVenues();
   const venue = findVenue(venues, event?.location);
@@ -340,7 +340,16 @@ export default function EventDetails() {
           <EventJoinLink eventId={event._id} registered={confirmedHere} canManage={canAnswerQuestions} eventOver={eventOver} />
 
           <EventVolunteers eventId={event._id} eventTitle={event.title} eventOver={eventOver} canManage={canAnswerQuestions} isAuthenticated={isAuthenticated} />
-          {myRegistration && !eventOver && <MyAnswersCard key={`ma-${event._id}`} registration={myRegistration} questions={event.signupQuestions || []} />}
+          {myRegistration && !eventOver && <MyAnswersCard key={`ma-${event._id}`} answers={myRegistration.answers} saveUrl={`/registrations/${myRegistration._id}/answers`} onSaved={refreshRegistrations} questions={event.signupQuestions || []} />}
+          {!myRegistration && waitlist?.onWaitlist && !eventOver && (
+            <MyAnswersCard
+              key={`mw-${event._id}`}
+              answers={waitlist.answers}
+              saveUrl={`/waitlist/${event._id}/answers`}
+              onSaved={(answers) => setWaitlist((w) => ({ ...w, answers }))}
+              questions={event.signupQuestions || []}
+            />
+          )}
           {canAnswerQuestions && !eventOver && <SignupQuestionsEditor key={`sq-${event._id}`} eventId={event._id} questions={event.signupQuestions || []} onSaved={refreshEvents} />}
 
           <EventQuestions
