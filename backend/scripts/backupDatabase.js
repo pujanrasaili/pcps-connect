@@ -22,6 +22,10 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const { backupFolderName, defaultBackupRoot, isInsideDirectory, writeBackup } = require("../utils/backupPlan");
 
+// Every model is saved except two that are not worth keeping: Notification
+// (bell messages, which expire) and PushSubscription (phone alert devices, which
+// each phone simply registers again). utils/__tests__/backupCoverage.test.js
+// fails if a new model is added to neither side.
 const MODELS = [
   require("../models/User"),
   require("../models/Club"),
@@ -35,6 +39,7 @@ const MODELS = [
   require("../models/ClubAlumnus"),
   require("../models/Venue"),
   require("../models/ClubPoll"),
+  require("../models/BoardPost"),
   require("../models/EventQuestion"),
   require("../models/EventVolunteer"),
   require("../models/ContactMessage"),
