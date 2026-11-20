@@ -1641,4 +1641,7 @@ export const ne = {
   "1 email address copied.": "1 वटा इमेल ठेगाना प्रतिलिपि गरियो।",
   "No email addresses to copy.": "प्रतिलिपि गर्न कुनै इमेल ठेगाना छैन।",
   "Couldn't copy the addresses. Try Export CSV instead.": "इमेल ठेगाना प्रतिलिपि गर्न सकिएन। बरु CSV निर्यात गर्नुहोस्।",
+  "Starts today": "आज सुरु हुन्छ",
+  "Starts tomorrow": "भोलि सुरु हुन्छ",
+  "Starts in {n} days": "{n} दिनमा सुरु हुन्छ",
 };
