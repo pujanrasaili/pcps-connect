@@ -746,3 +746,14 @@ test("campus venues: only admins edit them, names stay unique, and everyone can 
   assert.equal((await admin.req("DELETE", `/admin/venues/${id}`)).status, 200);
   assert.equal((await admin.req("DELETE", `/admin/venues/${id}`)).status, 404);
 });
+
+test("signed-in answers are not cached, public ones are left alone", { skip }, async () => {
+  const student = await makeUser("cch");
+  const ask = (cookie) => fetch(BASE + "/clubs", { headers: { "X-Forwarded-For": student.ip, ...(cookie ? { Cookie: cookie } : {}) } });
+  const signedIn = await ask(student.cookie);
+  assert.equal(signedIn.status, 200);
+  assert.equal(signedIn.headers.get("cache-control"), "no-store");
+  const visitor = await ask("");
+  assert.equal(visitor.status, 200);
+  assert.notEqual(visitor.headers.get("cache-control"), "no-store");
+});
