@@ -1,6 +1,7 @@
 const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
+const { answersForEmail } = require("./emailAnswers");
 const { formatEventDate } = require("./formatEventDate");
 const { buildIcs } = require("./ics");
 const { pickLanguage } = require("./emailText");
@@ -25,9 +26,7 @@ const vars = (user, event, lang, answers = []) => ({
   rawTitle: event.title,
   when: formatEventDate(event.date, lang),
   where: escapeHtml(event.location),
-  answers: (answers || [])
-    .filter((a) => a && String(a.answer || "").trim())
-    .map((a) => ({ question: escapeHtml(`${a.question}`), answer: escapeHtml(a.answer) })),
+  answers: answersForEmail(answers),
 });
 
 // One send for each kind; the language is the student's account language.
