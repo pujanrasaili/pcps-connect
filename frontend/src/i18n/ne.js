@@ -1631,4 +1631,8 @@ export const ne = {
   "Answer summary": "उत्तरको सारांश",
   "and {n} more different answers": "र थप {n} फरक उत्तर",
   "No answers yet": "अझै कुनै उत्तर छैन",
+  "Sign-up questions changed": "साइन-अप प्रश्न परिवर्तन गरियो",
+  "Answer reminder sent": "उत्तरको सम्झना पठाइयो",
+  "Event sponsors changed": "कार्यक्रमका प्रायोजक परिवर्तन गरियो",
+  "Volunteer roles changed": "स्वयंसेवक भूमिका परिवर्तन गरियो",
 };
