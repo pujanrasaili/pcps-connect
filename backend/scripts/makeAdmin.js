@@ -8,7 +8,7 @@
 //
 // The account is also marked verified + approved so it can log in right away.
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);

@@ -14,7 +14,7 @@
 // Look first:  npm run backfill
 // Then do it:  npm run backfill -- --yes
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);

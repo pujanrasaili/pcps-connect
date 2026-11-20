@@ -6,7 +6,7 @@
 // It REPLACES all clubs and events, so it refuses to run on a database that
 // already has any unless you add --force:  node seed.js --force
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);

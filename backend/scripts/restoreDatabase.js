@@ -3,7 +3,7 @@
 // Only empty collections are filled (nothing is overwritten), so point
 // MONGO_URI at a new, empty database. It asks you to type the database name
 // first; --yes skips that question.
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const fs = require("fs");
 const path = require("path");
 const readline = require("readline");

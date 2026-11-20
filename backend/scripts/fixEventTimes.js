@@ -9,7 +9,7 @@
 // the apply step once -- running it twice would shift the times twice.
 // You can also skip this and re-save each upcoming event from Admin -> Events.
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);

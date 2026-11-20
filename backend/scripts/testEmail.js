@@ -7,7 +7,7 @@
 // Render's free tier) if set, otherwise Gmail SMTP (works from your own
 // computer, NOT from Render's free tier). Put the values in backend/.env first.
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const sendEmail = require("../utils/sendEmail");
 
 async function run() {

@@ -10,7 +10,7 @@
 //
 // Run with:  node scripts/sendWeeklyDigest.js [--dry]
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const mongoose = require("mongoose");
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);

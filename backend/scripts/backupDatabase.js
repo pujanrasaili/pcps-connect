@@ -14,7 +14,7 @@
 // private. The script refuses to write inside the project folder, because the
 // GitHub repository is public.
 
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 const path = require("path");
 const mongoose = require("mongoose");
 const dns = require("dns");
