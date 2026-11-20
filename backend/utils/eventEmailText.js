@@ -94,6 +94,7 @@ const MAIL = {
       bodyHtml: `${hi("en", v)}
           ${p(`A spot opened up for <strong>${v.title}</strong> and you were next on the waitlist, so ${v.needsApproval ? "your request to join is now with the organisers, who approve each person. A seat is being held for you and you'll get another email when they decide" : "you're now registered"}.`)}
           ${details("en", v)}
+          ${answersBlock("en", v)}
           ${p("Can't make it any more? Unregister from your Dashboard so the next person gets the spot.", "16px 0 0")}`,
     }),
     ne: (v) => ({
@@ -102,6 +103,7 @@ const MAIL = {
       bodyHtml: `${hi("ne", v)}
           ${p(`<strong>${v.title}</strong> मा सिट खुल्यो र तपाईं प्रतीक्षा सूचीमा अर्को हुनुहुन्थ्यो, त्यसैले ${v.needsApproval ? "तपाईंको सामेल हुने अनुरोध अहिले आयोजकहरूसँग छ, जसले हरेक व्यक्तिलाई स्वीकृत गर्छन्। तपाईंको लागि एउटा सिट रोकिएको छ र उनीहरूले निर्णय गर्दा तपाईंलाई अर्को इमेल आउनेछ" : "तपाईं अहिले दर्ता हुनुभएको छ"}।`)}
           ${details("ne", v)}
+          ${answersBlock("ne", v)}
           ${p("अब आउन सक्नुहुन्न? अर्को व्यक्तिले सिट पाउन ड्यासबोर्डबाट दर्ता रद्द गर्नुहोस्।", "16px 0 0")}`,
     }),
   },

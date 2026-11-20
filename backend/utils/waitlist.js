@@ -3,13 +3,14 @@ const WaitlistEntry = require("../models/WaitlistEntry");
 const sendEmail = require("./sendEmail");
 const renderEmail = require("./emailTemplate");
 const { escapeHtml } = require("./escapeHtml");
+const { answersForEmail } = require("./emailAnswers");
 const { formatEventDate } = require("./formatEventDate");
 const { buildIcs } = require("./ics");
 const { pickLanguage } = require("./emailText");
 const { eventEmail } = require("./eventEmailText");
 const { pushNotifications } = require("./inApp");
 
-async function sendSpotOpenedEmail(user, event, needsApproval = false) {
+async function sendSpotOpenedEmail(user, event, needsApproval = false, answers = []) {
   try {
     const lang = pickLanguage(user.language);
     const mail = eventEmail("spotOpened", lang, {
@@ -19,6 +20,7 @@ async function sendSpotOpenedEmail(user, event, needsApproval = false) {
       when: formatEventDate(event.date, lang),
       where: escapeHtml(event.location),
       needsApproval,
+      answers: answersForEmail(answers),
     });
     await sendEmail({
       to: user.email,
@@ -74,7 +76,7 @@ async function promoteFromWaitlist(event) {
         : `You got a seat: ${event.title}`,
       link: `/events/${event._id}`,
     });
-    await sendSpotOpenedEmail(entry.user, event, !!event.requiresApproval);
+    await sendSpotOpenedEmail(entry.user, event, !!event.requiresApproval, entry.answers);
   }
 
   return promoted;
