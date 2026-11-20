@@ -16,7 +16,7 @@ async function getWaitlistStatus(req, res) {
       event: req.params.eventId,
       createdAt: { $lt: entry.createdAt },
     });
-    res.status(200).json({ onWaitlist: true, position: ahead + 1 });
+    res.status(200).json({ onWaitlist: true, position: ahead + 1, answers: entry.answers || [] });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to load waitlist status") });
   }
@@ -87,6 +87,29 @@ async function joinWaitlist(req, res) {
   }
 }
 
+// PUT /api/waitlist/:eventId/answers  { answers: [...] }  (requires login)
+// Fix the answers to the sign-up questions while waiting; they become part of
+// the registration if a spot opens. Same rules as when joining.
+async function updateWaitlistAnswers(req, res) {
+  try {
+    const entry = await WaitlistEntry.findOne({ user: req.user._id, event: req.params.eventId });
+    if (!entry) return res.status(404).json({ message: "You're not on the waitlist for this event" });
+    const event = await Event.findById(req.params.eventId);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (new Date(event.date) < new Date()) {
+      return res.status(400).json({ message: "This event has already taken place, so the answers can't be changed" });
+    }
+    const given = buildAnswers(event.signupQuestions, req.body?.answers);
+    if (given.error) return res.status(400).json({ message: given.error });
+
+    entry.answers = given.value;
+    await entry.save();
+    res.status(200).json({ message: "Answers saved", answers: entry.answers });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to save the answers") });
+  }
+}
+
 // DELETE /api/waitlist/:eventId  (requires login)
 async function leaveWaitlist(req, res) {
   try {
@@ -97,4 +120,4 @@ async function leaveWaitlist(req, res) {
   }
 }
 
-module.exports = { getWaitlistStatus, getMyWaitlist, joinWaitlist, leaveWaitlist };
+module.exports = { getWaitlistStatus, getMyWaitlist, joinWaitlist, updateWaitlistAnswers, leaveWaitlist };
