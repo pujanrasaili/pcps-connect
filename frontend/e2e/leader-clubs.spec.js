@@ -110,6 +110,18 @@ test("a request someone else already handled just disappears with an error", asy
   expect(quiet(problems)).toEqual([]);
 });
 
+test("Copy emails puts every member's address on the clipboard", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await setUp(page, { lang: "ne", role: "student" });
+  await withLeader(page);
+  await page.goto("/admin/my-clubs");
+  await page.getByRole("button", { name: /सदस्यहरू हेर्नुहोस्/ }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "इमेल प्रतिलिपि गर्नुहोस्" }).click();
+  await expect(page.getByText("2 वटा इमेल ठेगाना प्रतिलिपि गरियो।")).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("asha@patancollege.edu.np, bikash@patancollege.edu.np");
+});
+
 test("a long member list can be searched, and a club with no members says so", async ({ page }) => {
   await setUp(page, { lang: "en", role: "student" });
   await withLeader(page, { requests: [], members: Array.from({ length: 10 }, (_, i) => member(i + 1, `Member${i + 1} Person`)) });
