@@ -1,4 +1,4 @@
-const { cleanQuestions, buildAnswers } = require("../signupQuestions");
+const { cleanQuestions, buildAnswers, lacksRequiredAnswer } = require("../signupQuestions");
 
 describe("cleanQuestions", () => {
   it("trims, tidies spaces and defaults required to false", () => {
@@ -42,5 +42,19 @@ describe("buildAnswers", () => {
   it("gives nothing for an event with no questions, whatever was sent", () => {
     expect(buildAnswers([], ["a"]).value).toEqual([]);
     expect(buildAnswers(undefined, null).value).toEqual([]);
+  });
+});
+
+describe("lacksRequiredAnswer", () => {
+  const qs = [{ text: "Phone?", required: true }, { text: "Notes?", required: false }];
+  it("is true when a required question has no (or a blank) answer", () => {
+    expect(lacksRequiredAnswer(qs, [])).toBe(true);
+    expect(lacksRequiredAnswer(qs, undefined)).toBe(true);
+    expect(lacksRequiredAnswer(qs, [{ question: "Phone?", answer: "  " }])).toBe(true);
+  });
+  it("is false when every required question is answered, or there are none", () => {
+    expect(lacksRequiredAnswer(qs, [{ question: "Phone?", answer: "98" }])).toBe(false);
+    expect(lacksRequiredAnswer([{ text: "Notes?" }], [])).toBe(false);
+    expect(lacksRequiredAnswer(undefined, [])).toBe(false);
   });
 });
