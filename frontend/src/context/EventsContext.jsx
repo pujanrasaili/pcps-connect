@@ -1,12 +1,16 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { api, getErrorMessage } from "../services/api";
 
 const EventsContext = createContext(null);
+
+const STALE_AFTER_MS = 5 * 60 * 1000;
 
 export function EventsProvider({ children }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const loadedAt = useRef(Date.now());
 
   const refreshEvents = useCallback(async () => {
     setLoading(true);
@@ -14,11 +18,31 @@ export function EventsProvider({ children }) {
     try {
       const res = await api.get("/events");
       setEvents(res.data.events || []);
+      loadedAt.current = Date.now();
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load events"));
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  // A tab left open for hours (a phone put in a pocket) shows seat counts from
+  // when it was loaded. When the person comes back after a while, fetch quietly
+  // -- no spinner, and an error here keeps the old list rather than replacing it.
+  useEffect(() => {
+    const onVisible = async () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - loadedAt.current < STALE_AFTER_MS) return;
+      loadedAt.current = Date.now();
+      try {
+        const res = await api.get("/events");
+        setEvents(res.data.events || []);
+      } catch {
+        loadedAt.current = 0;
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
 
   useEffect(() => {
