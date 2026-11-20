@@ -9,7 +9,7 @@ const Registration = require("../../models/Registration");
 const { pushNotifications } = require("../../utils/inApp");
 const { recordAudit } = require("../../utils/audit");
 const { canManageEvent } = require("../../utils/clubAccess");
-const { setSignupQuestions } = require("../eventSignupQuestionsController");
+const { setSignupQuestions, remindMissingAnswers } = require("../eventSignupQuestionsController");
 
 const mockRes = () => {
   const res = {};
@@ -106,5 +106,56 @@ describe("setSignupQuestions", () => {
       await setSignupQuestions(req({ questions: [{ text: "Phone?", required: true }] }), res);
       expect(res.status).toHaveBeenCalledWith(200);
     });
+  });
+});
+
+describe("remindMissingAnswers", () => {
+  const FUTURE = new Date(Date.now() + 864e5);
+  const QS = [{ text: "Phone?", required: true }, { text: "Notes?", required: false }];
+  const setup = (event, registrations = []) => {
+    Event.findById.mockResolvedValue(event && { _id: "ev1", title: "Hack Night", date: FUTURE, signupQuestions: QS, ...event });
+    canManageEvent.mockResolvedValue(true);
+    Registration.find.mockReturnValue({ select: jest.fn().mockResolvedValue(registrations) });
+  };
+  const call = async () => {
+    const res = mockRes();
+    await remindMissingAnswers({ params: { id: "ev1" }, user: { _id: "u1" } }, res);
+    return res;
+  };
+
+  it("404s for an unknown event and 403s for someone who doesn't organise it", async () => {
+    setup(null);
+    expect((await call()).status).toHaveBeenCalledWith(404);
+    setup({});
+    canManageEvent.mockResolvedValue(false);
+    expect((await call()).status).toHaveBeenCalledWith(403);
+  });
+
+  it("refuses past events and events with no required questions", async () => {
+    setup({ date: new Date(Date.now() - 1000) });
+    expect((await call()).status).toHaveBeenCalledWith(400);
+    setup({ signupQuestions: [{ text: "Notes?", required: false }] });
+    expect((await call()).status).toHaveBeenCalledWith(400);
+    expect(pushNotifications).not.toHaveBeenCalled();
+  });
+
+  it("messages only the students who still owe a required answer", async () => {
+    setup({}, [
+      { user: "s1", answers: [] },
+      { user: "s2", answers: [{ question: "Phone?", answer: "98" }] },
+      { user: "s3", answers: [{ question: "Notes?", answer: "hi" }] },
+    ]);
+    pushNotifications.mockResolvedValue(2);
+    const res = await call();
+    expect(pushNotifications).toHaveBeenCalledWith(["s1", "s3"], expect.objectContaining({ type: "event_answers_needed", link: "/events/ev1", title: "Please answer the sign-up questions for Hack Night" }));
+    expect(recordAudit).toHaveBeenCalledWith({ _id: "u1" }, "event.remindAnswers", expect.stringContaining("Hack Night"));
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: "Reminder sent to 2 student(s)", sent: 2 });
+  });
+
+  it("500s cleanly when the database fails", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
+    Event.findById.mockRejectedValue(new Error("db"));
+    expect((await call()).status).toHaveBeenCalledWith(500);
   });
 });
