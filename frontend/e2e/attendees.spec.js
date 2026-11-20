@@ -179,7 +179,7 @@ test("the search also finds a sign-up answer, such as a phone number", async ({ 
   const regs = [
     reg(1, "Asha Rai", { answers: [{ question: "Phone number?", answer: "9812345678" }] }),
     reg(2, "Bikash Thapa", { answers: [{ question: "Phone number?", answer: "9800000000" }] }),
-    ...Array.from({ length: 8 }, (_, i) => reg(i + 3, `Student${i + 3} Person`)), // the search box shows from 9 people
+    ...Array.from({ length: 8 }, (_, i) => reg(i + 3, `Student${i + 3} Person`, { _id: `s${i}`.padEnd(23, "x") + "1" })), // the search box shows from 9 people
   ];
   await withAttendeesApi(page, { regs });
   const dialog = await openAttendees(page);
@@ -201,4 +201,61 @@ test("the list shows who hasn't answered a required sign-up question", async ({ 
   await expect(dialog.getByTestId("attendee-answer-missing")).toContainText("No answer yet: Phone number?");
   await page.waitForTimeout(600);
   expect(await axeViolations(page)).toEqual([]);
+});
+
+test("the Answers missing filter narrows a long list to people who still owe an answer", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const regs = [
+    reg(1, "Asha Rai", { answers: [{ question: "Phone number?", answer: "9812345678" }] }),
+    reg(2, "Bikash Thapa", { answers: [] }),
+    ...Array.from({ length: 8 }, (_, i) => reg(i + 3, `Student${i + 3} Person`, { _id: `s${i}`.padEnd(23, "x") + "1", answers: [{ question: "Phone number?", answer: "98" }] })),
+  ];
+  await withAttendeesApi(page, { regs });
+  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  const dialog = await openAttendees(page);
+  await dialog.getByLabel("Answers missing").check();
+  await expect(dialog.getByRole("button", { name: /Bikash Thapa/ })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: /Asha Rai/ })).toHaveCount(0);
+  await dialog.getByLabel("Answers missing").uncheck();
+  await expect(dialog.getByRole("button", { name: /Asha Rai/ })).toBeVisible();
+});
+
+test("people on the waitlist show the answers they gave", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const waitlist = [{ _id: "w1".padEnd(24, "0"), user: { name: "Waiting Wanda", email: "w@x.com" }, answers: [{ question: "Phone number?", answer: "9855555555" }] }];
+  await withAttendeesApi(page, { waitlist });
+  const dialog = await openAttendees(page);
+  await expect(dialog.getByTestId("waitlist-answer")).toContainText("Phone number? 9855555555");
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+});
+
+test("an organiser can remind the people who still owe an answer", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const regs = [
+    reg(1, "Asha Rai", { answers: [{ question: "Phone number?", answer: "9812345678" }] }),
+    reg(2, "Bikash Thapa", { answers: [] }),
+    reg(3, "Chhori Lama", { _id: "c3".padEnd(24, "0"), answers: [] }),
+    ...Array.from({ length: 6 }, (_, i) => reg(i + 4, `Student${i + 4} Person`, { _id: `s${i}`.padEnd(23, "x") + "1", answers: [{ question: "Phone number?", answer: "98" }] })), // the filter row shows from 9 people
+  ];
+  await withAttendeesApi(page, { regs });
+  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  let reminded = 0;
+  await page.route(`**/api/admin/events/${EV}/remind-answers`, (route) => { reminded += 1; return reply(route, { message: "Reminder sent to 2 student(s)", sent: 2 }); });
+  const dialog = await openAttendees(page);
+  await dialog.getByRole("button", { name: "Remind 2 to answer" }).click();
+  await expect(page.getByText("Reminder sent to 2 student(s)")).toBeVisible();
+  expect(reminded).toBe(1);
+});
+
+test("no reminder button when everyone has answered", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const regs = [
+    reg(1, "Asha Rai", { answers: [{ question: "Phone number?", answer: "98" }] }),
+    ...Array.from({ length: 8 }, (_, i) => reg(i + 2, `Student${i + 2} Person`, { _id: `s${i}`.padEnd(23, "x") + "1", answers: [{ question: "Phone number?", answer: "98" }] })),
+  ];
+  await withAttendeesApi(page, { regs });
+  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  const dialog = await openAttendees(page);
+  await expect(dialog.getByRole("button", { name: /Remind/ })).toHaveCount(0);
 });
