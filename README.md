@@ -286,7 +286,7 @@ npm run backup                      # saves to ~/pcps-backups/pcps-backup-<date-
 npm run backup -- --out D:\backups  # or choose the folder
 ```
 
-It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, club join requests, club news posts, event questions, event volunteers, activity log, contact messages, site notice) plus a `manifest.json` with the counts. To restore, use the restore script. Point `MONGO_URI` (in `backend/.env`) at a new, empty database (for example a fresh cluster or database name in Atlas) and run:
+It writes one `.json` file per collection (users, clubs, events, registrations, memberships, waitlist, club join requests, club news posts, club ideas, club alumni, campus venues, club polls, board posts, event questions, event volunteers, activity log, contact messages, site notice; bell messages and phone alert devices are left out on purpose, and a test fails if a new model is added to neither list) plus a `manifest.json` with the counts. To restore, use the restore script. Point `MONGO_URI` (in `backend/.env`) at a new, empty database (for example a fresh cluster or database name in Atlas) and run:
 
 ```bash
 npm run restore -- "D:\backups\pcps-backup-2026-11-11-0700"
