@@ -1,25 +1,15 @@
-import { useSyncExternalStore } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaQrcode } from "react-icons/fa";
 import { browserStorage, readTickets, visibleTickets } from "../utils/offlineTickets";
 import { useLang } from "../context/LanguageContext";
-
-function subscribe(callback) {
-  window.addEventListener("online", callback);
-  window.addEventListener("offline", callback);
-  return () => {
-    window.removeEventListener("online", callback);
-    window.removeEventListener("offline", callback);
-  };
-}
-const isOffline = () => !navigator.onLine;
+import useOffline from "../utils/useOffline";
 
 // When the phone has no internet and holds saved tickets, point straight at
 // them from any page: at the door of an event is exactly when this is needed,
 // and the rest of the site can't load without a connection.
 export default function OfflineTicketsBanner() {
   const { t } = useLang();
-  const offline = useSyncExternalStore(subscribe, isOffline, () => false);
+  const offline = useOffline();
   const { pathname } = useLocation();
   if (!offline || pathname === "/tickets") return null;
   if (visibleTickets(readTickets(browserStorage())).length === 0) return null;
