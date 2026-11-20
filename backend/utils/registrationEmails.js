@@ -19,25 +19,29 @@ async function safeSend(label, message) {
 }
 
 // Variables the wording needs; everything shown in HTML is escaped here.
-const vars = (user, event, lang) => ({
+const vars = (user, event, lang, answers = []) => ({
   name: escapeHtml(user.name),
   title: escapeHtml(event.title),
   rawTitle: event.title,
   when: formatEventDate(event.date, lang),
   where: escapeHtml(event.location),
+  answers: (answers || [])
+    .filter((a) => a && String(a.answer || "").trim())
+    .map((a) => ({ question: escapeHtml(`${a.question}`), answer: escapeHtml(a.answer) })),
 });
 
 // One send for each kind; the language is the student's account language.
-function build(kind, user, event) {
+function build(kind, user, event, answers) {
   const lang = pickLanguage(user.language);
-  const mail = eventEmail(kind, lang, vars(user, event, lang));
+  const mail = eventEmail(kind, lang, vars(user, event, lang, answers));
   return { to: user.email, subject: mail.subject, html: renderEmail({ heading: mail.heading, bodyHtml: mail.bodyHtml, language: lang }) };
 }
 
 // Registration is confirmed (open events straight away; approval events once
-// an organiser approves). Includes the add-to-calendar invite.
-function sendRegistrationConfirmation(user, event) {
-  return safeSend("registration confirmation", { ...build("confirmed", user, event), icalEvent: buildIcs(event) });
+// an organiser approves). Includes the add-to-calendar invite and, when the
+// event asked sign-up questions, the answers the student gave.
+function sendRegistrationConfirmation(user, event, answers) {
+  return safeSend("registration confirmation", { ...build("confirmed", user, event, answers), icalEvent: buildIcs(event) });
 }
 
 // The event needs organiser approval: tell the student the request arrived and
