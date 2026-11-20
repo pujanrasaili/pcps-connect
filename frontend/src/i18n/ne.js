@@ -1635,4 +1635,10 @@ export const ne = {
   "Answer reminder sent": "उत्तरको सम्झना पठाइयो",
   "Event sponsors changed": "कार्यक्रमका प्रायोजक परिवर्तन गरियो",
   "Volunteer roles changed": "स्वयंसेवक भूमिका परिवर्तन गरियो",
+  "Pages and buttons will work again when you're back online.": "इन्टरनेट फर्कनेबित्तिकै पृष्ठ र बटनहरू फेरि काम गर्नेछन्।",
+  "Copy emails": "इमेल प्रतिलिपि गर्नुहोस्",
+  "{n} email addresses copied.": "{n} वटा इमेल ठेगाना प्रतिलिपि गरियो।",
+  "1 email address copied.": "1 वटा इमेल ठेगाना प्रतिलिपि गरियो।",
+  "No email addresses to copy.": "प्रतिलिपि गर्न कुनै इमेल ठेगाना छैन।",
+  "Couldn't copy the addresses. Try Export CSV instead.": "इमेल ठेगाना प्रतिलिपि गर्न सकिएन। बरु CSV निर्यात गर्नुहोस्।",
 };
