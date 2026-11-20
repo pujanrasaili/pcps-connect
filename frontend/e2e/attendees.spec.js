@@ -259,3 +259,25 @@ test("no reminder button when everyone has answered", async ({ page }) => {
   const dialog = await openAttendees(page);
   await expect(dialog.getByRole("button", { name: /Remind/ })).toHaveCount(0);
 });
+
+test("the answer summary tallies each sign-up question for the organiser", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  const size = (a) => ({ answers: [{ question: "T-shirt size?", answer: a }] });
+  const regs = [reg(1, "Asha Rai", size("M")), reg(2, "Bikash Thapa", size("m")), reg(3, "Chhori Lama", size("L")), reg(4, "Dorje Sherpa", { answers: [] })];
+  await withAttendeesApi(page, { regs });
+  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "T-shirt size?", required: false }] }] }));
+  const dialog = await openAttendees(page);
+  const summary = dialog.getByTestId("answer-summary");
+  await summary.getByText("Answer summary").click();
+  await expect(summary).toContainText("T-shirt size?");
+  await expect(summary).toContainText("M × 2 · L × 1");
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+});
+
+test("no answer summary when the event asks no questions", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await withAttendeesApi(page, {});
+  const dialog = await openAttendees(page);
+  await expect(dialog.getByTestId("answer-summary")).toHaveCount(0);
+});
