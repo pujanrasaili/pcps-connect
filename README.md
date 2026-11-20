@@ -16,7 +16,7 @@ accounts.
 ## Tech Stack
 
 **Frontend:** React 19, Vite, React Router, Tailwind CSS, Axios, Recharts, React Icons
-**Backend:** Node.js, Express, MongoDB (Mongoose), JWT authentication (httpOnly cookies), bcrypt
+**Backend:** Node.js, Express 5, MongoDB (Mongoose), JWT authentication (httpOnly cookies), bcrypt
 **Infrastructure:** MongoDB Atlas (database), Cloudinary (image storage), Brevo (transactional email; Gmail SMTP via Nodemailer as a fallback), Vercel (frontend hosting), Render (backend hosting)
 
 ## Project Structure
