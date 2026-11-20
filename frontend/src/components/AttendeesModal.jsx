@@ -58,6 +58,7 @@ export default function AttendeesModal({ event, onClose }) {
   const [waitlist, setWaitlist] = useState([]);
   const [search, setSearch] = useState("");
   const [onlyNotAttended, setOnlyNotAttended] = useState(false);
+  const [onlyMissing, setOnlyMissing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [composing, setComposing] = useState(false);
@@ -71,6 +72,19 @@ export default function AttendeesModal({ event, onClose }) {
     setSearch("");
     setOnlyNotAttended(false);
   }, [event]);
+
+  const [reminding, setReminding] = useState(false);
+  const remindMissing = async () => {
+    setReminding(true);
+    try {
+      const res = await api.post(`/admin/events/${event._id}/remind-answers`);
+      toast.success(t("Reminder sent to {n} student(s)", { n: res.data.sent }));
+    } catch (err) {
+      toast.error(getErrorMessage(err, t("Failed to send the reminder")));
+    } finally {
+      setReminding(false);
+    }
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -148,6 +162,7 @@ export default function AttendeesModal({ event, onClose }) {
   const visibleRegistrations = confirmed.filter(
     (r) =>
       (!onlyNotAttended || !r.attended) &&
+      (!onlyMissing || missingAnswers(questions, r.answers).length > 0) &&
       (!q ||
         (r.user?.name || "").toLowerCase().includes(q) ||
         (r.user?.email || "").toLowerCase().includes(q) ||
@@ -156,6 +171,7 @@ export default function AttendeesModal({ event, onClose }) {
         (r.answers || []).some((a) => (a.answer || "").toLowerCase().includes(q)))
   );
 
+  const missingCount = confirmed.filter((r) => missingAnswers(questions, r.answers).length > 0).length;
   const attendedCount = confirmed.filter((r) => r.attended).length;
   const rated = registrations.filter((r) => r.rating);
   const averageRating = rated.length ? rated.reduce((sum, r) => sum + r.rating, 0) / rated.length : null;
@@ -248,6 +264,22 @@ export default function AttendeesModal({ event, onClose }) {
                 />
                 {t("Not yet attended")}
               </label>
+              {questions.some((qn) => qn.required) && (
+                <label className="flex shrink-0 items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={onlyMissing}
+                    onChange={(e) => setOnlyMissing(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300 text-primary-500"
+                  />
+                  {t("Answers missing")}
+                </label>
+              )}
+              {missingCount > 0 && new Date(event.date) > new Date() && (
+                <button type="button" onClick={remindMissing} disabled={reminding} className="shrink-0 text-sm font-medium text-primary-700 hover:underline disabled:opacity-60 dark:text-primary-300">
+                  {reminding ? t("Sending...") : t("Remind {n} to answer", { n: missingCount })}
+                </button>
+              )}
             </div>
           )}
           {pending.length > 0 && (
@@ -355,11 +387,18 @@ export default function AttendeesModal({ event, onClose }) {
                 {waitlist.map((w, i) => (
                   <li key={w._id} className="flex gap-2">
                     <span className="w-5 shrink-0 text-right text-slate-500 dark:text-slate-400">{i + 1}.</span>
-                    <span className="min-w-0 truncate">
-                      {w.user?.name || t("Unknown student")}
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {w.user?.email ? ` · ${w.user.email}` : ""}
+                    <span className="min-w-0">
+                      <span className="block truncate">
+                        {w.user?.name || t("Unknown student")}
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          {w.user?.email ? ` · ${w.user.email}` : ""}
+                        </span>
                       </span>
+                      {(w.answers || []).map((a) => (
+                        <span key={a.question} className="block break-words text-xs text-slate-600 dark:text-slate-300" data-testid="waitlist-answer">
+                          {a.question} {a.answer}
+                        </span>
+                      ))}
                     </span>
                   </li>
                 ))}
