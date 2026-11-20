@@ -11,6 +11,7 @@ import { ClubMembershipProvider } from "./context/ClubMembershipContext";
 import AppRoutes from "./routes/AppRoutes";
 import ErrorBoundary from "./components/ErrorBoundary";
 import SavedEventsSync from "./components/SavedEventsSync";
+import OfflineNotice from "./components/OfflineNotice";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <AuthProvider>
             <LanguageSync />
             <SavedEventsSync />
+            <OfflineNotice />
             <EventsProvider>
               <ClubsProvider>
                 <RegistrationProvider>
