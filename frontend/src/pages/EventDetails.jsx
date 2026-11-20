@@ -36,6 +36,7 @@ import SignupQuestionsFields from "../components/SignupQuestionsFields";
 import { answersComplete } from "../utils/signupAnswers";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
+import StartsLabel from "../components/StartsLabel";
 import { formatDate, formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, hasOpenDeadline } from "../utils/registrationDeadline";
 import { isHostedBy } from "../utils/eventHosts";
@@ -365,7 +366,10 @@ export default function EventDetails() {
             <ul className="space-y-4 text-sm">
               <li className="flex items-center gap-3">
                 <FaCalendarAlt className="shrink-0 text-primary-500" />
-                <span className="text-slate-600 dark:text-slate-300">{formatDateTimeRange(event.date, event.endDate)}</span>
+                <span className="text-slate-600 dark:text-slate-300">
+                  {formatDateTimeRange(event.date, event.endDate)}
+                  <StartsLabel event={event} className="mt-0.5 block" />
+                </span>
               </li>
               <li className="flex items-center gap-3">
                 <FaMapMarkerAlt className="shrink-0 text-primary-500" />

@@ -8,6 +8,7 @@ import { useRegistrations } from "../context/RegistrationContext";
 import { useSavedEvents } from "../hooks/useSavedEvents";
 import { useLang } from "../context/LanguageContext";
 import SafeImage from "./SafeImage";
+import StartsLabel from "./StartsLabel";
 
 export default function EventCard({ event }) {
   const capacity = event.capacity ?? 100;
@@ -71,6 +72,11 @@ export default function EventCard({ event }) {
           <FaClock className="text-primary-500 shrink-0" />
           <span>{formatTimeRange(event.date, event.endDate)}</span>
         </div>
+        {!isPast && (
+          <p className="mt-1 pl-6 text-sm">
+            <StartsLabel event={event} />
+          </p>
+        )}
         <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <FaMapMarkerAlt className="text-primary-500 shrink-0" />
           <span className="truncate">{event.location}</span>
