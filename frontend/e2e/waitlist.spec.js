@@ -108,3 +108,22 @@ test("the Dashboard shows no waitlist card when the student is on none", async (
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "On the waitlist" })).toHaveCount(0);
 });
+
+test("someone waiting for a spot can fix their sign-up answers", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  const questions = [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }];
+  await withWaitlist(page, { event: full({ signupQuestions: questions }), start: { onWaitlist: true, position: 2, answers: [{ question: "Phone number?", answer: "9800000000" }] } });
+  let put = null;
+  await page.route(`**/api/waitlist/${ID}/answers`, (route) => {
+    put = route.request().postDataJSON();
+    return reply(route, { message: "Answers saved", answers: [{ question: "Phone number?", answer: put.answers[0] }] });
+  });
+  await page.goto(`/events/${ID}`);
+  const card = page.getByTestId("my-answers");
+  await expect(card).toContainText("9800000000");
+  await card.getByRole("button").first().click();
+  await card.getByLabel("Phone number?").fill("9811111111");
+  await card.locator("button[type=submit]").click();
+  await expect.poll(() => put).toEqual({ answers: ["9811111111"] });
+  await expect(card).toContainText("9811111111");
+});
