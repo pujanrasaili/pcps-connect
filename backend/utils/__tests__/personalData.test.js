@@ -15,7 +15,7 @@ describe("buildPersonalData", () => {
         { event: { title: "Hack", date: "2026-09-01T10:00:00Z" }, status: "confirmed", attended: true, rating: 5, feedback: "great", createdAt: "2026-08-01T00:00:00Z" },
         { event: null, status: "confirmed" }, // dangling reference is skipped
       ],
-      waitlist: [{ event: { title: "Fest", date: "2027-01-01T10:00:00Z" }, createdAt: "2026-10-01T00:00:00Z" }],
+      waitlist: [{ event: { title: "Fest", date: "2027-01-01T10:00:00Z" }, createdAt: "2026-10-01T00:00:00Z", answers: [{ question: "Phone?", answer: "98", _id: "x" }] }],
       memberships: [{ club: { name: "Tech Club" }, createdAt: "2026-02-01T00:00:00Z" }, { club: null }],
       ledClubs: [{ name: "Tech Club" }],
       notifications: [{ title: "Seat opened", read: true, createdAt: "2026-10-02T00:00:00Z", user: "u1" }],
@@ -32,6 +32,7 @@ describe("buildPersonalData", () => {
       expect.objectContaining({ event: "Hack", attended: true, rating: 5, feedback: "great" }),
     ]);
     expect(data.waitlist).toHaveLength(1);
+    expect(data.waitlist[0].signUpAnswers).toEqual([{ question: "Phone?", answer: "98" }]);
     expect(data.clubMemberships).toEqual([{ club: "Tech Club", joinedAt: "2026-02-01T00:00:00.000Z" }]);
     expect(data.clubsYouLead).toEqual(["Tech Club"]);
     expect(data.notifications).toEqual([{ message: "Seat opened", read: true, receivedAt: "2026-10-02T00:00:00.000Z" }]);
