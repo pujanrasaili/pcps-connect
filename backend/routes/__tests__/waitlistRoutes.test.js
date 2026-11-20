@@ -7,19 +7,20 @@ jest.mock("../../controllers/waitlistController", () => ({
   getMyWaitlist: (req, res) => res.json({ handler: "my" }),
   getWaitlistStatus: (req, res) => res.json({ handler: "status", id: req.params.eventId }),
   joinWaitlist: (req, res) => res.json({ handler: "join" }),
+  updateWaitlistAnswers: (req, res) => res.json({ handler: "answers", id: req.params.eventId }),
   leaveWaitlist: (req, res) => res.json({ handler: "leave" }),
 }));
 
 const routes = require("../waitlistRoutes");
 
-async function get(path) {
+async function get(path, method = "GET") {
   const app = express();
   app.use("/api/waitlist", routes);
   const server = await new Promise((resolve) => {
     const s = app.listen(0, () => resolve(s));
   });
   try {
-    const res = await fetch(`http://127.0.0.1:${server.address().port}/api/waitlist${path}`);
+    const res = await fetch(`http://127.0.0.1:${server.address().port}/api/waitlist${path}`, { method });
     return { status: res.status, body: await res.json().catch(() => null) };
   } finally {
     await new Promise((resolve) => server.close(resolve));
@@ -34,6 +35,11 @@ describe("waitlist routes", () => {
   it("GET /:eventId still reaches the status handler for a real id", async () => {
     const id = "a".repeat(24);
     expect(await get(`/${id}`)).toEqual({ status: 200, body: { handler: "status", id } });
+  });
+
+  it("PUT /:eventId/answers reaches the answers handler", async () => {
+    const id = "b".repeat(24);
+    expect(await get(`/${id}/answers`, "PUT")).toEqual({ status: 200, body: { handler: "answers", id } });
   });
 
   it("a malformed event id is still a clean 404", async () => {

@@ -5,7 +5,7 @@ jest.mock("../../models/WaitlistEntry");
 const Event = require("../../models/Event");
 const Registration = require("../../models/Registration");
 const WaitlistEntry = require("../../models/WaitlistEntry");
-const { getWaitlistStatus, getMyWaitlist, joinWaitlist, leaveWaitlist } = require("../waitlistController");
+const { getWaitlistStatus, getMyWaitlist, joinWaitlist, updateWaitlistAnswers, leaveWaitlist } = require("../waitlistController");
 
 function mockRes() {
   const res = {};
@@ -122,7 +122,7 @@ describe("getWaitlistStatus", () => {
     WaitlistEntry.countDocuments.mockResolvedValue(2);
     const res = mockRes();
     await getWaitlistStatus(req, res);
-    expect(res.json).toHaveBeenCalledWith({ onWaitlist: true, position: 3 });
+    expect(res.json).toHaveBeenCalledWith({ onWaitlist: true, position: 3, answers: [] });
   });
 });
 
@@ -182,5 +182,44 @@ describe("getMyWaitlist", () => {
     const res = mockRes();
     await getMyWaitlist({ user: { _id: "u1" } }, res);
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
+describe("updateWaitlistAnswers", () => {
+  afterEach(() => jest.resetAllMocks());
+  const QS = [{ text: "Phone?", required: true }];
+  const call = async (answers = ["98"]) => {
+    const res = mockRes();
+    await updateWaitlistAnswers({ ...req, body: { answers } }, res);
+    return res;
+  };
+
+  it("404s when the student isn't on the waitlist", async () => {
+    WaitlistEntry.findOne.mockResolvedValue(null);
+    expect((await call()).status).toHaveBeenCalledWith(404);
+  });
+
+  it("refuses once the event has taken place", async () => {
+    WaitlistEntry.findOne.mockResolvedValue({ save: jest.fn() });
+    Event.findById.mockResolvedValue({ date: new Date(Date.now() - 1000), signupQuestions: QS });
+    expect((await call()).status).toHaveBeenCalledWith(400);
+  });
+
+  it("rejects a blank required answer and saves nothing", async () => {
+    const entry = { save: jest.fn() };
+    WaitlistEntry.findOne.mockResolvedValue(entry);
+    Event.findById.mockResolvedValue({ date: future, signupQuestions: QS });
+    expect((await call([""])).status).toHaveBeenCalledWith(400);
+    expect(entry.save).not.toHaveBeenCalled();
+  });
+
+  it("saves the new answers", async () => {
+    const entry = { save: jest.fn().mockResolvedValue() };
+    WaitlistEntry.findOne.mockResolvedValue(entry);
+    Event.findById.mockResolvedValue({ date: future, signupQuestions: QS });
+    const res = await call(["9811"]);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(entry.answers).toEqual([{ question: "Phone?", answer: "9811" }]);
+    expect(entry.save).toHaveBeenCalled();
   });
 });
