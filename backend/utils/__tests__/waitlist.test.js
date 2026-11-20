@@ -59,6 +59,15 @@ describe("promoteFromWaitlist", () => {
     expect(Registration.create.mock.calls[0][0].answers).toEqual([{ question: "Size?", answer: "M" }]);
   });
 
+  it("repeats the sign-up answers in the spot-opened email", async () => {
+    Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
+    queue({ ...entry(1), answers: [{ question: "Size <?>", answer: "M" }] });
+    await promoteFromWaitlist(event);
+    const html = sendEmail.mock.calls[0][0].html;
+    expect(html).toContain("Your answers");
+    expect(html).toContain("Size &lt;?&gt; M");
+  });
+
   it("also tells the promoted student under the bell in the app", async () => {
     Registration.countDocuments.mockResolvedValueOnce(9).mockResolvedValue(10);
     WaitlistEntry.findOneAndDelete.mockReturnValueOnce({ populate: jest.fn().mockResolvedValue(entry(1)) });
