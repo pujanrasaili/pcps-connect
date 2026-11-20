@@ -405,7 +405,7 @@ export default function AdminClubs() {
             <input id="club-meetings" name="meetings" maxLength={120} className="input-field" value={form.meetings} onChange={handleChange} placeholder={t("e.g. Thursdays 3 PM, Room 204")} />
           </div>
           <label className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-200">
-            <input type="checkbox" name="requiresApproval" checked={!!form.requiresApproval} onChange={handleChange} className="mt-0.5 h-4 w-4 rounded border-slate-300" />
+            <input type="checkbox" name="requiresApproval" checked={!!form.requiresApproval} onChange={handleChange} className="mt-0.5 h-4 w-4 rounded-sm border-slate-300" />
             <span>
               {t("Approve each person who joins")}
               <span className="block text-xs text-slate-500 dark:text-slate-400">{t("Students send a request; the club's leaders or an admin accept or decline it. Unticking later lets everyone waiting in.")}</span>

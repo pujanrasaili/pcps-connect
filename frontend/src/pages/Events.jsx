@@ -158,7 +158,7 @@ export default function Events() {
                 onClick={() => setWhen(value)}
                 className={`whitespace-nowrap rounded-lg px-2 py-2.5 text-[13px] font-semibold transition-colors sm:px-4 sm:py-1.5 sm:text-sm ${
                   when === value
-                    ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
+                    ? "bg-white text-primary-600 shadow-xs dark:bg-slate-900 dark:text-primary-300"
                     : "text-slate-600 dark:text-slate-400"
                 }`}
               >
@@ -178,7 +178,7 @@ export default function Events() {
                 aria-pressed={view === value}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors sm:py-1.5 ${
                   view === value
-                    ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
+                    ? "bg-white text-primary-600 shadow-xs dark:bg-slate-900 dark:text-primary-300"
                     : "text-slate-600 dark:text-slate-400"
                 }`}
               >
@@ -201,7 +201,7 @@ export default function Events() {
               type="checkbox"
               checked={openOnly}
               onChange={(e) => update({ open: e.target.checked })}
-              className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+              className="h-4 w-4 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
             />
             {t("Only events with spots left")}
           </label>
@@ -210,7 +210,7 @@ export default function Events() {
               type="checkbox"
               checked={freeOnly}
               onChange={(e) => update({ free: e.target.checked })}
-              className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+              className="h-4 w-4 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
             />
             {t("Free events only")}
           </label>

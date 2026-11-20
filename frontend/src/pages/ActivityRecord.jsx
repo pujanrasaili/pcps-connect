@@ -89,7 +89,7 @@ export default function ActivityRecord() {
             <ul className="mt-2 divide-y divide-slate-200 text-sm">
               {record.attended.map((e, i) => (
                 <li key={i} className="flex justify-between gap-4 py-1.5">
-                  <span className="min-w-0 break-words">{e.title}{e.club ? ` · ${e.club}` : ""}</span>
+                  <span className="min-w-0 wrap-break-word">{e.title}{e.club ? ` · ${e.club}` : ""}</span>
                   <span className="shrink-0 text-slate-600">{formatDate(e.date)}</span>
                 </li>
               ))}
@@ -103,7 +103,7 @@ export default function ActivityRecord() {
             <ul className="mt-2 divide-y divide-slate-200 text-sm">
               {record.helped.map((e, i) => (
                 <li key={i} className="flex justify-between gap-4 py-1.5">
-                  <span className="min-w-0 break-words">{e.title}{e.role ? ` · ${e.role}` : ""}</span>
+                  <span className="min-w-0 wrap-break-word">{e.title}{e.role ? ` · ${e.role}` : ""}</span>
                   <span className="shrink-0 text-slate-600">{formatDate(e.date)}</span>
                 </li>
               ))}

@@ -311,7 +311,7 @@ export default function AdminEvents() {
               aria-pressed={tab === value}
               className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors sm:py-1.5 ${
                 tab === value
-                  ? "bg-white text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300"
+                  ? "bg-white text-primary-600 shadow-xs dark:bg-slate-900 dark:text-primary-300"
                   : "text-slate-600 dark:text-slate-400"
               }`}
             >
@@ -541,7 +541,7 @@ export default function AdminEvents() {
               name="requiresApproval"
               checked={form.requiresApproval}
               onChange={handleChange}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary-500"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded-sm border-slate-300 text-primary-500"
             />
             <span className="text-sm">
               <span className="font-medium text-slate-800 dark:text-slate-100">{t("Approve each person who joins")}</span>
@@ -557,7 +557,7 @@ export default function AdminEvents() {
                 name="copyRoles"
                 checked={form.copyRoles}
                 onChange={handleChange}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-primary-500"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded-sm border-slate-300 text-primary-500"
               />
               <span className="text-sm">
                 <span className="font-medium text-slate-800 dark:text-slate-100">{t("Copy the volunteer roles")}</span>

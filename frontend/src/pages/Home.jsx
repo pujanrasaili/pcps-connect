@@ -223,11 +223,11 @@ export default function Home() {
         <div className="container-page">
           <Reveal direction="scale">
             <div className="relative overflow-hidden rounded-2xl bg-slate-900 px-8 py-16 text-center text-white">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-600/90 via-slate-900 to-accent-700/80" />
+              <div className="absolute inset-0 bg-linear-to-br from-primary-600/90 via-slate-900 to-accent-700/80" />
               <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary-400/20 blur-3xl" />
               <div className="absolute -left-16 -bottom-16 h-64 w-64 rounded-full bg-accent-400/20 blur-3xl" />
               <svg
-                className="pointer-events-none absolute inset-0 h-full w-full text-white/[0.04]"
+                className="pointer-events-none absolute inset-0 h-full w-full text-white/4"
                 preserveAspectRatio="none"
               >
                 <defs>

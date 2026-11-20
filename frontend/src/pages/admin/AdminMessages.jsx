@@ -158,7 +158,7 @@ export default function AdminMessages() {
                     </button>
                   </div>
                 </div>
-                <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-2 whitespace-pre-wrap wrap-break-word text-sm text-slate-600 dark:text-slate-300">
                   {m.message}
                 </p>
               </li>
