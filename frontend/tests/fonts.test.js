@@ -4,7 +4,6 @@ import { readFileSync } from "node:fs";
 
 const css = readFileSync(new URL("../src/index.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
-const tailwind = readFileSync(new URL("../tailwind.config.js", import.meta.url), "utf8");
 
 // Inter and Poppins have no Devanagari letters, so Nepali needs its own font in
 // the stack or each device picks something different.
@@ -15,8 +14,8 @@ test("the stylesheet loads a Devanagari font and puts it in both font stacks", (
 });
 
 test("Tailwind's font families include it too, after the Latin font", () => {
-  assert.match(tailwind, /display: \["Poppins", "Noto Sans Devanagari", "sans-serif"\]/);
-  assert.match(tailwind, /body: \["Inter", "Noto Sans Devanagari", "sans-serif"\]/);
+  assert.match(css, /--font-display: Poppins, Noto Sans Devanagari, sans-serif;/);
+  assert.match(css, /--font-body: Inter, Noto Sans Devanagari, sans-serif;/);
 });
 
 test("the page's security policy allows Google's font hosts", () => {

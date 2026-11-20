@@ -50,7 +50,7 @@ export default function CheckInQrModal({ registration, onClose }) {
           </div>
         ) : (
           // Always dark-on-white, even in dark mode -- scanners need the contrast.
-          <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-2xl bg-white p-4 shadow-xs ring-1 ring-slate-200">
             <QRCodeSVG value={url} size={208} level="M" title={t("Your check-in code")} />
           </div>
         )}

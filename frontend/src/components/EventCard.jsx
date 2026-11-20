@@ -38,7 +38,7 @@ export default function EventCard({ event }) {
           loading="lazy"
           className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 ${isPast ? "grayscale" : ""}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-900/70 via-slate-900/10 to-transparent" />
         <div className="absolute left-3 top-3 flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-white dark:bg-slate-900 shadow-md">
           <span className="text-xs font-bold text-accent-600 dark:text-accent-300">
             {formatMonth(event.date)}
@@ -124,7 +124,7 @@ export default function EventCard({ event }) {
             >
               {saved ? <FaBookmark /> : <FaRegBookmark />}
             </button>
-            <Link to={`/events/${event._id}`} className="btn-outline !px-4 !py-2 text-sm">
+            <Link to={`/events/${event._id}`} className="btn-outline px-4! py-2! text-sm">
               {t("Details")}
             </Link>
           </span>

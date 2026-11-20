@@ -77,7 +77,7 @@ export default function EventCalendar({ events, registeredIds }) {
                   key={cell.key}
                   onClick={() => setSelectedKey(cell.key)}
                   aria-pressed={selected}
-                  className={`flex min-h-[3.5rem] min-w-0 flex-col items-stretch gap-1 border-r border-slate-100 p-1 text-left last:border-r-0 sm:min-h-[6rem] sm:p-1.5 dark:border-slate-800 ${
+                  className={`flex min-h-14 min-w-0 flex-col items-stretch gap-1 border-r border-slate-100 p-1 text-left last:border-r-0 sm:min-h-24 sm:p-1.5 dark:border-slate-800 ${
                     selected ? "bg-primary-50 dark:bg-primary-900/20" : "hover:bg-slate-50 dark:hover:bg-slate-800/40"
                   } ${cell.inMonth ? "" : "bg-slate-50/70 dark:bg-slate-950/40"}`}
                 >
@@ -100,7 +100,7 @@ export default function EventCalendar({ events, registeredIds }) {
                   </span>
                   <span className="hidden min-w-0 flex-col gap-0.5 sm:flex" aria-hidden="true">
                     {cell.events.slice(0, 2).map((e) => (
-                      <span key={e._id} className={`truncate rounded px-1 py-0.5 text-[11px] font-medium ${chipClass(e, registeredIds)}`}>
+                      <span key={e._id} className={`truncate rounded-sm px-1 py-0.5 text-[11px] font-medium ${chipClass(e, registeredIds)}`}>
                         {e.title}
                       </span>
                     ))}

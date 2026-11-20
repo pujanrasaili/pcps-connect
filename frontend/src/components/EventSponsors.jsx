@@ -59,11 +59,11 @@ export default function EventSponsors({ eventId, sponsors = [], canManage, event
         <form onSubmit={save} className="mt-4 space-y-3">
           {draft.map((row, i) => (
             <div key={i} className="flex flex-wrap items-end gap-2">
-              <label className="min-w-[10rem] flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label className="min-w-40 flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t("Sponsor name")}
                 <input value={row.name} onChange={(e) => setRow(i, { name: e.target.value })} maxLength={60} required className={`${input} mt-1 block w-full`} />
               </label>
-              <label className="min-w-[10rem] flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label className="min-w-40 flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t("Website (optional)")}
                 <input value={row.url} onChange={(e) => setRow(i, { url: e.target.value })} maxLength={200} inputMode="url" className={`${input} mt-1 block w-full`} />
               </label>

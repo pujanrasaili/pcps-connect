@@ -72,7 +72,7 @@ export default function Certificate({ volunteer = false }) {
       <div
         // A4-landscape proportions on screens wide enough to hold the content
         // (and always when printing); on a phone the card just grows to fit.
-        className="mx-auto flex max-w-4xl flex-col items-center bg-white p-3 text-slate-800 shadow-lg sm:[aspect-ratio:297/210] print:m-0 print:h-[209mm] print:w-[297mm] print:max-w-none print:overflow-hidden print:shadow-none"
+        className="mx-auto flex max-w-4xl flex-col items-center bg-white p-3 text-slate-800 shadow-lg sm:aspect-297/210 print:m-0 print:h-[209mm] print:w-[297mm] print:max-w-none print:overflow-hidden print:shadow-none"
       >
         <div className="flex min-h-full w-full flex-col items-center justify-between gap-6 border-4 border-double border-primary-500 px-8 py-8 text-center sm:px-14">
           <div className="flex flex-col items-center">

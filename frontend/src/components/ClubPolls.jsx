@@ -190,7 +190,7 @@ export default function ClubPolls({ clubId, member, staff }) {
           {polls.map((poll) => (
             <li key={poll._id} className="rounded-xl border border-slate-100 p-3 dark:border-slate-800">
               <div className="flex items-start justify-between gap-3">
-                <p className="break-words text-sm font-semibold text-slate-800 dark:text-slate-100">{poll.question}</p>
+                <p className="wrap-break-word text-sm font-semibold text-slate-800 dark:text-slate-100">{poll.question}</p>
                 {staff && (
                   <div className="flex shrink-0 items-center gap-1">
                     {!poll.closed && (
@@ -223,7 +223,7 @@ export default function ClubPolls({ clubId, member, staff }) {
                     <>
                       <span aria-hidden="true" className="absolute inset-y-0 left-0 rounded-lg bg-primary-100 dark:bg-primary-900/40" style={{ width: `${pct}%` }} />
                       <span className="relative flex items-center justify-between gap-3">
-                        <span className="min-w-0 break-words">
+                        <span className="min-w-0 wrap-break-word">
                           {o.text}
                           {mine ? ` ${t("(your vote)")}` : ""}
                         </span>

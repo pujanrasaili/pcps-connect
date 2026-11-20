@@ -33,7 +33,7 @@ export default function ClubCard({ club, onView }) {
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/55 via-slate-900/0 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-900/55 via-slate-900/0 to-transparent" />
         <div className="absolute bottom-3 left-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/95 dark:bg-slate-900/95 text-primary-600 shadow-md">
           <Icon className="text-xl" />
         </div>

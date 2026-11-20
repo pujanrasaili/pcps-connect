@@ -198,7 +198,7 @@ export default function Clubs() {
                 type="checkbox"
                 checked={mineOnly}
                 onChange={(e) => setFilter("mine", e.target.checked ? "1" : "")}
-                className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                className="h-4 w-4 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-500"
               />
               {t("Only clubs I've joined")}
             </label>
@@ -346,7 +346,7 @@ export default function Clubs() {
                 <button
                   onClick={handleShare}
                   aria-label={t("Share this club")}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-xs transition-transform hover:scale-110"
                 >
                   <FaShareAlt />
                 </button>
@@ -355,7 +355,7 @@ export default function Clubs() {
                     type="button"
                     onClick={() => { setEditingClub(selectedClub); setSelectedClub(null); }}
                     aria-label={t("Edit club details")}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-xs transition-transform hover:scale-110"
                   >
                     <FaPen />
                   </button>
@@ -364,7 +364,7 @@ export default function Clubs() {
                   <Link
                     to={`/clubs/${selectedClub._id}/poster`}
                     aria-label={t("Print a club poster")}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-sm transition-transform hover:scale-110"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-300 shadow-xs transition-transform hover:scale-110"
                   >
                     <FaPrint />
                   </Link>
@@ -373,7 +373,7 @@ export default function Clubs() {
                   onClick={() => requireAuth(() => toggleFavorite(selectedClub._id))}
                   aria-pressed={isFavorite(selectedClub._id)}
                   aria-label={t("Toggle favorite club")}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-rose-500 shadow-sm transition-transform hover:scale-110"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-rose-500 shadow-xs transition-transform hover:scale-110"
                 >
                   {isFavorite(selectedClub._id) ? <FaHeart /> : <FaRegHeart />}
                 </button>

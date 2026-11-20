@@ -24,7 +24,7 @@ export default function VideoLightbox({ isOpen, onClose, src, poster }) {
       aria-modal="true"
       aria-label={t("Video player")}
     >
-      <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xs" onClick={onClose} />
       <button
         onClick={onClose}
         aria-label={t("Close video")}

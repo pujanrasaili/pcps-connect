@@ -83,7 +83,7 @@ export default function MobileTabBar() {
     <nav
       aria-label={t("Quick menu")}
       hidden={typing}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(15,23,42,0.06)] backdrop-blur dark:border-white/10 dark:bg-slate-950/95 md:hidden print:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(15,23,42,0.06)] backdrop-blur-sm dark:border-white/10 dark:bg-slate-950/95 md:hidden print:hidden"
     >
       <ul className="mx-auto flex max-w-lg">
         {tabs.map(({ to, label, icon: Icon, end, active }) => (

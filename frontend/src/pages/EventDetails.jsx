@@ -278,17 +278,17 @@ export default function EventDetails() {
     <div>
       <div className="relative h-64 bg-slate-800 sm:h-80">
         <SafeImage src={resolveUploadUrl(event.image, 1600)} alt={event.title} fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/85 via-slate-900/55 to-slate-900/15" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-900/85 via-slate-900/55 to-slate-900/15" />
         <div className="container-page absolute inset-x-0 bottom-6 text-white">
           <Link to="/events" className="hit-v mb-3 flex w-fit items-center gap-1.5 text-sm text-white hover:underline">
             <FaArrowLeft className="text-xs" /> {t("Back to events")}
           </Link>
           <div className="flex flex-wrap gap-2">
-            {event.category && <span className="badge bg-white/20 backdrop-blur">{event.category}</span>}
+            {event.category && <span className="badge bg-white/20 backdrop-blur-sm">{event.category}</span>}
             {event.club?.name && (
-              <span className="badge max-w-full bg-white/20 backdrop-blur">{t("Hosted by {name}", { name: [event.club.name, ...(event.coHosts || []).map((c) => c.name)].filter(Boolean).join(" + ") })}</span>
+              <span className="badge max-w-full bg-white/20 backdrop-blur-sm">{t("Hosted by {name}", { name: [event.club.name, ...(event.coHosts || []).map((c) => c.name)].filter(Boolean).join(" + ") })}</span>
             )}
-            {isPast && <span className="badge bg-slate-700/60 backdrop-blur">{t("Past event")}</span>}
+            {isPast && <span className="badge bg-slate-700/60 backdrop-blur-sm">{t("Past event")}</span>}
           </div>
           <h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{event.title}</h1>
         </div>
@@ -556,7 +556,7 @@ export default function EventDetails() {
           real button in the card) and never shows on a computer. */}
       {showStickyRegister && (
         <StickyRegister>
-        <div aria-hidden="true" className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur dark:border-white/10 dark:bg-slate-950/95 lg:hidden print:hidden">
+        <div aria-hidden="true" className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-4 py-2.5 backdrop-blur-sm dark:border-white/10 dark:bg-slate-950/95 lg:hidden print:hidden">
           {isAuthenticated ? (
             <button type="button" tabIndex={-1} onClick={handleRegisterClick} className="btn-primary w-full">
               {event.requiresApproval ? t("Request to join") : t("Register now")}

@@ -43,7 +43,7 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* Brand ribbon */}
-      <div className="h-1.5 w-full bg-gradient-to-r from-pcps-red via-primary-500 to-pcps-blue" />
+      <div className="h-1.5 w-full bg-linear-to-r from-pcps-red via-primary-500 to-pcps-blue" />
 
       <div className="relative h-[560px] sm:h-[600px] overflow-hidden">
         <img
@@ -58,12 +58,12 @@ export default function HeroSection() {
           style={{ transform: "scale(1.1)" }}
         />
         {/* Scrim for text legibility — darker on the left where the copy sits */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-slate-950/90 via-slate-950/70 to-slate-950/30" />
+        <div className="absolute inset-0 bg-linear-to-t from-slate-950/80 via-transparent to-transparent" />
 
         <div className="container-page relative flex h-full items-center">
           <div className="max-w-xl text-white animate-slide-up">
-            <span className="badge border border-white/20 bg-white/10 text-white/90 backdrop-blur">
+            <span className="badge border border-white/20 bg-white/10 text-white/90 backdrop-blur-sm">
               {t("Patan College of Professional Studies")}
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold leading-tight sm:text-5xl">

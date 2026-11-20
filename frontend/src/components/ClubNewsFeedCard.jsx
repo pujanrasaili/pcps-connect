@@ -25,7 +25,7 @@ export default function ClubNewsFeedCard({ posts }) {
               <span className="block text-xs font-semibold text-primary-700 dark:text-primary-300">
                 {post.club?.name} · {formatDate(post.createdAt)}
               </span>
-              <span className="mt-0.5 line-clamp-2 block break-words text-sm text-slate-700 dark:text-slate-200">{post.body}</span>
+              <span className="mt-0.5 line-clamp-2 block wrap-break-word text-sm text-slate-700 dark:text-slate-200">{post.body}</span>
             </Link>
           </li>
         ))}

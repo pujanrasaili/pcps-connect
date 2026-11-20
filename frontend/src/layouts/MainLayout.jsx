@@ -18,7 +18,7 @@ export default function MainLayout() {
       <OfflineTicketsBanner />
       <SlowServerNotice />
       <SiteNoticeBanner />
-      <main id="main-content" tabIndex={-1} className="flex-1 overflow-x-clip outline-none">
+      <main id="main-content" tabIndex={-1} className="flex-1 overflow-x-clip outline-hidden">
         <Outlet />
       </main>
       <Footer />

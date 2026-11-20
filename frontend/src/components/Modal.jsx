@@ -121,15 +121,15 @@ export default function Modal({ isOpen, onClose, title, children, size = "md" })
       aria-label={title}
     >
       <div
-        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
         onClick={onClose}
       />
       <div
         ref={dialogRef}
         tabIndex={-1}
-        className={`relative w-full ${sizes[size]} card-surface max-h-[92dvh] overflow-y-auto overscroll-contain rounded-b-none rounded-t-3xl pb-[env(safe-area-inset-bottom)] outline-none max-sm:animate-sheet-up sm:max-h-[90vh] sm:rounded-2xl sm:pb-0 sm:animate-slide-up`}
+        className={`relative w-full ${sizes[size]} card-surface max-h-[92dvh] overflow-y-auto overscroll-contain rounded-b-none rounded-t-3xl pb-[env(safe-area-inset-bottom)] outline-hidden max-sm:animate-sheet-up sm:max-h-[90vh] sm:rounded-2xl sm:pb-0 sm:animate-slide-up`}
       >
-        <div onTouchStart={dragStart} onTouchMove={dragMove} onTouchEnd={dragEnd} onTouchCancel={dragEnd} className="sticky top-0 z-10 max-sm:touch-none border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-t-3xl sm:rounded-t-2xl">
+        <div onTouchStart={dragStart} onTouchMove={dragMove} onTouchEnd={dragEnd} onTouchCancel={dragEnd} className="sticky top-0 z-10 max-sm:touch-none border-b border-slate-100 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-t-3xl sm:rounded-t-2xl">
           <span aria-hidden="true" className="mx-auto mt-2 block h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-700 sm:hidden" />
           <div className="flex items-center justify-between px-6 py-3 sm:py-4">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">

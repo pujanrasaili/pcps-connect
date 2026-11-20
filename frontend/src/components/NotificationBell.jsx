@@ -64,7 +64,7 @@ export default function NotificationBell({ className = "" }) {
         {unread > 0 && (
           <span
             aria-hidden="true"
-            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold leading-none text-white"
+            className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-bold leading-none text-white"
           >
             {unread > 9 ? "9+" : unread}
           </span>
@@ -82,7 +82,7 @@ export default function NotificationBell({ className = "" }) {
               <button
                 type="button"
                 onClick={clearAll}
-                className="rounded text-xs font-medium text-primary-700 hover:underline dark:text-primary-300"
+                className="rounded-sm text-xs font-medium text-primary-700 hover:underline dark:text-primary-300"
               >
                 {t("Clear all")}
               </button>

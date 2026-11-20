@@ -61,7 +61,7 @@ export default function OfflineTickets() {
                 </p>
               )}
               {/* Always dark-on-white, even in dark mode: scanners need the contrast. */}
-              <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+              <div className="rounded-2xl bg-white p-4 shadow-xs ring-1 ring-slate-200">
                 <QRCodeSVG value={ticketUrl(window.location.origin, ticket.code)} size={176} level="M" title={t("Check-in code for {title}", { title: ticket.title })} />
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-300">{t("Personal to you. Don't share a screenshot of it.")}</p>

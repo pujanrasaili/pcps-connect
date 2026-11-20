@@ -149,14 +149,14 @@ export default function EventQuestions({ eventId, eventOver, canAnswer, isAuthen
         <ul className="mt-4 space-y-4">
           {questions.map((q) => (
             <li key={q._id} className="rounded-xl border border-slate-100 p-4 dark:border-slate-800">
-              <p className="whitespace-pre-line break-words text-sm font-medium text-slate-800 dark:text-slate-100">{q.question}</p>
+              <p className="whitespace-pre-line wrap-break-word text-sm font-medium text-slate-800 dark:text-slate-100">{q.question}</p>
               <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
                 {t("{name} asked", { name: q.authorName })} · {formatDate(q.createdAt)}
               </p>
 
               {q.answer ? (
                 <div className="mt-3 rounded-lg bg-primary-50 p-3 dark:bg-primary-900/20">
-                  <p className="whitespace-pre-line break-words text-sm text-slate-800 dark:text-slate-100">{q.answer}</p>
+                  <p className="whitespace-pre-line wrap-break-word text-sm text-slate-800 dark:text-slate-100">{q.answer}</p>
                   <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">{q.answeredByName ? t("Answered by {name}", { name: q.answeredByName }) : t("Answered by the organisers")}</p>
                 </div>
               ) : (

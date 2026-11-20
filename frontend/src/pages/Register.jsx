@@ -175,7 +175,7 @@ export default function Register() {
               aria-describedby={errors.agree ? "reg-agree-error" : undefined}
               checked={form.agree}
               onChange={handleChange}
-              className="mt-1 h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-400"
+              className="mt-1 h-4 w-4 rounded-sm border-slate-300 text-primary-600 focus:ring-primary-400"
             />
             <span>
             {t("I agree to the PCPS Connect")}{" "}

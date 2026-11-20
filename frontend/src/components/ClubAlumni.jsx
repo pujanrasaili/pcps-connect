@@ -100,7 +100,7 @@ export default function ClubAlumni({ clubId, member, staff }) {
                 {t("Year you left")}
                 <input className="input-field mt-1" inputMode="numeric" value={year} onChange={(e) => setYear(e.target.value.replace(/\D/g, "").slice(0, 4))} />
               </label>
-              <label className="min-w-[10rem] flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label className="min-w-40 flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t("A short note (optional)")}
                 <input className="input-field mt-1" value={note} maxLength={MAX_NOTE} onChange={(e) => setNote(e.target.value)} placeholder={t("e.g. President 2024")} />
               </label>

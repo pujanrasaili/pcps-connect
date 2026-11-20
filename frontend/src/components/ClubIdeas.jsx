@@ -106,7 +106,7 @@ export default function ClubIdeas({ clubId, member, staff }) {
         <ul className="mt-3 space-y-2">
           {ideas.map((idea) => (
             <li key={idea._id} className="rounded-xl border border-slate-100 p-3 dark:border-slate-800">
-              <p className="whitespace-pre-line break-words text-sm text-slate-700 dark:text-slate-200">{idea.body}</p>
+              <p className="whitespace-pre-line wrap-break-word text-sm text-slate-700 dark:text-slate-200">{idea.body}</p>
               <div className="mt-1 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300">
                 <span>
                   {idea.authorName}
