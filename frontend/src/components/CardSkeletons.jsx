@@ -13,9 +13,9 @@ export default function CardSkeletons({ label, count = 6 }) {
         <div key={i} aria-hidden="true" className="card-surface overflow-hidden motion-safe:animate-pulse">
           <div className="h-44 bg-slate-200 dark:bg-slate-800" />
           <div className="space-y-3 p-5">
-            <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-800" />
-            <div className="h-3 w-full rounded bg-slate-100 dark:bg-slate-800/70" />
-            <div className="h-3 w-2/3 rounded bg-slate-100 dark:bg-slate-800/70" />
+            <div className="h-4 w-3/4 rounded-sm bg-slate-200 dark:bg-slate-800" />
+            <div className="h-3 w-full rounded-sm bg-slate-100 dark:bg-slate-800/70" />
+            <div className="h-3 w-2/3 rounded-sm bg-slate-100 dark:bg-slate-800/70" />
             <div className="h-9 w-28 rounded-xl bg-slate-200 dark:bg-slate-800" />
           </div>
         </div>

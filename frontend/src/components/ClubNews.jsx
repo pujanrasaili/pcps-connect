@@ -150,7 +150,7 @@ export default function ClubNews({ clubId, canPost }) {
               </span>
               {photo ? (
                 <span className="inline-flex min-w-0 items-center gap-1 rounded-full bg-slate-100 py-1 pl-3 pr-1 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                  <span className="max-w-[10rem] truncate">{photo.name}</span>
+                  <span className="max-w-40 truncate">{photo.name}</span>
                   <button
                     type="button"
                     onClick={() => setPhoto(null)}
@@ -164,7 +164,7 @@ export default function ClubNews({ clubId, canPost }) {
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}
-                  className="inline-flex min-h-[2rem] items-center gap-2 rounded-lg px-2 text-xs font-semibold text-primary-700 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-slate-800"
+                  className="inline-flex min-h-8 items-center gap-2 rounded-lg px-2 text-xs font-semibold text-primary-700 hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-slate-800"
                 >
                   <FaCamera className="shrink-0" aria-hidden="true" />
                   {t("Add photo")}
@@ -206,7 +206,7 @@ export default function ClubNews({ clubId, canPost }) {
                   </div>
                 </form>
               ) : (
-                <p className="whitespace-pre-line break-words text-sm text-slate-700 dark:text-slate-200">{post.body}</p>
+                <p className="whitespace-pre-line wrap-break-word text-sm text-slate-700 dark:text-slate-200">{post.body}</p>
               )}
               {post.image && (
                 <a

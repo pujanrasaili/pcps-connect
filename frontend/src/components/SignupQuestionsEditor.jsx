@@ -60,7 +60,7 @@ export default function SignupQuestionsEditor({ eventId, questions = [], onSaved
         <form onSubmit={save} className="mt-4 space-y-3">
           {draft.map((row, i) => (
             <div key={row._id || `new-${i}`} className="flex flex-wrap items-end gap-2">
-              <label className="min-w-[12rem] flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label className="min-w-48 flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t("Question")}
                 <input value={row.text} onChange={(e) => setRow(i, { text: e.target.value })} maxLength={MAX_TEXT} required className={`${input} mt-1 block w-full`} />
               </label>

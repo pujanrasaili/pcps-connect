@@ -25,7 +25,7 @@ export default function PollsWaitingCard({ polls }) {
               <span className="block text-xs font-semibold text-primary-700 dark:text-primary-300">
                 {poll.club?.name} · {t("Closes {date}", { date: formatDate(poll.closesAt) })}
               </span>
-              <span className="mt-0.5 line-clamp-2 block break-words text-sm text-slate-700 dark:text-slate-200">{poll.question}</span>
+              <span className="mt-0.5 line-clamp-2 block wrap-break-word text-sm text-slate-700 dark:text-slate-200">{poll.question}</span>
             </Link>
           </li>
         ))}

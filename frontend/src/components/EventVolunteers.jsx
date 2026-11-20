@@ -143,7 +143,7 @@ export default function EventVolunteers({ eventId, eventTitle, eventOver, canMan
         <form onSubmit={save} className="mt-4 space-y-3">
           {draft.map((row, i) => (
             <div key={row._id || `new-${i}`} className="flex flex-wrap items-end gap-2">
-              <label className="min-w-[10rem] flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
+              <label className="min-w-40 flex-1 text-xs font-medium text-slate-600 dark:text-slate-300">
                 {t("Role name")}
                 <input
                   value={row.name}
@@ -239,7 +239,7 @@ export default function EventVolunteers({ eventId, eventTitle, eventOver, canMan
                               checked={!!v.attended}
                               disabled={busy}
                               onChange={(e) => markHelped(v.userId, e.target.checked)}
-                              className="h-4 w-4 rounded border-slate-300 text-primary-500"
+                              className="h-4 w-4 rounded-sm border-slate-300 text-primary-500"
                             />
                             <span>{v.name}</span>
                             <span className="text-xs text-slate-500 dark:text-slate-400">{t("Helped")}</span>

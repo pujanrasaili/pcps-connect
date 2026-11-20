@@ -80,7 +80,7 @@ export default function ClubStatsModal({ club, onClose }) {
               <ul className="divide-y divide-slate-100 text-sm dark:divide-slate-800">
                 {stats.recent.map((e) => (
                   <li key={e._id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                    <span className="min-w-0 break-words font-medium text-slate-800 dark:text-slate-100">{e.title}</span>
+                    <span className="min-w-0 wrap-break-word font-medium text-slate-800 dark:text-slate-100">{e.title}</span>
                     <span className="shrink-0 text-slate-600 dark:text-slate-300">
                       {formatDate(e.date)} · {dash(e.attendanceRate, "%")} · {e.attended}/{e.registered}
                     </span>

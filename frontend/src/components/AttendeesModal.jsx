@@ -261,7 +261,7 @@ export default function AttendeesModal({ event, onClose }) {
                   type="checkbox"
                   checked={onlyNotAttended}
                   onChange={(e) => setOnlyNotAttended(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-primary-500"
+                  className="h-4 w-4 rounded-sm border-slate-300 text-primary-500"
                 />
                 {t("Not yet attended")}
               </label>
@@ -271,7 +271,7 @@ export default function AttendeesModal({ event, onClose }) {
                     type="checkbox"
                     checked={onlyMissing}
                     onChange={(e) => setOnlyMissing(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-primary-500"
+                    className="h-4 w-4 rounded-sm border-slate-300 text-primary-500"
                   />
                   {t("Answers missing")}
                 </label>
@@ -291,7 +291,7 @@ export default function AttendeesModal({ event, onClose }) {
                   <li key={s.question}>
                     <p className="font-medium">{s.question}</p>
                     {s.top.length > 0 ? (
-                      <p className="break-words text-slate-600 dark:text-slate-300">
+                      <p className="wrap-break-word text-slate-600 dark:text-slate-300">
                         {s.top.map((a) => `${a.answer} × ${a.count}`).join(" · ")}
                         {s.moreDistinct > 0 ? ` · ${t("and {n} more different answers", { n: s.moreDistinct })}` : ""}
                       </p>
@@ -370,7 +370,7 @@ export default function AttendeesModal({ event, onClose }) {
                       {r.answers.map((a) => (
                         <div key={a.question} className="flex gap-1">
                           <dt className="font-medium">{a.question}</dt>
-                          <dd className="min-w-0 break-words">{a.answer}</dd>
+                          <dd className="min-w-0 wrap-break-word">{a.answer}</dd>
                         </div>
                       ))}
                     </dl>
@@ -416,7 +416,7 @@ export default function AttendeesModal({ event, onClose }) {
                         </span>
                       </span>
                       {(w.answers || []).map((a) => (
-                        <span key={a.question} className="block break-words text-xs text-slate-600 dark:text-slate-300" data-testid="waitlist-answer">
+                        <span key={a.question} className="block wrap-break-word text-xs text-slate-600 dark:text-slate-300" data-testid="waitlist-answer">
                           {a.question} {a.answer}
                         </span>
                       ))}

@@ -48,7 +48,7 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", accen
           {isNumeric ? animatedValue : value}
           {suffix}
         </p>
-        <p className="break-words text-sm text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="wrap-break-word text-sm text-slate-500 dark:text-slate-400">{label}</p>
       </div>
     </div>
   );
