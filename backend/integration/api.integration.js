@@ -639,6 +639,12 @@ test("sign-up questions: required answers are enforced and kept through the wait
   assert.ok(s1Bell.some((n) => n.type === "event_answers_needed" && n.link === `/events/${event._id}`), "student was not told about the new question");
   assert.equal((await ask([{ text: "T-shirt size?", required: true }, { text: "Notes?" }])).status, 200);
 
+  // Organisers can remind whoever still owes a required answer; the count depends on who has answered.
+  r = await admin.req("POST", `/admin/events/${event._id}/remind-answers`);
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  assert.equal(typeof r.json.sent, "number");
+  assert.equal((await s1.req("POST", `/admin/events/${event._id}/remind-answers`)).status, 403);
+
   // The event is full: the waitlist asks the same questions and keeps the answers.
   assert.equal((await s2.req("POST", `/waitlist/${event._id}`, { answers: [""] })).status, 400);
   assert.ok((await s2.req("POST", `/waitlist/${event._id}`, { answers: ["XL"] })).status < 300);
