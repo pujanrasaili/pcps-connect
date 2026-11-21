@@ -4,6 +4,7 @@ import { api, getErrorMessage } from "../services/api";
 import { useToast } from "../context/ToastContext";
 import { downloadCsv } from "../utils/csv";
 import { attendanceCsv } from "../utils/attendanceCsv";
+import { reportFileName, reportPeriod } from "../utils/reportPeriod";
 import { useLang } from "../context/LanguageContext";
 
 // Turnout and ratings for the most recent past events (admins: everything;
@@ -13,13 +14,17 @@ export default function AttendanceReportCard({ report }) {
   const toast = useToast();
   const { t } = useLang();
   const [busy, setBusy] = useState(false);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
   if (!report?.events?.length) return null;
 
   const download = async () => {
+    const period = reportPeriod(from, to);
+    if (period.error) return toast.error(t("The end date must not be before the start date."));
     setBusy(true);
     try {
-      const { data } = await api.get("/admin/attendance-report", { params: { all: 1 } });
-      downloadCsv(`attendance-report-${new Date().toISOString().slice(0, 10)}.csv`, attendanceCsv(data));
+      const { data } = await api.get("/admin/attendance-report", { params: period.params });
+      downloadCsv(reportFileName(new Date().toISOString().slice(0, 10), from, to), attendanceCsv(data));
     } catch (err) {
       toast.error(getErrorMessage(err, t("Couldn't download the report. Please try again.")));
     } finally {
@@ -65,6 +70,20 @@ export default function AttendanceReportCard({ report }) {
                 </li>
               ))}
             </ul>
+            <fieldset className="mt-4">
+              <legend className="label-field">{t("Report period (optional)")}</legend>
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-300" htmlFor="report-from">{t("From")}</label>
+                  <input id="report-from" type="date" className="input-field" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-600 dark:text-slate-300" htmlFor="report-to">{t("To")}</label>
+                  <input id="report-to" type="date" className="input-field" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} />
+                </div>
+              </div>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t("Leave both empty to include every past event.")}</p>
+            </fieldset>
             <button type="button" onClick={download} disabled={busy} className="btn-secondary mt-4 text-sm">
               {busy ? t("Preparing…") : t("Download full report (CSV)")}
             </button>
