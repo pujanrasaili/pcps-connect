@@ -49,4 +49,21 @@ function buildAttendanceReport(events, stats) {
   };
 }
 
-module.exports = { buildAttendanceReport, percent };
+// The optional ?from= and ?to= of the report: any date the browser can send
+// (the page sends the start and end of the chosen days in the viewer's own time
+// zone). Returns { from, to } with a Date or null for each end, or
+// { error } when a date is not a date or the end comes before the start.
+function reportRange(query = {}) {
+  const read = (value) => {
+    if (value === undefined || value === null || value === "") return null;
+    const d = new Date(String(value));
+    return Number.isNaN(d.getTime()) ? undefined : d;
+  };
+  const from = read(query.from);
+  const to = read(query.to);
+  if (from === undefined || to === undefined) return { error: "Choose valid dates for the report." };
+  if (from && to && to < from) return { error: "The end date must not be before the start date." };
+  return { from, to };
+}
+
+module.exports = { buildAttendanceReport, percent, reportRange };

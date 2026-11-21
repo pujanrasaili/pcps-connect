@@ -39,3 +39,31 @@ describe("buildAttendanceReport", () => {
     expect(totals).toMatchObject({ registered: 0, attendanceRate: null, averageRating: null });
   });
 });
+
+describe("reportRange", () => {
+  const { reportRange } = require("../attendanceReport");
+
+  it("reads neither, one or both ends", () => {
+    expect(reportRange({})).toEqual({ from: null, to: null });
+    expect(reportRange(undefined)).toEqual({ from: null, to: null });
+    expect(reportRange({ from: "2026-01-01T00:00:00.000Z" }).to).toBeNull();
+    const both = reportRange({ from: "2026-01-01T00:00:00.000Z", to: "2026-02-01T00:00:00.000Z" });
+    expect(both.from).toEqual(new Date("2026-01-01T00:00:00.000Z"));
+    expect(both.to).toEqual(new Date("2026-02-01T00:00:00.000Z"));
+  });
+
+  it("treats blank values as not given", () => {
+    expect(reportRange({ from: "", to: "" })).toEqual({ from: null, to: null });
+  });
+
+  it("refuses text that is not a date and an end before the start", () => {
+    expect(reportRange({ from: "soon" }).error).toMatch(/valid dates/);
+    expect(reportRange({ to: {} }).error).toMatch(/valid dates/);
+    expect(reportRange({ from: "2026-06-01", to: "2026-05-01" }).error).toMatch(/not be before/);
+  });
+
+  it("accepts one day as both ends", () => {
+    const r = reportRange({ from: "2026-03-05T00:00:00.000Z", to: "2026-03-05T23:59:59.999Z" });
+    expect(r.error).toBeUndefined();
+  });
+});
