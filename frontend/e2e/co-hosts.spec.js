@@ -10,7 +10,7 @@ test("an admin picks co-hosting clubs, at most two", async ({ page }) => {
   const problems = await setUp(page, { lang: "en", role: "admin" });
   let sent = null;
   await page.route("**/api/clubs", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ clubs: more }) }));
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [] }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [] }) }));
   await page.route("**/api/events/create", (route) => {
     sent = field(route.request().postDataBuffer().toString("utf8"), "coHosts");
     return route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify({ message: "Created", createdCount: 1 }) });
@@ -46,7 +46,7 @@ test("an admin picks co-hosting clubs, at most two", async ({ page }) => {
 test("the event page names every hosting club", async ({ page }) => {
   const problems = await setUp(page, { lang: "en", role: "student" });
   const event = { _id: EVENT_ID, title: "Joint Night", description: "d", date: "2030-05-10T10:00:00Z", location: "Hall", capacity: 50, registeredCount: 1, club: clubs[0], coHosts: [clubs[1]], category: "General", price: "Free" };
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [event] }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [event] }) }));
   await page.route(`**/api/events/${EVENT_ID}`, (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ event }) }));
   await page.goto(`/events/${EVENT_ID}`);
   await expect(page.getByText(`Hosted by ${clubs[0].name} + ${clubs[1].name}`)).toBeVisible();
@@ -58,7 +58,7 @@ test("a club's events filter and the search also find events it co-hosts", async
   const future = new Date(Date.now() + 6 * 864e5).toISOString();
   const joint = { _id: EVENT_ID, title: "Joint Night", description: "d", date: future, location: "Hall", capacity: 50, registeredCount: 1, club: clubs[0], coHosts: [clubs[1]], category: "General", price: "Free" };
   const solo = { ...joint, _id: "e2".padEnd(24, "0"), title: "Solo Night", club: clubs[0], coHosts: [] };
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [joint, solo] }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [joint, solo] }) }));
   await page.goto(`/events?club=${clubs[1]._id}`);
   await expect(page.getByRole("heading", { name: "Joint Night" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Solo Night" })).toHaveCount(0);
@@ -72,7 +72,7 @@ test("a member of a co-hosting club sees the event under 'From your clubs'", asy
   const problems = await setUp(page, { lang: "en", role: "student" });
   const future = new Date(Date.now() + 6 * 864e5).toISOString();
   const joint = { _id: EVENT_ID, title: "Joint Night", description: "d", date: future, location: "Hall", capacity: 50, registeredCount: 1, club: clubs[0], coHosts: [clubs[1]], category: "General", price: "Free" };
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [joint] }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [joint] }) }));
   // Joined the co-host (Robotics Society), not the main club.
   await page.route("**/api/club-memberships/my", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ memberships: [{ _id: "m1", club: clubs[1] }] }) }));
   await page.goto("/dashboard");

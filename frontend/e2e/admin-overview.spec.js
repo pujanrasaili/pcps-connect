@@ -14,7 +14,7 @@ const report = { events: [{ _id: "r1".padEnd(24, "0"), title: "Photo Walk", date
 
 async function overview(page, lang, { events = [ev(1, "Hack Night", 5, { pendingCount: 2 }), ev(2, "Robot Demo", 9)], health = { email: "brevo" }, weekReply = week, users } = {}) {
   const problems = await setUp(page, { lang, role: "admin" });
-  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events*", (route) => reply(route, { events }));
   await page.route("**/api/health", (route) => reply(route, health, health ? 200 : 500));
   await page.route("**/api/admin/week", (route) => (weekReply ? reply(route, weekReply) : reply(route, { message: "nope" }, 500)));
   if (users) await page.route("**/api/admin/users", (route) => reply(route, { users }));

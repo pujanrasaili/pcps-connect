@@ -1644,4 +1644,5 @@ export const ne = {
   "Starts today": "आज सुरु हुन्छ",
   "Starts tomorrow": "भोलि सुरु हुन्छ",
   "Starts in {n} days": "{n} दिनमा सुरु हुन्छ",
+  "Loading older events...": "पुराना कार्यक्रमहरू लोड हुँदैछ...",
 };

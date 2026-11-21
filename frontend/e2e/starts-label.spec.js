@@ -16,7 +16,7 @@ for (const lang of ["en", "ne"]) {
   const en = lang === "en";
   test(`event cards say how soon an event starts (${lang})`, async ({ page }) => {
     await setUp(page, { lang, role: "student" });
-    await page.route("**/api/events", (route) => reply(route, { events }));
+    await page.route("**/api/events*", (route) => reply(route, { events }));
     await page.goto("/events");
     const card = (title) => page.locator("div.card-surface", { has: page.getByRole("heading", { name: title }) });
     await expect(card("Tomorrow Meetup")).toContainText(en ? "Starts tomorrow" : "भोलि सुरु हुन्छ");
@@ -29,7 +29,7 @@ for (const lang of ["en", "ne"]) {
 
 test("the event page shows it beside the date, and a past event shows nothing", async ({ page }) => {
   await setUp(page, { lang: "en", role: "student" });
-  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events*", (route) => reply(route, { events }));
   await page.route("**/api/events/*", (route) => {
     const id = new URL(route.request().url()).pathname.split("/").pop();
     const event = events.find((e) => e._id === id);

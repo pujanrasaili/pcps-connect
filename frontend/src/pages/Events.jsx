@@ -26,7 +26,7 @@ const PAGE_SIZE = 9;
 const MY_TOPICS = "My topics";
 export default function Events() {
   const { t } = useLang();
-  const { events, loading, error } = useEvents();
+  const { events, loading, loadingOlder, error, loadAllEvents } = useEvents();
   const { isAuthenticated, user } = useAuth();
   const { registrations } = useRegistrations();
   const registeredIds = useMemo(
@@ -39,6 +39,12 @@ export default function Events() {
   const { when, category, openOnly, freeOnly, club: clubFilter, query: urlQuery, view } = readEventFilters(searchParams, { isAuthenticated });
   const update = (patch) => setSearchParams((prev) => withEventFilters(prev, patch), { replace: true });
   const setWhen = (value) => update({ when: value });
+  // The server sends upcoming and recent events. Finished ones, the student's own
+  // history, saved events and the calendar's older months need the full list.
+  const needsHistory = when === "past" || when === "mine" || when === "saved" || view === "calendar";
+  useEffect(() => {
+    if (needsHistory) loadAllEvents();
+  }, [needsHistory, loadAllEvents]);
   const setCategory = (value) => update({ category: value });
 
   // The search box types into local state (instant) and is copied into the URL
@@ -225,6 +231,12 @@ export default function Events() {
               {t("Events from {club}", { club: clubFilterName || t("this club") })} <FaTimes className="text-xs" aria-label={t("Clear club filter")} />
             </button>
           </div>
+        )}
+
+        {loadingOlder && !loading && (
+          <p role="status" className="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
+            {t("Loading older events...")}
+          </p>
         )}
 
         {loading ? (

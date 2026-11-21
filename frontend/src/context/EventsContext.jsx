@@ -5,18 +5,24 @@ const EventsContext = createContext(null);
 
 const STALE_AFTER_MS = 5 * 60 * 1000;
 
+const fetchList = (scope) => api.get("/events", scope === "all" ? { params: { scope: "all" } } : undefined);
+
 export function EventsProvider({ children }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const loadedAt = useRef(Date.now());
+  // The server sends upcoming events and the last 90 days. Pages that need the
+  // whole history call loadAllEvents(); after that, every refresh asks for all.
+  const scope = useRef("recent");
+  const [loadingOlder, setLoadingOlder] = useState(false);
 
   const refreshEvents = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await api.get("/events");
+      const res = await fetchList(scope.current);
       setEvents(res.data.events || []);
       loadedAt.current = Date.now();
     } catch (err) {
@@ -35,7 +41,7 @@ export function EventsProvider({ children }) {
       if (Date.now() - loadedAt.current < STALE_AFTER_MS) return;
       loadedAt.current = Date.now();
       try {
-        const res = await api.get("/events");
+        const res = await fetchList(scope.current);
         setEvents(res.data.events || []);
       } catch {
         loadedAt.current = 0;
@@ -48,6 +54,26 @@ export function EventsProvider({ children }) {
   useEffect(() => {
     refreshEvents();
   }, [refreshEvents]);
+
+  // Fetches every event ever, once. The list on screen stays until the full one
+  // arrives; if the request fails the person keeps the recent events and the next
+  // call tries again.
+  const loadAllEvents = useCallback(async () => {
+    if (scope.current === "all") return;
+    scope.current = "all";
+    setLoadingOlder(true);
+    try {
+      const res = await api.get("/events", { params: { scope: "all" } });
+      // A reply without a list is no answer: keep what is on screen.
+      if (!Array.isArray(res.data?.events)) throw new Error("No event list in the reply");
+      setEvents(res.data.events);
+      loadedAt.current = Date.now();
+    } catch {
+      scope.current = "recent";
+    } finally {
+      setLoadingOlder(false);
+    }
+  }, []);
 
   // Looks up an event by id from the already-loaded list first (instant,
   // no network call). Falls back to fetching it individually -- covers
@@ -72,7 +98,7 @@ export function EventsProvider({ children }) {
   );
 
   return (
-    <EventsContext.Provider value={{ events, loading, error, refreshEvents, getEventById }}>
+    <EventsContext.Provider value={{ events, loading, loadingOlder, error, refreshEvents, loadAllEvents, getEventById }}>
       {children}
     </EventsContext.Provider>
   );

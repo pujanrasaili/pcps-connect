@@ -24,7 +24,11 @@ import { useLang } from "../../context/LanguageContext";
 export default function AdminOverview() {
   const { t } = useLang();
   const { clubs } = useClubs();
-  const { events } = useEvents();
+  const { events, loadAllEvents } = useEvents();
+  // The totals on this page count every event ever, not just the recent ones.
+  useEffect(() => {
+    loadAllEvents();
+  }, [loadAllEvents]);
   const { counts: clubRequestCounts } = useRequestCounts();
   const [users, setUsers] = useState(null);
   const [error, setError] = useState("");

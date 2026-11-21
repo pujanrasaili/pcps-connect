@@ -257,5 +257,6 @@ sleeps when idle; the first request wakes it (30-60 seconds). A health-check
 monitor keeps it awake.
 
 **What would you improve next?** Sign-in restricted to the college's Google
-accounts (needs PCPS IT), loading only upcoming events as the history grows,
-and a paid hosting tier with automatic database backups.
+accounts (needs PCPS IT) and a paid hosting tier with automatic database
+backups. (The event list already sends only upcoming and recent events by
+default, so it stays fast as the history grows.)

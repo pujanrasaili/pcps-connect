@@ -17,7 +17,7 @@ test("returning to a tab after a while refreshes the events, a quick glance does
   await page.clock.install();
   await setUp(page, { lang: "en", role: "student" });
   let calls = 0;
-  await page.route("**/api/events", (route) => {
+  await page.route("**/api/events*", (route) => {
     calls += 1;
     return reply(route, { events: [ev(calls)] });
   });
@@ -40,7 +40,7 @@ test("a failed quiet refresh keeps the list that is on screen", async ({ page })
   await page.clock.install();
   await setUp(page, { lang: "en", role: "student" });
   let calls = 0;
-  await page.route("**/api/events", (route) => {
+  await page.route("**/api/events*", (route) => {
     calls += 1;
     if (calls > 1) return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ message: "down" }) });
     return reply(route, { events: [ev(1)] });

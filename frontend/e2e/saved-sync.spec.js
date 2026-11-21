@@ -9,7 +9,7 @@ async function start(page, { server, local, owner }) {
   await setUp(page, { lang: "en", role: "student" });
   const puts = [];
   await page.route("**/api/auth/me", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ user: { ...student, language: "en", savedEvents: server } }) }));
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [ev(1, "Hack Night"), ev(2, "Robot Day"), ev(3, "Photo Walk")] }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [ev(1, "Hack Night"), ev(2, "Robot Day"), ev(3, "Photo Walk")] }) }));
   await page.route("**/api/auth/profile", (route) => {
     puts.push(route.request().postDataJSON());
     return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ user: { ...student, savedEvents: route.request().postDataJSON().savedEvents } }) });

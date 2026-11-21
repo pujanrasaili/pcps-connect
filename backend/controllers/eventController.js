@@ -100,11 +100,22 @@ async function resolveCoHosts(value, mainClubId) {
   return { ids };
 }
 
-// GET /api/events  (public)
+// The public list sends upcoming events and those from the last 90 days. Years of
+// finished events would otherwise be downloaded by every visitor; the pages that
+// need the whole history ask for it with ?scope=all.
+const RECENT_DAYS = 90;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function eventListFilter(scope, now = Date.now()) {
+  if (scope === "all") return {};
+  return { date: { $gte: new Date(now - RECENT_DAYS * DAY_MS) } };
+}
+
+// GET /api/events  (public)  ?scope=all for every event ever
 async function getEvents(req, res) {
   try {
     // Only the organiser's name: cards never need their email, and this list is public.
-    const events = await Event.find().populate("createdBy", "name").populate("club", "name").populate("coHosts", "name").sort({ date: 1 });
+    const events = await Event.find(eventListFilter(req.query?.scope)).populate("createdBy", "name").populate("club", "name").populate("coHosts", "name").sort({ date: 1 });
     res.status(200).json({ events: await withRegisteredCount(events) });
   } catch (err) {
     res.status(500).json({ message: safeError(err, "Failed to fetch events") });
@@ -410,4 +421,5 @@ async function deleteEvent(req, res) {
   }
 }
 
-module.exports = { getEvents, getEventById, createEvent, updateEvent, deleteEvent };
+module.exports = {
+  eventListFilter, getEvents, getEventById, createEvent, updateEvent, deleteEvent };

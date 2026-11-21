@@ -8,7 +8,7 @@ const ev = (i, title, extra = {}) => ({ _id: `x${i}`.padEnd(24, "0"), title, des
 for (const lang of ["en", "ne"]) {
   test(`exports the events the list shows (${lang})`, async ({ page }) => {
     const problems = await setUp(page, { lang, role: "admin" });
-    await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [ev(1, "Hack Night"), ev(2, "Robot Day", { coHosts: [clubs[1]] })] }) }));
+    await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events: [ev(1, "Hack Night"), ev(2, "Robot Day", { coHosts: [clubs[1]] })] }) }));
     await page.goto("/admin/events");
     const label = lang === "ne" ? "CSV निर्यात गर्नुहोस्" : "Export CSV";
     await expect(page.getByRole("button", { name: `${label} (2)` })).toBeVisible();

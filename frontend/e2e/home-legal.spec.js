@@ -39,7 +39,7 @@ test("Featured Clubs shows three clubs; View opens a club summary that leads to 
 test("Upcoming Events lists only the three soonest upcoming events", async ({ page }) => {
   await setUp(page, { lang: "en" });
   const list = [ev(1, "Later Event", 20), ev(2, "Soonest Event", 2), ev(3, "Past Event", -4), ev(4, "Second Event", 6), ev(5, "Third Event", 9), ev(6, "Fourth Event", 12)];
-  await page.route("**/api/events", (route) => reply(route, { events: list }));
+  await page.route("**/api/events*", (route) => reply(route, { events: list }));
   await page.goto("/");
   const upcoming = section(page, "Upcoming Events");
   await expect(upcoming.getByRole("heading", { level: 3 })).toHaveText(["Soonest Event", "Second Event", "Third Event"]);

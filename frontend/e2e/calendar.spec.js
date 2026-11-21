@@ -23,7 +23,7 @@ const dayName = (d) => `${d.toLocaleDateString(EN, { weekday: "long" })}, ${mont
 
 async function open(page, lang = "en") {
   const problems = await setUp(page, { lang, role: "student" });
-  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events*", (route) => reply(route, { events }));
   await page.goto("/events?view=calendar");
   return problems;
 }
@@ -66,7 +66,7 @@ test("a day with nothing on says so", async ({ page }) => {
 
 test("the category filter narrows what the calendar shows", async ({ page }) => {
   await setUp(page, { lang: "en", role: "student" });
-  await page.route("**/api/events", (route) => reply(route, { events: [events[0], ev("c9", "Quiz Bowl", noon(Y, M, midDay), { category: "Competition" })] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [events[0], ev("c9", "Quiz Bowl", noon(Y, M, midDay), { category: "Competition" })] }));
   await page.goto("/events?view=calendar&category=Competition");
   await expect(page.getByRole("heading", { level: 2, name: new RegExp(heading(Y, M)) })).toContainText("1 event");
 });

@@ -15,7 +15,7 @@ const Club = require("../../models/Club");
 const Registration = require("../../models/Registration");
 const { recordAudit } = require("../../utils/audit");
 const { notifyNewClubEvent } = require("../../utils/notifyClubMembers");
-const { createEvent, updateEvent, getEventById, getEvents } = require("../eventController");
+const { createEvent, updateEvent, getEventById, getEvents, eventListFilter } = require("../eventController");
 
 function mockRes() {
   const res = {};
@@ -429,6 +429,29 @@ describe("organiser privacy", () => {
     Event.find.mockReturnValue(q);
     await getEvents({}, mockRes());
     expect(q.populate).toHaveBeenCalledWith("createdBy", "name");
+  });
+
+  it("by default the list holds upcoming events and the last 90 days only", async () => {
+    const q = populated([]);
+    Event.find.mockReturnValue(q);
+    await getEvents({ query: {} }, mockRes());
+    const filter = Event.find.mock.calls[0][0];
+    const days = (Date.now() - filter.date.$gte.getTime()) / 86400000;
+    expect(days).toBeGreaterThan(89.9);
+    expect(days).toBeLessThan(90.1);
+  });
+
+  it("?scope=all asks for every event", async () => {
+    const q = populated([]);
+    Event.find.mockReturnValue(q);
+    await getEvents({ query: { scope: "all" } }, mockRes());
+    expect(Event.find).toHaveBeenCalledWith({});
+  });
+
+  it("any other scope falls back to the recent list", () => {
+    const now = Date.UTC(2030, 0, 31);
+    expect(eventListFilter("everything", now).date.$gte.toISOString()).toBe("2029-11-02T00:00:00.000Z");
+    expect(eventListFilter(undefined, now).date.$gte.toISOString()).toBe("2029-11-02T00:00:00.000Z");
   });
 
   it("a guest gets the organiser's name but not their email", async () => {

@@ -9,7 +9,7 @@ async function open(page, { role = "student", interests = [], lang = "en", url =
   const problems = await setUp(page, { lang, role });
   if (role) await page.route("**/api/auth/me", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ user: { ...student, language: lang, interests } }) }));
   const events = [make(1, "Workshop"), make(2, "Sports"), make(3, "workshop"), make(4, "Music")];
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
   await page.goto(url);
   return problems;
 }
