@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBell } from "react-icons/fa";
 import { useNotifications } from "../hooks/useNotifications";
+import useTitleBadge from "../hooks/useTitleBadge";
 import { timeAgo } from "../utils/timeAgo";
 import { translateNotification } from "../utils/translateNotification";
 import { translateAgo } from "../utils/translateAgo";
@@ -15,6 +16,7 @@ import { useLang } from "../context/LanguageContext";
 export default function NotificationBell({ className = "" }) {
   const { t } = useLang();
   const { items, unread, load, markAllRead, clearAll } = useNotifications(true);
+  useTitleBadge(unread);
   const [open, setOpen] = useState(false);
   const [newIds, setNewIds] = useState(() => new Set());
   const boxRef = useRef(null);
