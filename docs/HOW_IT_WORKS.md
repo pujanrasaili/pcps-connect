@@ -98,6 +98,30 @@ co-hosted events for every hosting club.
 All four are covered by "Download my data", account deletion and the backup
 where they hold personal data, and the Privacy Policy says what is stored.
 
+## Everyday touches
+
+- **Helpers.** Organisers list up to five helper roles with a number of places
+  ("registration desk, 3"). A student takes one role per event; a full role is
+  refused on the server even if two people tap at once, the same re-count idea
+  as event seats (`controllers/eventVolunteerController.js`).
+- **Club polls.** Leaders ask members a quick question. Votes are stored per
+  person so a vote can be changed, but the page only ever shows counts, never
+  who voted for what (`controllers/clubPollController.js`).
+- **Notice board.** Lost-and-found and campus notices with the first name only.
+  Posts delete themselves after 14 days through a database expiry index, so no
+  clean-up job is needed (`controllers/boardController.js`).
+- **Copy emails.** Organisers copy the addresses of confirmed attendees (or
+  of a club's members) to paste into Bcc. Each address appears once and people
+  still waiting for approval are left out (`frontend/src/utils/attendeeEmails.js`).
+- **Poor connections.** A grey bar says when the phone is offline, saved tickets
+  open without internet, and a tab left open refreshes its seat counts when it
+  comes back to the front after 5 minutes. Answers to signed-in requests carry
+  `Cache-Control: no-store` so a shared computer keeps nothing
+  (`middleware/privateCache.js`).
+- **Printing and contrast.** Printing a page drops the menus and prints dark mode
+  in light colours; devices that ask for more contrast or forced colours get
+  solid borders and a stronger focus ring (`index.css`).
+
 ## Time zones
 
 The server runs in UTC, so times are handled as exact instants. The admin form
@@ -217,6 +241,16 @@ server has, and the verify page checks it against a real attended registration.
 **Can someone put their name on a club's alumni list without asking?** No.
 Only a current member can step down to alumni, and only for themselves; they can
 remove the entry again, and a club's leaders and admins can remove any.
+
+**Is the site accessible?** Every page is checked with an automated
+accessibility tool (axe) in English, Nepali and dark mode, and the site can be
+used by keyboard alone. It also respects reduced motion, higher-contrast and
+forced-colour settings. Automated checks do not catch everything, so say that
+a real screen-reader pass is still worth doing.
+
+**What happens with no internet?** A bar says the phone is offline, saved
+tickets still open, and the page recovers by itself when the connection returns.
+The first load of a new page does need the network.
 
 **Why is the first load sometimes slow?** The backend runs on a free tier that
 sleeps when idle; the first request wakes it (30-60 seconds). A health-check
