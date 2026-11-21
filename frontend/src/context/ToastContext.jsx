@@ -46,7 +46,7 @@ export function ToastProvider({ children }) {
       {children}
 
       <div
-        className="fixed inset-x-0 top-4 z-100 flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:items-end"
+        className="print:hidden fixed inset-x-0 top-4 z-100 flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:items-end"
         aria-live="polite"
       >
         {toasts.map((item) => {

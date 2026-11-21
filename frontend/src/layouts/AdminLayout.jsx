@@ -82,7 +82,7 @@ export default function AdminLayout() {
       <SlowServerNotice />
       <main id="main-content" tabIndex={-1} className="flex-1 bg-slate-50 dark:bg-slate-950 outline-hidden">
         <div className="container-page grid grid-cols-1 gap-6 py-8 lg:grid-cols-[220px_1fr]">
-          <aside className="card-surface h-fit p-4 max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none dark:max-lg:bg-transparent lg:sticky lg:top-24">
+          <aside className="print:hidden card-surface h-fit p-4 max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none dark:max-lg:bg-transparent lg:sticky lg:top-24">
             <p className="px-2 pb-2 text-xs max-lg:sr-only lg:pb-3 font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               {isAdmin ? t("Admin Panel") : t("Club Leader")}
             </p>

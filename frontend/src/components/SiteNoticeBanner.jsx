@@ -50,7 +50,7 @@ export default function SiteNoticeBanner() {
   return (
     <div
       role="status"
-      className={`flex items-start gap-3 border-b px-4 py-2.5 text-sm ${
+      className={`print:hidden flex items-start gap-3 border-b px-4 py-2.5 text-sm ${
         warning
           ? "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200"
           : "border-primary-100 bg-primary-50 text-primary-800 dark:border-primary-900/50 dark:bg-primary-900/20 dark:text-primary-200"

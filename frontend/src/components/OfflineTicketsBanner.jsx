@@ -14,7 +14,7 @@ export default function OfflineTicketsBanner() {
   if (!offline || pathname === "/tickets") return null;
   if (visibleTickets(readTickets(browserStorage())).length === 0) return null;
   return (
-    <div role="status" className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
+    <div role="status" className="print:hidden border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-300">
       <FaQrcode className="mr-2 inline align-[-2px]" aria-hidden="true" />
       {t("You're offline.")}{" "}
       <Link to="/tickets" className="font-semibold underline">

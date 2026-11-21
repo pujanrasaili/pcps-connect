@@ -24,7 +24,7 @@ export default function Footer() {
   const { t } = useLang();
 
   return (
-    <footer className="border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
+    <footer className="print:hidden border-t border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950">
       <div className="container-page grid grid-cols-1 gap-6 py-8 sm:grid-cols-2 sm:gap-10 sm:py-14 lg:grid-cols-4">
         <div>
           <img src={logo} alt="PCPS College" width="429" height="160" loading="lazy" decoding="async" className="h-10 w-auto" />

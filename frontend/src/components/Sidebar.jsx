@@ -32,7 +32,7 @@ export default function Sidebar({ className = "" }) {
   // On a phone this is just a row of swipeable buttons under the top bar (no card,
   // no avatar: the tab bar and the page itself already say who and where you are).
   return (
-    <aside className={`card-surface flex min-w-0 flex-col gap-3 p-4 max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none dark:max-lg:bg-transparent lg:gap-6 lg:p-5 ${className}`}>
+    <aside className={`print:hidden card-surface flex min-w-0 flex-col gap-3 p-4 max-lg:border-0 max-lg:bg-transparent max-lg:p-0 max-lg:shadow-none dark:max-lg:bg-transparent lg:gap-6 lg:p-5 ${className}`}>
       <div className="flex items-center gap-3 max-lg:hidden">
         <Avatar user={user} className="h-11 w-11" />
         <div className="min-w-0">
