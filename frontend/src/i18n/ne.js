@@ -1647,4 +1647,9 @@ export const ne = {
   "Loading older events...": "पुराना कार्यक्रमहरू लोड हुँदैछ...",
   "Showing events of {club}": "{club} का कार्यक्रमहरू देखाइँदै",
   "Show all clubs": "सबै क्लबहरू देखाउनुहोस्",
+  "Report period (optional)": "प्रतिवेदनको अवधि (वैकल्पिक)",
+  "From": "देखि",
+  "To": "सम्म",
+  "Leave both empty to include every past event.": "सबै विगतका कार्यक्रम समावेश गर्न दुवै खाली छोड्नुहोस्।",
+  "The end date must not be before the start date.": "अन्तिम मिति सुरु मितिभन्दा अघि हुनु हुँदैन।",
 };
