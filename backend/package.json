@@ -41,7 +41,7 @@
     "mongoose": "^9.12.3",
     "multer": "^2.5.0",
     "nodemailer": "^10.3.1",
-    "web-push": "3.6.7"
+    "web-push": "4.0.0"
   },
   "devDependencies": {
     "jest": "^30.5.2",
