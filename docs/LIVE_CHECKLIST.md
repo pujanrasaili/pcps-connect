@@ -85,7 +85,15 @@ Log in as **S** on two devices (or one normal and one private window). Save an e
 
 Mark **S** as attended at an event that started between 3 hours and 3 days ago (Attendees window), without S rating it. Run GitHub → Actions → "Feedback Requests" → "Run workflow". S should get a bell message "How was <event>? Rate it" and an email with a "Rate the event" button that opens the Profile page. Run the workflow again: nothing new is sent. A student who rated already, or switched event reminders off, receives nothing. For an event that started at least 3 days ago and has registrations, its organisers (you as **A**, and the club leader **L**) get the same run's recap: a bell message "Recap for <event>: N of M attended" and an email with turnout, the average rating and up to three comments.
 
-## 9. Nepali pages (10 min)
+## 9. Phone and print touches (4 min)
+
+1. On a phone, open the site, then turn on airplane mode. A grey **You're offline** bar appears on every page; turn airplane mode off and it disappears by itself.
+2. As **A**, open an event's attendee list → **Copy emails**, then paste into any text box: you should see each confirmed student's address once, separated by commas. Do the same from a club's **Members** window.
+3. Open an event that starts tomorrow: its card and its page say **Starts tomorrow**.
+4. As **S** with an unread bell message, the browser tab title starts with **(1)**; open the bell and the number goes away.
+5. On a computer, open an event page and use the browser's **Print** preview, once in light mode and once in dark: no menu, footer or banners, and the text is dark on white in both.
+
+## 10. Nepali pages (10 min)
 
 Switch the site to Nepali and open: Privacy, Terms, an event with volunteer roles, the Dashboard, Help. Anything that is English where it should be Nepali, or Nepali that reads wrong, write down or screenshot and send to Claude. The review sheet `nepali-review.html` lists the strings to check, starting with its "Start here" section, then "New features" (alerts, notice board, activity record, poster, online link, volunteers).
 
