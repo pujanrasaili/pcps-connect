@@ -1645,4 +1645,6 @@ export const ne = {
   "Starts tomorrow": "भोलि सुरु हुन्छ",
   "Starts in {n} days": "{n} दिनमा सुरु हुन्छ",
   "Loading older events...": "पुराना कार्यक्रमहरू लोड हुँदैछ...",
+  "Showing events of {club}": "{club} का कार्यक्रमहरू देखाइँदै",
+  "Show all clubs": "सबै क्लबहरू देखाउनुहोस्",
 };
