@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaChartBar, FaEnvelope, FaLightbulb, FaUsers } from "react-icons/fa";
+import { FaCalendarAlt, FaChartBar, FaEnvelope, FaLightbulb, FaUsers } from "react-icons/fa";
 import { useLedClubs } from "../../hooks/useLedClubs";
 import { useClubs } from "../../context/ClubsContext";
 import ClubMessageModal from "../../components/ClubMessageModal";
@@ -57,6 +57,10 @@ export default function LeaderClubs() {
               <Button icon={FaChartBar} onClick={() => setStatsTarget(club)}>
                 {t("Stats")}
               </Button>
+              <Link to={`/admin/events?club=${club._id}`} className="btn-outline">
+                <FaCalendarAlt className="text-base" aria-hidden="true" />
+                {t("Events")}
+              </Link>
               <Link to={`/clubs?club=${club._id}`} className="btn-primary">
                 <FaLightbulb className="text-base" aria-hidden="true" />
                 {t("Ideas")}
