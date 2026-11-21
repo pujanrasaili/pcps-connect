@@ -46,7 +46,11 @@ const EMPTY_FORM = {
 };
 
 export default function AdminEvents() {
-  const { events, loading, error, refreshEvents } = useEvents();
+  const { events, loading, error, refreshEvents, loadAllEvents } = useEvents();
+  // Managing events means seeing the whole history, not just the recent months.
+  useEffect(() => {
+    loadAllEvents();
+  }, [loadAllEvents]);
   const { clubs: allClubs } = useClubs();
   const { user } = useAuth();
   const { clubs: ledClubs } = useLedClubs();
