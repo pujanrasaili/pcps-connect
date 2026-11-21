@@ -181,6 +181,7 @@ pcps-connect/
 - `helmet` security headers
 - The Vercel frontend also sends security headers (no content-type sniffing, no framing, strict referrer policy, microphone/location/payment off)
 - Dependabot opens a weekly pull request with dependency updates (security fixes included); CI tests each one
+- Dependency check: `npm audit --omit=dev` (what actually runs for visitors) reports 0 vulnerabilities in both `backend` and `frontend`. The only warnings left are moderate ones in test and development tools (`minimatch` inside Jest and nodemon); they never run in production, and the fix needs major tool upgrades, so they are left until those tools release a compatible version. `web-push` stays on 3.x because version 4 is ESM-only and the Jest push tests cannot load it.
 - Organisers' email addresses are never in the public events list; the event page shows the organiser's email only to logged-in students (guests see a "Log in to see their contact email" hint)
 - Malformed ids in links or requests (e.g. `/api/events/abc`) get a clean 404 instead of a database error, and auth endpoints reject non-text input with a 400
 - Role-based authorization enforced server-side on every protected route, not just hidden in the UI
