@@ -33,6 +33,20 @@ export function ThemeProvider({ children }) {
     }
   }, [theme]);
 
+  // Dark pages would print as pale text on white paper. While the print dialog
+  // is open, show the light colours, then put the person's theme back.
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const before = () => root.classList.remove("dark");
+    const after = () => root.classList.toggle("dark", theme === "dark");
+    window.addEventListener("beforeprint", before);
+    window.addEventListener("afterprint", after);
+    return () => {
+      window.removeEventListener("beforeprint", before);
+      window.removeEventListener("afterprint", after);
+    };
+  }, [theme]);
+
   const toggleTheme = () =>
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
