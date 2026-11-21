@@ -116,6 +116,54 @@ test("Download full report saves a CSV of every event's attendance", async ({ pa
   expect(csv).toContain("75");
 });
 
+test("the report download can be limited to a period and names the file after it", async ({ page }) => {
+  await overview(page, "en");
+  const asked = [];
+  await page.route("**/api/admin/attendance-report**", (route) => {
+    asked.push(new URL(route.request().url()).searchParams);
+    return reply(route, report);
+  });
+  await page.reload();
+  await page.getByLabel("From", { exact: true }).fill("2026-01-01");
+  await page.getByLabel("To", { exact: true }).fill("2026-06-30");
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Download full report (CSV)" }).click()]);
+  expect(download.suggestedFilename()).toMatch(/^attendance-report-\d{4}-\d{2}-\d{2}-2026-01-01-to-2026-06-30\.csv$/);
+  const last = asked[asked.length - 1];
+  expect(last.get("all")).toBe("1");
+  expect(new Date(last.get("from")).getTime()).toBe(new Date("2026-01-01T00:00:00").getTime());
+  expect(new Date(last.get("to")).getTime()).toBe(new Date("2026-06-30T23:59:59.999").getTime());
+});
+
+for (const lang of ["en", "ne"]) {
+  test(`the period inputs are labelled, explained and pass the accessibility checks (${lang})`, async ({ page }) => {
+    const en = lang === "en";
+    await overview(page, lang);
+    await page.route("**/api/admin/attendance-report**", (route) => reply(route, report));
+    await page.reload();
+    await expect(page.getByLabel(en ? "From" : "देखि", { exact: true })).toBeVisible();
+    await expect(page.getByLabel(en ? "To" : "सम्म", { exact: true })).toBeVisible();
+    await expect(page.getByText(en ? "Leave both empty to include every past event." : "सबै विगतका कार्यक्रम समावेश गर्न दुवै खाली छोड्नुहोस्।")).toBeVisible();
+    await page.waitForTimeout(600);
+    expect(await axeViolations(page)).toEqual([]);
+  });
+}
+
+test("an end date before the start date is refused without asking the server", async ({ page }) => {
+  await overview(page, "en");
+  let asked = 0;
+  await page.route("**/api/admin/attendance-report**", (route) => { asked += 1; return reply(route, report); });
+  await page.reload();
+  await expect(page.getByLabel("From", { exact: true })).toBeVisible();
+  const before = asked;
+  await page.getByLabel("From", { exact: true }).fill("2026-06-30");
+  // The date picker's own limits stop a mouse user; typing past them is what we guard against.
+  await page.getByLabel("To", { exact: true }).evaluate((el) => { el.removeAttribute("min"); });
+  await page.getByLabel("To", { exact: true }).fill("2026-01-01");
+  await page.getByRole("button", { name: "Download full report (CSV)" }).click();
+  await expect(page.getByText("The end date must not be before the start date.")).toBeVisible();
+  expect(asked).toBe(before);
+});
+
 test("if the weekly summary can't load, the rest of the overview still works", async ({ page }) => {
   const problems = await overview(page, "en", { weekReply: null });
   await expect(page.getByRole("heading", { level: 1, name: "Admin Overview" })).toBeVisible();
