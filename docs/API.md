@@ -87,7 +87,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | POST | `/api/admin/events/:id/walk-in` | Admin or club leader (rate limited) | Add a student who turned up without registering (by exact email or student ID) as registered and attended; admins and that event's club leaders only. |
 | PUT | `/api/admin/registrations/:id` | Admin or club leader | Mark a registration as attended or not. |
 | PUT | `/api/admin/registrations/:id/decision` | Admin or club leader | Approve or decline a join request for an approval-only event. |
-| GET | `/api/admin/attendance-report` | Admin or club leader | Turnout and ratings for recent past events (add ?all=1 for every past event, up to 500). |
+| GET | `/api/admin/attendance-report` | Admin or club leader | Turnout and ratings for recent past events (add ?all=1 for every past event, up to 500; ?from= and ?to= narrow it to a period). |
 | POST | `/api/admin/check-in` | Admin or club leader | Check a student in by scanning or typing their registration code. |
 | GET | `/api/admin/messages` | Admin only | Messages sent through the Contact form (newest first, up to 200) and how many are not handled yet; admins only. |
 | PUT | `/api/admin/messages/:id` | Admin only | Mark a contact message as handled or not handled; admins only. |

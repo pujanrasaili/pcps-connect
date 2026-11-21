@@ -25,7 +25,7 @@ const { noticeEmail } = require("../utils/noticeEmailText");
 const { escapeHtml } = require("../utils/escapeHtml");
 
 const FORBIDDEN = { message: "Access denied: insufficient permissions" };
-const { buildAttendanceReport } = require("../utils/attendanceReport");
+const { buildAttendanceReport, reportRange } = require("../utils/attendanceReport");
 const { fillMonthly, rankClubs } = require("../utils/insights");
 const { weekWindows, trend } = require("../utils/weekSummary");
 const { pickAdminUserFields, adminUserFieldsProblem } = require("../utils/adminUserFields");
@@ -604,13 +604,18 @@ async function getAuditLog(req, res) {
   }
 }
 
-// GET /api/admin/attendance-report
+// GET /api/admin/attendance-report   (?all=1, ?from=, ?to=)
 // Turnout and ratings for the 8 most recent past events, so organisers can
 // see which events actually brought people in without opening each one.
+// ?from= and ?to= narrow the report to a period (a semester, say).
 async function getAttendanceReport(req, res) {
   try {
+    const range = reportRange(req.query);
+    if (range.error) return res.status(400).json({ message: range.error });
     // Admins see every event; a club leader only sees their own clubs'.
     const filter = { date: { $lt: new Date() } };
+    if (range.from) filter.date.$gte = range.from;
+    if (range.to) filter.date.$lte = range.to;
     if (!isAdmin(req.user)) {
       const led = await ledClubs(req.user);
       if (led.length === 0) return res.status(403).json({ message: FORBIDDEN });

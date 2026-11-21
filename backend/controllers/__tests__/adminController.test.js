@@ -585,6 +585,31 @@ describe("getAttendanceReport", () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
+  it("narrows the report to the period asked for, still past events only", async () => {
+    const limit = jest.fn().mockReturnValue({ select: jest.fn().mockReturnValue({ populate: jest.fn().mockResolvedValue([]) }) });
+    Event.find = jest.fn().mockReturnValue({ sort: jest.fn().mockReturnValue({ limit }) });
+    Registration.aggregate = jest.fn().mockResolvedValue([]);
+    const res = mockRes();
+    await getAttendanceReport({ user: { _id: "a1", role: "admin" }, query: { all: "1", from: "2026-01-01T00:00:00.000Z", to: "2026-06-30T23:59:59.999Z" } }, res);
+    const date = Event.find.mock.calls[0][0].date;
+    expect(date.$gte).toEqual(new Date("2026-01-01T00:00:00.000Z"));
+    expect(date.$lte).toEqual(new Date("2026-06-30T23:59:59.999Z"));
+    expect(date.$lt).toBeInstanceOf(Date);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it.each([
+    [{ from: "not a date" }],
+    [{ to: "31st of never" }],
+    [{ from: "2026-06-30", to: "2026-01-01" }],
+  ])("400s a bad period %p without querying events", async (query) => {
+    Event.find = jest.fn();
+    const res = mockRes();
+    await getAttendanceReport({ user: { _id: "a1", role: "admin" }, query }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(Event.find).not.toHaveBeenCalled();
+  });
+
   it("returns 500 when the database fails", async () => {
     Event.find = jest.fn().mockImplementation(() => { throw new Error("db down"); });
     const res = mockRes();
