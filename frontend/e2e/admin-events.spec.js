@@ -15,7 +15,7 @@ async function withEventsApi(page) {
   const calls = [];
   const reply = (route, body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
   const make = (i, raw) => ({ _id: `n${i}`.padEnd(24, "0"), title: field(raw, "title"), description: field(raw, "description"), date: field(raw, "date"), location: field(raw, "location"), capacity: Number(field(raw, "capacity")), category: field(raw, "category") || "General", price: field(raw, "price") || "Free", club: clubs.find((c) => c._id === field(raw, "club")) || null, registeredCount: 0, pendingCount: 0 });
-  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events*", (route) => reply(route, { events }));
   await page.route("**/api/events/**", (route) => {
     const req = route.request();
     const method = req.method();
@@ -112,7 +112,7 @@ test("the form refuses to send an event with no title", async ({ page }) => {
 async function seedEvents(page, events) {
   const calls = [];
   const reply = (route, body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events*", (route) => reply(route, { events }));
   await page.route("**/api/events/create", (route) => {
     const raw = route.request().postDataBuffer().toString("utf8");
     calls.push({ title: field(raw, "title"), roles: field(raw, "volunteerRoles"), copyRoles: field(raw, "copyRoles") });

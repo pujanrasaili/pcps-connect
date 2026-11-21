@@ -17,7 +17,7 @@ for (const lang of ["en", "ne"]) {
   const en = lang === "en";
   test(`events show placeholder cards until they load (${lang})`, async ({ page }) => {
     const problems = await setUp(page, { lang });
-    const release = await slow(page, "**/api/events", { events: [{ _id: "e1".padEnd(24, "0"), title: "Hack Night", description: "x", date: new Date(Date.now() + 5 * 864e5).toISOString(), location: "Main Hall", capacity: 50, registeredCount: 1, category: "Workshop", price: "Free", club: clubs[0] }] });
+    const release = await slow(page, "**/api/events*", { events: [{ _id: "e1".padEnd(24, "0"), title: "Hack Night", description: "x", date: new Date(Date.now() + 5 * 864e5).toISOString(), location: "Main Hall", capacity: 50, registeredCount: 1, category: "Workshop", price: "Free", club: clubs[0] }] });
     await page.goto("/events");
     const loading = page.getByRole("status").filter({ hasText: en ? "Loading events" : "कार्यक्रमहरू लोड हुँदैछ" });
     await expect(loading).toBeAttached();

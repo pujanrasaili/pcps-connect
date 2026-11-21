@@ -15,7 +15,7 @@ async function load(page, { lang = "en", registrations = [], events = [], member
   const calls = [];
   let regs = registrations;
   await page.route("**/api/auth/me", (route) => reply(route, { user: { ...student, language: lang, favoriteClub } }));
-  await page.route("**/api/events", (route) => reply(route, { events }));
+  await page.route("**/api/events*", (route) => reply(route, { events }));
   await page.route("**/api/club-memberships/my", (route) => reply(route, { memberships }));
   await page.route("**/api/events/volunteering/mine", (route) => reply(route, { volunteering }));
   await page.route("**/api/leader/clubs", (route) => reply(route, { clubs: led }));

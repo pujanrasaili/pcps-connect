@@ -13,7 +13,7 @@ const quiet = (problems) => problems.filter((p) => !/status of (400|401|404|409)
 async function withAttendeesApi(page, { regs, waitlist = [], walkIn, sent } = {}) {
   let rows = regs || [reg(1, "Asha Rai"), reg(2, "Bikash Thapa", { attended: true, rating: 4, feedback: "Great session" }), reg(3, "Chhori Lama"), reg(4, "Pema Sherpa", { status: "pending" })];
   const calls = [];
-  await page.route("**/api/events", (route) => reply(route, { events: [event] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [event] }));
   await page.route(`**/api/admin/events/${EV}/registrations`, (route) => reply(route, { registrations: rows, waitlist }));
   await page.route(`**/api/admin/events/${EV}/announce`, (route) => { calls.push(`announce ${route.request().postDataJSON().message}`); return reply(route, sent ? { message: "Message sent to 4 student(s)", sent } : { message: "Sent to 4 students." }); });
   await page.route(`**/api/admin/events/${EV}/walk-in`, (route) => {
@@ -207,7 +207,7 @@ test("the list shows who hasn't answered a required sign-up question", async ({ 
     reg(2, "Bikash Thapa", { answers: [] }),
   ];
   await withAttendeesApi(page, { regs });
-  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
   const dialog = await openAttendees(page);
   await expect(dialog.getByTestId("attendee-answer-missing")).toHaveCount(1);
   await expect(dialog.getByTestId("attendee-answer-missing")).toContainText("No answer yet: Phone number?");
@@ -223,7 +223,7 @@ test("the Answers missing filter narrows a long list to people who still owe an 
     ...Array.from({ length: 8 }, (_, i) => reg(i + 3, `Student${i + 3} Person`, { _id: `s${i}`.padEnd(23, "x") + "1", answers: [{ question: "Phone number?", answer: "98" }] })),
   ];
   await withAttendeesApi(page, { regs });
-  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
   const dialog = await openAttendees(page);
   await dialog.getByLabel("Answers missing").check();
   await expect(dialog.getByRole("button", { name: /Bikash Thapa/ })).toBeVisible();
@@ -251,7 +251,7 @@ test("an organiser can remind the people who still owe an answer", async ({ page
     ...Array.from({ length: 6 }, (_, i) => reg(i + 4, `Student${i + 4} Person`, { _id: `s${i}`.padEnd(23, "x") + "1", answers: [{ question: "Phone number?", answer: "98" }] })), // the filter row shows from 9 people
   ];
   await withAttendeesApi(page, { regs });
-  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
   let reminded = 0;
   await page.route(`**/api/admin/events/${EV}/remind-answers`, (route) => { reminded += 1; return reply(route, { message: "Reminder sent to 2 student(s)", sent: 2 }); });
   const dialog = await openAttendees(page);
@@ -267,7 +267,7 @@ test("no reminder button when everyone has answered", async ({ page }) => {
     ...Array.from({ length: 8 }, (_, i) => reg(i + 2, `Student${i + 2} Person`, { _id: `s${i}`.padEnd(23, "x") + "1", answers: [{ question: "Phone number?", answer: "98" }] })),
   ];
   await withAttendeesApi(page, { regs });
-  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "Phone number?", required: true }] }] }));
   const dialog = await openAttendees(page);
   await expect(dialog.getByRole("button", { name: /Remind/ })).toHaveCount(0);
 });
@@ -277,7 +277,7 @@ test("the answer summary tallies each sign-up question for the organiser", async
   const size = (a) => ({ answers: [{ question: "T-shirt size?", answer: a }] });
   const regs = [reg(1, "Asha Rai", size("M")), reg(2, "Bikash Thapa", size("m")), reg(3, "Chhori Lama", size("L")), reg(4, "Dorje Sherpa", { answers: [] })];
   await withAttendeesApi(page, { regs });
-  await page.route("**/api/events", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "T-shirt size?", required: false }] }] }));
+  await page.route("**/api/events*", (route) => reply(route, { events: [{ ...event, signupQuestions: [{ _id: "q1".padEnd(24, "0"), text: "T-shirt size?", required: false }] }] }));
   const dialog = await openAttendees(page);
   const summary = dialog.getByTestId("answer-summary");
   await summary.getByText("Answer summary").click();

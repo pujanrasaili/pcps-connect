@@ -9,7 +9,7 @@ async function open(page, lang, interests) {
   const problems = await setUp(page, { lang, role: "student" });
   await page.route("**/api/auth/me", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ user: { ...student, language: lang, interests } }) }));
   const events = [make(1, "Workshop", 5), make(2, "workshop", 3), make(3, "Sports", 4), make(4, "Workshop", -2), make(5, "General", 2)];
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
   await page.goto("/dashboard");
   return problems;
 }

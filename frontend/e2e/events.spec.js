@@ -16,7 +16,7 @@ const events = [
 
 async function open(page, lang = "en", path = "/events") {
   const problems = await setUp(page, { lang });
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
   await page.goto(path);
   await expect(page.getByText("Hack Night")).toBeVisible();
   return problems;

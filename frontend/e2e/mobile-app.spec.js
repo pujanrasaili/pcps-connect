@@ -220,7 +220,7 @@ test.describe("pull to refresh", () => {
   };
   const watch = async (page) => {
     const calls = { events: 0, clubs: 0 };
-    await page.route("**/api/events", (route) => { calls.events += 1; return route.fallback(); });
+    await page.route("**/api/events*", (route) => { calls.events += 1; return route.fallback(); });
     await page.route("**/api/clubs", (route) => { calls.clubs += 1; return route.fallback(); });
     return calls;
   };

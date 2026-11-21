@@ -9,7 +9,7 @@ async function mock(page, lang) {
   const calls = [];
   const future = new Date(Date.now() + 6 * 864e5).toISOString();
   const events = CATEGORIES.map((category, i) => ({ _id: `e${i}`.padEnd(24, "0"), title: `Event ${i}`, description: "d", date: future, location: "Hall", capacity: 50, registeredCount: 1, category, price: "Free" }));
-  await page.route("**/api/events", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
+  await page.route("**/api/events*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ events }) }));
   await page.route("**/api/auth/profile", (route) => {
     const body = route.request().postDataJSON();
     calls.push(body);
