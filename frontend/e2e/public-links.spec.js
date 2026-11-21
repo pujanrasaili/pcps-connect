@@ -36,7 +36,9 @@ for (const lang of ["en", "ne"]) {
   test(`a mistyped address gets a 404 page with a way home (${lang})`, async ({ page }) => {
     const problems = await setUp(page, { lang });
     await page.goto("/no/such/page");
-    await expect(page.getByRole("heading", { name: en ? "Page not found" : "पृष्ठ फेला परेन" })).toBeVisible();
+    // The page's one main heading says what the page is (the big "404" is decoration).
+    await expect(page.getByRole("heading", { level: 1, name: en ? "Page not found" : "पृष्ठ फेला परेन" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
     expect(await axeViolations(page)).toEqual([]);
     await page.getByRole("link", { name: en ? "Back to home" : "गृहपृष्ठमा फर्कनुहोस्" }).click();
     await expect(page).toHaveURL(/\/$/);
