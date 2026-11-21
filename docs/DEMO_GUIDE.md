@@ -47,6 +47,13 @@ and the leaders of both can manage it. Then in Settings tick a topic under
 "events can be run by more than one club, and students hear about the kinds of
 events they care about."
 
+Another optional extra (1 minute): as the admin, open an event's "Sign-up
+questions" box and add "T-shirt size" as required. As the student, register: the
+form asks for it and will not continue without an answer. Back as the admin, open
+the attendee list: the answer shows under the name, search finds it, and "Copy
+emails" puts every confirmed address on the clipboard. Say: "organisers can ask
+what they need at sign-up and reach people without exporting a file."
+
 If something is slow, say "the free hosting tier wakes up slowly" and move on.
 It is true, and it is written in the README.
 
@@ -98,6 +105,16 @@ numbers, a review of the Nepali text by a native speaker, and a store-listed
 phone app (today the site installs to the home screen and can send phone
 alerts, but it is not in an app store). Do not list push alerts or an
 installable app as future work: they already exist.
+
+**Does it work on a bad connection or a shared lab computer?** On the phone a
+bar says when it is offline, saved tickets open without internet, and seat counts
+refresh when a long-idle tab is reopened. Answers to signed-in requests are marked
+`no-store` so the next person at a lab computer cannot read them from the cache
+or the back button after logout.
+
+**Can you print from it?** Yes. The posters, the certificate and the activity
+record have their own layouts, and any other page prints without menus or
+banners, with dark mode printed in light colours.
 
 **Did you build this alone?** Answer honestly. For example: "I designed it
 and ran it, and I built it with AI assistance (Claude), reviewing and
