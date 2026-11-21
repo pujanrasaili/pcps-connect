@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaUserFriends, FaRegCopy, FaLock, FaLockOpen, FaFileCsv } from "react-icons/fa";
 import { useEvents } from "../../context/EventsContext";
 import { useUnsavedWarning } from "../../hooks/useUnsavedWarning";
@@ -52,6 +53,7 @@ export default function AdminEvents() {
     loadAllEvents();
   }, [loadAllEvents]);
   const { clubs: allClubs } = useClubs();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { clubs: ledClubs } = useLedClubs();
   const toast = useToast();
@@ -102,11 +104,20 @@ export default function AdminEvents() {
     [events, leaderMode, ledIds]
   );
 
-  const filteredEvents = useMemo(
-    () => filterAdminEvents(visibleEvents, { tab, query: debouncedQuery }),
-    [visibleEvents, tab, debouncedQuery]
+  // "My Clubs" links here with ?club=<id> to show one club's events (as host or co-host).
+  const clubFilterId = searchParams.get("club") || "";
+  const clubFilter = clubFilterId ? allClubs.find((c) => c._id === clubFilterId) || null : null;
+  const scopedEvents = useMemo(
+    () => (clubFilter ? visibleEvents.filter((e) => [e.club, ...(e.coHosts || [])].some((c) => (c?._id || c) === clubFilter._id)) : visibleEvents),
+    [visibleEvents, clubFilter]
   );
-  const tabCounts = useMemo(() => countAdminEvents(visibleEvents), [visibleEvents]);
+  const showAllClubs = () => setSearchParams({}, { replace: true });
+
+  const filteredEvents = useMemo(
+    () => filterAdminEvents(scopedEvents, { tab, query: debouncedQuery }),
+    [scopedEvents, tab, debouncedQuery]
+  );
+  const tabCounts = useMemo(() => countAdminEvents(scopedEvents), [scopedEvents]);
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
@@ -127,7 +138,7 @@ export default function AdminEvents() {
   const openCreate = () => {
     setDuplicatedFrom(null);
     setEditingEvent(null);
-    setForm({ ...EMPTY_FORM, club: leaderMode ? clubs[0]?._id || "" : "" });
+    setForm({ ...EMPTY_FORM, club: (clubFilter && clubs.some((c) => c._id === clubFilter._id) ? clubFilter._id : leaderMode ? clubs[0]?._id : "") || "" });
     setImageFile(null);
     setTouched(false);
     setFormOpen(true);
@@ -284,7 +295,17 @@ export default function AdminEvents() {
           <h1 className="font-display text-2xl font-bold text-slate-800 dark:text-slate-100">
             {leaderMode ? t("My Club Events") : t("Manage Events")}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400">{t(visibleEvents.length === 1 ? "{n} event total" : "{n} events total", { n: visibleEvents.length })}</p>
+          <p className="text-slate-500 dark:text-slate-400">{t(scopedEvents.length === 1 ? "{n} event total" : "{n} events total", { n: scopedEvents.length })}</p>
+          {clubFilter && (
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+              <span className="rounded-full bg-primary-50 px-3 py-1 font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+                {t("Showing events of {club}", { club: clubFilter.name })}
+              </span>
+              <button type="button" onClick={showAllClubs} className="font-medium text-primary-700 underline underline-offset-2 hover:text-primary-800 dark:text-primary-300">
+                {t("Show all clubs")}
+              </button>
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -415,7 +436,7 @@ export default function AdminEvents() {
         {!loading && !error && filteredEvents.length === 0 && (
           <p className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
             <FaCalendarAlt className="mx-auto mb-2 text-2xl text-slate-300" />
-            {visibleEvents.length === 0 ? t("No events yet. Click “Add Event” to create one.") : t("No events match your search or filter.")}
+            {scopedEvents.length === 0 ? t("No events yet. Click “Add Event” to create one.") : t("No events match your search or filter.")}
           </p>
         )}
       </div>
