@@ -152,7 +152,7 @@ pcps-connect/
 - Promote/demote admin roles, delete accounts
 - Per-event attendee list with tap-to-toggle attendance marking, plus one-click CSV export for printable attendance sheets
 - Attendance certificates: once an organiser marks a student as attended, they can print a certificate (A4 PDF) with a QR code that anyone can scan to confirm it's genuine
-- Attendance report: the admin overview shows turnout (registered vs. attended) and average rating for recent past events; "Download full report (CSV)" exports every past event (club, date, registered, attended, no-shows, rate, rating) for college reports, and club leaders get the same for their own clubs
+- Attendance report: the admin overview shows turnout (registered vs. attended) and average rating for recent past events; "Download full report (CSV)" exports every past event (club, date, registered, attended, no-shows, rate, rating) for college reports, and club leaders get the same for their own clubs. Optional "From" and "To" dates limit the download to a period (a semester, say): the whole of both days counts in the viewer's own time zone, either end may be left open, an end before the start is refused, and the file name carries the period
 - Student dashboard nudges students to rate events they attended, with a link to their certificate
 - Student dashboard also lists upcoming events from the clubs they joined (that they have not registered for yet)
 - Manage Events (admins and club leaders) can be narrowed to All / Upcoming / Past / "Needs a decision" (events with join requests waiting), with counts, on top of the search box
