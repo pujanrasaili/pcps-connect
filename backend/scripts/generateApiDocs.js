@@ -77,7 +77,7 @@ const DESCRIPTIONS = {
   resetPassword: "Set a new password using a reset-link token.",
   verifyEmail: "Confirm an email address using a verification-link token.",
   resendVerification: "Send the verification email again.",
-  getEvents: "List all events, with how many are registered.",
+  getEvents: "List upcoming events and those from the last 90 days, with how many are registered (add ?scope=all for every event ever).",
   getEventById: "One event; the organiser's email is shown only to logged-in users.",
   createEvent: "Create an event (admins, or a leader for their own club), with an optional image. Send repeat (weekly or biweekly) and repeatCount (2 to 12) to create a series of separate events. An optional endDate (after the start, at most 7 days long) sets when it ends. Admins can also send coHosts (a JSON list of up to 2 other club ids); leaders' coHosts are ignored.",
   updateEvent: "Edit an event; registered students are emailed if the date or place changes. Leaders of a co-hosting club can edit it too; only admins can change coHosts.",

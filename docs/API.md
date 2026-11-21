@@ -35,7 +35,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 
 | Method | Path | Who | What it does |
 |---|---|---|---|
-| GET | `/api/events` | Anyone | List all events, with how many are registered. |
+| GET | `/api/events` | Anyone | List upcoming events and those from the last 90 days, with how many are registered (add ?scope=all for every event ever). |
 | GET | `/api/events/calendar.ics` | Anyone | Public calendar feed (.ics) of upcoming events, optionally ?club=<id>, for subscribing in Google, Apple or Outlook Calendar. |
 | GET | `/api/events/:id` | Anyone (logged-in users see more) | One event; the organiser's email is shown only to logged-in users. |
 | GET | `/api/events/:id/questions` | Anyone (logged-in users see more) | The public questions and answers on an event (newest first, up to 50). Only first names are shown. |
