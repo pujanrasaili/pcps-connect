@@ -77,7 +77,7 @@ Admins make a student a club leader from Admin, then **Clubs**, then Leaders (up
 
 GitHub Actions runs these on a schedule (Actions tab of the repository):
 
-- **Event Reminders:** every day, reminds registered students about events coming up.
+- **Event Reminders:** twice a day (8:45 am and 2:45 pm, Nepal time), reminds registered students about events in the next 24 hours, so even an afternoon event is announced hours ahead. Nobody gets the same reminder twice.
 - **Weekly Digest:** every Sunday morning (Nepal time), one email per student with next week's events from their clubs and in the topics they follow (the email then says "This week for you").
 - **Join Request Reminders:** every Monday and Thursday morning, emails a club's leaders (the admins, if it has none) when students have waited more than 5 days for a decision on a club that approves its members. Nothing is sent when nobody is overdue.
 

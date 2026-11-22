@@ -289,7 +289,7 @@ and `BREVO_SENDER_EMAIL` (optional; left unset, Gmail is used).
 event starts within the next 24 hours (skipping anyone who turned reminders
 off in Settings, and never emailing the same registration twice). The app has
 no always-running process of its own, so `.github/workflows/event-reminders.yml`
-runs the script daily. To enable it, add these repository secrets under
+runs the script twice a day (8:45 am and 2:45 pm in Nepal; it never emails the same registration twice). To enable it, add these repository secrets under
 **Settings -> Secrets and variables -> Actions**, using the same values as the
 backend's `.env`:
 
@@ -323,7 +323,6 @@ A backup contains students' personal details and password hashes, so keep it pri
 
 - `docs/ADMIN_GUIDE.md` -- how to run the site day to day: approving accounts, roles, check-in, scheduled emails, hosting, backups and what to do when something breaks.
 - `docs/HOW_IT_WORKS.md` -- a plain-language tour of how the project works (login, roles, registration, QR check-in, certificates, emails, protections, where to find things in the code).
-- `docs/HANDOVER.md` -- how to pass the project to the next team: which accounts and settings exist, what to do before handing over, which secrets to replace after the previous owner leaves, and the yearly checks.
 - `docs/LIVE_CHECKLIST.md` -- the checks that can only be done on the real site (smoke test, club news photo, a second account, volunteering, full events and leaders, reminder emails, saved events on two devices, rate-the-event request, phone and print touches, Nepali pages), step by step.
 - `docs/API.md` -- every API endpoint, who may call it and what it does. Generated from the route files (`npm run docs:api` in `backend/`), and a test fails if it goes out of date.
 - `backend/README.md` -- request/response shapes, database models and deeper notes on the auth flow (written by hand, so `docs/API.md` is the up-to-date endpoint list).
