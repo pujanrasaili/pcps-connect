@@ -5,6 +5,7 @@ const { canManageEvent } = require("../utils/clubAccess");
 const Registration = require("../models/Registration");
 const { pushNotifications } = require("../utils/inApp");
 const { cleanQuestions, lacksRequiredAnswer } = require("../utils/signupQuestions");
+const { cleanFeedbackQuestions } = require("../utils/feedbackQuestions");
 
 // PUT /api/events/:id/signup-questions  { questions: [{ _id?, text, required }] }  (organisers)
 // Replaces the list (up to 3). People who already registered keep their answers,
@@ -41,6 +42,28 @@ async function setSignupQuestions(req, res) {
   }
 }
 
+// PUT /api/events/:id/feedback-questions  { questions: [{ text }] }  (organisers)
+// Replaces the list (up to 3). People who already gave feedback keep their
+// answers, which carry the question text they were given. An empty list
+// switches the questions off.
+async function setFeedbackQuestions(req, res) {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!(await canManageEvent(req.user, event))) {
+      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+    }
+    const { value, error } = cleanFeedbackQuestions(req.body?.questions);
+    if (error) return res.status(400).json({ message: error });
+    event.feedbackQuestions = value;
+    await event.save();
+    await recordAudit(req.user, "event.feedbackQuestions", `Set ${value.length} feedback question(s) on "${event.title}"`);
+    res.status(200).json({ message: "Feedback questions saved", feedbackQuestions: event.feedbackQuestions });
+  } catch (err) {
+    res.status(500).json({ message: safeError(err, "Failed to save the feedback questions") });
+  }
+}
+
 // POST /api/admin/events/:id/remind-answers  (organisers)
 // A bell message to each registered student who still owes an answer to a
 // required sign-up question, linking to the event. Past events are skipped.
@@ -71,4 +94,4 @@ async function remindMissingAnswers(req, res) {
   }
 }
 
-module.exports = { setSignupQuestions, remindMissingAnswers };
+module.exports = { setSignupQuestions, setFeedbackQuestions, remindMissingAnswers };

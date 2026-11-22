@@ -5,7 +5,7 @@ Every state-changing request (POST/PUT/PATCH/DELETE) must send the header `X-Req
 Logged-in access uses an httpOnly cookie set by `POST /api/auth/login`.
 
 Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (leaders only for their own clubs' events), **Admin only**.
-135 endpoints.
+136 endpoints.
 
 ## /api/health
 
@@ -43,6 +43,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | PUT | `/api/events/:id/questions/:questionId/answer` | Admin or club leader (rate limited) | Answer a question on an event (admins and that event's club leaders only); the asker is emailed the first time. |
 | DELETE | `/api/events/:id/questions/:questionId` | Logged-in student (rate limited) | Delete a question: its asker, or an admin / the event's club leader. |
 | PUT | `/api/events/:id/signup-questions` | Admin or club leader (rate limited) | Set the sign-up questions of an event (up to 3, each with a text and a required flag); admins and the event's club leaders only. Answers are kept with each registration and waitlist entry. |
+| PUT | `/api/events/:id/feedback-questions` | Admin or club leader (rate limited) | Set the feedback questions of an event (up to 3, each a short text, always optional to answer); admins and the event's club leaders only. Attendees answer them with their rating, and only the organisers see the answers. |
 | PUT | `/api/events/:id/sponsors` | Admin or club leader (rate limited) | Set the sponsors of an event (up to 6, each with a name and an optional website); admins and the event's club leaders only. Shown as "Thanks to our partners" on the event page. |
 | GET | `/api/events/volunteering/mine` | Logged-in student | The upcoming events you signed up to help at, with your role, soonest first. |
 | GET | `/api/events/:id/join-link` | Logged-in student | An event's online meeting link, for its organisers and students with a confirmed registration. |
@@ -68,7 +69,7 @@ Access levels: **Anyone**, **Logged-in student**, **Admin or club leader** (lead
 | GET | `/api/registrations/record` | Logged-in student | Your own activity record: events you attended and helped at (confirmed by organisers) and your clubs, for printing. |
 | GET | `/api/registrations/:id/check-in-code` | Logged-in student | The signed code shown as a QR at the door (your own registration only). |
 | GET | `/api/registrations/:id/certificate` | Logged-in student | Your attendance certificate (only if you were marked as attended). |
-| PUT | `/api/registrations/:id/feedback` | Logged-in student (rate limited) | Rate an event 1-5 with an optional comment (only if you attended). |
+| PUT | `/api/registrations/:id/feedback` | Logged-in student (rate limited) | Rate an event 1-5 with an optional comment and optional answers to the organisers' feedback questions (only if you attended). |
 | PUT | `/api/registrations/:id/answers` | Logged-in student (rate limited) | Change your answers to an event's sign-up questions (own registration, before the event). |
 | DELETE | `/api/registrations/:id` | Logged-in student (rate limited) | Cancel your own registration; the next person on the waitlist is promoted. |
 
