@@ -17,7 +17,8 @@ export default function TopicPicker() {
   const { t } = useLang();
   const toast = useToast();
   const [saving, setSaving] = useState(false);
-  const chosen = user?.interests || [];
+  const interests = user?.interests;
+  const chosen = useMemo(() => interests || [], [interests]);
 
   const options = useMemo(() => {
     const seen = new Map();
