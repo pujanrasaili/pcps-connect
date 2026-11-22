@@ -117,6 +117,7 @@ pcps-connect/
 - Offline bar: while the phone has no internet, a thin bar on every page says "You're offline" and goes away by itself when the connection returns (when saved tickets exist, the tickets banner shows instead and links to them).
 - Full comments: in the attendees window a student's feedback comment (up to 500 characters) wraps onto as many lines as it needs, instead of being cut off after one line.
 - Alumni notes wrap: on a phone a club's alumni list (and the one on the Profile) shows a whole note (up to 80 characters) on as many lines as it needs, instead of cutting it off.
+- Clash warning: when a student opens an event that overlaps one they are already signed up for (or waiting for approval on), the page says so before they register and links to the other event. An event with no end time counts as one hour, so only events that start at about the same time are flagged.
 - Copy emails: in the attendees window organisers press "Copy emails" to put every confirmed attendee's address on the clipboard (each once, people still awaiting approval left out), ready to paste into Bcc.
 - Server safety net: a background task that fails with nobody waiting for it (an email or phone alert sent after the reply) is logged instead of ending the server; real crashes still restart it.
 - Copy emails for clubs: the members window (Admin → Clubs, and Leader → My clubs) has the same "Copy emails" button, so a leader can paste every member's address into Bcc.
