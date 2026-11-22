@@ -38,7 +38,7 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 import StartsLabel from "../components/StartsLabel";
 import { findClash } from "../utils/scheduleClash";
-import { formatDate, formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
+import { formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, hasOpenDeadline } from "../utils/registrationDeadline";
 import { isHostedBy } from "../utils/eventHosts";
 import { api, getErrorMessage, resolveUploadUrl } from "../services/api";
