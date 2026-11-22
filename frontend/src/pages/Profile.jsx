@@ -33,6 +33,8 @@ export default function Profile() {
   const [ratingDraft, setRatingDraft] = useState(0);
   const [commentDraft, setCommentDraft] = useState("");
   const [ratingSaving, setRatingSaving] = useState(false);
+  // Answers to the organisers' feedback questions, in the order of the questions.
+  const [answerDraft, setAnswerDraft] = useState([]);
   const [form, setForm] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
@@ -76,6 +78,7 @@ export default function Profile() {
     setRateTarget(registration);
     setRatingDraft(registration.rating || 0);
     setCommentDraft(registration.feedback || "");
+    setAnswerDraft((registration.event?.feedbackQuestions || []).map((q) => (registration.feedbackAnswers || []).find((a) => a.question === q.text)?.answer || ""));
   };
 
   const handleSubmitRating = async (e) => {
@@ -85,7 +88,7 @@ export default function Profile() {
       return;
     }
     setRatingSaving(true);
-    const result = await submitFeedback(rateTarget._id, ratingDraft, commentDraft);
+    const result = await submitFeedback(rateTarget._id, ratingDraft, commentDraft, answerDraft);
     setRatingSaving(false);
     if (result.ok) setRateTarget(null);
   };
@@ -268,6 +271,19 @@ export default function Profile() {
             />
             <p className="mt-1 text-right text-xs text-slate-500 dark:text-slate-400">{commentDraft.length}/500</p>
           </div>
+          {(rateTarget?.event?.feedbackQuestions || []).map((q, i) => (
+            <div key={q._id || q.text}>
+              <label className="label-field" htmlFor={`rate-answer-${i}`}>{q.text}</label>
+              <input
+                id={`rate-answer-${i}`}
+                maxLength={300}
+                className="input-field"
+                value={answerDraft[i] || ""}
+                onChange={(e) => setAnswerDraft((rows) => rows.map((r, j) => (j === i ? e.target.value : r)))}
+                placeholder={t("Optional")}
+              />
+            </div>
+          ))}
           <Button type="submit" className="w-full" disabled={ratingSaving}>
             {ratingSaving ? t("Saving...") : t("Submit feedback")}
           </Button>

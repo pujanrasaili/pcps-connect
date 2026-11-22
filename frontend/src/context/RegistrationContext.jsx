@@ -87,9 +87,11 @@ export function RegistrationProvider({ children }) {
     }
   };
 
-  const submitFeedback = async (registrationId, rating, feedback) => {
+  const submitFeedback = async (registrationId, rating, feedback, answers) => {
     try {
-      await api.put(`/registrations/${registrationId}/feedback`, { rating, feedback });
+      const body = { rating, feedback };
+      if (Array.isArray(answers) && answers.some((a) => a && a.trim())) body.answers = answers;
+      await api.put(`/registrations/${registrationId}/feedback`, body);
       await refreshRegistrations();
       toast.success("Thanks for your feedback!");
       return { ok: true };
