@@ -51,8 +51,8 @@ function readRoutes(source) {
     for (const arg of args.slice(0, -1)) {
       if (MIDDLEWARE_LEVEL[arg]) access = stronger(access, MIDDLEWARE_LEVEL[arg]);
       else if (arg === "optionalAuth") note = "logged-in users see more";
-      else if (/Limiter$/.test(arg)) note = note || "rate limited";
-      else if (/^upload\./.test(arg)) note = note ? `${note}; image upload` : "image upload";
+      else if (arg.endsWith("Limiter")) note = note || "rate limited";
+      else if (arg.startsWith("upload.")) note = note ? `${note}; image upload` : "image upload";
     }
     routes.push({ method: route[1].toUpperCase(), subpath: route[2] === "/" ? "" : route[2], access, note, handler });
   }
