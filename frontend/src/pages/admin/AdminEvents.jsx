@@ -21,6 +21,7 @@ import Button from "../../components/Button";
 import Pagination from "../../components/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 import { isoToLocalInput, localInputToIso } from "../../utils/dateTimeInput";
+import { clubOverlap } from "../../utils/clubOverlap";
 import { isRegistrationClosed } from "../../utils/registrationDeadline";
 import { shrinkImage } from "../../utils/resizeImage";
 import { eventsCsv } from "../../utils/eventsCsv";
@@ -79,6 +80,7 @@ export default function AdminEvents() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const formOverlap = useMemo(() => clubOverlap(form, events, editingEvent?._id), [form, events, editingEvent]);
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving] = useState(false);
   // True once something has been typed, so closing the form can ask before throwing it away.
@@ -489,6 +491,11 @@ export default function AdminEvents() {
               {t("Shown as “10:00 AM – 12:00 PM” and used as the length in calendar invites. Leave blank and calendars assume 2 hours.")}
             </p>
           </div>
+          {formOverlap && (
+            <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 sm:col-span-2" role="status" data-testid="club-overlap">
+              {t("This club already has {title} at that time. Members can't attend both. You can still save.", { title: formOverlap.title })}
+            </p>
+          )}
           <div>
             <label className="label-field" htmlFor="ev-deadline">{t("Registration closes (optional)")}</label>
             <input
