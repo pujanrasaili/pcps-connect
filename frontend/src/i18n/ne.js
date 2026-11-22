@@ -1656,4 +1656,5 @@ export const ne = {
   "View it": "हेर्नुहोस्",
   "Overlaps your plans": "तपाईंको योजनासँग मिल्छ",
   "Overlaps another event you signed up for": "तपाईं दर्ता भएको अर्को कार्यक्रमसँग मिल्छ",
+  "This club already has {title} at that time. Members can't attend both. You can still save.": "यो क्लबको त्यही समयमा {title} पहिले नै छ। सदस्यहरू दुवैमा उपस्थित हुन सक्दैनन्। तपाईं अझै सुरक्षित गर्न सक्नुहुन्छ।",
 };
