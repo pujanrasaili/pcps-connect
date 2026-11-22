@@ -1651,4 +1651,12 @@ export const ne = {
   "Overlaps your plans": "तपाईंको योजनासँग मिल्छ",
   "Overlaps another event you signed up for": "तपाईं दर्ता भएको अर्को कार्यक्रमसँग मिल्छ",
   "This club already has {title} at that time. Members can't attend both. You can still save.": "यो क्लबको त्यही समयमा {title} पहिले नै छ। सदस्यहरू दुवैमा उपस्थित हुन सक्दैनन्। तपाईं अझै सुरक्षित गर्न सक्नुहुन्छ।",
+  "Feedback questions saved": "प्रतिक्रिया प्रश्नहरू सुरक्षित गरियो",
+  "Feedback questions": "प्रतिक्रिया प्रश्नहरू",
+  "Edit feedback questions": "प्रतिक्रिया प्रश्न सम्पादन गर्नुहोस्",
+  "Add feedback questions": "प्रतिक्रिया प्रश्न थप्नुहोस्",
+  "People who attended can answer these with their rating. Answering is optional, and only organisers see the answers.": "उपस्थित भएकाहरूले यी प्रश्नको उत्तर रेटिङसँगै दिन सक्छन्। उत्तर दिनु ऐच्छिक हो, र उत्तरहरू आयोजकहरूले मात्र देख्छन्।",
+  "Ask people who attended something specific, like whether the venue was easy to find.": "उपस्थित भएकाहरूलाई केही विशेष सोध्नुहोस्, जस्तै स्थान सजिलै भेटियो कि भएन।",
+  "Optional": "ऐच्छिक",
+  "Feedback questions changed": "प्रतिक्रिया प्रश्नहरू परिवर्तन गरियो",
 };
