@@ -23,7 +23,7 @@ npm run dev
 Run the checks that CI runs:
 
 ```
-cd backend  && npm test
+cd backend  && npm run lint && npm test
 cd frontend && npm run lint && npm test && npm run build
 cd frontend && npm run e2e        # browser tests, about 10 minutes
 ```
