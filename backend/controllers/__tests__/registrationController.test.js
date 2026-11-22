@@ -343,6 +343,32 @@ describe("submitFeedback", () => {
     expect((await call({ rating: 4 })).status).toHaveBeenCalledWith(404);
   });
 
+  it("keeps answers to the event's feedback questions, with the question text copied in", async () => {
+    const r = reg({ event: "ev1" });
+    Registration.findById.mockResolvedValue(r);
+    Event.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ feedbackQuestions: [{ text: "Venue?" }, { text: "Food?" }] }) });
+    const res = await call({ rating: 5, answers: ["Easy to find", "  "] });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(r.feedbackAnswers).toEqual([{ question: "Venue?", answer: "Easy to find" }]);
+  });
+
+  it("rejects an answer that is too long and saves nothing", async () => {
+    const r = reg({ event: "ev1" });
+    Registration.findById.mockResolvedValue(r);
+    Event.findById.mockReturnValue({ select: jest.fn().mockResolvedValue({ feedbackQuestions: [{ text: "Venue?" }] }) });
+    const res = await call({ rating: 5, answers: ["x".repeat(301)] });
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(r.save).not.toHaveBeenCalled();
+  });
+
+  it("does not look up the event when no answers are sent", async () => {
+    const r = reg({ event: "ev1" });
+    Registration.findById.mockResolvedValue(r);
+    await call({ rating: 4, feedback: "Good" });
+    expect(Event.findById).not.toHaveBeenCalled();
+    expect(r.feedbackAnswers).toBeUndefined();
+  });
+
   it("403s for someone else's registration", async () => {
     Registration.findById.mockResolvedValue(reg({ user: { toString: () => "someone-else" } }));
     const res = await call({ rating: 4 });

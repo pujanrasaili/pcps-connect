@@ -2,6 +2,7 @@ const Registration = require("../models/Registration");
 const { isObjectId } = require("../middleware/validateId");
 const { registrationClosed } = require("../utils/registrationDeadline");
 const { buildAnswers } = require("../utils/signupQuestions");
+const { buildFeedbackAnswers } = require("../utils/feedbackQuestions");
 const Event = require("../models/Event");
 const User = require("../models/User");
 const { safeError } = require("../utils/errorMessage");
@@ -123,7 +124,7 @@ async function registerForEvent(req, res) {
 async function getMyRegistrations(req, res) {
   try {
     const registrations = await Registration.find({ user: req.user._id })
-      .populate("event", "title date endDate location image")
+      .populate("event", "title date endDate location image feedbackQuestions")
       .populate("user", "name email language")
       .sort({ createdAt: -1 });
 
@@ -284,8 +285,19 @@ async function submitFeedback(req, res) {
       return res.status(400).json({ message: "You can only rate events you attended" });
     }
 
+    // Answers to the organisers' feedback questions (optional). The event is
+    // only loaded when answers were sent.
+    let feedbackAnswers;
+    if (Array.isArray(req.body.answers) && req.body.answers.length > 0) {
+      const event = await Event.findById(registration.event).select("feedbackQuestions");
+      const built = buildFeedbackAnswers(event?.feedbackQuestions, req.body.answers);
+      if (built.error) return res.status(400).json({ message: built.error });
+      feedbackAnswers = built.value;
+    }
+
     registration.rating = rating;
     registration.feedback = cleanFeedback;
+    if (feedbackAnswers) registration.feedbackAnswers = feedbackAnswers;
     await registration.save();
 
     res.status(200).json({ message: "Thanks for your feedback!", registration });
