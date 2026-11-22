@@ -1654,4 +1654,5 @@ export const ne = {
   "The end date must not be before the start date.": "अन्तिम मिति सुरु मितिभन्दा अघि हुनु हुँदैन।",
   "Heads up: this overlaps with {title} on {when}, which you are already signed up for.": "ध्यान दिनुहोस्: यो {when} मा हुने {title} सँग मिल्छ, जसमा तपाईं पहिले नै दर्ता हुनुभएको छ।",
   "View it": "हेर्नुहोस्",
+  "Overlaps your plans": "तपाईंको योजनासँग मिल्छ",
 };
