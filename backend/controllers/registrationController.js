@@ -123,7 +123,7 @@ async function registerForEvent(req, res) {
 async function getMyRegistrations(req, res) {
   try {
     const registrations = await Registration.find({ user: req.user._id })
-      .populate("event", "title date location image")
+      .populate("event", "title date endDate location image")
       .populate("user", "name email language")
       .sort({ createdAt: -1 });
 
