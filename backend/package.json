@@ -24,6 +24,7 @@
     "feedback-requests": "node scripts/sendFeedbackRequests.js",
     "smoke": "node scripts/smokeTest.js",
     "review:nepali": "node scripts/exportNepaliReview.js",
+    "lint": "oxlint",
     "test": "jest",
     "test:integration": "node --test integration/api.integration.js"
   },
@@ -45,7 +46,8 @@
   },
   "devDependencies": {
     "jest": "^30.5.2",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "oxlint": "^1.92.0"
   },
   "overrides": {
     "qs": "6.16.2"
