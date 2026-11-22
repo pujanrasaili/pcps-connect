@@ -333,3 +333,7 @@ A backup contains students' personal details and password hashes, so keep it pri
   on Google Workspace — a real "Sign in with Google" limited to the
   @patancollege.edu.np domain is possible, but requires coordination with
   PCPS IT and Google's app verification process for production use)
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to run and test the app and how to send a change, and [SECURITY.md](SECURITY.md) for how to report a security problem privately.
