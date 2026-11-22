@@ -1655,4 +1655,5 @@ export const ne = {
   "Heads up: this overlaps with {title} on {when}, which you are already signed up for.": "ध्यान दिनुहोस्: यो {when} मा हुने {title} सँग मिल्छ, जसमा तपाईं पहिले नै दर्ता हुनुभएको छ।",
   "View it": "हेर्नुहोस्",
   "Overlaps your plans": "तपाईंको योजनासँग मिल्छ",
+  "Overlaps another event you signed up for": "तपाईं दर्ता भएको अर्को कार्यक्रमसँग मिल्छ",
 };
