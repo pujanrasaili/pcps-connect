@@ -305,3 +305,13 @@ test("a long comment from a student is shown in full, not cut off with dots", as
   expect(fits).toBe(true);
   expect(quiet(problems)).toEqual([]);
 });
+
+test("organisers see each attendee's answers to the feedback questions", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en", role: "admin" });
+  await withAttendeesApi(page, { regs: [reg(2, "Bikash Thapa", { attended: true, rating: 4, feedbackAnswers: [{ question: "Was the venue easy to find?", answer: "Yes, near the gate" }] })] });
+  const dialog = await openAttendees(page);
+  const answer = dialog.getByTestId("feedback-answer");
+  await expect(answer).toContainText("Was the venue easy to find?");
+  await expect(answer).toContainText("Yes, near the gate");
+  expect(quiet(problems)).toEqual([]);
+});
