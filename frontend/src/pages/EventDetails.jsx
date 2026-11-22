@@ -37,6 +37,7 @@ import { answersComplete } from "../utils/signupAnswers";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 import StartsLabel from "../components/StartsLabel";
+import { findClash } from "../utils/scheduleClash";
 import { formatDate, formatDateTime, formatDateTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, hasOpenDeadline } from "../utils/registrationDeadline";
 import { isHostedBy } from "../utils/eventHosts";
@@ -172,6 +173,7 @@ export default function EventDetails() {
   // already registered for. `registeredHere` is a plain boolean so the
   // effect below only re-runs when it actually changes.
   const registeredHere = event ? isRegistered(event._id) : false;
+  const clash = event && isAuthenticated ? findClash(event, registrations) : null;
   const eventKey = event?._id;
   const eventFull = event ? (event.capacity ?? 100) - (event.registeredCount ?? 0) <= 0 : false;
   const eventOver = event ? isPastEvent(event.date) : false;
@@ -433,6 +435,16 @@ export default function EventDetails() {
               {isSaved(event._id) ? <FaBookmark className="text-xs" /> : <FaRegBookmark className="text-xs" />}
               {isSaved(event._id) ? t("Saved for later") : t("Save for later")}
             </button>
+
+            {clash && !registered && !pendingHere && !isPast && (
+              <div
+                className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
+                data-testid="clash-notice"
+              >
+                {t("Heads up: this overlaps with {title} on {when}, which you are already signed up for.", { title: clash.title, when: formatDateTime(clash.date) })}{" "}
+                <Link to={`/events/${clash._id}`} className="font-semibold underline">{t("View it")}</Link>
+              </div>
+            )}
 
             {confirmedHere && isPast ? (
               <div className="mt-5 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
