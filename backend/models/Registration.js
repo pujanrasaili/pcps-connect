@@ -18,6 +18,9 @@ const registrationSchema = new mongoose.Schema(
     answers: { type: [{ _id: false, question: { type: String, maxlength: 100 }, answer: { type: String, maxlength: 200 } }], default: [] },
     // Post-event feedback, only settable by the student once an admin has
     // marked them as having attended (see submitFeedback).
+    // Answers to the event's feedback questions, given with the rating (the
+    // question text is copied in). Organisers only.
+    feedbackAnswers: { type: [{ _id: false, question: { type: String, maxlength: 100 }, answer: { type: String, maxlength: 300 } }], default: [] },
     rating: { type: Number, min: 1, max: 5, default: null },
     feedback: { type: String, maxlength: 500, default: "" },
   },
