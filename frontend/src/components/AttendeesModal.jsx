@@ -399,9 +399,9 @@ export default function AttendeesModal({ event, onClose }) {
                     </p>
                   ))}
                   {r.rating ? (
-                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                      <Stars value={r.rating} className="text-[10px]" />
-                      {r.feedback ? <span className="truncate italic">"{r.feedback}"</span> : null}
+                    <p className="mt-0.5 flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                      <Stars value={r.rating} className="mt-0.5 shrink-0 text-[10px]" />
+                      {r.feedback ? <span className="min-w-0 break-words italic" data-testid="attendee-feedback">"{r.feedback}"</span> : null}
                     </p>
                   ) : null}
                 </div>
