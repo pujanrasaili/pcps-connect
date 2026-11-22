@@ -293,3 +293,15 @@ test("no answer summary when the event asks no questions", async ({ page }) => {
   const dialog = await openAttendees(page);
   await expect(dialog.getByTestId("answer-summary")).toHaveCount(0);
 });
+
+test("a long comment from a student is shown in full, not cut off with dots", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en", role: "admin" });
+  const long = "The talk was great and the speaker answered everyone's questions, but the room was too small and the back rows could not hear. Please use the big hall next time and start on time. ".repeat(2).trim();
+  await withAttendeesApi(page, { regs: [reg(2, "Bikash Thapa", { attended: true, rating: 4, feedback: long })] });
+  const dialog = await openAttendees(page);
+  const comment = dialog.getByTestId("attendee-feedback");
+  await expect(comment).toContainText("Please use the big hall next time");
+  const fits = await comment.evaluate((el) => getComputedStyle(el).textOverflow !== "ellipsis" && el.scrollWidth <= el.clientWidth + 1);
+  expect(fits).toBe(true);
+  expect(quiet(problems)).toEqual([]);
+});
