@@ -226,3 +226,21 @@ for (const lang of ["en", "ne"]) {
     expect(await axeViolations(page)).toEqual([]);
   });
 }
+
+for (const lang of ["en", "ne"]) {
+  test(`two upcoming events at the same time are both marked as overlapping (${lang})`, async ({ page }) => {
+    const hour = 36e5;
+    const when = Date.now() + 2 * DAY;
+    const a = ev(1, "Hack Night", 2, { date: new Date(when).toISOString(), endDate: new Date(when + 3 * hour).toISOString() });
+    const b = ev(2, "Robot Demo", 2, { date: new Date(when + hour).toISOString(), endDate: new Date(when + 2 * hour).toISOString() });
+    const c = ev(3, "Quiet Reading", 5);
+    const { problems } = await load(page, { lang, registrations: [reg(1, a), reg(2, b), reg(3, c)], events: [a, b, c] });
+    await page.goto("/dashboard");
+    await expect(page.getByRole("link", { name: /Quiet Reading/ })).toBeVisible();
+    await expect(page.getByTestId("clash-row")).toHaveCount(2);
+    await expect(page.getByRole("link", { name: /Quiet Reading/ }).getByTestId("clash-row")).toHaveCount(0);
+    await page.waitForTimeout(600);
+    expect(await axeViolations(page)).toEqual([]);
+    expect(quiet(problems)).toEqual([]);
+  });
+}
