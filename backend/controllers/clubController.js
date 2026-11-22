@@ -35,7 +35,7 @@ async function getClubById(req, res) {
     if (!club) return res.status(404).json({ message: "Club not found" });
     const memberCount = await ClubMembership.countDocuments({ club: club._id }).catch(() => 0);
     res.status(200).json({ club: { ...club.toObject(), memberCount } });
-  } catch (err) {
+  } catch {
     res.status(404).json({ message: "Club not found" });
   }
 }

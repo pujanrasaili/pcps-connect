@@ -9,7 +9,7 @@ async function staffOnly(req, res, next) {
     if (req.user?.role === "admin") return next();
     if (req.user?._id && (await Club.exists({ leaders: req.user._id }))) return next();
     return res.status(403).json({ message: "Access denied: insufficient permissions" });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ message: "Something went wrong. Please try again." });
   }
 }

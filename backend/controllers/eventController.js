@@ -129,7 +129,7 @@ async function getEventById(req, res) {
     if (!event) return res.status(404).json({ message: "Event not found" });
     // The organiser's email is shown to logged-in students only.
     res.status(200).json({ event: hideOrganiserEmail(await withRegisteredCount(event), req.user) });
-  } catch (err) {
+  } catch {
     res.status(404).json({ message: "Event not found" });
   }
 }

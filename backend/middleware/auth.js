@@ -55,7 +55,7 @@ async function protect(req, res, next) {
 
     req.user = user;
     next();
-  } catch (err) {
+  } catch {
     return res.status(401).json({ message: "Not logged in" });
   }
 }
