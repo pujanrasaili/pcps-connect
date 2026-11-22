@@ -115,6 +115,7 @@ pcps-connect/
 - Shared links show a proper preview in WhatsApp, Messenger, Telegram and similar apps: an event link shows the event's photo, title, date and place; a club link shows the club (a small Vercel function in `frontend/api` answers those apps' link crawlers, while people still get the normal app)
 - Every club has its own shareable link (`/clubs?club=<id>`) with a Share button; the Clubs and Events filters (search, category, Upcoming/Past/Registered, "only events with spots left", "free events only") are stored in the URL, so a filtered list can be shared and survives a refresh
 - Offline bar: while the phone has no internet, a thin bar on every page says "You're offline" and goes away by itself when the connection returns (when saved tickets exist, the tickets banner shows instead and links to them).
+- Full comments: in the attendees window a student's feedback comment (up to 500 characters) wraps onto as many lines as it needs, instead of being cut off after one line.
 - Copy emails: in the attendees window organisers press "Copy emails" to put every confirmed attendee's address on the clipboard (each once, people still awaiting approval left out), ready to paste into Bcc.
 - Server safety net: a background task that fails with nobody waiting for it (an email or phone alert sent after the reply) is logged instead of ending the server; real crashes still restart it.
 - Copy emails for clubs: the members window (Admin → Clubs, and Leader → My clubs) has the same "Copy emails" button, so a leader can paste every member's address into Bcc.
