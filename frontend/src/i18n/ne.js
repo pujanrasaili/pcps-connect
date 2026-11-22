@@ -1659,4 +1659,13 @@ export const ne = {
   "Ask people who attended something specific, like whether the venue was easy to find.": "उपस्थित भएकाहरूलाई केही विशेष सोध्नुहोस्, जस्तै स्थान सजिलै भेटियो कि भएन।",
   "Optional": "ऐच्छिक",
   "Feedback questions changed": "प्रतिक्रिया प्रश्नहरू परिवर्तन गरियो",
+  "Each question needs some text": "प्रत्येक प्रश्नमा केही पाठ चाहिन्छ",
+  "Two questions can't be the same": "दुई प्रश्न एउटै हुन सक्दैनन्",
+  "A question must be 100 characters or fewer": "प्रश्न 100 अक्षर वा कमको हुनुपर्छ",
+  "An answer must be 200 characters or fewer": "उत्तर 200 अक्षर वा कमको हुनुपर्छ",
+  "An answer must be 300 characters or fewer": "उत्तर 300 अक्षर वा कमको हुनुपर्छ",
+  "An event can have at most 3 sign-up questions": "एउटा कार्यक्रममा बढीमा 3 दर्ता प्रश्न हुन सक्छन्",
+  "An event can have at most 3 feedback questions": "एउटा कार्यक्रममा बढीमा 3 प्रतिक्रिया प्रश्न हुन सक्छन्",
+  "You're not on the waitlist for this event": "तपाईं यो कार्यक्रमको प्रतीक्षा सूचीमा हुनुहुन्न",
+  "This event has already taken place, so the answers can't be changed": "यो कार्यक्रम भइसकेको छ, त्यसैले उत्तरहरू परिवर्तन गर्न मिल्दैन",
 };
