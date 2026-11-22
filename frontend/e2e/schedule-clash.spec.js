@@ -46,3 +46,20 @@ test("the warning is accessible", async ({ page }) => {
   await page.waitForTimeout(600);
   expect(await axeViolations(page)).toEqual([]);
 });
+
+test("the Events list marks a card that overlaps a sign-up", async ({ page }) => {
+  const problems = await setUp(page, { lang: "en", role: "student" });
+  const mine = ev(OTHER, "Robot Demo", 1, 2);
+  const clashing = ev(ID, "Hack Night", 0, 3);
+  const free = ev("c3".padEnd(24, "0"), "Quiet Reading", 10, 2);
+  await page.route("**/api/events*", (route) => (new URL(route.request().url()).pathname.endsWith("/api/events") ? reply(route, { events: [mine, clashing, free] }) : route.fallback()));
+  await page.route("**/api/registrations/my", (route) => reply(route, { registrations: [{ _id: "r1".padEnd(24, "0"), event: mine, status: "confirmed", attended: false, rating: 0, feedback: "" }] }));
+  await page.goto("/events");
+  await expect(page.getByRole("heading", { name: "Quiet Reading" })).toBeVisible();
+  const badges = page.getByTestId("clash-badge");
+  await expect(badges).toHaveCount(1);
+  await expect(page.locator("div", { has: page.getByRole("heading", { name: "Hack Night" }) }).getByTestId("clash-badge").first()).toBeVisible();
+  await page.waitForTimeout(600);
+  expect(await axeViolations(page)).toEqual([]);
+  expect(quiet(problems)).toEqual([]);
+});
