@@ -9,7 +9,7 @@ function makeApp(withShim) {
     const { name } = req.body; // throws if req.body is undefined
     res.json({ name: name || null });
   });
-  app.use((err, req, res, next) => res.status(500).json({ message: "crashed" }));
+  app.use((err, req, res, _next) => res.status(500).json({ message: "crashed" }));
   return app;
 }
 
