@@ -31,6 +31,7 @@ const LABELS = {
   "event.announcement": "Event message sent",
   "event.walkIn": "Walk-in added",
   "event.signupQuestions": "Sign-up questions changed",
+  "event.feedbackQuestions": "Feedback questions changed",
   "event.remindAnswers": "Answer reminder sent",
   "event.sponsors": "Event sponsors changed",
   "event.volunteerRoles": "Volunteer roles changed",

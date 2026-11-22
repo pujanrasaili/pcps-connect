@@ -24,6 +24,7 @@ import { useLedClubs } from "../hooks/useLedClubs";
 import EventQuestions from "../components/EventQuestions";
 import EventVolunteers from "../components/EventVolunteers";
 import SignupQuestionsEditor from "../components/SignupQuestionsEditor";
+import FeedbackQuestionsEditor from "../components/FeedbackQuestionsEditor";
 import MyAnswersCard from "../components/MyAnswersCard";
 import EventJoinLink from "../components/EventJoinLink";
 import EventPhotos from "../components/EventPhotos";
@@ -354,6 +355,7 @@ export default function EventDetails() {
             />
           )}
           {canAnswerQuestions && !eventOver && <SignupQuestionsEditor key={`sq-${event._id}`} eventId={event._id} questions={event.signupQuestions || []} onSaved={refreshEvents} />}
+          {canAnswerQuestions && <FeedbackQuestionsEditor key={`fq-${event._id}`} eventId={event._id} questions={event.feedbackQuestions || []} onSaved={refreshEvents} />}
 
           <EventQuestions
             eventId={event._id}
