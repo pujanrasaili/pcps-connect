@@ -1,9 +1,6 @@
 jest.mock("web-push");
 jest.mock("../../models/PushSubscription");
 
-const webpush = require("web-push");
-const PushSubscription = require("../../models/PushSubscription");
-
 const KEYS = { VAPID_PUBLIC_KEY: "pub", VAPID_PRIVATE_KEY: "priv" };
 let webPush;
 const load = (env) => {

@@ -59,7 +59,8 @@ describe("submitContactForm", () => {
 
   it("allows the subject to be omitted", async () => {
     sendEmail.mockResolvedValue();
-    const { subject, ...noSubject } = valid;
+    const noSubject = { ...valid };
+    delete noSubject.subject;
     const res = mockRes();
     await submitContactForm({ body: noSubject }, res);
     expect(res.status).toHaveBeenCalledWith(200);
