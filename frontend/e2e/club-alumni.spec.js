@@ -74,3 +74,16 @@ test("a leader can remove an entry; a plain student can remove only their own", 
   await expect(box.getByText("Bikash")).toHaveCount(0);
   expect(calls).toEqual(["remove a1"]);
 });
+
+test("a long alumni note wraps on a phone instead of being cut off", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  const problems = await setUp(page, { lang: "en", role: "student" });
+  const note = "Treasurer, then Vice President, and ran the annual fest twice";
+  await withAlumniApi(page, { member: false, alumni: [{ _id: "a1", name: "Bikash", year: 2023, note, mine: false }] });
+  await page.goto(`/clubs?club=${club._id}`);
+  const line = page.getByTestId("club-alumni").getByText(note, { exact: false });
+  await expect(line).toBeVisible();
+  const fits = await line.evaluate((el) => getComputedStyle(el).textOverflow !== "ellipsis" && el.scrollWidth <= el.clientWidth + 1);
+  expect(fits).toBe(true);
+  expect(problems.filter((p) => !/status of (400|401|404|409)/.test(p))).toEqual([]);
+});
