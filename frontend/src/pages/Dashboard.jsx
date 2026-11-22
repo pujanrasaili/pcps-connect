@@ -1,3 +1,4 @@
+import { findClash } from "../utils/scheduleClash";
 import LoadFailedBanner from "../components/LoadFailedBanner";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -469,6 +470,11 @@ export default function Dashboard() {
                     <p className="truncate font-medium text-slate-800 dark:text-slate-100">{r.event.title}</p>
                     {r.status === "pending" && (
                       <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">{t("Pending approval")}</p>
+                    )}
+                    {findClash(r.event, registrations) && (
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400" data-testid="clash-row">
+                        {t("Overlaps another event you signed up for")}
+                      </p>
                     )}
                     <p className="text-xs text-slate-500 dark:text-slate-400">
                       {relativeDay(r.event.date) && (
