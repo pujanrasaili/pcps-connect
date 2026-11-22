@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaClock, FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { FaClock, FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaExclamationTriangle, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { formatDay, formatMonth, formatTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, deadlineSoonLabel } from "../utils/registrationDeadline";
 import { useTilt } from "../hooks/useTilt";
@@ -9,6 +9,7 @@ import { useSavedEvents } from "../hooks/useSavedEvents";
 import { useLang } from "../context/LanguageContext";
 import SafeImage from "./SafeImage";
 import StartsLabel from "./StartsLabel";
+import { findClash } from "../utils/scheduleClash";
 
 export default function EventCard({ event }) {
   const capacity = event.capacity ?? 100;
@@ -17,8 +18,9 @@ export default function EventCard({ event }) {
   const isFillingUp = spotsLeft <= 15 && spotsLeft > 0;
   const isFull = spotsLeft <= 0;
   const isPast = isPastEvent(event.date);
-  const { isRegistered, isPending } = useRegistrations();
+  const { isRegistered, isPending, registrations } = useRegistrations();
   const registered = isRegistered(event._id);
+  const clash = !registered && !isPast ? findClash(event, registrations) : null;
   const { isSaved, toggle } = useSavedEvents();
   const saved = isSaved(event._id);
   const tilt = useTilt({ max: 6, scale: 1.015 });
@@ -118,6 +120,11 @@ export default function EventCard({ event }) {
                   <FaCheckCircle /> {t("Registered")}
                 </span>
               )
+            )}
+            {clash && (
+              <span className="flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400" title={clash.title} data-testid="clash-badge">
+                <FaExclamationTriangle /> {t("Overlaps your plans")}
+              </span>
             )}
           </span>
           <span className="flex items-center gap-2">
