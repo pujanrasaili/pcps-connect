@@ -16,7 +16,12 @@ import { attendeeEmails, emailList } from "../utils/attendeeEmails";
 
 function downloadAttendanceCsv(event, registrations) {
   const questions = event?.signupQuestions || [];
-  const header = ["Name", "Email", "Student ID", "Registered On", "Status", "Attended", "Rating", "Feedback", ...questions.map((q) => q.text)];
+  const feedbackQuestions = event?.feedbackQuestions || [];
+  const header = [
+    "Name", "Email", "Student ID", "Registered On", "Status", "Attended", "Rating", "Feedback",
+    ...questions.map((q) => q.text),
+    ...feedbackQuestions.map((q) => `Feedback: ${q.text}`),
+  ];
   const rows = registrations.map((r) => [
     r.user?.name || "Unknown student",
     r.user?.email || "",
@@ -27,6 +32,7 @@ function downloadAttendanceCsv(event, registrations) {
     r.rating || "",
     r.feedback || "",
     ...questions.map((q) => (r.answers || []).find((a) => a.question === q.text)?.answer || ""),
+    ...feedbackQuestions.map((q) => (r.feedbackAnswers || []).find((a) => a.question === q.text)?.answer || ""),
   ]);
   downloadCsv(`${slugify(event?.title, "event")}-attendance.csv`, buildCsv(header, rows));
 }
@@ -404,6 +410,11 @@ export default function AttendeesModal({ event, onClose }) {
                       {r.feedback ? <span className="min-w-0 break-words italic" data-testid="attendee-feedback">"{r.feedback}"</span> : null}
                     </p>
                   ) : null}
+                  {(r.feedbackAnswers || []).map((a) => (
+                    <p key={a.question} className="mt-0.5 break-words text-xs text-slate-600 dark:text-slate-300" data-testid="feedback-answer">
+                      <span className="font-medium">{a.question}</span> {a.answer}
+                    </p>
+                  ))}
                 </div>
                 <span
                   className={`badge shrink-0 ${
