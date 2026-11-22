@@ -1,10 +1,15 @@
 name: Event Reminders
 
-# Runs scripts/sendEventReminders.js once a day so students get a "your
-# event is tomorrow" email even though there's no always-on process in this
-# app to run a cron job itself. 09:00 UTC is mid-to-late morning in Nepal
-# (UTC+5:45) -- adjust the cron expression below if a different local time
-# is wanted.
+# Runs scripts/sendEventReminders.js twice a day so students get a "your
+# event is coming up" email even though there's no always-on process in this
+# app to run a cron job itself. The script looks at the next 24 hours and never
+# emails the same registration twice, so a second run is safe.
+#
+# Why twice: with one run a day, an event starting just after that run's time
+# the next day would only be reminded a few minutes before it begins. Runs at
+# 03:00 UTC (8:45 am in Nepal, UTC+5:45) and 09:00 UTC (2:45 pm) mean everyone
+# is told at least about six hours ahead. Adjust the cron lines below if
+# different local times are wanted.
 #
 # Needs these repo secrets set under Settings -> Secrets and variables ->
 # Actions (same values as the backend's .env -- see backend/.env.example):
@@ -14,6 +19,7 @@ name: Event Reminders
 
 on:
   schedule:
+    - cron: "0 3 * * *"
     - cron: "0 9 * * *"
   workflow_dispatch: {} # lets this be triggered manually from the Actions tab too
 
