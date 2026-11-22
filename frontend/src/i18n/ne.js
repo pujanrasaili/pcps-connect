@@ -32,7 +32,6 @@ export const ne = {
   "Help & FAQ": "सहयोग र बारम्बार सोधिने प्रश्न",
   "Terms of Use": "प्रयोगका सर्तहरू",
   "Privacy Policy": "गोपनीयता नीति",
-  "PCPS College, Kandevatasthan, Lalitpur, Nepal": "पीसीपीएस कलेज, कण्डेवटस्थान, ललितपुर, नेपाल",
   "Patan College of Professional Studies. PCPS Connect — Club & Event Management System.":
     "पाटन कलेज अफ प्रोफेसनल स्टडिज। पीसीपीएस कनेक्ट — क्लब तथा कार्यक्रम व्यवस्थापन प्रणाली।",
 
@@ -47,7 +46,6 @@ export const ne = {
   "Explore Clubs": "क्लबहरू हेर्नुहोस्",
   "Browse Events": "कार्यक्रमहरू हेर्नुहोस्",
   "Active Clubs": "सक्रिय क्लबहरू",
-  Members: "सदस्यहरू",
   "Events Hosted": "आयोजित कार्यक्रमहरू",
   "Registered Students": "दर्ता भएका विद्यार्थीहरू",
   "Event Registrations": "कार्यक्रम दर्ताहरू",
@@ -83,7 +81,6 @@ export const ne = {
   "Welcome back": "फेरि स्वागत छ",
   "Log in to your PCPS Connect account": "आफ्नो पीसीपीएस कनेक्ट खातामा लगइन गर्नुहोस्",
   "Email address": "इमेल ठेगाना",
-  Password: "पासवर्ड",
   "Forgot password?": "पासवर्ड बिर्सनुभयो?",
   "Hide password": "पासवर्ड लुकाउनुहोस्",
   "Show password": "पासवर्ड देखाउनुहोस्",
@@ -100,10 +97,8 @@ export const ne = {
   "{n} spots left": "{n} सिट बाँकी",
   "{count}/{capacity} registered": "{count}/{capacity} दर्ता भएका",
   "Registration closed": "दर्ता बन्द भयो",
-  Free: "निःशुल्क",
   "Pending approval": "स्वीकृतिको प्रतीक्षामा",
   Registered: "दर्ता भएको",
-  Details: "विवरण",
   "Remove {title} from saved events": "{title} लाई सुरक्षित कार्यक्रमबाट हटाउनुहोस्",
   "Save {title} for later": "{title} पछिका लागि सुरक्षित गर्नुहोस्",
 
@@ -740,7 +735,6 @@ export const ne = {
   "Export CSV": "CSV निर्यात गर्नुहोस्",
   "No registered students yet.": "अहिलेसम्म कुनै दर्ता भएका विद्यार्थी छैनन्।",
   "No users match your search or filter.": "तपाईंको खोजी वा फिल्टरसँग कुनै प्रयोगकर्ता मेल खाएन।",
-  "(you)": "(तपाईं)",
   "Hasn't clicked their email verification link yet": "इमेल प्रमाणीकरण लिङ्क अझै थिचेका छैनन्",
   "Unverified": "अप्रमाणित",
   "Mark {name}'s email as verified": "{name} को इमेल प्रमाणित चिन्ह लगाउनुहोस्",
