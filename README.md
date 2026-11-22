@@ -338,3 +338,7 @@ A backup contains students' personal details and password hashes, so keep it pri
 ## Contributing and security
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to run and test the app and how to send a change, and [SECURITY.md](SECURITY.md) for how to report a security problem privately.
+
+## License
+
+Released under the [MIT License](LICENSE).
