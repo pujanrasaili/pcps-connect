@@ -54,7 +54,7 @@ export default function MyAlumniCard() {
                 {a.clubName}
               </Link>
               {(a.year || a.note) && (
-                <span className="block truncate text-xs text-slate-600 dark:text-slate-300">{[a.year ? t("Left {year}", { year: a.year }) : "", a.note].filter(Boolean).join(" · ")}</span>
+                <span className="block wrap-break-word text-xs text-slate-600 dark:text-slate-300">{[a.year ? t("Left {year}", { year: a.year }) : "", a.note].filter(Boolean).join(" · ")}</span>
               )}
             </span>
             <Button variant="outline" disabled={busyId === a._id} onClick={() => remove(a)} aria-label={t("Remove {name} from the alumni", { name: a.clubName })}>
