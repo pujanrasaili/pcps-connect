@@ -22,3 +22,14 @@ export function loadNe() {
   }
   return pending;
 }
+
+// Switching to Nepali used to wait for the dictionary download (about 47 KB
+// compressed), which is noticeable on a slow phone connection. On a fast
+// connection it is fetched quietly once the page is idle, so the switch is
+// instant; people on a slow or data-saving connection still only download it
+// when they ask for Nepali.
+export function shouldPrefetchNe(connection) {
+  if (!connection) return true;
+  if (connection.saveData) return false;
+  return !connection.effectiveType || connection.effectiveType === "4g";
+}

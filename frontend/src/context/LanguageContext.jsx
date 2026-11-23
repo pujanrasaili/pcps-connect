@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { translate, format, normalizeLang } from "../i18n/translate";
-import { getNe, loadNe } from "../i18n/dictionary";
+import { getNe, loadNe, shouldPrefetchNe } from "../i18n/dictionary";
 
 const LanguageContext = createContext({ lang: "en", setLang: () => {}, t: (text) => text });
 
@@ -27,6 +27,19 @@ export function LanguageProvider({ children }) {
       cancelled = true;
     };
   }, [lang, dictionary]);
+
+  // Warm the Nepali dictionary while the page is idle (fast connections only)
+  // so the first switch to Nepali doesn't wait for a download.
+  useEffect(() => {
+    if (dictionary || typeof window === "undefined" || !shouldPrefetchNe(navigator.connection)) return undefined;
+    const warm = () => loadNe().catch(() => {});
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(warm, { timeout: 5000 });
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(warm, 3000);
+    return () => window.clearTimeout(id);
+  }, [dictionary]);
 
   // Screen readers and the browser's own tools pick the right voice and
   // hyphenation from the page language.
