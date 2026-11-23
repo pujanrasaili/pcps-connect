@@ -1,8 +1,8 @@
 require("dotenv").config({ quiet: true });
 const express = require("express");
-const cors = require("cors");
 const helmet = require("helmet");
 const { compress } = require("./middleware/compress");
+const { corsPolicy } = require("./middleware/corsPolicy");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 const { safeError } = require("./utils/errorMessage");
@@ -49,12 +49,7 @@ app.set("trust proxy", 1);
 app.use(helmet());
 app.use(compress);
 
-app.use(
-  cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-    credentials: true,
-  })
-);
+app.use(corsPolicy());
 
 app.use(express.json());
 app.use(defaultBody);
