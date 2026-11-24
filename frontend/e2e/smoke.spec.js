@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { setUp, axeViolations } from "./helpers.js";
 
-const PUBLIC_PAGES = ["/", "/events", "/clubs", "/help", "/login", "/contact", "/terms", "/privacy"];
+const PUBLIC_PAGES = ["/", "/events", "/clubs", "/help", "/login", "/contact", "/terms", "/privacy", "/poster"];
 
 for (const lang of ["en", "ne"]) {
   for (const path of PUBLIC_PAGES) {
