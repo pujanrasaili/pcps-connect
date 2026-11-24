@@ -7,8 +7,8 @@ export default function NotFound() {
   const { t } = useLang();
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
-      <img src={shield} alt="" className="h-24 w-auto rounded-2xl opacity-80 animate-tilt-idle" style={{ transformStyle: "preserve-3d" }} />
-      <p aria-hidden="true" className="mt-6 font-display text-6xl font-extrabold text-gradient-brand">404</p>
+      <img src={shield} alt="" className="h-24 w-auto rounded-2xl opacity-80" style={{ transformStyle: "preserve-3d" }} />
+      <p aria-hidden="true" className="mt-6 font-display text-6xl font-extrabold text-primary-600 dark:text-primary-300">404</p>
       <h1 className="mt-2 font-display text-2xl font-semibold text-slate-800 dark:text-slate-100">
         {t("Page not found")}
       </h1>

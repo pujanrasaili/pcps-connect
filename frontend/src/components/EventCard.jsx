@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { FaClock, FaMapMarkerAlt, FaUsers, FaStar, FaCheckCircle, FaHourglassHalf, FaExclamationTriangle, FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { formatDay, formatMonth, formatTimeRange, isPastEvent } from "../utils/formatDate";
 import { isRegistrationClosed, deadlineSoonLabel } from "../utils/registrationDeadline";
-import { useTilt } from "../hooks/useTilt";
 import { resolveUploadUrl } from "../services/api";
 import { useRegistrations } from "../context/RegistrationContext";
 import { useSavedEvents } from "../hooks/useSavedEvents";
@@ -23,15 +22,10 @@ export default function EventCard({ event }) {
   const clash = !registered && !isPast ? findClash(event, registrations) : null;
   const { isSaved, toggle } = useSavedEvents();
   const saved = isSaved(event._id);
-  const tilt = useTilt({ max: 6, scale: 1.015 });
   const { t } = useLang();
 
   return (
     <div
-      ref={tilt.ref}
-      onMouseMove={tilt.onMouseMove}
-      onMouseLeave={tilt.onMouseLeave}
-      style={tilt.style}
       className={`group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft ${isPast ? "opacity-70" : ""}`}
     >
       <div className="relative h-44 overflow-hidden">

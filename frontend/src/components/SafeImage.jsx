@@ -14,7 +14,7 @@ export default function SafeImage({ src, alt = "", className = "", ...rest }) {
       role={alt ? "img" : undefined}
       aria-label={alt || undefined}
       aria-hidden={alt ? undefined : "true"}
-      className={`${className} bg-linear-to-br from-primary-500/80 to-accent-500/80`}
+      className={`${className} bg-primary-700 dark:bg-primary-800`}
     />
   );
 }

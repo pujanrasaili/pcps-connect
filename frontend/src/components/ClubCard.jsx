@@ -1,6 +1,5 @@
 import { FaUsers, FaArrowRight, FaHeart, FaRegHeart, FaCheck, FaPlus } from "react-icons/fa";
 import { useClubMembership } from "../context/ClubMembershipContext";
-import { useTilt } from "../hooks/useTilt";
 import { useRequireAuth } from "../hooks/useRequireAuth";
 import { getClubIcon } from "../utils/iconMap";
 import { resolveUploadUrl } from "../services/api";
@@ -12,7 +11,6 @@ export default function ClubCard({ club, onView }) {
   const Icon = getClubIcon(club.icon);
   const { isJoined, isPending, isFavorite, toggleJoin, toggleFavorite } = useClubMembership();
   const requireAuth = useRequireAuth();
-  const tilt = useTilt({ max: 6, scale: 1.015 });
   const { t } = useLang();
   const joined = isJoined(club._id);
   const join = joinButtonState({ club, joined, pending: isPending(club._id) });
@@ -20,10 +18,6 @@ export default function ClubCard({ club, onView }) {
 
   return (
     <div
-      ref={tilt.ref}
-      onMouseMove={tilt.onMouseMove}
-      onMouseLeave={tilt.onMouseLeave}
-      style={tilt.style}
       className="group card-surface overflow-hidden transition-shadow duration-300 hover:shadow-soft"
     >
       <div className="relative h-40 overflow-hidden bg-slate-100 dark:bg-slate-800">

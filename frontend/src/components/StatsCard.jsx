@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useTilt } from "../hooks/useTilt";
 
 function useCountUp(target, duration = 1200) {
   const [value, setValue] = useState(0);
@@ -23,7 +22,6 @@ function useCountUp(target, duration = 1200) {
 export default function StatsCard({ icon: Icon, label, value, suffix = "", accent = "primary" }) {
   const isNumeric = typeof value === "number";
   const animatedValue = useCountUp(isNumeric ? value : 0);
-  const tilt = useTilt({ max: 5, scale: 1.02 });
 
   const accents = {
     primary: "bg-primary-50 text-primary-600 dark:bg-primary-900/40 dark:text-primary-300",
@@ -34,10 +32,6 @@ export default function StatsCard({ icon: Icon, label, value, suffix = "", accen
 
   return (
     <div
-      ref={tilt.ref}
-      onMouseMove={tilt.onMouseMove}
-      onMouseLeave={tilt.onMouseLeave}
-      style={tilt.style}
       className="card-surface flex flex-col items-start gap-2 p-4 animate-slide-up min-[420px]:flex-row min-[420px]:items-center min-[420px]:gap-3 sm:gap-4 sm:p-5"
     >
       <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${accents[accent]}`}>

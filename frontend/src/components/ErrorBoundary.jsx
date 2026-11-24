@@ -50,7 +50,7 @@ export default class ErrorBoundary extends Component {
         <img
           src={shield}
           alt=""
-          className="h-24 w-auto opacity-80 animate-tilt-idle"
+          className="h-24 w-auto opacity-80"
           style={{ transformStyle: "preserve-3d" }}
         />
         <FaExclamationTriangle className="mt-6 text-3xl text-amber-500" />

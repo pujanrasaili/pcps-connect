@@ -43,7 +43,7 @@ export default function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* Brand ribbon */}
-      <div className="h-1.5 w-full bg-linear-to-r from-pcps-red via-primary-500 to-pcps-blue" />
+      <div className="h-1.5 w-full" style={{ background: "linear-gradient(90deg, var(--color-pcps-red) 35%, var(--color-pcps-blue) 35%)" }} />
 
       <div className="relative h-[560px] sm:h-[600px] overflow-hidden">
         <img
@@ -68,7 +68,7 @@ export default function HeroSection() {
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold leading-tight sm:text-5xl">
               {t("Where PCPS students")} <br className="hidden sm:block" />
-              <span className="text-gradient-brand-light">{t("learn, lead,")}</span> {t("and belong.")}
+              {t("learn, lead,")} {t("and belong.")}
             </h1>
             <p className="mt-5 max-w-lg text-slate-200">
               {t("Discover clubs that match your passion, register for events in seconds, and track every step of your campus journey — all in one place.")}
