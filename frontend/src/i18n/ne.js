@@ -1668,4 +1668,11 @@ export const ne = {
   "An event can have at most 3 feedback questions": "एउटा कार्यक्रममा बढीमा 3 प्रतिक्रिया प्रश्न हुन सक्छन्",
   "You're not on the waitlist for this event": "तपाईं यो कार्यक्रमको प्रतीक्षा सूचीमा हुनुहुन्न",
   "This event has already taken place, so the answers can't be changed": "यो कार्यक्रम भइसकेको छ, त्यसैले उत्तरहरू परिवर्तन गर्न मिल्दैन",
+  "Every club and event at PCPS, in one place": "PCPS का सबै क्लब र कार्यक्रम, एकै ठाउँमा",
+  "Join the clubs you like": "आफूलाई मनपर्ने क्लबमा सामेल हुनुहोस्",
+  "Register for events and keep your ticket on your phone": "कार्यक्रममा दर्ता गर्नुहोस् र टिकट फोनमै राख्नुहोस्",
+  "Get reminders, and a certificate when you attend": "सम्झना सन्देश पाउनुहोस्, र उपस्थित भएपछि प्रमाणपत्र",
+  "Scan to open PCPS Connect": "PCPS Connect खोल्न स्क्यान गर्नुहोस्",
+  "QR code that opens PCPS Connect": "PCPS Connect खोल्ने QR कोड",
+  "Print the PCPS Connect poster": "PCPS Connect पोस्टर प्रिन्ट गर्नुहोस्",
 };
