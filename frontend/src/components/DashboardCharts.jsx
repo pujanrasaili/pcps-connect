@@ -7,7 +7,7 @@ const eventCount = (t, n) => t(n === 1 ? "{n} event" : "{n} events", { n });
 // loads fast on mobile data). Each chart carries a text summary for screen
 // readers.
 
-const COLORS = ["bg-primary-500", "bg-violet-500", "bg-pink-500", "bg-amber-500", "bg-emerald-500"];
+const COLORS = ["bg-primary-500", "bg-accent-500", "bg-amber-500", "bg-emerald-500", "bg-sky-500"];
 
 // Vertical columns, one per month: [{ month, count }].
 export function MonthBars({ data }) {

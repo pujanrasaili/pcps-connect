@@ -5,17 +5,17 @@ import { readFileSync } from "node:fs";
 const css = readFileSync(new URL("../src/index.css", import.meta.url), "utf8");
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 
-// Inter and Poppins have no Devanagari letters, so Nepali needs its own font in
+// Public Sans and Bricolage Grotesque have no Devanagari letters, so Nepali needs its own font in
 // the stack or each device picks something different.
 test("the stylesheet loads a Devanagari font and puts it in both font stacks", () => {
   assert.match(html, /family=Noto\+Sans\+Devanagari:wght@400;500;600;700/);
-  assert.match(css, /font-family: "Inter", "Noto Sans Devanagari", sans-serif;/);
-  assert.match(css, /font-family: "Poppins", "Noto Sans Devanagari", sans-serif;/);
+  assert.match(css, /font-family: "Public Sans", "Noto Sans Devanagari", sans-serif;/);
+  assert.match(css, /font-family: "Bricolage Grotesque", "Noto Sans Devanagari", sans-serif;/);
 });
 
 test("Tailwind's font families include it too, after the Latin font", () => {
-  assert.match(css, /--font-display: Poppins, Noto Sans Devanagari, sans-serif;/);
-  assert.match(css, /--font-body: Inter, Noto Sans Devanagari, sans-serif;/);
+  assert.match(css, /--font-display: Bricolage Grotesque, Noto Sans Devanagari, sans-serif;/);
+  assert.match(css, /--font-body: Public Sans, Noto Sans Devanagari, sans-serif;/);
 });
 
 test("the page's security policy allows Google's font hosts", () => {

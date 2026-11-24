@@ -150,7 +150,7 @@ export default function EventCalendar({ events, registeredIds }) {
   );
 }
 
-// Registered = green, past = grey, upcoming = indigo.
+// Registered = green, past = grey, upcoming = blue.
 function chipClass(event, registeredIds) {
   if (registeredIds.has(event._id)) return "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200";
   if (isPastEvent(event.date)) return "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300";

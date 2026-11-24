@@ -1,6 +1,6 @@
 /* Noto Sans Devanagari is only downloaded when a page shows Nepali text (Google
    serves it in pieces by character range), so English readers pay nothing. It sits
-   after Inter and Poppins, which have no Devanagari letters, so Nepali looks the
+   after Public Sans and Bricolage Grotesque, which have no Devanagari letters, so Nepali looks the
    same on every phone and computer instead of depending on what the device has. */
 
 @import 'tailwindcss';
@@ -8,42 +8,40 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-primary-50: #eef0fd;
-  --color-primary-100: #dfe1fb;
-  --color-primary-200: #b8bdf6;
-  --color-primary-300: #8f97f0;
-  --color-primary-400: #6b71ea;
-  --color-primary-500: #4f46e5;
-  --color-primary-600: #4338c9;
-  --color-primary-700: #372ea3;
-  --color-primary-800: #2c257f;
-  --color-primary-900: #211c5f;
+  --color-primary-50: #eef4fb;
+  --color-primary-100: #d9e6f6;
+  --color-primary-200: #b3cdec;
+  --color-primary-300: #7fa9db;
+  --color-primary-400: #4c80c6;
+  --color-primary-500: #2a62b0;
+  --color-primary-600: #1b4fa0;
+  --color-primary-700: #164181;
+  --color-primary-800: #123566;
+  --color-primary-900: #0e2849;
 
-  --color-accent-50: #f5f0fe;
-  --color-accent-100: #ece0fd;
-  --color-accent-200: #d5bcfa;
-  --color-accent-300: #b98af5;
-  --color-accent-400: #9d5cf0;
-  --color-accent-500: #7c3aed;
-  --color-accent-600: #652fc2;
-  --color-accent-700: #4f259a;
-  --color-accent-800: #3a1b72;
-  --color-accent-900: #281450;
+  --color-accent-50: #fdf1f1;
+  --color-accent-100: #fbdfe0;
+  --color-accent-200: #f6b8ba;
+  --color-accent-300: #ef8a8e;
+  --color-accent-400: #e8585e;
+  --color-accent-500: #e31e24;
+  --color-accent-600: #c4161c;
+  --color-accent-700: #9d1217;
+  --color-accent-800: #770e12;
+  --color-accent-900: #520a0d;
 
   --color-pcps-red: #e31e24;
   --color-pcps-blue: #1b4fa0;
 
-  --font-display: Poppins, Noto Sans Devanagari, sans-serif;
-  --font-body: Inter, Noto Sans Devanagari, sans-serif;
+  --font-display: Bricolage Grotesque, Noto Sans Devanagari, sans-serif;
+  --font-body: Public Sans, Noto Sans Devanagari, sans-serif;
 
-  --shadow-soft: 0 4px 20px -2px rgba(79, 70, 229, 0.12);
+  --shadow-soft: 0 4px 18px -4px rgba(15, 23, 42, 0.14);
   --shadow-card: 0 2px 12px -2px rgba(15, 23, 42, 0.08);
 
   --animate-fade-in: fadeIn 0.6s ease-out both;
   --animate-slide-up: slideUp 0.6s ease-out both;
   --animate-sheet-up: sheetUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-tilt-idle: tiltIdle 7s ease-in-out infinite;
 
   @keyframes fadeIn {
     0% {
@@ -69,24 +67,6 @@
     }
     100% {
       transform: translateY(0);
-    }
-  }
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-12px);
-    }
-  }
-  @keyframes tiltIdle {
-    0%,
-    100% {
-      transform: perspective(600px) rotateY(-10deg) rotateX(2deg);
-    }
-    50% {
-      transform: perspective(600px) rotateY(10deg) rotateX(-2deg);
     }
   }
 }
@@ -129,12 +109,12 @@ summary,
 html,
 body {
   @apply bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100;
-  font-family: "Inter", "Noto Sans Devanagari", sans-serif;
+  font-family: "Public Sans", "Noto Sans Devanagari", sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Poppins", "Noto Sans Devanagari", sans-serif;
+  font-family: "Bricolage Grotesque", "Noto Sans Devanagari", sans-serif;
 }
 
 ::-webkit-scrollbar {
@@ -248,21 +228,11 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .gradient-brand {
-    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    background: var(--color-primary-600);
   }
 
   .text-gradient-brand {
-    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .text-gradient-brand-light {
-    background: linear-gradient(135deg, #a5b4fc 0%, #d8b4fe 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--color-primary-600);
   }
 }
 

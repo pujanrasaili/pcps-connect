@@ -268,5 +268,5 @@ test("the phone's status bar colour follows light and dark mode", async ({ page 
   await expect.poll(color).toBe("#020617");
   await page.evaluate(() => localStorage.setItem("pcps_theme", "light"));
   await page.reload();
-  await expect.poll(color).toBe("#4F46E5");
+  await expect.poll(color).toBe("#1B4FA0");
 });

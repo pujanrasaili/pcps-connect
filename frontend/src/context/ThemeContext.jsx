@@ -25,7 +25,7 @@ export function ThemeProvider({ children }) {
       root.classList.remove("dark");
     }
     // The phone's status bar (and the title bar of the installed app) follows the theme.
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#020617" : "#4F46E5");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#020617" : "#1B4FA0");
     try {
       localStorage.setItem("pcps_theme", theme);
     } catch {
