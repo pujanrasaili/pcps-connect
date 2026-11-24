@@ -7,7 +7,7 @@ import { translate } from "../src/i18n/translate.js";
 const toNepali = (text) => translate(ne, "ne", text);
 
 test("every page name used for the browser tab has a Nepali translation", () => {
-  const names = [...Object.values(TITLES).filter(Boolean), DEFAULT_TITLE, "Page not found", "Event", "Club poster"];
+  const names = [...Object.values(TITLES).filter(Boolean), DEFAULT_TITLE, "Page not found", "Event", "Club poster", "Event poster", "Certificate", "Volunteer certificate", "Verify a certificate"];
   assert.deepEqual(names.filter((name) => !(name in ne)), []);
 });
 

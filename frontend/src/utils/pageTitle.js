@@ -14,6 +14,7 @@ export const TITLES = {
   "/privacy": "Privacy Policy",
   "/help": "Help",
   "/poster": "Poster",
+  "/tickets": "My tickets",
   "/dashboard": "Dashboard",
   "/profile": "Profile",
   "/settings": "Settings",
@@ -39,7 +40,12 @@ export function titleForPath(pathname, t = (text) => text) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
   if (!(path in TITLES)) {
     if (/^\/clubs\/[^/]+\/poster$/.test(path)) return `${t("Club poster")} | ${SITE}`;
-    if (path.startsWith("/events/") || path.startsWith("/certificate/") || path.startsWith("/volunteer-certificate/") || path.startsWith("/verify/")) return undefined;
+    if (/^\/events\/[^/]+\/poster$/.test(path)) return `${t("Event poster")} | ${SITE}`;
+    if (path.startsWith("/certificate/")) return `${t("Certificate")} | ${SITE}`;
+    if (path.startsWith("/volunteer-certificate/")) return `${t("Volunteer certificate")} | ${SITE}`;
+    if (path.startsWith("/verify/")) return `${t("Verify a certificate")} | ${SITE}`;
+    // Event details set their own title (the event's name).
+    if (path.startsWith("/events/")) return undefined;
     return `${t("Page not found")} | ${SITE}`;
   }
   const name = TITLES[path];

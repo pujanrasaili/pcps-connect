@@ -117,7 +117,11 @@ test("titleForPath: known pages, home, trailing slash, unknown and data-driven r
   assert.equal(titleForPath("/admin/my-clubs"), "My clubs | PCPS Connect");
   assert.equal(titleForPath("/nope"), "Page not found | PCPS Connect");
   assert.equal(titleForPath("/events/abc"), undefined); // the page sets its own
-  assert.equal(titleForPath("/certificate/abc"), undefined);
+  assert.equal(titleForPath("/certificate/abc"), "Certificate | PCPS Connect");
+  assert.equal(titleForPath("/volunteer-certificate/abc"), "Volunteer certificate | PCPS Connect");
+  assert.equal(titleForPath("/verify/abc"), "Verify a certificate | PCPS Connect");
+  assert.equal(titleForPath("/events/abc/poster"), "Event poster | PCPS Connect");
+  assert.equal(titleForPath("/tickets"), "My tickets | PCPS Connect");
   assert.equal(eventTitle("Hack Night"), "Hack Night | PCPS Connect");
   assert.equal(eventTitle(undefined), "Event | PCPS Connect");
 });
