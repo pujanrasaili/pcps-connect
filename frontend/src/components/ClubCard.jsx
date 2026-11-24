@@ -6,6 +6,7 @@ import { resolveUploadUrl } from "../services/api";
 import { useLang } from "../context/LanguageContext";
 import SafeImage from "./SafeImage";
 import { joinButtonState } from "../utils/clubJoinState";
+import { initialsOf } from "../utils/initials";
 
 export default function ClubCard({ club, onView }) {
   const Icon = getClubIcon(club.icon);
@@ -28,6 +29,15 @@ export default function ClubCard({ club, onView }) {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-linear-to-t from-slate-900/55 via-slate-900/0 to-transparent" />
+        {!club.image && (
+          <span
+            aria-hidden="true"
+            data-testid="club-cover-initials"
+            className="pointer-events-none absolute inset-0 flex items-center justify-center font-display text-7xl font-extrabold tracking-tight text-white/25"
+          >
+            {initialsOf(club.name)}
+          </span>
+        )}
         <div className="absolute bottom-3 left-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/95 dark:bg-slate-900/95 text-primary-600 shadow-md">
           <Icon className="text-xl" />
         </div>
