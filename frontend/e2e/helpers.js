@@ -58,6 +58,10 @@ export async function setUp(page, { lang, role = null }) {
 }
 
 export async function axeViolations(page) {
+  // Colours that are still fading (a button that has just been switched on) are
+  // measured half-way, which makes the contrast check depend on how fast the
+  // machine is. Settle every transition first so the check sees the final colours.
+  await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; animation: none !important; }" });
   await page.evaluate(axeSource);
   return page.evaluate(async () => {
     const result = await window.axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "best-practice"] });
