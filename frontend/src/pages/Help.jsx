@@ -49,6 +49,10 @@ export default function Help() {
             </details>
           ))}
         </div>
+
+        <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">
+          <Link to="/poster" className="font-semibold text-primary-600 hover:underline dark:text-primary-300">{t("Print the PCPS Connect poster")}</Link>
+        </p>
       </div>
     </div>
   );
