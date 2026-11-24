@@ -1677,4 +1677,7 @@ export const ne = {
   "Print the PCPS Connect poster": "PCPS Connect पोस्टर प्रिन्ट गर्नुहोस्",
   "Poster": "पोस्टर",
   "Club poster": "क्लब पोस्टर",
+  "Event poster": "कार्यक्रम पोस्टर",
+  "Certificate": "प्रमाणपत्र",
+  "Verify a certificate": "प्रमाणपत्र जाँच",
 };
