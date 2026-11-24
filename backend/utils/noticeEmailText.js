@@ -81,7 +81,7 @@ const BUILD = {
         ${p(`<strong>${t.youAsked}</strong>`, "0 0 8px")}
         <p style="margin: 0 0 16px; padding: 12px; background: #f1f5f9; border-radius: 8px;">${v.question}</p>
         ${p(`<strong>${t.answer}</strong>`, "0 0 8px")}
-        <p style="margin: 0 0 16px; padding: 12px; background: #eef2ff; border-radius: 8px;">${v.answer}</p>`,
+        <p style="margin: 0 0 16px; padding: 12px; background: #eef4fb; border-radius: 8px;">${v.answer}</p>`,
   }),
 };
 
