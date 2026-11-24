@@ -1675,4 +1675,6 @@ export const ne = {
   "Scan to open PCPS Connect": "PCPS Connect खोल्न स्क्यान गर्नुहोस्",
   "QR code that opens PCPS Connect": "PCPS Connect खोल्ने QR कोड",
   "Print the PCPS Connect poster": "PCPS Connect पोस्टर प्रिन्ट गर्नुहोस्",
+  "Poster": "पोस्टर",
+  "Club poster": "क्लब पोस्टर",
 };
