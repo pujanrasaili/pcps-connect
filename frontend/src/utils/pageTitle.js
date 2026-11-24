@@ -13,6 +13,7 @@ export const TITLES = {
   "/terms": "Terms of Use",
   "/privacy": "Privacy Policy",
   "/help": "Help",
+  "/poster": "Poster",
   "/dashboard": "Dashboard",
   "/profile": "Profile",
   "/settings": "Settings",
@@ -37,6 +38,7 @@ export const DEFAULT_TITLE = "PCPS Connect | Club & Event Management";
 export function titleForPath(pathname, t = (text) => text) {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
   if (!(path in TITLES)) {
+    if (/^\/clubs\/[^/]+\/poster$/.test(path)) return `${t("Club poster")} | ${SITE}`;
     if (path.startsWith("/events/") || path.startsWith("/certificate/") || path.startsWith("/volunteer-certificate/") || path.startsWith("/verify/")) return undefined;
     return `${t("Page not found")} | ${SITE}`;
   }
