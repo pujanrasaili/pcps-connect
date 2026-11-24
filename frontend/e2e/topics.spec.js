@@ -38,6 +38,8 @@ test("a student follows and unfollows topics, up to five", async ({ page }) => {
   }
   // Five chosen: the others are locked, the chosen ones can still be removed.
   await expect(group.getByRole("button", { name: "Debate" })).toBeDisabled();
+  // While the choice is still being saved every button is dimmed; check the page once it has settled.
+  await expect(group.getByRole("button", { name: "Art" })).toBeEnabled();
   expect(await axeViolations(page)).toEqual([]);
   await group.getByRole("button", { name: "Art" }).click();
   await expect(group.getByRole("button", { name: "Debate" })).toBeEnabled();
