@@ -24,3 +24,11 @@ test("the poster reads in Nepali", async ({ page }) => {
   await expect(page.getByText("PCPS का सबै क्लब र कार्यक्रम, एकै ठाउँमा")).toBeVisible();
   await expect(page.getByText("PCPS Connect खोल्न स्क्यान गर्नुहोस्")).toBeVisible();
 });
+
+test("the posters have their own tab titles, not \"Page not found\"", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "admin" });
+  await page.goto("/poster");
+  await expect(page).toHaveTitle("Poster | PCPS Connect");
+  await page.goto("/clubs/c0000000000000000000000/poster");
+  await expect(page).toHaveTitle("Club poster | PCPS Connect");
+});
