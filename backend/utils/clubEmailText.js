@@ -55,7 +55,7 @@ const hi = (t, v) => `<p style="margin: 0 0 12px;">${fill(t.hi, v)}</p>`;
 const details = (t, v) => `
             <p style="margin: 0 0 4px;"><strong>${t.when}</strong> ${v.when}</p>
             <p style="margin: 0;"><strong>${t.where}</strong> ${v.where}</p>`;
-const quote = (v) => `<div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${v.messageHtml}</div>`;
+const quote = (v) => `<div style="margin: 0; padding: 12px 16px; border-left: 3px solid #1B4FA0; background: #f8fafc;">${v.messageHtml}</div>`;
 
 const BUILD = {
   approved: (t, v) => ({

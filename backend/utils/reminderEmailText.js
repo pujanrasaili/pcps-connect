@@ -136,7 +136,7 @@ function feedbackRequestEmail(language, v) {
     bodyHtml: `
               <p style="margin: 0 0 12px;">${fill(t.hi, v)}</p>
               <p style="margin: 0 0 16px;">${fill(t.feedbackBody, v)}</p>
-              <p style="margin: 0;"><a href="${v.profileLink}" style="display: inline-block; background: #4F46E5; color: #ffffff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t.feedbackCta}</a></p>
+              <p style="margin: 0;"><a href="${v.profileLink}" style="display: inline-block; background: #1B4FA0; color: #ffffff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: 600;">${t.feedbackCta}</a></p>
               <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">${fill(t.feedbackFooter, v)}</p>
             `,
   };
@@ -161,7 +161,7 @@ function eventRecapEmail(language, v) {
               <p style="margin: 0 0 4px;">${fill(t.recapAttended, v)}</p>
               <p style="margin: 0;">${rated}</p>
               ${comments}
-              <p style="margin: 16px 0 0;"><a href="${v.reportLink}" style="color: #4F46E5;">${t.recapLink}</a></p>
+              <p style="margin: 16px 0 0;"><a href="${v.reportLink}" style="color: #1B4FA0;">${t.recapLink}</a></p>
               <p style="margin: 16px 0 0; font-size: 13px; color: #64748b;">${fill(t.recapFooter, v)}</p>
             `,
   };

@@ -140,13 +140,13 @@ const MAIL = {
       heading: `Message about ${v.rawTitle}`,
       bodyHtml: `${hi("en", v)}
       ${p(`The organisers of <strong>${v.title}</strong> (${v.when}, ${v.where}) have sent a message to everyone registered${v.helper ? " or helping" : ""}:`)}
-      <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${v.messageHtml}</div>`,
+      <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #1B4FA0; background: #f8fafc;">${v.messageHtml}</div>`,
     }),
     ne: (v) => ({
       heading: `${v.rawTitle} बारे सन्देश`,
       bodyHtml: `${hi("ne", v)}
       ${p(`<strong>${v.title}</strong> (${v.when}, ${v.where}) का आयोजकहरूले ${v.helper ? "दर्ता भएका वा सहयोग गर्ने सबैलाई" : "दर्ता भएका सबैलाई"} सन्देश पठाएका छन्:`)}
-      <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #6366f1; background: #f8fafc;">${v.messageHtml}</div>`,
+      <div style="margin: 0; padding: 12px 16px; border-left: 3px solid #1B4FA0; background: #f8fafc;">${v.messageHtml}</div>`,
     }),
   },
 };

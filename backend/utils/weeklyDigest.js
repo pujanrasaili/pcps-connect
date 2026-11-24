@@ -87,7 +87,7 @@ function renderDigest({ user, events, more, forYou }, origin) {
     .map(
       (e) => `
         <tr><td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
-          <a href="${origin}/events/${encodeURIComponent(e._id)}" style="color: #4F46E5; font-weight: 600; text-decoration: none;">${escapeHtml(e.title)}</a>
+          <a href="${origin}/events/${encodeURIComponent(e._id)}" style="color: #1B4FA0; font-weight: 600; text-decoration: none;">${escapeHtml(e.title)}</a>
           <div style="font-size: 13px; color: #475569;">${e.club?.name ? `${escapeHtml(e.club.name)} &middot; ` : ""}${formatEventDate(e.date, lang)} &middot; ${escapeHtml(e.location)}</div>
         </td></tr>`
     )

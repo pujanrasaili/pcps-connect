@@ -55,7 +55,7 @@ function renderReminder({ user, link, items }, origin) {
     html: renderEmail({
       heading: text(lang, "nudgeHeading"),
       language: lang,
-      bodyHtml: `<p style="margin: 0 0 12px;">${text(lang, "hi", { name: escapeHtml(user.name) })}</p><p style="margin: 0 0 12px;">${text(lang, "nudgeIntro")}</p><table style="width: 100%; border-collapse: collapse; margin: 0 0 12px;">${rows}</table><p style="margin: 0;"><a href="${origin}${link}" style="color: #4F46E5; font-weight: 600;">${text(lang, "nudgeLink")}</a></p>`,
+      bodyHtml: `<p style="margin: 0 0 12px;">${text(lang, "hi", { name: escapeHtml(user.name) })}</p><p style="margin: 0 0 12px;">${text(lang, "nudgeIntro")}</p><table style="width: 100%; border-collapse: collapse; margin: 0 0 12px;">${rows}</table><p style="margin: 0;"><a href="${origin}${link}" style="color: #1B4FA0; font-weight: 600;">${text(lang, "nudgeLink")}</a></p>`,
     }),
   };
 }

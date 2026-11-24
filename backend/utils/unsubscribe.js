@@ -20,7 +20,7 @@ function unsubscribeHeaders(origin = appOrigin()) {
 // An inline "Settings" link for the sentence "turn ... off in Settings".
 // `label` is the link text (the Nepali emails pass "सेटिङ").
 function settingsLink(origin = appOrigin(), label = "Settings") {
-  return `<a href="${settingsUrl(origin)}" style="color: #4F46E5;">${label}</a>`;
+  return `<a href="${settingsUrl(origin)}" style="color: #1B4FA0;">${label}</a>`;
 }
 
 module.exports = { appOrigin, settingsUrl, unsubscribeHeaders, settingsLink };
