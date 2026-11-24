@@ -7,7 +7,6 @@ import StatsCard from "../components/StatsCard";
 import Modal from "../components/Modal";
 import VideoLightbox from "../components/VideoLightbox";
 import Reveal from "../components/Reveal";
-import { useTilt } from "../hooks/useTilt";
 import { useEffect, useState } from "react";
 import { browserAllowsAutoplay } from "../utils/videoPolicy";
 import { useClubs } from "../context/ClubsContext";
@@ -34,8 +33,6 @@ export default function Home() {
     .filter((event) => isUpcoming(event.date))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 3);
-  const photoTilt = useTilt({ max: 5, scale: 1.01 });
-  const videoTilt = useTilt({ max: 5, scale: 1.01 });
 
   // Real counts pulled from the database, not placeholder marketing
   // numbers -- starts at 0 so each StatsCard's count-up animation plays
@@ -60,11 +57,8 @@ export default function Home() {
       {/* Campus Life */}
       <section className="section-y">
         <div className="container-page">
-          <Reveal className="text-center">
-            <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-              {t("On Campus")}
-            </span>
-            <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
+          <Reveal>
+            <h2 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
               {t("Life at PCPS")}
             </h2>
           </Reveal>
@@ -72,10 +66,6 @@ export default function Home() {
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2 items-stretch">
             <Reveal direction="left" className="h-full">
               <div
-                ref={photoTilt.ref}
-                onMouseMove={photoTilt.onMouseMove}
-                onMouseLeave={photoTilt.onMouseLeave}
-                style={photoTilt.style}
                 className="card-surface flex h-full flex-col overflow-hidden"
               >
                 <img
@@ -98,10 +88,6 @@ export default function Home() {
 
             <Reveal direction="right" delay={100} className="h-full">
               <div
-                ref={videoTilt.ref}
-                onMouseMove={videoTilt.onMouseMove}
-                onMouseLeave={videoTilt.onMouseLeave}
-                style={videoTilt.style}
                 className="card-surface relative flex h-full flex-col overflow-hidden"
               >
                 <button
@@ -170,10 +156,7 @@ export default function Home() {
         <div className="container-page">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-                {t("Get Involved")}
-              </span>
-              <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
+              <h2 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
                 {t("Featured Clubs")}
               </h2>
             </div>
@@ -197,10 +180,7 @@ export default function Home() {
         <div className="container-page">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="text-sm font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">
-                {t("Mark Your Calendar")}
-              </span>
-              <h2 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
+              <h2 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100">
                 {t("Upcoming Events")}
               </h2>
             </div>
@@ -222,10 +202,8 @@ export default function Home() {
       <section className="section-y">
         <div className="container-page">
           <Reveal direction="scale">
-            <div className="relative overflow-hidden rounded-2xl bg-slate-900 px-8 py-16 text-center text-white">
-              <div className="absolute inset-0 bg-linear-to-br from-primary-600/90 via-slate-900 to-accent-700/80" />
-              <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary-400/20 blur-3xl" />
-              <div className="absolute -left-16 -bottom-16 h-64 w-64 rounded-full bg-accent-400/20 blur-3xl" />
+            <div className="relative overflow-hidden rounded-xl bg-primary-800 px-8 py-16 text-center text-white">
+              <div className="absolute inset-0 bg-primary-800" />
               <svg
                 className="pointer-events-none absolute inset-0 h-full w-full text-white/4"
                 preserveAspectRatio="none"
