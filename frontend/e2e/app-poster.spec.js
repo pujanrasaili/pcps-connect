@@ -32,3 +32,13 @@ test("the posters have their own tab titles, not \"Page not found\"", async ({ p
   await page.goto("/clubs/c0000000000000000000000/poster");
   await expect(page).toHaveTitle("Club poster | PCPS Connect");
 });
+
+test("the tickets, event poster and certificate pages have their own tab titles", async ({ page }) => {
+  await setUp(page, { lang: "en", role: "student" });
+  await page.goto("/tickets");
+  await expect(page).toHaveTitle("My tickets | PCPS Connect");
+  await page.goto("/events/e1000000000000000000000/poster");
+  await expect(page).toHaveTitle("Event poster | PCPS Connect");
+  await page.goto("/verify/ABCD1234");
+  await expect(page).toHaveTitle("Verify a certificate | PCPS Connect");
+});
