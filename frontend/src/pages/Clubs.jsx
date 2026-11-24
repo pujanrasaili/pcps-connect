@@ -172,14 +172,11 @@ export default function Clubs() {
   return (
     <div className="section-y">
       <div className="container-page">
-        <div className="text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">
-            {t("Student Life")}
-          </span>
-          <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
             {t("Explore PCPS Clubs")}
           </h1>
-          <p className="mx-auto mt-3 hidden max-w-xl text-slate-500 dark:text-slate-400 sm:block">
+          <p className="mt-3 hidden max-w-xl text-slate-500 dark:text-slate-400 sm:block">
             {t("Find your community — from coding sprints to sports leagues and creative pursuits.")}
           </p>
         </div>

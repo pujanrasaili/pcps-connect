@@ -23,7 +23,7 @@ export default function CalendarSubscribe({ clubId = "", clubName = "" }) {
   };
 
   return (
-    <div className="mx-auto mt-4 max-w-4xl text-center">
+    <div className="mt-4">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -33,7 +33,7 @@ export default function CalendarSubscribe({ clubId = "", clubName = "" }) {
         <FaCalendarPlus aria-hidden="true" /> {open ? t("Hide calendar subscription") : clubName ? t("Subscribe to {name}", { name: clubName }) : t("Subscribe in your calendar")}
       </button>
       {open && (
-        <div className="card-surface mx-auto mt-3 max-w-xl space-y-3 p-4 text-left">
+        <div className="card-surface mt-3 max-w-xl space-y-3 p-4 text-left">
           <p className="text-sm text-slate-600 dark:text-slate-300">
             {clubName ? t("Add {name}'s events to your own calendar once. New and changed events then appear there by themselves.", { name: clubName }) : t("Add all PCPS events to your own calendar once. New and changed events then appear there by themselves.")}
           </p>

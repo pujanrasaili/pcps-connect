@@ -27,8 +27,7 @@ export default function Help() {
   return (
     <div className="section-y">
       <div className="container-page max-w-3xl">
-        <span className="text-sm font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-300">{t("Help")}</span>
-        <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
+        <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
           {t("Questions students ask")}
         </h1>
         <p className="mt-3 text-slate-500 dark:text-slate-400">

@@ -135,14 +135,11 @@ export default function Events() {
   return (
     <div className="section-y">
       <div className="container-page">
-        <div className="text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">
-            {t("What's Happening")}
-          </span>
-          <h1 className="mt-1 font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-slate-800 dark:text-slate-100 sm:text-4xl">
             {t("Events")}
           </h1>
-          <p className="mx-auto mt-3 hidden max-w-xl text-slate-500 dark:text-slate-400 sm:block">
+          <p className="mt-3 hidden max-w-xl text-slate-500 dark:text-slate-400 sm:block">
             {t("Workshops, contests, and seminars hosted by PCPS clubs — register in a couple of clicks.")}
           </p>
         </div>
