@@ -325,6 +325,7 @@ A backup contains students' personal details and password hashes, so keep it pri
 
 - `docs/ADMIN_GUIDE.md` -- how to run the site day to day: approving accounts, roles, check-in, scheduled emails, hosting, backups and what to do when something breaks.
 - `docs/HOW_IT_WORKS.md` -- a plain-language tour of how the project works (login, roles, registration, QR check-in, certificates, emails, protections, where to find things in the code).
+- `docs/PERFORMANCE.md` -- how much traffic the app handles, the measurements behind that, the one bottleneck that was found and fixed (logins slowing everyone down), what limits it as it grows, and how to repeat the tests.
 - `docs/LIVE_CHECKLIST.md` -- the checks that can only be done on the real site (smoke test, club news photo, a second account, volunteering, full events and leaders, reminder emails, saved events on two devices, rate-the-event request, phone and print touches, Nepali pages), step by step.
 - `docs/API.md` -- every API endpoint, who may call it and what it does. Generated from the route files (`npm run docs:api` in `backend/`), and a test fails if it goes out of date.
 - `backend/README.md` -- request/response shapes, database models and deeper notes on the auth flow (written by hand, so `docs/API.md` is the up-to-date endpoint list).
