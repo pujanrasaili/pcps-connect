@@ -757,3 +757,51 @@ test("signed-in answers are not cached, public ones are left alone", { skip }, a
   assert.equal(visitor.status, 200);
   assert.notEqual(visitor.headers.get("cache-control"), "no-store");
 });
+
+test("changing or resetting a password: old password and old sessions stop working", { skip }, async () => {
+  const jwt = require("jsonwebtoken");
+  const secret = "integration-test-secret-integration-test";
+  const NEW = "Another-Passw0rd!";
+  const THIRD = "Third-Passw0rd!yy";
+
+  const phone = await makeUser("pw");
+  const laptop = new Client();
+  assert.equal((await laptop.req("POST", "/auth/login", { email: phone.email, password: PASSWORD })).status, 200);
+
+  // Wrong current password is refused and nothing changes.
+  const wrong = await phone.req("PUT", "/auth/change-password", { currentPassword: "not-the-password", newPassword: NEW });
+  assert.equal(wrong.status, 400);
+  assert.equal((await laptop.req("GET", "/auth/me")).status, 200);
+
+  // The right one works; this device stays signed in, the other is signed out.
+  await new Promise((r) => setTimeout(r, 1100));
+  assert.equal((await phone.req("PUT", "/auth/change-password", { currentPassword: PASSWORD, newPassword: NEW })).status, 200);
+  assert.equal((await phone.req("GET", "/auth/me")).status, 200);
+  assert.equal((await laptop.req("GET", "/auth/me")).status, 401);
+
+  const fresh = new Client();
+  assert.equal((await fresh.req("POST", "/auth/login", { email: phone.email, password: PASSWORD })).status, 400);
+  assert.equal((await fresh.req("POST", "/auth/login", { email: phone.email, password: NEW })).status, 200);
+
+  // A reset link works once. Replaying it after the reset is refused.
+  const token = jwt.sign({ id: phone.id, purpose: "password-reset" }, secret, { expiresIn: "15m" });
+  await new Promise((r) => setTimeout(r, 1100));
+  assert.equal((await fresh.req("POST", "/auth/reset-password", { token, newPassword: THIRD })).status, 200);
+  const replay = await fresh.req("POST", "/auth/reset-password", { token, newPassword: "Hijacked-Passw0rd!" });
+  assert.equal(replay.status, 400);
+
+  const again = new Client();
+  assert.equal((await again.req("POST", "/auth/login", { email: phone.email, password: THIRD })).status, 200);
+  assert.equal((await again.req("POST", "/auth/login", { email: phone.email, password: "Hijacked-Passw0rd!" })).status, 400);
+
+  // A token meant for something else cannot reset a password.
+  const wrongPurpose = jwt.sign({ id: phone.id, purpose: "email-verify" }, secret, { expiresIn: "15m" });
+  assert.equal((await again.req("POST", "/auth/reset-password", { token: wrongPurpose, newPassword: NEW })).status, 400);
+
+  // The person can download their data and then delete the account.
+  const exported = await again.req("GET", "/auth/export");
+  assert.equal(exported.status, 200);
+  assert.equal(JSON.stringify(exported.json).includes("password"), false, "export must not contain the password hash");
+  assert.equal((await again.req("DELETE", "/auth/account", { password: THIRD })).status, 200);
+  assert.equal((await new Client().req("POST", "/auth/login", { email: phone.email, password: THIRD })).status, 400);
+});
