@@ -2,6 +2,11 @@
 
 What changed in PCPS Connect, newest first. This lists changes people notice; the full history is in `git log`.
 
+## 26 November 2026: logins no longer slow everyone down
+
+- **Faster, fairer logins.** Checking a password is slow on purpose, and it used to freeze the whole server while it ran. With 30 people logging in at once, everyone else's pages waited about 4 seconds. The work now runs on background threads and only a couple of passwords are checked at a time, so the same rush leaves browsing at about 0.08 seconds. Existing passwords keep working.
+- **Performance guide.** `docs/PERFORMANCE.md` records the measurements, what limits the app as it grows, and how to repeat the tests. `backend/scripts/loginRushTest.mjs` runs the login-rush test on your own computer.
+
 ## 24 November 2026: a new look, posters and faster switching
 
 - **New look.** The colours now come from the college crest (PCPS blue and red) instead of the stock indigo and violet. Headings use Bricolage Grotesque and text uses Public Sans. The tilting cards, glowing blobs, wobbling logos and the fade-in on every section are gone, and the small labels above page headings were removed.
