@@ -43,6 +43,10 @@ Logins are still fast (a single login takes well under a second), and browsing s
 - **Scheduled work runs outside the server** (GitHub Actions call it), so reminders, the weekly digest and clean-up never compete with students for the server's attention.
 - **Uploads** are limited to 5 MB and held in memory while they are sent to Cloudinary. A handful at once is fine; hundreds of simultaneous uploads are not something this app expects (only organisers upload).
 
+## Connections and timeouts
+
+The server keeps at most 10 MongoDB connections open (`MONGO_POOL_SIZE`), well inside the free Atlas limit of 500, and fails fast after 10 seconds if the database cannot be reached. Idle connections are kept open for 65 seconds, longer than Render's proxy, so the first request after a quiet moment is not sent down a connection that has just been closed.
+
 ## What will limit you first
 
 1. **The server going to sleep.** On a free plan the first visit after a quiet period waits for the server to wake. The keep-warm workflow (see `docs/HANDOVER.md`) prevents this during the day.

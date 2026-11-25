@@ -4,6 +4,7 @@ What changed in PCPS Connect, newest first. This lists changes people notice; th
 
 ## 26 November 2026: logins no longer slow everyone down
 
+- **Fewer random errors after quiet periods.** The server now keeps idle connections open slightly longer than Render's proxy does, which stops the occasional 502 on the first request after a pause. It also limits itself to 10 database connections (`MONGO_POOL_SIZE` to change) and gives up on an unreachable database after 10 seconds instead of 30.
 - **Faster, fairer logins.** Checking a password is slow on purpose, and it used to freeze the whole server while it ran. With 30 people logging in at once, everyone else's pages waited about 4 seconds. The work now runs on background threads and only a couple of passwords are checked at a time, so the same rush leaves browsing at about 0.08 seconds. Existing passwords keep working.
 - **Performance guide.** `docs/PERFORMANCE.md` records the measurements, what limits the app as it grows, and how to repeat the tests. `backend/scripts/loginRushTest.mjs` runs the login-rush test on your own computer.
 
