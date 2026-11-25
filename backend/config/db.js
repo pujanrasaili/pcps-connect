@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const dns = require("dns");
+const { dbOptions } = require("./dbOptions");
 
 // Some networks (certain routers, ISPs, campus wifi, VPNs, some antivirus
 // software) block or mishandle the DNS "SRV" record lookup that
@@ -12,7 +13,7 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 async function connectDB() {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, dbOptions());
     console.log("MongoDB connected:", mongoose.connection.host);
   } catch (err) {
     console.error("MongoDB connection failed:", err.message);
