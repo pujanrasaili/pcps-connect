@@ -12,6 +12,7 @@ const { privateCache } = require("./middleware/privateCache");
 const { checkEnv } = require("./utils/envCheck");
 const { clientRequestError } = require("./utils/requestErrors");
 const { installProcessGuards } = require("./utils/processGuards");
+const { applyServerTimeouts } = require("./utils/serverTimeouts");
 
 const authRoutes = require("./routes/authRoutes");
 const eventRoutes = require("./routes/eventRoutes");
@@ -102,6 +103,7 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
   console.log(`PCPS Connect API listening on http://localhost:${PORT}`);
 });
+applyServerTimeouts(server);
 
 // Render stops the old copy with SIGTERM on every deploy. Finish the requests
 // already in flight (a registration, an email being sent) before exiting,
