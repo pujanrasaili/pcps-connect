@@ -1,5 +1,5 @@
 jest.mock("../../models/User");
-jest.mock("bcryptjs");
+jest.mock("../../utils/password");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/deleteAccountData");
 jest.mock("../../utils/audit");
@@ -15,7 +15,7 @@ jest.mock("../../models/ContactMessage");
 process.env.JWT_SECRET = "test-secret";
 process.env.CLIENT_ORIGIN = "http://localhost:5173";
 
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../../utils/password");
 const User = require("../../models/User");
 const sendEmail = require("../../utils/sendEmail");
 const { register, forgotPassword, resendVerification, updateProfile, deleteAccount } = require("../authController");

@@ -3,7 +3,7 @@
 // token made for something else, an expired or forged one, and a reset link
 // used again after the password already changed.
 jest.mock("../../models/User");
-jest.mock("bcryptjs");
+jest.mock("../../utils/password");
 jest.mock("../../utils/sendEmail");
 jest.mock("../../utils/inApp");
 
@@ -11,7 +11,7 @@ process.env.JWT_SECRET = "test-secret";
 process.env.CLIENT_ORIGIN = "http://localhost:5173";
 
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../../utils/password");
 const User = require("../../models/User");
 const sendEmail = require("../../utils/sendEmail");
 const { notifyAdmins } = require("../../utils/inApp");
@@ -81,7 +81,7 @@ describe("resetPassword", () => {
     sendEmail.mockResolvedValue();
     const res = mockRes();
     await resetPassword(reset(sign({ id: "u1", purpose: "password-reset" })), res);
-    expect(bcrypt.hash).toHaveBeenCalledWith("a-good-password-1", 10);
+    expect(bcrypt.hash).toHaveBeenCalledWith("a-good-password-1");
     expect(account.password).toBe("new-hash");
     expect(account.passwordChangedAt.getTime()).toBeGreaterThan(Date.now() - 5000);
     expect(account.save).toHaveBeenCalled();

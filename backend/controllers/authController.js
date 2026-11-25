@@ -1,4 +1,4 @@
-const bcrypt = require("bcryptjs");
+const bcrypt = require("../utils/password");
 const { isObjectId } = require("../middleware/validateId");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
@@ -142,7 +142,7 @@ async function register(req, res) {
       return res.status(400).json({ message: "An account with this email already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password);
     const user = await User.create({
       name: profile.name,
       email: email.toLowerCase(),
@@ -314,7 +314,7 @@ async function changePassword(req, res) {
       return res.status(400).json({ message: "Current password is incorrect" });
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    user.password = await bcrypt.hash(newPassword);
     user.passwordChangedAt = new Date();
     await user.save();
 
@@ -501,7 +501,7 @@ async function resetPassword(req, res) {
       }
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    user.password = await bcrypt.hash(newPassword);
     user.passwordChangedAt = new Date();
     await user.save();
 
