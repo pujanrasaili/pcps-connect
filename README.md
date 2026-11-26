@@ -15,17 +15,41 @@ accounts.
 
 ## Screenshots
 
-From the live site.
+From the live site, in light and dark mode (GitHub shows the one that matches your theme).
 
-![Home page](docs/screenshots/home.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/home-dark.png">
+  <img src="docs/screenshots/home.png" alt="Home page">
+</picture>
 
-| Clubs | Events |
-| --- | --- |
-| ![Clubs page](docs/screenshots/clubs.png) | ![Events page, showing past events](docs/screenshots/events.png) |
+<table>
+<tr><th>Clubs</th><th>Events</th></tr>
+<tr>
+<td>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/clubs-dark.png">
+  <img src="docs/screenshots/clubs.png" alt="Clubs page">
+</picture>
+
+</td>
+<td>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/events-dark.png">
+  <img src="docs/screenshots/events.png" alt="Events page, showing past events">
+</picture>
+
+</td>
+</tr>
+</table>
 
 On a phone (the app is built phone-first and installs to the home screen):
 
-<img src="docs/screenshots/home-mobile.png" alt="Home page on a phone" width="260">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/home-mobile-dark.png">
+  <img src="docs/screenshots/home-mobile.png" alt="Home page on a phone" width="260">
+</picture>
 
 ## Tech Stack
 
