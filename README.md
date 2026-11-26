@@ -17,9 +17,15 @@ accounts.
 
 From the live site.
 
+![Home page](docs/screenshots/home.png)
+
 | Clubs | Events |
 | --- | --- |
 | ![Clubs page](docs/screenshots/clubs.png) | ![Events page, showing past events](docs/screenshots/events.png) |
+
+On a phone (the app is built phone-first and installs to the home screen):
+
+<img src="docs/screenshots/home-mobile.png" alt="Home page on a phone" width="260">
 
 ## Tech Stack
 
