@@ -15,17 +15,11 @@ accounts.
 
 ## Screenshots
 
-Taken from a local copy with sample clubs and events, not real student data.
-
-![Home page](docs/screenshots/home.png)
+From the live site.
 
 | Clubs | Events |
 | --- | --- |
-| ![Clubs page](docs/screenshots/clubs.png) | ![Events page](docs/screenshots/events.png) |
-
-On a phone (the app is built phone-first and installs to the home screen):
-
-<img src="docs/screenshots/events-mobile.png" alt="Events page on a phone" width="260">
+| ![Clubs page](docs/screenshots/clubs.png) | ![Events page, showing past events](docs/screenshots/events.png) |
 
 ## Tech Stack
 
