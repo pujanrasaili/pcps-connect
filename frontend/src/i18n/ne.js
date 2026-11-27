@@ -1683,4 +1683,7 @@ export const ne = {
   "Back to top": "माथि जानुहोस्",
   "No upcoming events yet": "अहिलेसम्म कुनै आगामी कार्यक्रम छैन",
   "When a club schedules its next event, it will show up here.": "कुनै क्लबले अर्को कार्यक्रम तय गर्नासाथ यहाँ देखिनेछ।",
+  "No clubs yet": "अहिलेसम्म कुनै क्लब छैन",
+  "Clubs will appear here as soon as they are added.": "क्लब थपिनासाथ यहाँ देखिनेछन्।",
+  "No past events yet.": "अहिलेसम्म कुनै विगतका कार्यक्रम छैनन्।",
 };
