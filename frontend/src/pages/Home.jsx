@@ -18,6 +18,7 @@ import campusEvent from "../assets/images/campus-event.webp";
 import reelPoster from "../assets/images/campus-reel-poster.webp";
 import SafeImage from "../components/SafeImage";
 import ClubLeaderboard from "../components/ClubLeaderboard";
+import EmptyState from "../components/EmptyState";
 import { useLang } from "../context/LanguageContext";
 
 export default function Home() {
@@ -27,7 +28,7 @@ export default function Home() {
   // Fixed at first render: a data-saver or slow-connection visitor sees the poster, not an autoplaying reel.
   const [reelAutoplay] = useState(browserAllowsAutoplay);
   const { clubs } = useClubs();
-  const { events } = useEvents();
+  const { events, loading: eventsLoading } = useEvents();
   const featuredClubs = clubs.slice(0, 3);
   const upcomingEvents = events
     .filter((event) => isUpcoming(event.date))
@@ -188,13 +189,23 @@ export default function Home() {
               {t("View all events")} <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {upcomingEvents.map((event, i) => (
-              <Reveal key={event._id} delay={i * 100}>
-                <EventCard event={event} />
-              </Reveal>
-            ))}
-          </div>
+          {upcomingEvents.length > 0 ? (
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {upcomingEvents.map((event, i) => (
+                <Reveal key={event._id} delay={i * 100}>
+                  <EventCard event={event} />
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            !eventsLoading && (
+              <EmptyState
+                icon={FaCalendarAlt}
+                title={t("No upcoming events yet")}
+                hint={t("When a club schedules its next event, it will show up here.")}
+              />
+            )
+          )}
         </div>
       </section>
 
