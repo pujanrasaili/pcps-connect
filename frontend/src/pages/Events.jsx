@@ -132,6 +132,8 @@ export default function Events() {
 
   const { page, setPage, totalPages, pageItems: pagedEvents } = usePagination(filteredEvents, PAGE_SIZE);
 
+  const filtering = Boolean(query || category !== "All" || openOnly || freeOnly || clubFilter);
+
   return (
     <div className="section-y">
       <div className="container-page">
@@ -270,17 +272,25 @@ export default function Events() {
                     ? t("You haven't saved any events yet.")
                     : t("None of your saved events match.")
                   : when === "upcoming"
-                    ? t("No upcoming events match your search.")
+                    ? filtering
+                      ? t("No upcoming events match your search.")
+                      : t("No upcoming events yet")
                     : when === "week"
                       ? t("Nothing is happening in the next 7 days.")
-                      : t("No past events match your search.")
+                      : filtering
+                        ? t("No past events match your search.")
+                        : t("No past events yet.")
             }
             hint={
               when === "saved" && savedIds.length === 0
                 ? t("Tap the bookmark on an event to keep it here for later.")
-                : t("Try a different name or category.")
+                : !filtering && when === "upcoming"
+                  ? t("When a club schedules its next event, it will show up here.")
+                  : !filtering && when === "past"
+                    ? undefined
+                    : t("Try a different name or category.")
             }
-            actionLabel={query || category !== "All" || openOnly || freeOnly ? t("Clear filters") : undefined}
+            actionLabel={filtering ? t("Clear filters") : undefined}
             onAction={() => {
               setQuery("");
               update({ q: "", category: "All", open: false, free: false });
