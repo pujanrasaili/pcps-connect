@@ -2,6 +2,12 @@
 
 What changed in PCPS Connect, newest first. This lists changes people notice; the full history is in `git log`.
 
+## 28 November 2026: honest messages when the server is slow
+
+- **No more false "nothing here".** If the server is asleep or unreachable, the home, Clubs and Events pages now say "Couldn't load clubs." (or events) with a Try again button and a note that waking the server can take up to a minute. Before, the home page could say "No clubs yet", and the Clubs and Events pages showed a bare error with no way to retry.
+- **No fake zeros.** If the college numbers (students, clubs, events) cannot be loaded, the home page leaves them out instead of showing 0.
+- **Translated.** The "Couldn't load" messages on the Clubs and Events pages were English-only; they now follow the chosen language.
+
 ## 27 November 2026: easier scrolling
 
 - **Back to top button.** On long pages a round arrow button appears at the bottom right once you have scrolled down. One tap takes you back to the menu. On phones it sits just above the bottom tab bar.
