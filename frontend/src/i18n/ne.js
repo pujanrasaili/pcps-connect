@@ -1680,4 +1680,7 @@ export const ne = {
   "Event poster": "कार्यक्रम पोस्टर",
   "Certificate": "प्रमाणपत्र",
   "Verify a certificate": "प्रमाणपत्र जाँच",
+  "Back to top": "माथि जानुहोस्",
+  "No upcoming events yet": "अहिलेसम्म कुनै आगामी कार्यक्रम छैन",
+  "When a club schedules its next event, it will show up here.": "कुनै क्लबले अर्को कार्यक्रम तय गर्नासाथ यहाँ देखिनेछ।",
 };
