@@ -1686,4 +1686,5 @@ export const ne = {
   "No clubs yet": "अहिलेसम्म कुनै क्लब छैन",
   "Clubs will appear here as soon as they are added.": "क्लब थपिनासाथ यहाँ देखिनेछन्।",
   "No past events yet.": "अहिलेसम्म कुनै विगतका कार्यक्रम छैनन्।",
+  "Check your connection and try again. If the server was asleep it can take up to a minute to wake up.": "आफ्नो इन्टरनेट जाँच गरेर फेरि प्रयास गर्नुहोस्। सर्भर सुतिरहेको थियो भने ब्युँझन एक मिनेटसम्म लाग्न सक्छ।",
 };
