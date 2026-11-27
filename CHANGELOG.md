@@ -2,6 +2,11 @@
 
 What changed in PCPS Connect, newest first. This lists changes people notice; the full history is in `git log`.
 
+## 27 November 2026: easier scrolling
+
+- **Back to top button.** On long pages a round arrow button appears at the bottom right once you have scrolled down. One tap takes you back to the menu. On phones it sits just above the bottom tab bar.
+- **Home page with no upcoming events.** The "Upcoming Events" section used to be an empty gap when nothing was scheduled. It now says "No upcoming events yet", in English and Nepali.
+
 ## 26 November 2026: logins no longer slow everyone down
 
 - **Fewer random errors after quiet periods.** The server now keeps idle connections open slightly longer than Render's proxy does, which stops the occasional 502 on the first request after a pause. It also limits itself to 10 database connections (`MONGO_POOL_SIZE` to change) and gives up on an unreachable database after 10 seconds instead of 30.
