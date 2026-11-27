@@ -6,6 +6,7 @@ What changed in PCPS Connect, newest first. This lists changes people notice; th
 
 - **Back to top button.** On long pages a round arrow button appears at the bottom right once you have scrolled down. One tap takes you back to the menu. On phones it sits just above the bottom tab bar.
 - **Home page with no upcoming events.** The "Upcoming Events" section used to be an empty gap when nothing was scheduled. It now says "No upcoming events yet", in English and Nepali.
+- **Clearer empty lists.** When there are no clubs or events at all, the Clubs, Events and home pages now say "No clubs yet" or "No upcoming events yet" instead of "No clubs match your search" to someone who did not search. The home page's Featured Clubs section no longer leaves a blank gap either. A real search with no results still says nothing matches.
 
 ## 26 November 2026: logins no longer slow everyone down
 
