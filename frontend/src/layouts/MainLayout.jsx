@@ -5,6 +5,7 @@ import PullToRefresh from "../components/PullToRefresh";
 import SkipLink from "../components/SkipLink";
 import Footer from "../components/Footer";
 import ScrollToTop from "../components/ScrollToTop";
+import BackToTop from "../components/BackToTop";
 import SlowServerNotice from "../components/SlowServerNotice";
 import OfflineTicketsBanner from "../components/OfflineTicketsBanner";
 import SiteNoticeBanner from "../components/SiteNoticeBanner";
@@ -23,6 +24,7 @@ export default function MainLayout() {
       </main>
       <Footer />
       <PullToRefresh />
+      <BackToTop />
       <MobileTabBar />
     </div>
   );
