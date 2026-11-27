@@ -27,7 +27,7 @@ export default function Home() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   // Fixed at first render: a data-saver or slow-connection visitor sees the poster, not an autoplaying reel.
   const [reelAutoplay] = useState(browserAllowsAutoplay);
-  const { clubs } = useClubs();
+  const { clubs, loading: clubsLoading } = useClubs();
   const { events, loading: eventsLoading } = useEvents();
   const featuredClubs = clubs.slice(0, 3);
   const upcomingEvents = events
@@ -165,13 +165,23 @@ export default function Home() {
               {t("View all clubs")} <FaArrowRight className="text-xs" />
             </Link>
           </Reveal>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredClubs.map((club, i) => (
-              <Reveal key={club._id} delay={i * 100}>
-                <ClubCard club={club} onView={setSelectedClub} />
-              </Reveal>
-            ))}
-          </div>
+          {featuredClubs.length > 0 ? (
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featuredClubs.map((club, i) => (
+                <Reveal key={club._id} delay={i * 100}>
+                  <ClubCard club={club} onView={setSelectedClub} />
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            !clubsLoading && (
+              <EmptyState
+                icon={FaUsers}
+                title={t("No clubs yet")}
+                hint={t("Clubs will appear here as soon as they are added.")}
+              />
+            )
+          )}
           <ClubLeaderboard />
         </div>
       </section>
