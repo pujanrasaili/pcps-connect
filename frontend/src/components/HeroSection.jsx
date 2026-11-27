@@ -16,10 +16,14 @@ export default function HeroSection() {
   // hundred pixels above it.
   const [stats, setStats] = useState({ totalClubs: 0, totalStudents: 0, totalEvents: 0 });
 
+  // Left blank (not zeros) when the numbers cannot be loaded; the space is kept
+  // so the heading and buttons do not jump around.
+  const [statsFailed, setStatsFailed] = useState(false);
+
   useEffect(() => {
     sharedRequest("stats", () => api.get("/stats"))
       .then((res) => setStats(res.data))
-      .catch(() => {});
+      .catch(() => setStatsFailed(true));
   }, []);
 
   useEffect(() => {
@@ -81,7 +85,7 @@ export default function HeroSection() {
                 <FaCalendarCheck /> {t("Browse Events")}
               </Link>
             </div>
-            <div className="mt-10 flex flex-wrap gap-8 border-t border-white/15 pt-6">
+            <div className={`mt-10 flex flex-wrap gap-8 border-t border-white/15 pt-6${statsFailed ? " invisible" : ""}`} aria-hidden={statsFailed || undefined}>
               {[
                 [stats.totalClubs, "Active Clubs"],
                 [stats.totalStudents, "Members"],

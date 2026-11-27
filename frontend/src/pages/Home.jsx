@@ -19,6 +19,7 @@ import reelPoster from "../assets/images/campus-reel-poster.webp";
 import SafeImage from "../components/SafeImage";
 import ClubLeaderboard from "../components/ClubLeaderboard";
 import EmptyState from "../components/EmptyState";
+import ListLoadFailed from "../components/ListLoadFailed";
 import { useLang } from "../context/LanguageContext";
 
 export default function Home() {
@@ -27,8 +28,8 @@ export default function Home() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   // Fixed at first render: a data-saver or slow-connection visitor sees the poster, not an autoplaying reel.
   const [reelAutoplay] = useState(browserAllowsAutoplay);
-  const { clubs, loading: clubsLoading } = useClubs();
-  const { events, loading: eventsLoading } = useEvents();
+  const { clubs, loading: clubsLoading, error: clubsError, refreshClubs } = useClubs();
+  const { events, loading: eventsLoading, error: eventsError, refreshEvents } = useEvents();
   const featuredClubs = clubs.slice(0, 3);
   const upcomingEvents = events
     .filter((event) => isUpcoming(event.date))
@@ -45,10 +46,14 @@ export default function Home() {
     totalRegistrations: 0,
   });
 
+  // If the numbers cannot be loaded the section is left out, rather than
+  // showing zeros that look like real figures.
+  const [statsFailed, setStatsFailed] = useState(false);
+
   useEffect(() => {
     sharedRequest("stats", () => api.get("/stats"))
       .then((res) => setStats(res.data))
-      .catch(() => {});
+      .catch(() => setStatsFailed(true));
   }, []);
 
   return (
@@ -137,20 +142,22 @@ export default function Home() {
       />
 
       {/* Stats */}
-      <section className="section-y bg-white dark:bg-slate-900/40">
-        <div className="container-page grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {[
-            [FaUsers, "Registered Students", stats.totalStudents, "primary"],
-            [FaCalendarAlt, "Events Hosted", stats.totalEvents, "accent"],
-            [FaTrophy, "Active Clubs", stats.totalClubs, "emerald"],
-            [FaHandshake, "Event Registrations", stats.totalRegistrations, "amber"],
-          ].map(([Icon, label, value, accent], i) => (
-            <Reveal key={label} delay={i * 80}>
-              <StatsCard icon={Icon} label={t(label)} value={value} accent={accent} />
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      {!statsFailed && (
+        <section className="section-y bg-white dark:bg-slate-900/40">
+          <div className="container-page grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              [FaUsers, "Registered Students", stats.totalStudents, "primary"],
+              [FaCalendarAlt, "Events Hosted", stats.totalEvents, "accent"],
+              [FaTrophy, "Active Clubs", stats.totalClubs, "emerald"],
+              [FaHandshake, "Event Registrations", stats.totalRegistrations, "amber"],
+            ].map(([Icon, label, value, accent], i) => (
+              <Reveal key={label} delay={i * 80}>
+                <StatsCard icon={Icon} label={t(label)} value={value} accent={accent} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Featured Clubs */}
       <section className="section-y">
@@ -174,13 +181,16 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            !clubsLoading && (
+            !clubsLoading &&
+            (clubsError ? (
+              <ListLoadFailed title="Couldn't load clubs." onRetry={refreshClubs} />
+            ) : (
               <EmptyState
                 icon={FaUsers}
                 title={t("No clubs yet")}
                 hint={t("Clubs will appear here as soon as they are added.")}
               />
-            )
+            ))
           )}
           <ClubLeaderboard />
         </div>
@@ -208,13 +218,16 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            !eventsLoading && (
+            !eventsLoading &&
+            (eventsError ? (
+              <ListLoadFailed title="Couldn't load events." onRetry={refreshEvents} />
+            ) : (
               <EmptyState
                 icon={FaCalendarAlt}
                 title={t("No upcoming events yet")}
                 hint={t("When a club schedules its next event, it will show up here.")}
               />
-            )
+            ))
           )}
         </div>
       </section>
