@@ -240,8 +240,20 @@ export default function Clubs() {
         ) : (
           <EmptyState
             icon={FaUsers}
-            title={mineOnly && !query && category === "All" ? t("You haven't joined any clubs yet.") : t("No clubs match your search.")}
-            hint={mineOnly && !query && category === "All" ? t("Untick the box to browse every club.") : t("Try a different name or category.")}
+            title={
+              mineOnly && !query && category === "All"
+                ? t("You haven't joined any clubs yet.")
+                : !mineOnly && !query && category === "All"
+                  ? t("No clubs yet")
+                  : t("No clubs match your search.")
+            }
+            hint={
+              mineOnly && !query && category === "All"
+                ? t("Untick the box to browse every club.")
+                : !mineOnly && !query && category === "All"
+                  ? t("Clubs will appear here as soon as they are added.")
+                  : t("Try a different name or category.")
+            }
             actionLabel={query || category !== "All" || mineOnly ? t("Clear filters") : undefined}
             onAction={clearFilters}
           />
