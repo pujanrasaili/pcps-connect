@@ -8,6 +8,7 @@ import FilterButtons from "../components/FilterButtons";
 import Modal from "../components/Modal";
 import Reveal from "../components/Reveal";
 import EmptyState from "../components/EmptyState";
+import ListLoadFailed from "../components/ListLoadFailed";
 import { useClubs } from "../context/ClubsContext";
 import { useEvents } from "../context/EventsContext";
 import { formatDate, isUpcoming } from "../utils/formatDate";
@@ -221,10 +222,7 @@ export default function Clubs() {
         {loading ? (
           <CardSkeletons label="Loading clubs" />
         ) : error ? (
-          <div className="mt-16 text-center text-rose-700 dark:text-rose-400">
-            <p className="font-medium">Couldn't load clubs.</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
-          </div>
+          <ListLoadFailed title="Couldn't load clubs." onRetry={refreshClubs} />
         ) : filteredClubs.length > 0 ? (
           <>
             <h2 className="sr-only">{t("Club list")}</h2>

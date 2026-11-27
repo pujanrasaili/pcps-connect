@@ -7,6 +7,7 @@ import SearchBar from "../components/SearchBar";
 import FilterButtons from "../components/FilterButtons";
 import Reveal from "../components/Reveal";
 import EmptyState from "../components/EmptyState";
+import ListLoadFailed from "../components/ListLoadFailed";
 import { useEvents } from "../context/EventsContext";
 import { useAuth } from "../context/AuthContext";
 import { useLang } from "../context/LanguageContext";
@@ -26,7 +27,7 @@ const PAGE_SIZE = 9;
 const MY_TOPICS = "My topics";
 export default function Events() {
   const { t } = useLang();
-  const { events, loading, loadingOlder, error, loadAllEvents } = useEvents();
+  const { events, loading, loadingOlder, error, refreshEvents, loadAllEvents } = useEvents();
   const { isAuthenticated, user } = useAuth();
   const { registrations } = useRegistrations();
   const registeredIds = useMemo(
@@ -241,10 +242,7 @@ export default function Events() {
         {loading ? (
           <CardSkeletons label="Loading events" />
         ) : error ? (
-          <div className="mt-16 text-center text-rose-700 dark:text-rose-400">
-            <p className="font-medium">Couldn't load events.</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{error}</p>
-          </div>
+          <ListLoadFailed title="Couldn't load events." onRetry={refreshEvents} />
         ) : view === "calendar" ? (
           <div className="mt-10">
             <EventCalendar events={calendarEvents} registeredIds={registeredIds} />
